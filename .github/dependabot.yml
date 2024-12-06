@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    target-branch: "dev"
+    directories:
+      - "client"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "nmathew98"
+    commit-message:
+      prefix: "[npm] "

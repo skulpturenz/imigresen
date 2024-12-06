@@ -1,0 +1,9 @@
+{
+	"recommendations": [
+		"bradlc.vscode-tailwindcss",
+		"austenc.tailwind-docs",
+		"esbenp.prettier-vscode",
+		"Gruntfuggly.todo-tree",
+		"IBM.output-colorizer"
+	]
+}
