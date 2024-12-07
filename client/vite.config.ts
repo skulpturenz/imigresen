@@ -6,6 +6,8 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			feat: "./src/feat",
+			core: "./src/core",
+			ui: "./src/ui",
 		},
 	},
 });

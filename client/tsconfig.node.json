@@ -22,7 +22,9 @@
 		"verbatimModuleSyntax": true,
 
 		"paths": {
-			"feat/*": ["./src/feat/*"]
+			"feat/*": ["./src/feat/*"],
+			"core/*": ["./src/core/*"],
+			"ui/*": ["./src/ui/*"]
 		}
 	},
 	"include": ["vite.config.ts"]
