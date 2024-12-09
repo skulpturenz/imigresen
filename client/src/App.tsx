@@ -1,5 +1,10 @@
-import { Router } from "./router";
+import { Providers } from "./core/context";
+import { Router } from "./core/router";
 
 export const App = () => {
-	return <Router />;
+	return (
+		<Providers>
+			<Router />
+		</Providers>
+	);
 };

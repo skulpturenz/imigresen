@@ -22,9 +22,12 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true,
+		"verbatimModuleSyntax": true,
 
 		"paths": {
-			"feat/*": ["./src/feat/*"]
+			"feat/*": ["./src/feat/*"],
+			"core/*": ["./src/core/*"],
+			"ui/*": ["./src/ui/*"]
 		}
 	},
 	"include": ["src"]
