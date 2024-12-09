@@ -21,10 +21,10 @@ import {
 import { Dynamic } from "solid-js/web";
 
 export interface CoreContext {
-	user?: UserContext;
-	authz?: AuthzContext;
-	authn?: AuthnContext;
-	flipt?: FliptContext;
+	user: UserContext;
+	authz: AuthzContext;
+	authn: AuthnContext;
+	flipt: FliptContext;
 }
 
 export interface RouteProps<S extends string = any, T = unknown>
