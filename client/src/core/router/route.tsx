@@ -10,11 +10,11 @@ import { AuthzContext } from "core/context/authz";
 import { FliptContext } from "core/context/flipt";
 import { RouteContext } from "core/context/router";
 import { UserContext } from "core/context/user";
+import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
 import {
 	createResource,
 	Show,
-	useContext,
 	type Component,
 	type ParentProps,
 } from "solid-js";
@@ -113,8 +113,8 @@ export const addRoutes = (...routes: RouteProps[]) => {
 
 		return (
 			<Route
-				path={route.path}
 				{...route}
+				path={route.path}
 				children={addRoutes(...(children ?? []))}
 			/>
 		);
