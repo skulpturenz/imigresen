@@ -1,6 +1,7 @@
 import {
 	Navigate,
 	Route as SolidRoute,
+	type RouteSectionProps,
 	type RouteProps as SolidRouteProps,
 } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
@@ -11,10 +12,12 @@ import { RouteContext } from "core/context/router";
 import { UserContext } from "core/context/user";
 import {
 	createResource,
+	Show,
 	useContext,
 	type Component,
 	type ParentProps,
 } from "solid-js";
+import { Dynamic } from "solid-js/web";
 
 export interface CoreContext {
 	user?: UserContext;
@@ -59,15 +62,38 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	};
 	const [isAllowed] = createResource(getIsAllowed);
 
-	if (isAllowed.loading) {
-		return "Loading...";
-	}
+	const UnauthorizedRedirect = () => (
+		<Navigate href={toPath(CoreRoute.Unauthorized)} />
+	);
 
-	if (!isAllowed.loading && !isAllowed()) {
-		return <Navigate href={toPath(CoreRoute.Unauthorized)} />;
-	}
+	const Component: Component<
+		RouteSectionProps<unknown>
+	> = routeSectionProps => {
+		// TODO: improve `isAllowed.loading`
 
-	return <SolidRoute {...props} />;
+		return (
+			<>
+				<Show when={!isAllowed.loading && isAllowed()}>
+					<Dynamic
+						component={props.component}
+						{...routeSectionProps}
+					/>
+				</Show>
+				<Show when={!isAllowed.loading && !isAllowed()}>
+					<UnauthorizedRedirect />
+				</Show>
+				<Show when={isAllowed.loading}>
+					<span>Loading!!</span>
+				</Show>
+			</>
+		);
+	};
+
+	return (
+		<>
+			<SolidRoute {...props} component={Component} />
+		</>
+	);
 };
 
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
