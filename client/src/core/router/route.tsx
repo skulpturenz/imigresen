@@ -66,27 +66,29 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		<Navigate href={toPath(CoreRoute.Unauthorized)} />
 	);
 
+	// TODO: improve
+	const Loading = () => <span>Loading!!!</span>;
+
 	const Component: Component<
 		RouteSectionProps<unknown>
 	> = routeSectionProps => {
-		// TODO: improve `isAllowed.loading`
-
 		return (
 			<>
-				<Show when={!isAllowed.loading && isAllowed()}>
-					<Dynamic
-						component={props.component}
-						params={routeSectionProps.params}
-						data={routeSectionProps.data}
-						location={routeSectionProps.location}
-						children={routeSectionProps.children}
-					/>
-				</Show>
-				<Show when={!isAllowed.loading && !isAllowed()}>
-					<UnauthorizedRedirect />
-				</Show>
-				<Show when={isAllowed.loading}>
-					<span>Loading!!</span>
+				<Show
+					when={!isAllowed.loading && isAllowed()}
+					fallback={<Loading />}>
+					<Show when={isAllowed()}>
+						<Dynamic
+							component={props.component}
+							params={routeSectionProps.params}
+							data={routeSectionProps.data}
+							location={routeSectionProps.location}
+							children={routeSectionProps.children}
+						/>
+					</Show>
+					<Show when={!isAllowed()}>
+						<UnauthorizedRedirect />
+					</Show>
 				</Show>
 			</>
 		);
