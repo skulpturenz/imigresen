@@ -2,11 +2,10 @@ import { Navigate } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
+import { delay } from "es-toolkit";
 import { type Component } from "solid-js";
 import { Home } from "./home";
 import { resources } from "./resources";
-
-const sleep = (ms?: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const Router: Component<RouterProps> = _props => {
 	const HomeRedirect = () => <Navigate href={toPath(CoreRoute.Home)} />;
@@ -21,7 +20,7 @@ export const Router: Component<RouterProps> = _props => {
 			title: resources.pageTitle,
 			component: Home,
 			isAllowed: async () => {
-				await sleep(2000);
+				await delay(2000);
 
 				return true;
 			},
