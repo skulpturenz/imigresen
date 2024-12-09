@@ -13,6 +13,7 @@ import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
 import {
+	createEffect,
 	createResource,
 	Show,
 	type Component,
@@ -41,6 +42,15 @@ export interface RouteProps<S extends string = any, T = unknown>
 	children?: RouteProps | RouteProps[];
 }
 
+export interface RouteInternalProps {
+	onLoaded?: (route: RouteProps & { info: RouteInternalProps }) => void;
+}
+
+export interface RouteMeta {
+	isAllowed: boolean;
+	isHidden: boolean;
+}
+
 export const Route: Component<ParentProps<RouteProps>> = props => {
 	const authnContext = useContext(AuthnContext);
 	const authzContext = useContext(AuthzContext);
@@ -65,7 +75,19 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 
 		return props.isAllowed?.(context);
 	};
+	const getIsHidden = async () => {
+		if (typeof props.isHidden === "undefined") {
+			return false;
+		}
+
+		if (typeof props.isHidden === "boolean") {
+			return props.isHidden;
+		}
+
+		return props.isHidden?.(context);
+	};
 	const [isAllowed] = createResource(getIsAllowed);
+	const [isHidden] = createResource(getIsHidden);
 
 	const UnauthorizedRedirect = () => (
 		<Navigate href={toPath(CoreRoute.Unauthorized)} />
@@ -79,7 +101,9 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	> = routeSectionProps => {
 		return (
 			<>
-				<Show when={!isAllowed.loading} fallback={<Loading />}>
+				<Show
+					when={!isAllowed.loading && !isHidden.loading}
+					fallback={<Loading />}>
 					<Show when={isAllowed()}>
 						<Dynamic
 							{...spreadProps(routeSectionProps)}
@@ -94,7 +118,33 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		);
 	};
 
-	return <SolidRoute {...spreadProps(props)} component={Component} />;
+	createEffect(() => {
+		if (isAllowed.loading || isHidden.loading) {
+			return;
+		}
+
+		const { onLoaded, ...routeDefinition } = props as RouteProps &
+			RouteInternalProps;
+
+		onLoaded?.({
+			...routeDefinition,
+			info: {
+				isAllowed: Boolean(isAllowed()),
+				isHidden: Boolean(isHidden()),
+			},
+		});
+	});
+
+	return (
+		<SolidRoute
+			{...spreadProps(props)}
+			component={Component}
+			info={{
+				isAllowed: Boolean(isAllowed()),
+				isHidden: Boolean(isHidden()),
+			}}
+		/>
+	);
 };
 
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
@@ -102,18 +152,21 @@ export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 export const addRoutes = (...routes: RouteProps[]) => {
 	const routeContext = useContext(RouteContext);
 
-	return Object.values(routes).map(route => {
-		routeContext.appendRoute(route);
+	const InternalRoute = Route as Component<
+		ParentProps<RouteProps & RouteInternalProps>
+	>;
 
+	return Object.values(routes).map(route => {
 		const children = Array.isArray(route.children)
 			? route.children
 			: ([route.children].filter(Boolean) as RouteProps[]);
 
 		return (
-			<Route
+			<InternalRoute
 				{...route}
 				path={route.path}
 				children={addRoutes(...(children ?? []))}
+				onLoaded={routeContext.appendRoute}
 			/>
 		);
 	});

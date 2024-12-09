@@ -14,6 +14,7 @@ export const Router: Component<RouterProps> = _props => {
 		{
 			path: "/",
 			component: HomeRedirect,
+			isHidden: true,
 		},
 		{
 			path: toPath(CoreRoute.Home),
