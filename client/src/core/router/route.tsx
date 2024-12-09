@@ -75,9 +75,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	> = routeSectionProps => {
 		return (
 			<>
-				<Show
-					when={!isAllowed.loading && isAllowed()}
-					fallback={<Loading />}>
+				<Show when={!isAllowed.loading} fallback={<Loading />}>
 					<Show when={isAllowed()}>
 						<Dynamic
 							{...spreadProps(routeSectionProps)}
