@@ -13,8 +13,10 @@
 	"dependencies": {
 		"@kobalte/core": "^0.13.7",
 		"@solidjs/router": "^0.15.1",
+		"clsx": "^2.1.1",
 		"es-toolkit": "^1.29.0",
-		"solid-js": "^1.9.3"
+		"solid-js": "^1.9.3",
+		"tailwind-merge": "^2.5.5"
 	},
 	"devDependencies": {
 		"@ngneat/falso": "^7.2.0",
