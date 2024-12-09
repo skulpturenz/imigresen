@@ -5,6 +5,7 @@ import {
 } from "@solidjs/router";
 import { Router as HomeRouter } from "feat/home";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
+import { Portal } from "solid-js/web";
 
 export type RouterProps = Record<string, unknown>;
 
@@ -23,7 +24,9 @@ export const Router = () => {
 const RouterErrorBoundary: Component<ParentProps> = props => (
 	<ErrorBoundary
 		fallback={(err, reset) => (
-			<div onClick={reset}>Error: {err.toString()}</div>
+			<Portal>
+				<div onClick={reset}>Error: {err.toString()}</div>
+			</Portal>
 		)}>
 		{props.children}
 	</ErrorBoundary>
