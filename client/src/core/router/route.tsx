@@ -55,6 +55,10 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	};
 
 	const getIsAllowed = async () => {
+		if (typeof props.isAllowed === "undefined") {
+			return true;
+		}
+
 		if (typeof props.isAllowed === "boolean") {
 			return props.isAllowed;
 		}
