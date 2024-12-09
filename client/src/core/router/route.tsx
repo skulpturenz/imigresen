@@ -10,6 +10,7 @@ import { AuthzContext } from "core/context/authz";
 import { FliptContext } from "core/context/flipt";
 import { RouteContext } from "core/context/router";
 import { UserContext } from "core/context/user";
+import { spreadProps } from "core/utils";
 import {
 	createResource,
 	Show,
@@ -79,11 +80,8 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 					fallback={<Loading />}>
 					<Show when={isAllowed()}>
 						<Dynamic
+							{...spreadProps(routeSectionProps)}
 							component={props.component}
-							params={routeSectionProps.params}
-							data={routeSectionProps.data}
-							location={routeSectionProps.location}
-							children={routeSectionProps.children}
 						/>
 					</Show>
 					<Show when={!isAllowed()}>
@@ -96,7 +94,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 
 	return (
 		<>
-			<SolidRoute {...props} component={Component} />
+			<SolidRoute {...spreadProps(props)} component={Component} />
 		</>
 	);
 };
