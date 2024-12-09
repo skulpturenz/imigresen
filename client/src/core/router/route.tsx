@@ -76,7 +76,10 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 				<Show when={!isAllowed.loading && isAllowed()}>
 					<Dynamic
 						component={props.component}
-						{...routeSectionProps}
+						params={routeSectionProps.params}
+						data={routeSectionProps.data}
+						location={routeSectionProps.location}
+						children={routeSectionProps.children}
 					/>
 				</Show>
 				<Show when={!isAllowed.loading && !isAllowed()}>
