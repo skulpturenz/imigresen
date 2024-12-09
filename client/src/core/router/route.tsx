@@ -92,11 +92,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		);
 	};
 
-	return (
-		<>
-			<SolidRoute {...spreadProps(props)} component={Component} />
-		</>
-	);
+	return <SolidRoute {...spreadProps(props)} component={Component} />;
 };
 
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
