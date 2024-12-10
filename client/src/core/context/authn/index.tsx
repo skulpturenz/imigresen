@@ -35,6 +35,8 @@ export const AuthnProvider: Component<
 	ParentProps<AuthnProviderProps>
 > = props => {
 	const [isLoading, setIsLoading] = createSignal(true);
+	const toggleLoading = () => setIsLoading(isLoading => !isLoading);
+
 	const [contextValue, setContextValue] =
 		createStore<AuthnContext>(createAuthnContext());
 
@@ -67,7 +69,6 @@ export const AuthnProvider: Component<
 
 	onMount(() => {
 		const initKeycloak = async () => {
-			setIsLoading(true);
 			await keycloak.init({
 				onLoad: "check-sso",
 				silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
@@ -77,7 +78,6 @@ export const AuthnProvider: Component<
 					location.pathname,
 				).href,
 			});
-			setIsLoading(false);
 
 			if (!keycloak.authenticated) {
 				return;
@@ -94,7 +94,7 @@ export const AuthnProvider: Component<
 			}));
 		};
 
-		initKeycloak();
+		initKeycloak().then(toggleLoading);
 	});
 
 	const onClickLogin = () => {
