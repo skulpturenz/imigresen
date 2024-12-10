@@ -1,9 +1,9 @@
+import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
 import { delay } from "es-toolkit";
 import { type Component } from "solid-js";
-import { AuthRoute } from "./auth-route.enum";
 import { LoginCallback } from "./login-callback";
 import { LogoutCallback } from "./logout-callback";
 
