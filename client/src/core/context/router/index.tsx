@@ -1,5 +1,6 @@
+import { createRouteContext } from "core/context/initializers";
 import type { RouteInternalProps, RouteProps } from "core/router/route";
-import { invariant, noop } from "es-toolkit";
+import { invariant } from "es-toolkit";
 import { createContext, type Component, type ParentProps } from "solid-js";
 import { createStore } from "solid-js/store";
 
@@ -9,11 +10,7 @@ export interface RouteContext {
 	getRoute: (path: string) => RouteProps;
 }
 
-export const RouteContext = createContext<RouteContext>({
-	routes: Object.create(null),
-	appendRoute: noop,
-	getRoute: noop as any,
-});
+export const RouteContext = createContext<RouteContext>(createRouteContext());
 
 export const RouteProvider: Component<ParentProps> = props => {
 	const [routes, setRoutes] = createStore<

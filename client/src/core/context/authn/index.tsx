@@ -1,3 +1,4 @@
+import { createAuthnContext } from "core/context/initializers";
 import {
 	default as Keycloak,
 	type KeycloakProfile,
@@ -6,6 +7,7 @@ import {
 } from "keycloak-js";
 import {
 	createContext,
+	createSignal,
 	onMount,
 	type Component,
 	type ParentProps,
@@ -19,12 +21,7 @@ export interface AuthnContext {
 	resourceAccess?: KeycloakResourceAccess | null;
 }
 
-export const AuthnContext = createContext<AuthnContext>({
-	isAuthenticated: false,
-	userProfile: null,
-	realmAccess: null,
-	resourceAccess: null,
-});
+export const AuthnContext = createContext<AuthnContext>(createAuthnContext());
 
 export interface AuthnProviderProps {
 	url: string;
@@ -37,12 +34,9 @@ export interface AuthnProviderProps {
 export const AuthnProvider: Component<
 	ParentProps<AuthnProviderProps>
 > = props => {
-	const [contextValue, setContextValue] = createStore<AuthnContext>({
-		isAuthenticated: false,
-		userProfile: null,
-		realmAccess: null,
-		resourceAccess: null,
-	});
+	const [isLoading, setIsLoading] = createSignal(true);
+	const [contextValue, setContextValue] =
+		createStore<AuthnContext>(createAuthnContext());
 
 	const keycloak = new Keycloak({
 		url: props.url,
@@ -73,6 +67,7 @@ export const AuthnProvider: Component<
 
 	onMount(() => {
 		const initKeycloak = async () => {
+			setIsLoading(true);
 			await keycloak.init({
 				onLoad: "check-sso",
 				silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
@@ -82,6 +77,7 @@ export const AuthnProvider: Component<
 					location.pathname,
 				).href,
 			});
+			setIsLoading(false);
 
 			if (!keycloak.authenticated) {
 				return;
@@ -128,10 +124,18 @@ export const AuthnProvider: Component<
 	// TODO: remove buttons
 	return (
 		<AuthnContext.Provider value={contextValue}>
-			<button on:click={onClickLogin}>Click here login!</button>
-			<button on:click={onClickRegister}>Click here register!</button>
-			<button on:click={onClickLogout}>Click here to logout!!</button>
-			{props.children}
+			{!isLoading() && (
+				<>
+					<button on:click={onClickLogin}>Click here login!</button>
+					<button on:click={onClickRegister}>
+						Click here register!
+					</button>
+					<button on:click={onClickLogout}>
+						Click here to logout!!
+					</button>
+					{props.children}
+				</>
+			)}
 		</AuthnContext.Provider>
 	);
 };
