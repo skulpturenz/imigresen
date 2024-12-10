@@ -21,6 +21,7 @@ export interface AuthnProviderProps {
 	url: string;
 	realm: string;
 	clientId: string;
+	redirectUri: string;
 }
 
 export const AuthnProvider: Component<
@@ -36,20 +37,14 @@ export const AuthnProvider: Component<
 		clientId: props.clientId,
 	});
 
-	const value = {
-		isAuthenticated: null,
-		userProfile: null,
-	};
-
 	onMount(() => {
 		const initKeycloak = async () => {
 			await keycloak.init({
 				onLoad: "check-sso",
 				silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
 				scope: "openid roles profile email address",
+				redirectUri: props.redirectUri,
 			});
-
-			console.log(keycloak.authenticated);
 
 			if (!keycloak.authenticated) {
 				return;
@@ -67,8 +62,22 @@ export const AuthnProvider: Component<
 		initKeycloak();
 	});
 
+	const onClickLogin = () => {
+		keycloak.login({
+			redirectUri: props.redirectUri,
+		});
+	};
+
+	const onClickRegister = () => {
+		keycloak.register({
+			redirectUri: props.redirectUri,
+		});
+	};
+
 	return (
-		<AuthnContext.Provider value={value}>
+		<AuthnContext.Provider value={contextValue}>
+			<button on:click={onClickLogin}>Click here login!</button>
+			<button on:click={onClickRegister}>Click here register!</button>
 			{props.children}
 		</AuthnContext.Provider>
 	);

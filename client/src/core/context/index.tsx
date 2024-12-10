@@ -10,16 +10,19 @@ export const Providers: Component<ParentProps> = props => {
 	const authnProviderUrl = import.meta.env.VITE_KEYCLOAK_URL;
 	const authnProviderRealm = import.meta.env.VITE_KEYCLOAK_REALM;
 	const authnProviderClientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
+	const authnProviderRedirectUri = import.meta.env.VITE_KEYCLOAK_REDIRECT_URI;
 
 	invariant(authnProviderUrl, "Keycloak URL not specified");
 	invariant(authnProviderRealm, "Keycloak realm not specified");
 	invariant(authnProviderClientId, "Keycloak client ID not specified");
+	invariant(authnProviderRedirectUri, "Keycloak redirect uri not specified");
 
 	return (
 		<AuthnProvider
 			url={authnProviderUrl}
 			realm={authnProviderRealm}
-			clientId={authnProviderClientId}>
+			clientId={authnProviderClientId}
+			redirectUri={authnProviderRedirectUri}>
 			<UserProvider>
 				<AuthzProvider>
 					<FliptProvider>
