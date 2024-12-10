@@ -8,10 +8,12 @@ import {
 import { createStore } from "solid-js/store";
 
 export interface AuthnContext {
+	isAuthenticated: boolean;
 	userProfile?: KeycloakProfile | null;
 }
 
 export const AuthnContext = createContext<AuthnContext>({
+	isAuthenticated: false,
 	userProfile: null,
 });
 
@@ -26,9 +28,10 @@ export interface AuthnProviderProps {
 export const AuthnProvider: Component<
 	ParentProps<AuthnProviderProps>
 > = props => {
-	const [contextValue, setContextValue] = createStore<AuthnContext>(
-		Object.create(null),
-	);
+	const [contextValue, setContextValue] = createStore<AuthnContext>({
+		isAuthenticated: false,
+		userProfile: null,
+	});
 
 	const keycloak = new Keycloak({
 		url: props.url,
@@ -53,7 +56,7 @@ export const AuthnProvider: Component<
 
 			setContextValue(contextValue => ({
 				...contextValue,
-				isAuthenticated: keycloak.authenticated,
+				isAuthenticated: Boolean(keycloak.authenticated),
 				userProfile,
 			}));
 		};
