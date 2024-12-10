@@ -156,7 +156,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		ParentProps<RouteProps & RouteInternalProps>
 	>;
 
-	const RouteChildren: Component<RouteSectionProps> = props => props.children;
+	const Children: Component<RouteSectionProps> = props => props.children;
 
 	return Object.values(routes).map(route => {
 		const children = Array.isArray(route.children)
@@ -166,7 +166,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		return (
 			<InternalRoute
 				{...route}
-				component={route.component ?? RouteChildren}
+				component={route.component ?? Children}
 				path={route.path}
 				children={addRoutes(...children)}
 				onLoaded={routeContext.appendRoute}

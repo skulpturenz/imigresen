@@ -133,6 +133,10 @@ export const AuthnProvider: Component<
 					<button on:click={onClickLogout}>
 						Click here to logout!!
 					</button>
+					<span>
+						isAuthenticated:&nbsp;
+						{JSON.stringify(Boolean(contextValue.isAuthenticated))}
+					</span>
 					{props.children}
 				</>
 			)}
