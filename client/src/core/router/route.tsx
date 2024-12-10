@@ -156,6 +156,8 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		ParentProps<RouteProps & RouteInternalProps>
 	>;
 
+	const RouteChildren: Component<RouteSectionProps> = props => props.children;
+
 	return Object.values(routes).map(route => {
 		const children = Array.isArray(route.children)
 			? route.children
@@ -164,8 +166,8 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		return (
 			<InternalRoute
 				{...route}
+				component={route.component ?? RouteChildren}
 				path={route.path}
-				// TODO: child routes are not being added correctly
 				children={addRoutes(...children)}
 				onLoaded={routeContext.appendRoute}
 			/>

@@ -12,11 +12,6 @@ export const Router: Component<RouterProps> = _props => {
 		{
 			path: toPath(CoreRoute.Auth),
 			children: [
-				// TODO: remove
-				{
-					path: "/",
-					component: () => <span>Auth!!</span>,
-				},
 				{
 					path: toPath(AuthRoute.LoginCallback),
 					component: LoginCallback,
