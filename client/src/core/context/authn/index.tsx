@@ -50,13 +50,37 @@ export const AuthnProvider: Component<
 		clientId: props.clientId,
 	});
 
+	const createRedirectUrl = (
+		authRedirectUri: string,
+		redirectPath?: string,
+	) => {
+		const params = new URLSearchParams({
+			redirectPath: redirectPath ?? "",
+		});
+
+		params.forEach((value, key) => {
+			if (!value) {
+				params.delete(key);
+			}
+		});
+
+		const url = URL.parse(
+			[authRedirectUri, params.toString()].filter(Boolean).join("?"),
+		);
+
+		return url ?? new URL("/", location.origin);
+	};
+
 	onMount(() => {
 		const initKeycloak = async () => {
 			await keycloak.init({
 				onLoad: "check-sso",
 				silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
 				scope: "openid roles profile email address",
-				redirectUri: props.loginRedirectUri,
+				redirectUri: createRedirectUrl(
+					props.loginRedirectUri,
+					location.pathname,
+				).href,
 			});
 
 			if (!keycloak.authenticated) {
@@ -79,19 +103,25 @@ export const AuthnProvider: Component<
 
 	const onClickLogin = () => {
 		keycloak.login({
-			redirectUri: props.loginRedirectUri,
+			redirectUri: createRedirectUrl(
+				props.loginRedirectUri,
+				location.pathname,
+			).href,
 		});
 	};
 
 	const onClickRegister = () => {
 		keycloak.register({
-			redirectUri: props.loginRedirectUri,
+			redirectUri: createRedirectUrl(
+				props.loginRedirectUri,
+				location.pathname,
+			).href,
 		});
 	};
 
 	const onClickLogout = () => {
 		keycloak.logout({
-			redirectUri: props.logoutRedirectUri,
+			redirectUri: createRedirectUrl(props.logoutRedirectUri).href,
 		});
 	};
 

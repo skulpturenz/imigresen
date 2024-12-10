@@ -17,7 +17,7 @@ export const Router: Component<RouterProps> = _props => {
 			isHidden: true,
 		},
 		{
-			path: toPath(CoreRoute.Home),
+			path: ["/", toPath(CoreRoute.Home)],
 			title: resources.pageTitle,
 			component: Home,
 			isAllowed: async () => {
