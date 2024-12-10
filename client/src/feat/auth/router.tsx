@@ -10,22 +10,32 @@ import { LogoutCallback } from "./logout-callback";
 export const Router: Component<RouterProps> = _props => {
 	const routes = [
 		{
-			path: toPath(CoreRoute.Auth, AuthRoute.LoginCallback),
-			component: LoginCallback,
-			isAllowed: async () => {
-				await delay(2000);
+			path: toPath(CoreRoute.Auth),
+			children: [
+				// TODO: remove
+				{
+					path: "/",
+					component: () => <span>Auth!!</span>,
+				},
+				{
+					path: toPath(AuthRoute.LoginCallback),
+					component: LoginCallback,
+					isAllowed: async () => {
+						await delay(2000);
 
-				return true;
-			},
-		},
-		{
-			path: toPath(CoreRoute.Auth, AuthRoute.LogoutCallback),
-			component: LogoutCallback,
-			isAllowed: async () => {
-				await delay(2000);
+						return true;
+					},
+				},
+				{
+					path: toPath(AuthRoute.LogoutCallback),
+					component: LogoutCallback,
+					isAllowed: async () => {
+						await delay(2000);
 
-				return true;
-			},
+						return true;
+					},
+				},
+			],
 		},
 	] as RouteProps[];
 

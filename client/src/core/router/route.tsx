@@ -165,7 +165,8 @@ export const addRoutes = (...routes: RouteProps[]) => {
 			<InternalRoute
 				{...route}
 				path={route.path}
-				children={addRoutes(...(children ?? []))}
+				// TODO: child routes are not being added correctly
+				children={addRoutes(...children)}
 				onLoaded={routeContext.appendRoute}
 			/>
 		);
