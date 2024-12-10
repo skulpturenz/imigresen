@@ -3,6 +3,7 @@ import {
 	Router as SolidRouter,
 	type RouteSectionProps,
 } from "@solidjs/router";
+import { Router as AuthRouter } from "feat/auth";
 import { Router as HomeRouter } from "feat/home";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";
@@ -13,6 +14,7 @@ export const Router = () => {
 	return (
 		<RouterErrorBoundary>
 			<SolidRouter>
+				<AuthRouter />
 				<HomeRouter />
 				<SolidRoute path="*path" component={NotFound} />
 			</SolidRouter>

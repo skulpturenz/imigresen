@@ -1,5 +1,6 @@
 export enum CoreRoute {
 	Home = "home",
+	Auth = "auth",
 	Unauthorized = "unauthorized",
 }
 
