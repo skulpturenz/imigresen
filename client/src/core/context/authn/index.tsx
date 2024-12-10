@@ -1,4 +1,9 @@
-import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
+import {
+	default as Keycloak,
+	type KeycloakProfile,
+	type KeycloakResourceAccess,
+	type KeycloakRoles,
+} from "keycloak-js";
 import {
 	createContext,
 	onMount,
@@ -10,11 +15,15 @@ import { createStore } from "solid-js/store";
 export interface AuthnContext {
 	isAuthenticated: boolean;
 	userProfile?: KeycloakProfile | null;
+	realmAccess?: KeycloakRoles | null;
+	resourceAccess?: KeycloakResourceAccess | null;
 }
 
 export const AuthnContext = createContext<AuthnContext>({
 	isAuthenticated: false,
 	userProfile: null,
+	realmAccess: null,
+	resourceAccess: null,
 });
 
 export interface AuthnProviderProps {
@@ -31,6 +40,8 @@ export const AuthnProvider: Component<
 	const [contextValue, setContextValue] = createStore<AuthnContext>({
 		isAuthenticated: false,
 		userProfile: null,
+		realmAccess: null,
+		resourceAccess: null,
 	});
 
 	const keycloak = new Keycloak({
@@ -58,6 +69,8 @@ export const AuthnProvider: Component<
 				...contextValue,
 				isAuthenticated: Boolean(keycloak.authenticated),
 				userProfile,
+				realmAccess: keycloak.realmAccess ?? null,
+				resourceAccess: keycloak.resourceAccess ?? null,
 			}));
 		};
 
