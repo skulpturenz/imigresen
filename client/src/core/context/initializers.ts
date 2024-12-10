@@ -7,9 +7,15 @@ import type { UserContext } from "./user";
 
 export const createAuthnContext = (): AuthnContext => ({
 	isAuthenticated: false,
+	accessToken: null,
 	userProfile: null,
 	realmAccess: null,
 	resourceAccess: null,
+	isTokenExpired: noop as any,
+	updateToken: noop as any,
+	onClickLogin: noop,
+	onClickRegister: noop,
+	onClickLogout: noop,
 });
 
 export const createAuthzContext = (): AuthzContext => Object.create(null);

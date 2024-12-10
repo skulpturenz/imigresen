@@ -9,6 +9,7 @@ import {
 	createContext,
 	createSignal,
 	onMount,
+	Show,
 	type Component,
 	type ParentProps,
 } from "solid-js";
@@ -16,9 +17,15 @@ import { createStore } from "solid-js/store";
 
 export interface AuthnContext {
 	isAuthenticated: boolean;
+	accessToken?: string | null;
 	userProfile?: KeycloakProfile | null;
 	realmAccess?: KeycloakRoles | null;
 	resourceAccess?: KeycloakResourceAccess | null;
+	isTokenExpired: (minValidity?: number) => boolean;
+	updateToken: (minValidity?: number) => Promise<boolean>;
+	onClickLogin: () => void;
+	onClickRegister: () => void;
+	onClickLogout: () => void;
 }
 
 export const AuthnContext = createContext<AuthnContext>(createAuthnContext());
@@ -37,13 +44,43 @@ export const AuthnProvider: Component<
 	const [isLoading, setIsLoading] = createSignal(true);
 	const toggleLoading = () => setIsLoading(isLoading => !isLoading);
 
-	const [contextValue, setContextValue] =
-		createStore<AuthnContext>(createAuthnContext());
-
 	const keycloak = new Keycloak({
 		url: props.url,
 		realm: props.realm,
 		clientId: props.clientId,
+	});
+
+	const onClickLogin = () => {
+		keycloak.login({
+			redirectUri: createRedirectUrl(
+				props.loginRedirectUri,
+				location.pathname,
+			).href,
+		});
+	};
+
+	const onClickRegister = () => {
+		keycloak.register({
+			redirectUri: createRedirectUrl(
+				props.loginRedirectUri,
+				location.pathname,
+			).href,
+		});
+	};
+
+	const onClickLogout = () => {
+		keycloak.logout({
+			redirectUri: createRedirectUrl(props.logoutRedirectUri).href,
+		});
+	};
+
+	const [contextValue, setContextValue] = createStore<AuthnContext>({
+		...createAuthnContext(),
+		isTokenExpired: keycloak.isTokenExpired.bind(keycloak),
+		updateToken: keycloak.updateToken.bind(keycloak),
+		onClickLogin,
+		onClickRegister,
+		onClickLogout,
 	});
 
 	const createRedirectUrl = (
@@ -87,6 +124,7 @@ export const AuthnProvider: Component<
 
 			setContextValue(contextValue => ({
 				...contextValue,
+				accessToken: keycloak.token,
 				isAuthenticated: Boolean(keycloak.authenticated),
 				userProfile,
 				realmAccess: keycloak.realmAccess ?? null,
@@ -97,49 +135,22 @@ export const AuthnProvider: Component<
 		initKeycloak().then(toggleLoading);
 	});
 
-	const onClickLogin = () => {
-		keycloak.login({
-			redirectUri: createRedirectUrl(
-				props.loginRedirectUri,
-				location.pathname,
-			).href,
-		});
-	};
-
-	const onClickRegister = () => {
-		keycloak.register({
-			redirectUri: createRedirectUrl(
-				props.loginRedirectUri,
-				location.pathname,
-			).href,
-		});
-	};
-
-	const onClickLogout = () => {
-		keycloak.logout({
-			redirectUri: createRedirectUrl(props.logoutRedirectUri).href,
-		});
-	};
+	// TODO: improve
+	const Loading = () => <span>Loading!!!</span>;
 
 	// TODO: remove buttons
 	return (
 		<AuthnContext.Provider value={contextValue}>
-			{!isLoading() && (
-				<>
-					<button on:click={onClickLogin}>Click here login!</button>
-					<button on:click={onClickRegister}>
-						Click here register!
-					</button>
-					<button on:click={onClickLogout}>
-						Click here to logout!!
-					</button>
-					<span>
-						isAuthenticated:&nbsp;
-						{JSON.stringify(Boolean(contextValue.isAuthenticated))}
-					</span>
-					{props.children}
-				</>
-			)}
+			<Show when={!isLoading()} fallback={<Loading />}>
+				<button on:click={onClickLogin}>Click here login!</button>
+				<button on:click={onClickRegister}>Click here register!</button>
+				<button on:click={onClickLogout}>Click here to logout!!</button>
+				<span>
+					isAuthenticated:&nbsp;
+					{JSON.stringify(Boolean(contextValue.isAuthenticated))}
+				</span>
+				{props.children}
+			</Show>
 		</AuthnContext.Provider>
 	);
 };
