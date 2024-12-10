@@ -8,12 +8,10 @@ import {
 import { createStore } from "solid-js/store";
 
 export interface AuthnContext {
-	redirectUri?: string | null;
 	userProfile?: KeycloakProfile | null;
 }
 
 export const AuthnContext = createContext<AuthnContext>({
-	redirectUri: null,
 	userProfile: null,
 });
 
@@ -21,7 +19,8 @@ export interface AuthnProviderProps {
 	url: string;
 	realm: string;
 	clientId: string;
-	redirectUri: string;
+	loginRedirectUri: string;
+	logoutRedirectUri: string;
 }
 
 export const AuthnProvider: Component<
@@ -43,7 +42,7 @@ export const AuthnProvider: Component<
 				onLoad: "check-sso",
 				silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
 				scope: "openid roles profile email address",
-				redirectUri: props.redirectUri,
+				redirectUri: props.loginRedirectUri,
 			});
 
 			if (!keycloak.authenticated) {
@@ -64,20 +63,28 @@ export const AuthnProvider: Component<
 
 	const onClickLogin = () => {
 		keycloak.login({
-			redirectUri: props.redirectUri,
+			redirectUri: props.loginRedirectUri,
 		});
 	};
 
 	const onClickRegister = () => {
 		keycloak.register({
-			redirectUri: props.redirectUri,
+			redirectUri: props.loginRedirectUri,
 		});
 	};
 
+	const onClickLogout = () => {
+		keycloak.logout({
+			redirectUri: props.logoutRedirectUri,
+		});
+	};
+
+	// TODO: remove buttons
 	return (
 		<AuthnContext.Provider value={contextValue}>
 			<button on:click={onClickLogin}>Click here login!</button>
 			<button on:click={onClickRegister}>Click here register!</button>
+			<button on:click={onClickLogout}>Click here to logout!!</button>
 			{props.children}
 		</AuthnContext.Provider>
 	);
