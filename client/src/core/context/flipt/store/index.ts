@@ -1,4 +1,8 @@
-import { FliptEvaluationClient, type Flag } from "@flipt-io/flipt-client";
+import {
+	FliptEvaluationClient,
+	type Flag,
+} from "@flipt-io/flipt-client-browser";
+import { secondsToMilliseconds } from "date-fns";
 import { invariant } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 
@@ -26,8 +30,7 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 		invariant(fliptClientToken, "Flipt client token not specified");
 		invariant(fliptNamespace, "Flipt namespace not specified");
 
-		// flipt refreshes every 120s by default, we update flag state every 2s
-		const interval = 200000;
+		const interval = secondsToMilliseconds(120);
 
 		return {
 			isInitialLoading: true,
@@ -68,10 +71,6 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 				close: () => {
 					if (get().timeout) {
 						clearTimeout(get().timeout);
-					}
-
-					if (get().flipt) {
-						get().flipt?.close();
 					}
 				},
 			},
