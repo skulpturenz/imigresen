@@ -9,6 +9,7 @@ export interface RouterSvc {
 		getRoute: (path: string) => RouteProps;
 	};
 }
+
 export const useStore = createWithSignal<RouterSvc>((set, get) => ({
 	routes: Object.create(null),
 	actions: {
