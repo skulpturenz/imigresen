@@ -15,7 +15,7 @@ export const AuthnProviderMock: Component<
 
 	return (
 		<AuthnContext.Provider value={props.svc}>
-			<Show when={props.svc.isInitialLoading}>{props.children}</Show>
+			<Show when={!props.svc.isInitialLoading}>{props.children}</Show>
 		</AuthnContext.Provider>
 	);
 };

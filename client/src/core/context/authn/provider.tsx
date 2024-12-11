@@ -23,7 +23,7 @@ export const AuthnProvider: Component<ParentProps> = props => {
 	// TODO: remove buttons
 	return (
 		<AuthnContext.Provider value={value()}>
-			<Show when={value().isInitialLoading} fallback={<Loading />}>
+			<Show when={!value().isInitialLoading} fallback={<Loading />}>
 				<button on:click={value().actions.login}>
 					Click here login!
 				</button>

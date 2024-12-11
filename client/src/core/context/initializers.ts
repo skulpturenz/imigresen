@@ -7,6 +7,7 @@ import type { UserContext } from "./user";
 
 export const createAuthnContext = (): AuthnSvc => ({
 	isInitialLoading: true,
+	isActionsLoading: false,
 	keycloak: null,
 	profile: null,
 	actions: {

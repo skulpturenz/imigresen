@@ -8,6 +8,7 @@ import { createRedirectUrl } from "./utils";
 
 export interface AuthnSvc {
 	isInitialLoading: boolean;
+	isActionsLoading: boolean;
 	keycloak?: Keycloak | null;
 	profile?: KeycloakProfile | null;
 	actions: {
@@ -40,6 +41,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 	return {
 		isInitialLoading: true,
+		isActionsLoading: false,
 		profile: null,
 		keycloak: new Keycloak({
 			url: authnProviderUrl,
@@ -76,15 +78,21 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 			login: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
+				set({ isActionsLoading: true });
+
 				get().keycloak?.login({
 					redirectUri: createRedirectUrl(
 						loginRedirectUri,
 						location.pathname,
 					).href,
 				});
+
+				set({ isActionsLoading: false });
 			},
 			register: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
+
+				set({ isActionsLoading: true });
 
 				get().keycloak?.register({
 					redirectUri: createRedirectUrl(
@@ -92,13 +100,19 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 						location.pathname,
 					).href,
 				});
+
+				set({ isActionsLoading: false });
 			},
 			logout: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
+				set({ isActionsLoading: true });
+
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
 				});
+
+				set({ isActionsLoading: false });
 			},
 		},
 	};
