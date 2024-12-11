@@ -1,7 +1,7 @@
 import { type Component, type ParentProps } from "solid-js";
 import { AuthnProvider } from "./authn/provider";
 import { AuthzProvider } from "./authz";
-import { FliptProvider } from "./flipt";
+import { FliptProvider } from "./flipt/provider";
 import { RouteProvider } from "./router";
 import { UserProvider } from "./user";
 

@@ -7,7 +7,7 @@ import {
 import { CoreRoute } from "core/constants/core-route.enum";
 import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
-import { FliptContext } from "core/context/flipt";
+import { FliptContext } from "core/context/flipt/provider";
 import { RouteContext } from "core/context/router";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
