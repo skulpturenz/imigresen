@@ -1,9 +1,9 @@
-import type { RouteProps } from "core/router/route";
+import type { RouteInternalProps, RouteProps } from "core/router/route";
 import { invariant } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 
 export interface RouterSvc {
-	routes: Record<string, Omit<RouteProps, "path">>;
+	routes: Record<string, Omit<RouteProps & RouteInternalProps, "path">>;
 	actions: {
 		appendRoute: (route: RouteProps) => void;
 		getRoute: (path: string) => RouteProps;

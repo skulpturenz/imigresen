@@ -7,6 +7,7 @@ import {
 import { CoreRoute } from "core/constants/core-route.enum";
 import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
+import type { FliptSvc } from "core/context/flipt";
 import { FliptContext } from "core/context/flipt/provider";
 import { RouterContext } from "core/context/router/provider";
 import { UserContext } from "core/context/user";
@@ -25,11 +26,11 @@ export interface CoreContext {
 	user: UserContext;
 	authz: AuthzContext;
 	authn: AuthnSvc;
-	flipt: FliptContext;
+	flipt: FliptSvc;
 }
 
 export interface RouteProps<S extends string = any, T = unknown>
-	extends Omit<SolidRouteProps<S, T>, "children"> {
+	extends Omit<SolidRouteProps<S, T>, "children" | "info"> {
 	title?: string;
 	isAllowed?:
 		| boolean
@@ -43,7 +44,8 @@ export interface RouteProps<S extends string = any, T = unknown>
 }
 
 export interface RouteInternalProps {
-	onLoaded?: (route: RouteProps & { info: RouteInternalProps }) => void;
+	info?: RouteMeta;
+	onLoaded?: (route: RouteProps & RouteInternalProps) => void;
 }
 
 export interface RouteMeta {
@@ -169,7 +171,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 				component={route.component ?? Children}
 				path={route.path}
 				children={addRoutes(...children)}
-				onLoaded={routeContext.appendRoute}
+				onLoaded={routeContext.actions.appendRoute}
 			/>
 		);
 	});
