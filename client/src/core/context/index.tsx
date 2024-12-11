@@ -2,7 +2,7 @@ import { type Component, type ParentProps } from "solid-js";
 import { AuthnProvider } from "./authn/provider";
 import { AuthzProvider } from "./authz";
 import { FliptProvider } from "./flipt/provider";
-import { RouteProvider } from "./router";
+import { RouterProvider } from "./router/provider";
 import { UserProvider } from "./user";
 
 export const Providers: Component<ParentProps> = props => {
@@ -11,7 +11,7 @@ export const Providers: Component<ParentProps> = props => {
 			<UserProvider>
 				<AuthzProvider>
 					<FliptProvider>
-						<RouteProvider>{props.children}</RouteProvider>
+						<RouterProvider>{props.children}</RouterProvider>
 					</FliptProvider>
 				</AuthzProvider>
 			</UserProvider>

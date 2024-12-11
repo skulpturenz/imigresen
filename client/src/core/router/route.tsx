@@ -8,7 +8,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
 import { FliptContext } from "core/context/flipt/provider";
-import { RouteContext } from "core/context/router";
+import { RouterContext } from "core/context/router/provider";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
@@ -150,7 +150,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
-	const routeContext = useContext(RouteContext);
+	const routeContext = useContext(RouterContext);
 
 	const InternalRoute = Route as Component<
 		ParentProps<RouteProps & RouteInternalProps>

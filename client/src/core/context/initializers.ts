@@ -2,7 +2,7 @@ import { noop } from "es-toolkit";
 import type { AuthnSvc } from "./authn/store";
 import type { AuthzContext } from "./authz";
 import type { FliptSvc } from "./flipt";
-import type { RouteContext } from "./router";
+import type { RouterSvc } from "./router";
 import type { UserContext } from "./user";
 
 export const createAuthnContext = (): AuthnSvc => ({
@@ -30,10 +30,12 @@ export const createFliptContext = (): FliptSvc => ({
 	},
 });
 
-export const createRouteContext = (): RouteContext => ({
+export const createRouterContext = (): RouterSvc => ({
 	routes: Object.create(null),
-	appendRoute: noop,
-	getRoute: noop as any,
+	actions: {
+		appendRoute: noop,
+		getRoute: noop as any,
+	},
 });
 
 export const createUserContext = (): UserContext => Object.create(null);
