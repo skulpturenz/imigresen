@@ -1,21 +1,20 @@
 import { noop } from "es-toolkit";
-import type { AuthnContext } from "./authn";
+import type { AuthnSvc } from "./authn/store";
 import type { AuthzContext } from "./authz";
 import type { FliptContext } from "./flipt";
 import type { RouteContext } from "./router";
 import type { UserContext } from "./user";
 
-export const createAuthnContext = (): AuthnContext => ({
-	isAuthenticated: false,
-	accessToken: null,
-	userProfile: null,
-	realmAccess: null,
-	resourceAccess: null,
-	isTokenExpired: noop as any,
-	updateToken: noop as any,
-	onClickLogin: noop,
-	onClickRegister: noop,
-	onClickLogout: noop,
+export const createAuthnContext = (): AuthnSvc => ({
+	isInitialLoading: true,
+	keycloak: null,
+	profile: null,
+	actions: {
+		init: noop,
+		login: noop,
+		register: noop,
+		logout: noop,
+	},
 });
 
 export const createAuthzContext = (): AuthzContext => Object.create(null);

@@ -5,7 +5,7 @@ import {
 	type RouteProps as SolidRouteProps,
 } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
-import { AuthnContext } from "core/context/authn";
+import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
 import { FliptContext } from "core/context/flipt";
 import { RouteContext } from "core/context/router";
@@ -24,7 +24,7 @@ import { Dynamic } from "solid-js/web";
 export interface CoreContext {
 	user: UserContext;
 	authz: AuthzContext;
-	authn: AuthnContext;
+	authn: AuthnSvc;
 	flipt: FliptContext;
 }
 
