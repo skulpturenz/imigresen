@@ -2,12 +2,12 @@ import { onMount, Show, type Component, type ParentProps } from "solid-js";
 import { FliptContext } from "./provider";
 import { type FliptSvc } from "./store";
 
-export interface AuthnProviderMockProps {
+export interface FliptProviderMockProps {
 	svc: FliptSvc;
 }
 
-export const AuthnProviderMock: Component<
-	ParentProps<AuthnProviderMockProps>
+export const FliptProviderMock: Component<
+	ParentProps<FliptProviderMockProps>
 > = props => {
 	onMount(() => {
 		props.svc.actions.init();
