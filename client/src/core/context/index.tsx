@@ -1,8 +1,10 @@
+import { Shell } from "core/ui/shell";
 import { type Component, type ParentProps } from "solid-js";
 import { AuthnProvider } from "./authn/provider";
 import { AuthzProvider } from "./authz";
 import { FliptProvider } from "./flipt/provider";
 import { RouterProvider } from "./router/provider";
+import { UiProvider } from "./ui";
 import { UserProvider } from "./user";
 
 export const Providers: Component<ParentProps> = props => {
@@ -11,7 +13,13 @@ export const Providers: Component<ParentProps> = props => {
 			<UserProvider>
 				<AuthzProvider>
 					<FliptProvider>
-						<RouterProvider>{props.children}</RouterProvider>
+						<UiProvider>
+							<Shell>
+								<RouterProvider>
+									{props.children}
+								</RouterProvider>
+							</Shell>
+						</UiProvider>
 					</FliptProvider>
 				</AuthzProvider>
 			</UserProvider>

@@ -3,6 +3,7 @@ import type { AuthnSvc } from "./authn/store";
 import type { AuthzContext } from "./authz";
 import type { FliptSvc } from "./flipt";
 import type { RouterSvc } from "./router";
+import type { UiSvc } from "./ui";
 import type { UserContext } from "./user";
 
 export const createAuthnContext = (): AuthnSvc => ({
@@ -15,6 +16,15 @@ export const createAuthnContext = (): AuthnSvc => ({
 		login: noop,
 		register: noop,
 		logout: noop,
+	},
+});
+
+export const createUiContext = (): UiSvc => ({
+	theme: "dark",
+	mode: "default",
+	actions: {
+		setTheme: noop,
+		setMode: noop,
 	},
 });
 
