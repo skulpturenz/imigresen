@@ -27,8 +27,8 @@ export const AlertDialogOverlay = <T extends ValidComponent = "div">(
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out",
-			"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+			"fixed inset-0 z-50 bg-black/80  data-[expanded]:animate-in data-[closed]:animate-out",
+			"data-[closed]:fade-out-0 data-[expanded]:fade-in-0",
 			props.class,
 		)}
 	/>
@@ -46,10 +46,10 @@ export const AlertDialogContent = <T extends ValidComponent = "div">(
 			className={cn(
 				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%]",
 				"translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200",
-				"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
-				"data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-				"data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-				"data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+				"data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
+				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
+				"data-[closed]:slide-out-to-left-1/2 data-[closed]:slide-out-to-top-[48%]",
+				"data-[expanded]:slide-in-from-left-1/2 data-[expanded]:slide-in-from-top-[48%] sm:rounded-lg",
 				props.class,
 			)}
 		/>
