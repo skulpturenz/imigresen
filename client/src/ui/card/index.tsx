@@ -1,6 +1,6 @@
 import { spreadProps } from "core/utils";
 import type { Component, ComponentProps } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 export const Card: Component<ComponentProps<"div">> = props => (
 	<div

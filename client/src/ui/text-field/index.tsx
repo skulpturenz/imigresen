@@ -10,7 +10,7 @@ import { TextField as TextFieldPrimitive } from "@kobalte/core/text-field";
 import { cva } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 export const TextFieldRoot = <T extends ValidComponent = "div">(
 	props: PolymorphicProps<T, TextFieldRootProps<T>>,

@@ -4,7 +4,7 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { Check } from "lucide-solid";
 import type { ValidComponent } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 const resources = {
 	srOnly: "Checkbox",

@@ -8,7 +8,7 @@ import { Select as SelectPrimitive } from "@kobalte/core/select";
 import { spreadProps } from "core/utils";
 import { Check, ChevronDown } from "lucide-solid";
 import type { ParentProps, ValidComponent } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 const resources = {
 	srOnlyCheckbox: "Checkbox",

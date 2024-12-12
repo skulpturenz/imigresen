@@ -7,7 +7,7 @@ import {
 import { spreadProps } from "core/utils";
 import { X } from "lucide-solid";
 import type { ValidComponent } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 const resources = {
 	close: "Close",
