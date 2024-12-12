@@ -20,6 +20,7 @@ export const createAuthnContext = (): AuthnSvc => ({
 });
 
 export const createUiContext = (): UiSvc => ({
+	isInitialLoading: true,
 	theme: "dark",
 	mode: "default",
 	actions: {
