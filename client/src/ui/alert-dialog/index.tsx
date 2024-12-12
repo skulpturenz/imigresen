@@ -11,8 +11,8 @@ import type {
 } from "@kobalte/core/dialog";
 import { spreadProps } from "core/utils";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
-import { buttonVariants } from "./button";
-import { cn } from "./utils";
+import { buttonVariants } from "ui/button";
+import { cn } from "ui/utils";
 
 export const AlertDialog = AlertDialogPrimitive;
 
@@ -27,7 +27,7 @@ export const AlertDialogOverlay = <T extends ValidComponent = "div">(
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"fixed inset-0 z-50 bg-black/80  data-[expanded]:animate-in data-[closed]:animate-out",
+			"fixed inset-0 z-50 bg-black/80 data-[expanded]:animate-in data-[closed]:animate-out",
 			"data-[closed]:fade-out-0 data-[expanded]:fade-in-0",
 			props.class,
 		)}

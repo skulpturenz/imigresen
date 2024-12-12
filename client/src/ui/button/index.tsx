@@ -4,7 +4,7 @@ import { Button as ButtonPrimitive } from "@kobalte/core/button";
 import { cva, type VariantProps } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
-import { cn } from "./utils";
+import { cn } from "ui/utils";
 
 export const buttonVariants = cva(
 	[
