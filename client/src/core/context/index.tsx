@@ -13,13 +13,11 @@ export const Providers: Component<ParentProps> = props => {
 			<UserProvider>
 				<AuthzProvider>
 					<FliptProvider>
-						<UiProvider>
-							<Shell>
-								<RouterProvider>
-									{props.children}
-								</RouterProvider>
-							</Shell>
-						</UiProvider>
+						<RouterProvider>
+							<UiProvider>
+								<Shell>{props.children}</Shell>
+							</UiProvider>
+						</RouterProvider>
 					</FliptProvider>
 				</AuthzProvider>
 			</UserProvider>

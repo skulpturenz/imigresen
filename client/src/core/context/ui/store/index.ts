@@ -41,7 +41,7 @@ const persistLocalStorage: (
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 	persistLocalStorage((set, get) => {
 		return {
-			isInitialLoading: !get().hasHydrated,
+			isInitialLoading: !get()?.hasHydrated,
 			hasHydrated: false,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,

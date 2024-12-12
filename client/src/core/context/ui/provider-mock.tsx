@@ -1,18 +1,14 @@
-import { onMount, Show, type Component, type ParentProps } from "solid-js";
+import { Show, type Component, type ParentProps } from "solid-js";
 import { UiContext } from "./provider";
-import { type AuthnSvc } from "./store";
+import { type UiSvc } from "./store";
 
-export interface AuthnProviderMockProps {
-	svc: AuthnSvc;
+export interface UiProviderMockProps {
+	svc: UiSvc;
 }
 
-export const AuthnProviderMock: Component<
-	ParentProps<AuthnProviderMockProps>
+export const UiProviderMock: Component<
+	ParentProps<UiProviderMockProps>
 > = props => {
-	onMount(() => {
-		props.svc.actions.init();
-	});
-
 	return (
 		<UiContext.Provider value={props.svc}>
 			<Show when={!props.svc.isInitialLoading}>{props.children}</Show>
