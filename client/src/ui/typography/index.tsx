@@ -26,13 +26,14 @@ export const typographyVariants = cva("", {
 });
 
 export const Typography = <T extends ValidComponent>(
-	props: DynamicProps<T> & VariantProps<typeof typographyVariants>,
+	props: Omit<DynamicProps<T>, "component"> &
+		VariantProps<typeof typographyVariants> & { as?: T },
 ) => {
 	return (
 		<Dynamic
 			{...spreadProps(props)}
 			ref={props.ref}
-			component={props.component || "p"}
+			component={props.as || "p"}
 			class={typographyVariants({ variant: props.variant })}>
 			{props.children}
 		</Dynamic>

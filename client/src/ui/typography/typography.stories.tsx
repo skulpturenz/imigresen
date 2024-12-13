@@ -8,14 +8,12 @@ export default {
 		layout: "centered",
 	},
 	tags: ["autodocs"],
-} satisfies Meta;
-
-// TODO: setting `component` seems to throw, only happens on storybook
+} satisfies Meta<typeof Typography>;
 
 export const Blockquote: Story<typeof Typography> = {
 	args: {
 		variant: "blockquote",
-		// component: "blockquote",
+		as: "blockquote",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -24,7 +22,7 @@ export const Blockquote: Story<typeof Typography> = {
 export const P: Story<typeof Typography> = {
 	args: {
 		variant: "p",
-		// component: "p",
+		as: "p",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -33,7 +31,7 @@ export const P: Story<typeof Typography> = {
 export const H1: Story<typeof Typography> = {
 	args: {
 		variant: "h1",
-		// component: "h1",
+		as: "h1",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -42,7 +40,7 @@ export const H1: Story<typeof Typography> = {
 export const H2: Story<typeof Typography> = {
 	args: {
 		variant: "h2",
-		// component: "h2",
+		as: "h2",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -51,7 +49,7 @@ export const H2: Story<typeof Typography> = {
 export const H3: Story<typeof Typography> = {
 	args: {
 		variant: "h3",
-		// component: "h3",
+		as: "h3",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -60,7 +58,7 @@ export const H3: Story<typeof Typography> = {
 export const H4: Story<typeof Typography> = {
 	args: {
 		variant: "h4",
-		// component: "h4",
+		as: "h4",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -69,7 +67,7 @@ export const H4: Story<typeof Typography> = {
 export const Large: Story<typeof Typography> = {
 	args: {
 		variant: "large",
-		// component: "div",
+		as: "div",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -78,7 +76,7 @@ export const Large: Story<typeof Typography> = {
 export const Small: Story<typeof Typography> = {
 	args: {
 		variant: "small",
-		// component: "small",
+		as: "small",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -87,7 +85,7 @@ export const Small: Story<typeof Typography> = {
 export const Lead: Story<typeof Typography> = {
 	args: {
 		variant: "lead",
-		// component: "p",
+		as: "p",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -96,7 +94,7 @@ export const Lead: Story<typeof Typography> = {
 export const Muted: Story<typeof Typography> = {
 	args: {
 		variant: "muted",
-		// component: "p",
+		as: "p",
 		children:
 			"No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.",
 	},
@@ -105,7 +103,7 @@ export const Muted: Story<typeof Typography> = {
 export const Ol: Story<typeof Typography> = {
 	args: {
 		variant: "ol",
-		// component: "ol",
+		as: "ol",
 		children: (
 			<>
 				<li>
@@ -155,7 +153,7 @@ export const Ol: Story<typeof Typography> = {
 export const Ul: Story<typeof Typography> = {
 	args: {
 		variant: "ul",
-		// component: "ul",
+		as: "ul",
 		children: (
 			<>
 				<li>
