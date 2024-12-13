@@ -1,0 +1,32 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as CheckboxStories from "./checkbox.stories";
+
+<Meta of={CheckboxStories} />
+
+<Title of={CheckboxStories}>Checkbox</Title>
+<Description of={CheckboxStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Checkbox class="flex items-center space-x-2">
+	<CheckboxControl />
+	<CheckboxLabel class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+		Accept terms and conditions
+	</CheckboxLabel>
+</Checkbox>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/checkbox)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/checkbox)
