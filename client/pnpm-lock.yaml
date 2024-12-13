@@ -72,6 +72,12 @@ importers:
       '@storybook/test':
         specifier: ^8.5.0-alpha.20
         version: 8.5.0-alpha.20(storybook@8.5.0-alpha.20(prettier@3.4.2))
+      '@tailwindcss/container-queries':
+        specifier: ^0.1.1
+        version: 0.1.1(tailwindcss@3.4.16)
+      '@tailwindcss/forms':
+        specifier: ^0.5.9
+        version: 0.5.9(tailwindcss@3.4.16)
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
@@ -123,6 +129,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.16
         version: 3.4.16
+      tailwindcss-3d:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.16)
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.16)
@@ -962,8 +971,21 @@ packages:
     peerDependencies:
       storybook: ^8.5.0-alpha.20
 
+  '@swc/helpers@0.5.12':
+    resolution: {integrity: sha512-KMZNXiGibsW9kvZAO1Pam2JPTDBm+KSHMMHWdsyI/1DbIZjT2A6Gy3hblVXUMEDvUAKq+e0vL0X0o54owWji7g==}
+
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@tailwindcss/container-queries@0.1.1':
+    resolution: {integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==}
+    peerDependencies:
+      tailwindcss: '>=3.2.0'
+
+  '@tailwindcss/forms@0.5.9':
+    resolution: {integrity: sha512-tM4XVr2+UVTxXJzey9Twx48c1gcxFStqn1pQz0tRsX8o3DvxhN5oY5pvyAbUx7VTaZxpej4Zzvc6h+1RJBzpIg==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20'
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -2108,6 +2130,10 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
+  mini-svg-data-uri@1.4.4:
+    resolution: {integrity: sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==}
+    hasBin: true
+
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
@@ -2638,6 +2664,11 @@ packages:
 
   tailwind-merge@2.5.5:
     resolution: {integrity: sha512-0LXunzzAZzo0tEPxV3I297ffKZPlKDrjj7NXphC8V5ak9yHC5zRmxnOe2m/Rd/7ivsOMJe3JZ2JVocoDdQTRBA==}
+
+  tailwindcss-3d@1.0.7:
+    resolution: {integrity: sha512-WRW0HTwtBSlbFt4dztoDlCZyPHWM1wu/hn52kVqdVYrTFfgTcSCU5lNAIU+seL5eoaH7EIyQC5N4ok252ktSeQ==}
+    peerDependencies:
+      tailwindcss: '>=3.2.0'
 
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
@@ -3740,9 +3771,22 @@ snapshots:
       '@vitest/spy': 2.0.5
       storybook: 8.5.0-alpha.20(prettier@3.4.2)
 
+  '@swc/helpers@0.5.12':
+    dependencies:
+      tslib: 2.8.1
+
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.16)':
+    dependencies:
+      tailwindcss: 3.4.16
+
+  '@tailwindcss/forms@0.5.9(tailwindcss@3.4.16)':
+    dependencies:
+      mini-svg-data-uri: 1.4.4
+      tailwindcss: 3.4.16
 
   '@testing-library/dom@10.4.0':
     dependencies:
@@ -5027,6 +5071,8 @@ snapshots:
 
   min-indent@1.0.1: {}
 
+  mini-svg-data-uri@1.4.4: {}
+
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.11
@@ -5529,6 +5575,12 @@ snapshots:
       tslib: 2.8.1
 
   tailwind-merge@2.5.5: {}
+
+  tailwindcss-3d@1.0.7(tailwindcss@3.4.16):
+    dependencies:
+      '@swc/helpers': 0.5.12
+      lodash: 4.17.21
+      tailwindcss: 3.4.16
 
   tailwindcss-animate@1.0.7(tailwindcss@3.4.16):
     dependencies:
