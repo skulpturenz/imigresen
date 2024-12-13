@@ -14,6 +14,7 @@ export type UiMode = "default" | "zen";
 
 export interface UiSvc {
 	isInitialLoading: boolean;
+	locale: string;
 	theme: UiTheme;
 	mode: UiMode;
 	actions: {
@@ -42,6 +43,7 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 	persistLocalStorage((set, get) => {
 		return {
 			isInitialLoading: !get()?.hasHydrated,
+			locale: "en-US", // https://www.ietf.org/rfc/bcp/bcp47.txt
 			hasHydrated: false,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,

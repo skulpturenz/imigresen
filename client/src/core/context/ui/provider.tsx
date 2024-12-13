@@ -3,6 +3,7 @@ import {
 	ColorModeScript,
 	localStorageManager,
 } from "@kobalte/core";
+import { I18nProvider } from "@kobalte/core/i18n";
 import { createUiContext } from "core/context/initializers";
 import {
 	createContext,
@@ -19,13 +20,17 @@ export const UiProvider: Component<ParentProps> = props => {
 
 	return (
 		<UiContext.Provider value={value()}>
-			<ColorModeScript storageType="localStorage" />
+			<Show when={!value().isInitialLoading}>
+				<I18nProvider locale={value().locale}>
+					<ColorModeScript storageType="localStorage" />
 
-			<ColorModeProvider
-				initialColorMode={value().theme}
-				storageManager={localStorageManager}>
-				<Show when={!value().isInitialLoading}>{props.children}</Show>
-			</ColorModeProvider>
+					<ColorModeProvider
+						initialColorMode={value().theme}
+						storageManager={localStorageManager}>
+						{props.children}
+					</ColorModeProvider>
+				</I18nProvider>
+			</Show>
 		</UiContext.Provider>
 	);
 };
