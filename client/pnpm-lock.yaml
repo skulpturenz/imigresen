@@ -123,6 +123,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.16
         version: 3.4.16
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.16)
       typescript:
         specifier: ~5.7.2
         version: 5.7.2
@@ -905,10 +908,10 @@ packages:
       react-dom:
         optional: true
 
-  '@storybook/builder-vite@8.5.0-alpha.21':
-    resolution: {integrity: sha512-a9+K2LpbVGNlv0psK2CDKdsPlD9E805KbRYEGH0tp1w1Om9DBbQR52xh4yMyhPOatf54LGIFpEJ5KXSYIySVnQ==}
+  '@storybook/builder-vite@8.5.0-alpha.22':
+    resolution: {integrity: sha512-uc5orKNNxtOEk9yXSTkj8yLhP6DUO0rVfRedzT5KwCvuH71IEbV+kvfpgsWWtVzf+pDuO8MudVoghCSlmUkifA==}
     peerDependencies:
-      storybook: ^8.5.0-alpha.21
+      storybook: ^8.5.0-alpha.22
       vite: ^4.0.0 || ^5.0.0 || ^6.0.0
 
   '@storybook/core@8.5.0-alpha.20':
@@ -924,10 +927,10 @@ packages:
     peerDependencies:
       storybook: ^8.5.0-alpha.20
 
-  '@storybook/csf-plugin@8.5.0-alpha.21':
-    resolution: {integrity: sha512-j3yR1DzaY/Na0HgBvpMhNu2TkolRUjM4UtNUcYBcbUg5Z/UqH9aSYZSCL7NMlnCuQV2EFBKPITLqUd+6MbRyOA==}
+  '@storybook/csf-plugin@8.5.0-alpha.22':
+    resolution: {integrity: sha512-aWhQn8i/Y8HuShxzfF5d/N6ZIjjGfUEx8kdvNoFg/fhpNzYb0BJwDAAk7lPV4n/v860nB3iNDxr9qv2H00Fs3g==}
     peerDependencies:
-      storybook: ^8.5.0-alpha.21
+      storybook: ^8.5.0-alpha.22
 
   '@storybook/csf@0.1.12':
     resolution: {integrity: sha512-9/exVhabisyIVL0VxTCxo01Tdm8wefIXKXfltAPTSr8cbLn5JAxGQ6QV3mjdecLGEOucfoVhAKtJfVHxEK1iqw==}
@@ -2636,6 +2639,11 @@ packages:
   tailwind-merge@2.5.5:
     resolution: {integrity: sha512-0LXunzzAZzo0tEPxV3I297ffKZPlKDrjj7NXphC8V5ak9yHC5zRmxnOe2m/Rd/7ivsOMJe3JZ2JVocoDdQTRBA==}
 
+  tailwindcss-animate@1.0.7:
+    resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || insiders'
+
   tailwindcss@3.4.16:
     resolution: {integrity: sha512-TI4Cyx7gDiZ6r44ewaJmt0o6BrMCT5aK5e0rmJ/G9Xq3w7CX/5VXl/zIPEJZFUK5VEqwByyhqNPycPlvcK4ZNw==}
     engines: {node: '>=14.0.0'}
@@ -3659,9 +3667,9 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/builder-vite@8.5.0-alpha.21(storybook@8.5.0-alpha.20(prettier@3.4.2))(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1))':
+  '@storybook/builder-vite@8.5.0-alpha.22(storybook@8.5.0-alpha.20(prettier@3.4.2))(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1))':
     dependencies:
-      '@storybook/csf-plugin': 8.5.0-alpha.21(storybook@8.5.0-alpha.20(prettier@3.4.2))
+      '@storybook/csf-plugin': 8.5.0-alpha.22(storybook@8.5.0-alpha.20(prettier@3.4.2))
       browser-assert: 1.2.1
       storybook: 8.5.0-alpha.20(prettier@3.4.2)
       ts-dedent: 2.2.0
@@ -3692,7 +3700,7 @@ snapshots:
       storybook: 8.5.0-alpha.20(prettier@3.4.2)
       unplugin: 1.16.0
 
-  '@storybook/csf-plugin@8.5.0-alpha.21(storybook@8.5.0-alpha.20(prettier@3.4.2))':
+  '@storybook/csf-plugin@8.5.0-alpha.22(storybook@8.5.0-alpha.20(prettier@3.4.2))':
     dependencies:
       storybook: 8.5.0-alpha.20(prettier@3.4.2)
       unplugin: 1.16.0
@@ -5423,7 +5431,7 @@ snapshots:
 
   storybook-solidjs-vite@1.0.0-beta.6(@testing-library/jest-dom@6.5.0)(solid-js@1.9.3)(storybook@8.5.0-alpha.20(prettier@3.4.2))(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1)):
     dependencies:
-      '@storybook/builder-vite': 8.5.0-alpha.21(storybook@8.5.0-alpha.20(prettier@3.4.2))(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1))
+      '@storybook/builder-vite': 8.5.0-alpha.22(storybook@8.5.0-alpha.20(prettier@3.4.2))(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1))
       magic-string: 0.30.14
       vite-plugin-solid: 2.11.0(@testing-library/jest-dom@6.5.0)(solid-js@1.9.3)(vite@6.0.3(@types/node@22.10.1)(jiti@1.21.6)(yaml@2.6.1))
     transitivePeerDependencies:
@@ -5521,6 +5529,10 @@ snapshots:
       tslib: 2.8.1
 
   tailwind-merge@2.5.5: {}
+
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.16):
+    dependencies:
+      tailwindcss: 3.4.16
 
   tailwindcss@3.4.16:
     dependencies:

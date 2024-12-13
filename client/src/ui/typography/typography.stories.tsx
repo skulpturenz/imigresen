@@ -19,7 +19,7 @@ export const Blockquote: Story<typeof Typography> = {
 	},
 };
 
-export const P: Story<typeof Typography> = {
+export const Paragraph: Story<typeof Typography> = {
 	args: {
 		variant: "p",
 		as: "p",
@@ -28,7 +28,7 @@ export const P: Story<typeof Typography> = {
 	},
 };
 
-export const H1: Story<typeof Typography> = {
+export const HeadingOne: Story<typeof Typography> = {
 	args: {
 		variant: "h1",
 		as: "h1",
@@ -37,7 +37,7 @@ export const H1: Story<typeof Typography> = {
 	},
 };
 
-export const H2: Story<typeof Typography> = {
+export const HeadingTwo: Story<typeof Typography> = {
 	args: {
 		variant: "h2",
 		as: "h2",
@@ -46,7 +46,7 @@ export const H2: Story<typeof Typography> = {
 	},
 };
 
-export const H3: Story<typeof Typography> = {
+export const HeadingThree: Story<typeof Typography> = {
 	args: {
 		variant: "h3",
 		as: "h3",
@@ -55,7 +55,7 @@ export const H3: Story<typeof Typography> = {
 	},
 };
 
-export const H4: Story<typeof Typography> = {
+export const HeadingFour: Story<typeof Typography> = {
 	args: {
 		variant: "h4",
 		as: "h4",
@@ -100,7 +100,7 @@ export const Muted: Story<typeof Typography> = {
 	},
 };
 
-export const Ol: Story<typeof Typography> = {
+export const OrderedList: Story<typeof Typography> = {
 	args: {
 		variant: "ol",
 		as: "ol",
@@ -150,7 +150,7 @@ export const Ol: Story<typeof Typography> = {
 	},
 };
 
-export const Ul: Story<typeof Typography> = {
+export const UnorderedList: Story<typeof Typography> = {
 	args: {
 		variant: "ul",
 		as: "ul",
