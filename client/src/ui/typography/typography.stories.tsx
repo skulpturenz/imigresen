@@ -7,7 +7,6 @@ export default {
 	parameters: {
 		layout: "centered",
 	},
-	tags: ["autodocs"],
 } satisfies Meta<typeof Typography>;
 
 export const Blockquote: Story<typeof Typography> = {

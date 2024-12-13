@@ -1,0 +1,55 @@
+import { Meta, Typeset } from "@storybook/blocks";
+import { default as defaultTheme } from "tailwindcss/defaultTheme";
+import { startCase } from "es-toolkit";
+import * as TypographyStories from "./typography.stories";
+
+<Meta of={TypographyStories} />
+
+export const typography = {
+	type: {
+		primary: ["Manrope", ...defaultTheme.fontFamily.sans].join(", "),
+	},
+	weight: {
+		extraLight: "100",
+		light: "300",
+		regular: "400",
+		medium: "500",
+		semiBold: "600",
+		bold: "700",
+		extraBold: "800",
+	},
+	size: {
+		xs: 12,
+		sm: 14,
+		base: 16,
+		lg: 18,
+		xl: 20,
+		"2xl": 24,
+		"3xl": 30,
+		"4xl": 36,
+		"5xl": 48,
+		"6xl": 60,
+		"7xl": 72,
+		"8xl": 96,
+		"9xl": 128,
+	},
+};
+
+export const SampleText =
+	"Whereas a common understanding of these rights and freedoms is";
+
+# Typography
+
+**Font:** Manrope
+
+**Weights:** {Object.entries(typography.weight).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
+
+{Object.entries(typography.weight).map(([_, weight]) => (
+
+<Typeset
+	fontSizes={Object.values(typography.size)}
+	fontWeight={weight}
+	sampleText={SampleText}
+	fontFamily={typography.type.primary}
+/>
+))}
