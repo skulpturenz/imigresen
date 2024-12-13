@@ -10,7 +10,7 @@ export default {
 	tags: ["autodocs"],
 } satisfies Meta;
 
-// TODO: setting `component` seems to throw
+// TODO: setting `component` seems to throw, only happens on storybook
 
 export const Blockquote: Story<typeof Typography> = {
 	args: {
