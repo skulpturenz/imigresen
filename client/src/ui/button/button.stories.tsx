@@ -6,9 +6,13 @@ export default {
 	title: "ui/button",
 	component: Button,
 	parameters: {
-		layout: "centered",
+		docs: {
+			description: {
+				component:
+					"Displays a button or a component that looks like a button.",
+			},
+		},
 	},
-	tags: ["autodocs"],
 } satisfies Meta<typeof Button>;
 
 export const DefaultVariant: Story<typeof Button> = {

@@ -1,0 +1,29 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as ButtonStories from "./button.stories";
+
+<Meta of={ButtonStories} />
+
+<Title of={ButtonStories}>Button</Title>
+<Description of={ButtonStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Button variant="default" size="lg">
+	Button
+</Button>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/button)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/button)
