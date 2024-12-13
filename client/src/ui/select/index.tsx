@@ -35,16 +35,15 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 	<SelectPrimitive.Trigger
 		{...spreadProps(props)}
 		class={cn(
-			"flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent",
-			"px-3 py-2 text-sm shadow-sm ring-offset-background transition-shadow placeholder:text-muted-foreground",
-			"focus:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring",
-			"disabled:cursor-not-allowed disabled:opacity-50",
+			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background",
+			"px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none",
+			"focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed",
+			"disabled:opacity-50 [&>span]:line-clamp-1",
 			props.class,
 		)}>
 		{props.children}
-		<SelectPrimitive.Icon
-			as={ChevronDown}
-			class="flex h-4 w-4 items-center justify-center opacity-50">
+
+		<SelectPrimitive.Icon as={ChevronDown} class="h-4 w-4 opacity-50">
 			<span class="sr-only">{resources.srOnlyShowOptions}</span>
 		</SelectPrimitive.Icon>
 	</SelectPrimitive.Trigger>
@@ -73,15 +72,16 @@ export const SelectItem = <T extends ValidComponent = "li">(
 	<SelectPrimitive.Item
 		{...spreadProps(props)}
 		class={cn(
-			"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8",
-			"text-sm outline-none focus:bg-accent focus:text-accent-foreground",
+			"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5",
+			"pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			props.class,
 		)}>
-		<SelectPrimitive.ItemIndicator class="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+		<SelectPrimitive.ItemIndicator class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 			<Check class="h-4 w-4" />
 			<span class="sr-only">{resources.srOnlyCheckbox}</span>
 		</SelectPrimitive.ItemIndicator>
+
 		<SelectPrimitive.ItemLabel>{props.children}</SelectPrimitive.ItemLabel>
 	</SelectPrimitive.Item>
 );

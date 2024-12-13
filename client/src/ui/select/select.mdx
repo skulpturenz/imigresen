@@ -1,0 +1,37 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as SelectStories from "./select.stories";
+
+<Meta of={SelectStories} />
+
+<Title of={SelectStories}>Select</Title>
+<Description of={SelectStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Select
+	options={["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"]}
+	placeholder="Select a fruit…"
+	itemComponent={props => (
+		<SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+	)}>
+	<SelectTrigger class="w-48">
+		<SelectValue<string>>{state => state.selectedOption()}</SelectValue>
+	</SelectTrigger>
+	<SelectContent />
+</Select>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/select)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/select)

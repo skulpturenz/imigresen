@@ -9,7 +9,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					"Displays a button or a component that looks like a button.",
+					"Displays a button or a component that looks like a button",
 			},
 		},
 	},

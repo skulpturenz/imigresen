@@ -8,7 +8,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					"A control that allows the user to toggle between checked and not checked.",
+					"A control that allows the user to toggle between checked and not checked",
 			},
 		},
 	},

@@ -17,7 +17,7 @@ export default {
 	parameters: {
 		docs: {
 			description: {
-				component: "Displays a card with header, content, and footer.",
+				component: "Displays a card with header, content, and footer",
 			},
 		},
 	},
