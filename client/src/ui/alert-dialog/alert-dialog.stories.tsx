@@ -14,10 +14,21 @@ import {
 } from "ui/alert-dialog";
 import { Button } from "ui/button";
 
-// More on how to set up stories at: https://storybook.js.org/docs/7.0/solid/writing-stories/introduction
 export default {
 	title: "ui/alert-dialog",
-	component: () => (
+	component: AlertDialog,
+	parameters: {
+		docs: {
+			description: {
+				component:
+					"A modal dialog that interrupts the user with important content and expects a response",
+			},
+		},
+	},
+} satisfies Meta<typeof AlertDialog>;
+
+export const Default: Story<typeof AlertDialog> = {
+	render: () => (
 		<AlertDialog>
 			<AlertDialogTrigger
 				as={(props: AlertDialogTriggerProps) => (
@@ -44,12 +55,4 @@ export default {
 			</AlertDialogContent>
 		</AlertDialog>
 	),
-	parameters: {
-		// Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
-		layout: "centered",
-	},
-	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-	tags: ["autodocs"],
-} satisfies Meta;
-
-export const Primary: Story = {};
+};
