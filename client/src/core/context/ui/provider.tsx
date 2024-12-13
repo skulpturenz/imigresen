@@ -1,3 +1,8 @@
+import {
+	ColorModeProvider,
+	ColorModeScript,
+	localStorageManager,
+} from "@kobalte/core";
 import { createUiContext } from "core/context/initializers";
 import {
 	createContext,
@@ -14,7 +19,13 @@ export const UiProvider: Component<ParentProps> = props => {
 
 	return (
 		<UiContext.Provider value={value()}>
-			<Show when={!value().isInitialLoading}>{props.children}</Show>
+			<ColorModeScript storageType="localStorage" />
+
+			<ColorModeProvider
+				initialColorMode={value().theme}
+				storageManager={localStorageManager}>
+				<Show when={!value().isInitialLoading}>{props.children}</Show>
+			</ColorModeProvider>
 		</UiContext.Provider>
 	);
 };
