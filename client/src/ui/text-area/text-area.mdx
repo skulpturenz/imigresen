@@ -1,0 +1,34 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as TextAreaStories from "./text-area.stories";
+
+<Meta of={TextAreaStories} />
+
+<Title of={TextAreaStories}>TextArea</Title>
+<Description of={TextAreaStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<TextFieldRoot class="w-96" validationState="valid">
+	<TextFieldLabel>Your message</TextFieldLabel>
+	<TextArea placeholder="Type your message here." />
+	<TextFieldDescription class="data-[invalid]:hidden">
+		Enter a really really long message
+	</TextFieldDescription>
+	<TextFieldErrorMessage>30 characters max</TextFieldErrorMessage>
+</TextFieldRoot>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/input)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/text-field)
