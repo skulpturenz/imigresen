@@ -31,7 +31,7 @@ export const Label = <T extends ValidComponent = "label">(
 	<Dynamic
 		{...spreadProps(props)}
 		ref={props.ref}
-		component={props.as}
+		component={props.as ?? "label"}
 		class={cn(
 			label({
 				label: props.label,
