@@ -1,0 +1,38 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as TooltipStories from "./tooltip.stories";
+
+<Meta of={TooltipStories} />
+
+<Title of={TooltipStories}>Tooltip</Title>
+<Description of={TooltipStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Tooltip>
+	<TooltipTrigger
+		as={(props: TooltipTriggerProps) => (
+			<Button variant="outline" {...props}>
+				Hover
+			</Button>
+		)}
+	/>
+	<TooltipContent>
+		<p>Add to library</p>
+	</TooltipContent>
+</Tooltip>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/tooltip)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/tooltip)
