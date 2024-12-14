@@ -28,7 +28,7 @@ export const Switch = <T extends ValidComponent = "div">(
 	<SwitchPrimitive
 		{...spreadProps(props)}
 		class={cn(
-			"data-[invalid]:animate-headShake disabled:cursor-not-allowed",
+			"[&:has([disabled])]:animate-none data-[invalid]:animate-headShake disabled:cursor-not-allowed",
 			props.class,
 		)}
 	/>
