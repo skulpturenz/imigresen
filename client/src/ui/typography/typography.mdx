@@ -10,7 +10,7 @@ export const typography = {
 		primary: ["Manrope", ...defaultTheme.fontFamily.sans].join(", "),
 	},
 	weight: {
-		extraLight: "100",
+		extraLight: "200",
 		light: "300",
 		regular: "400",
 		medium: "500",
@@ -44,12 +44,17 @@ export const SampleText =
 
 **Weights:** {Object.entries(typography.weight).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
 
-{Object.entries(typography.weight).map(([_, weight]) => (
+{Object.entries(typography.weight).map(([section, weight]) => (
 
-<Typeset
-	fontSizes={Object.values(typography.size)}
-	fontWeight={weight}
-	sampleText={SampleText}
-	fontFamily={typography.type.primary}
-/>
+<>
+	<h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
+
+    <Typeset
+    	fontSizes={Object.values(typography.size)}
+    	fontWeight={weight}
+    	sampleText={SampleText}
+    	fontFamily={typography.type.primary}
+    />
+
+</>
 ))}
