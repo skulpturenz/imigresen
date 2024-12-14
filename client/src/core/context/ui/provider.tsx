@@ -11,6 +11,7 @@ import {
 	type Component,
 	type ParentProps,
 } from "solid-js";
+import { ToastList, ToastRegion } from "ui/toast";
 import { useStore, type UiSvc } from "./store";
 
 export const UiContext = createContext<UiSvc>(createUiContext());
@@ -28,6 +29,10 @@ export const UiProvider: Component<ParentProps> = props => {
 						initialColorMode={value().theme}
 						storageManager={localStorageManager}>
 						{props.children}
+
+						<ToastRegion>
+							<ToastList />
+						</ToastRegion>
 					</ColorModeProvider>
 				</I18nProvider>
 			</Show>
