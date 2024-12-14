@@ -7,9 +7,9 @@ import type {
 	TextFieldRootProps,
 } from "@kobalte/core/text-field";
 import { TextField as TextFieldPrimitive } from "@kobalte/core/text-field";
-import { cva } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
+import { label } from "ui/label";
 import { cn } from "ui/utils";
 
 export const TextFieldRoot = <T extends ValidComponent = "div">(
@@ -22,33 +22,13 @@ export const TextFieldRoot = <T extends ValidComponent = "div">(
 	/>
 );
 
-export const textfieldLabel = cva(
-	"text-base sm:text-sm font-medium leading-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-70",
-	{
-		variants: {
-			label: {
-				true: "data-[invalid]:text-destructive",
-			},
-			error: {
-				true: "text-destructive",
-			},
-			description: {
-				true: "font-normal text-muted-foreground",
-			},
-		},
-		defaultVariants: {
-			label: true,
-		},
-	},
-);
-
 export const TextFieldLabel = <T extends ValidComponent = "label">(
 	props: PolymorphicProps<T, TextFieldLabelProps<T>>,
 ) => (
 	<TextFieldPrimitive.Label
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn(textfieldLabel(), props.class)}
+		class={cn(label(), props.class)}
 	/>
 );
 
@@ -58,7 +38,7 @@ export const TextFieldErrorMessage = <T extends ValidComponent = "div">(
 	<TextFieldPrimitive.ErrorMessage
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn(textfieldLabel({ error: true }), props.class)}
+		class={cn(label({ error: true }), props.class)}
 	/>
 );
 
@@ -68,10 +48,7 @@ export const TextFieldDescription = <T extends ValidComponent = "div">(
 	<TextFieldPrimitive.Description
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn(
-			textfieldLabel({ description: true, label: false }),
-			props.class,
-		)}
+		class={cn(label({ description: true, label: false }), props.class)}
 	/>
 );
 
