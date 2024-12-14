@@ -26,7 +26,7 @@ export const label = cva(
 );
 
 export const Label = <T extends ValidComponent = "label">(
-	props: PolymorphicProps<T> & VariantProps<typeof label>,
+	props: PolymorphicProps<T, VariantProps<typeof label>>,
 ) => (
 	<Dynamic
 		{...spreadProps(props)}
