@@ -63,7 +63,7 @@ export const TextField = <T extends ValidComponent = "input">(
 			"ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium",
 			"file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2",
 			"focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-			"data-[invalid]:animate-headShake data-[invalid]:border-destructive data-[invalid]:text-destructive",
+			"data-[invalid]:animate-headShake disabled:data-[invalid]:animate-none data-[invalid]:border-destructive data-[invalid]:text-destructive",
 			"data-[invalid]:border data-[invalid]:placeholder-destructive",
 			props.class,
 		)}
