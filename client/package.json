@@ -13,6 +13,7 @@
 		"build-storybook": "storybook build"
 	},
 	"dependencies": {
+		"@corvu/drawer": "^0.2.2",
 		"@flipt-io/flipt-client-browser": "^0.3.1",
 		"@kobalte/core": "^0.13.7",
 		"@open-policy-agent/opa-wasm": "^1.10.0",
