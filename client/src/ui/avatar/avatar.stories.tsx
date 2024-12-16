@@ -11,9 +11,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof AvatarRoot>;
 
-export const Default: Story = {
+export const Default: Story<typeof AvatarRoot> = {
 	render: () => (
 		<AvatarRoot>
 			<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />

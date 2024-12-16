@@ -11,7 +11,7 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof Badge>;
 
 export const Default: Story<typeof Badge> = {
 	render: () => <Badge>Default</Badge>,

@@ -10,9 +10,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof Separator>;
 
-export const Default: Story = {
+export const Default: Story<typeof Separator> = {
 	render: () => (
 		<div>
 			<div class="space-y-1">

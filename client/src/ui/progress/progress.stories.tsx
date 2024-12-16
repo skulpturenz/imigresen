@@ -12,9 +12,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof Progress>;
 
-export const Default: Story = {
+export const Default: Story<typeof Progress> = {
 	render: () => {
 		const [progress, setProgress] = createSignal(0);
 

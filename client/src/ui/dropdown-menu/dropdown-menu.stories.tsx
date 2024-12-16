@@ -42,9 +42,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof DropdownMenu>;
 
-export const Default: Story = {
+export const Default: Story<typeof DropdownMenu> = {
 	render: () => (
 		<DropdownMenu placement="right">
 			<DropdownMenuTrigger

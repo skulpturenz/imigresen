@@ -17,9 +17,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof TextField>;
 
-export const Valid: Story = {
+export const Valid: Story<typeof TextField> = {
 	render: () => (
 		<TextFieldRoot class="w-96" validationState="valid">
 			<TextFieldLabel>Email</TextFieldLabel>

@@ -19,9 +19,9 @@ export default {
 			},
 		},
 	},
-} satisfies Meta;
+} satisfies Meta<typeof Breadcrumb>;
 
-export const Default: Story = {
+export const Default: Story<typeof Breadcrumb> = {
 	render: () => (
 		<Breadcrumb>
 			<BreadcrumbList>
