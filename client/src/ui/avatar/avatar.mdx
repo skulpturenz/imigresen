@@ -1,0 +1,30 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as AvatarStories from "./avatar.stories";
+
+<Meta of={AvatarStories} />
+
+<Title of={AvatarStories}>Avatar</Title>
+<Description of={AvatarStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Avatar>
+	<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+	<AvatarFallback>CN</AvatarFallback>
+</Avatar>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/avatar)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/image)

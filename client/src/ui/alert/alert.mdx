@@ -1,0 +1,33 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as AlertStories from "./alert.stories";
+
+<Meta of={AlertStories} />
+
+<Title of={AlertStories}>Alert</Title>
+<Description of={AlertStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Alert>
+	<Terminal class="h-4 w-4" />
+	<AlertTitle>Heads up!</AlertTitle>
+	<AlertDescription>
+		You can add components to your app using the cli.
+	</AlertDescription>
+</Alert>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/alert)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/alert)

@@ -1,0 +1,32 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as SwitchStories from "./switch.stories";
+
+<Meta of={SwitchStories} />
+
+<Title of={SwitchStories}>Switch</Title>
+<Description of={SwitchStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Switch class="flex items-center space-x-2">
+	<SwitchControl>
+		<SwitchThumb />
+	</SwitchControl>
+	<SwitchLabel>Airplane Mode</SwitchLabel>
+</Switch>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/switch)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/switch)

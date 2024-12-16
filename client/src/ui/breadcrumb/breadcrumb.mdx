@@ -1,0 +1,45 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as BreadcrumbStories from "./breadcrumb.stories";
+
+<Meta of={BreadcrumbStories} />
+
+<Title of={BreadcrumbStories}>Breadcrumb</Title>
+<Description of={BreadcrumbStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Breadcrumb>
+	<BreadcrumbList>
+		<BreadcrumbItem>
+			<BreadcrumbLink>Home</BreadcrumbLink>
+		</BreadcrumbItem>
+		<BreadcrumbSeparator />
+		<BreadcrumbItem>
+			<BreadcrumbEllipsis class="h-4 w-4" />
+			<span class="sr-only">Toggle menu</span>
+		</BreadcrumbItem>
+		<BreadcrumbSeparator />
+		<BreadcrumbItem>
+			<BreadcrumbLink>Components</BreadcrumbLink>
+		</BreadcrumbItem>
+		<BreadcrumbSeparator />
+		<BreadcrumbItem>
+			<BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+		</BreadcrumbItem>
+	</BreadcrumbList>
+</Breadcrumb>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/breadcrumb)

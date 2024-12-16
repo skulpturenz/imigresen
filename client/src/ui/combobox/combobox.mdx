@@ -1,0 +1,37 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as ComboboxStories from "./combobox.stories";
+
+<Meta of={ComboboxStories} />
+
+<Title of={ComboboxStories}>Combobox</Title>
+<Description of={ComboboxStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Combobox
+	options={["Next.js", "Astro", "Qwik", "SolidStart", "Nuxt.js"]}
+	placeholder="Search framework..."
+	itemComponent={props => (
+		<ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+	)}>
+	<ComboboxTrigger>
+		<ComboboxInput />
+	</ComboboxTrigger>
+	<ComboboxContent />
+</Combobox>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/combobox)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/combobox)

@@ -1,0 +1,38 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as DrawerStories from "./drawer.stories";
+
+<Meta of={DrawerStories} />
+
+<Title of={DrawerStories}>Drawer</Title>
+<Description of={DrawerStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Drawer>
+	<DrawerTrigger>Open</DrawerTrigger>
+	<DrawerContent>
+		<DialogHeader>
+			<DrawerLabel>Are you sure absolutely sure?</DrawerLabel>
+			<DialogDescription>
+				This action cannot be undone. This will permanently delete your
+				account and remove your data from our servers.
+			</DialogDescription>
+		</DialogHeader>
+	</DrawerContent>
+</Drawer>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/drawer)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/drawer)

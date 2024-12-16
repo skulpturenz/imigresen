@@ -1,0 +1,32 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as TextFieldStories from "./text-field.stories";
+
+<Meta of={TextFieldStories} />
+
+<Title of={TextFieldStories}>TextField</Title>
+<Description of={TextFieldStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<TextFieldRoot class="w-96" validationState="valid">
+	<TextFieldLabel>Email</TextFieldLabel>
+	<TextField type="email" placeholder="Email" />
+	<TextFieldDescription>Enter a valid email</TextFieldDescription>
+	<TextFieldErrorMessage>Email is required.</TextFieldErrorMessage>
+</TextFieldRoot>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/textarea)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/textarea)

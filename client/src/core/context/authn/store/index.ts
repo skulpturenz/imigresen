@@ -6,6 +6,8 @@ import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
+export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
+
 export interface AuthnSvc {
 	isInitialLoading: boolean;
 	isActionsLoading: boolean;
@@ -71,6 +73,13 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				}
 
 				const profile = await get().keycloak?.loadUserProfile();
+
+				if (!import.meta.env.SSR) {
+					window.localStorage.setItem(
+						AUTHN_SVC_SUB_CONFIG_KEY,
+						get().keycloak?.tokenParsed?.sub ?? "",
+					);
+				}
 
 				set({ profile });
 				set({ isInitialLoading: false });

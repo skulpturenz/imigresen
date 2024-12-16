@@ -1,0 +1,68 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as CardStories from "./card.stories";
+
+<Meta of={CardStories} />
+
+<Title of={CardStories}>Card</Title>
+<Description of={CardStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Card class="w-96">
+	<CardHeader>
+		<CardTitle>Notifications</CardTitle>
+		<CardDescription>You have 3 unread messages.</CardDescription>
+	</CardHeader>
+	<CardContent class="grid gap-4">
+		<div class=" flex items-center space-x-4 rounded-md border p-4">
+			<BellIcon class="h-4 w-4" />
+			<div class="flex-1 space-y-1">
+				<p class="text-sm font-medium leading-none">
+					Push Notifications
+				</p>
+				<p class="text-sm text-muted-foreground">
+					Send notifications to device.
+				</p>
+			</div>
+		</div>
+		<div>
+			<For each={notifications}>
+				{notification => (
+					<div class="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
+						<span class="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
+						<div class="space-y-1">
+							<p class="text-sm font-medium leading-none">
+								{notification.title}
+							</p>
+							<p class="text-sm text-muted-foreground">
+								{notification.description}
+							</p>
+						</div>
+					</div>
+				)}
+			</For>
+		</div>
+	</CardContent>
+	<CardFooter>
+		<Button class="w-full">
+			<Check class="mr-2 h-4 w-4" />
+			Mark all as read
+		</Button>
+	</CardFooter>
+</Card>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/card)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/card)

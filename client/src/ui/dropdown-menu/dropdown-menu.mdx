@@ -1,0 +1,117 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as DropdownMenuStories from "./dropdown-menu.stories";
+
+<Meta of={DropdownMenuStories} />
+
+<Title of={DropdownMenuStories}>Dropdown Menu</Title>
+<Description of={DropdownMenuStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<DropdownMenu placement="right">
+	<DropdownMenuTrigger
+		as={(props: DropdownMenuSubTriggerProps) => (
+			<Button variant="outline" {...props}>
+				Open
+			</Button>
+		)}
+	/>
+	<DropdownMenuContent class="w-56">
+		<DropdownMenuGroup>
+			<DropdownMenuGroupLabel>My Account</DropdownMenuGroupLabel>
+			<DropdownMenuSeparator />
+			<DropdownMenuItem>
+				<User class="mr-2" />
+				<span>Profile</span>
+				<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+			</DropdownMenuItem>
+			<DropdownMenuItem>
+				<CreditCard class="mr-2" />
+				<span>Billing</span>
+				<DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+			</DropdownMenuItem>
+			<DropdownMenuItem>
+				<Settings class="mr-2" />
+				<span>Settings</span>
+				<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+			</DropdownMenuItem>
+			<DropdownMenuItem>
+				<Keyboard class="mr-2" />
+				<span>Keyboard shortcuts</span>
+				<DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+			</DropdownMenuItem>
+		</DropdownMenuGroup>
+		<DropdownMenuSeparator />
+		<DropdownMenuGroup>
+			<DropdownMenuItem>
+				<User class="mr-2" />
+				<span>Team</span>
+			</DropdownMenuItem>
+			<DropdownMenuSub>
+				<DropdownMenuSubTrigger>
+					<UserPlus class="mr-2" />
+					<span>Invite users</span>
+				</DropdownMenuSubTrigger>
+				<DropdownMenuSubContent>
+					<DropdownMenuItem>
+						<Mail class="mr-2" />
+						<span>Email</span>
+					</DropdownMenuItem>
+					<DropdownMenuItem>
+						<MessageSquare class="mr-2" />
+						<span>Message</span>
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem>
+						<PlusCircle class="mr-2" />
+						<span>More...</span>
+					</DropdownMenuItem>
+				</DropdownMenuSubContent>
+			</DropdownMenuSub>
+			<DropdownMenuItem>
+				<Plus class="mr-2" />
+				<span>New Team</span>
+				<DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+			</DropdownMenuItem>
+		</DropdownMenuGroup>
+		<DropdownMenuSeparator />
+		<DropdownMenuItem>
+			<LifeBuoy class="mr-2" />
+			<span>Support</span>
+		</DropdownMenuItem>
+		<DropdownMenuItem disabled>
+			<Cloud class="mr-2" />
+			<span>API</span>
+		</DropdownMenuItem>
+		<DropdownMenuSeparator />
+		<DropdownMenuRadioGroup>
+			<DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
+			<DropdownMenuRadioItem value="bottom">Bottom</DropdownMenuRadioItem>
+			<DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+		</DropdownMenuRadioGroup>
+		<DropdownMenuSeparator />
+		<DropdownMenuCheckboxItem>Status Bar</DropdownMenuCheckboxItem>
+		<DropdownMenuSeparator />
+		<DropdownMenuItem>
+			<LogOut class="mr-2" />
+			<span>Log out</span>
+			<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+		</DropdownMenuItem>
+	</DropdownMenuContent>
+</DropdownMenu>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/dropdown-menu)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/dropdown-menu)

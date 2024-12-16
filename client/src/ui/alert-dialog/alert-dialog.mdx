@@ -1,0 +1,48 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as AlertDialogStories from "./alert-dialog.stories";
+
+<Meta of={AlertDialogStories} />
+
+<Title of={AlertDialogStories}>Alert Dialog</Title>
+<Description of={AlertDialogStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<AlertDialog>
+	<AlertDialogTrigger
+		as={(props: AlertDialogTriggerProps) => (
+			<Button variant="outline" {...spreadProps(props)}>
+				Show Dialog
+			</Button>
+		)}
+	/>
+	<AlertDialogContent>
+		<AlertDialogHeader>
+			<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+			<AlertDialogDescription>
+				This action cannot be undone. This will permanently delete your
+				account and remove your data from our servers.
+			</AlertDialogDescription>
+		</AlertDialogHeader>
+		<AlertDialogFooter>
+			<AlertDialogClose>Cancel</AlertDialogClose>
+			<AlertDialogAction>Continue</AlertDialogAction>
+		</AlertDialogFooter>
+	</AlertDialogContent>
+</AlertDialog>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/alert-dialog)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/alert-dialog)

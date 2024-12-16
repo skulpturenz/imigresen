@@ -1,0 +1,49 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as ToastStories from "./toast.stories";
+
+<Meta of={ToastStories} />
+
+<Title of={ToastStories}>Toast</Title>
+<Description of={ToastStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<>
+	<ToastRegion>
+		<ToastList />
+	</ToastRegion>
+
+	<Button
+		variant="outline"
+		onClick={() => {
+			toaster.show(props => (
+				<Toast toastId={props.toastId}>
+					<ToastContent>
+						<ToastTitle>Scheduled: Catch up</ToastTitle>
+						<ToastDescription>
+							Friday, February 10, 2023 at 5:57 PM
+						</ToastDescription>
+					</ToastContent>
+					<ToastProgress />
+				</Toast>
+			));
+		}}>
+		Add to calendar
+	</Button>
+</>
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/toast)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/toast)
