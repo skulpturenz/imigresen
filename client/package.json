@@ -14,7 +14,7 @@
 		"@flipt-io/flipt-client-browser": "^0.3.1",
 		"@kobalte/core": "^0.13.7",
 		"@open-policy-agent/opa-wasm": "^1.10.0",
-		"@solidjs/router": "^0.15.1",
+		"@solidjs/router": "^0.15.2",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"es-toolkit": "^1.29.0",
