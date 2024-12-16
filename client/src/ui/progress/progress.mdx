@@ -1,0 +1,27 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as ProgressStories from "./progress.stories";
+
+<Meta of={ProgressStories} />
+
+<Title of={ProgressStories}>Progress</Title>
+<Description of={ProgressStories} />
+
+<Stories />
+
+## Usage
+
+```tsx
+<Progress value={50} class="w-96" />
+```
+
+## References
+
+- [shadcn/ui](https://ui.shadcn.com/docs/components/progress)
+- [shadcn-solid](https://shadcn-solid.com/docs/components/progress)
