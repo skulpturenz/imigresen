@@ -25,11 +25,9 @@ jobs:
         with:
           node-version: lts/*
 
-      - run: cd ./client
-
       - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
         with:
-          install_command: corepack pnpm install # default: npm ci
+          install_command: cd ./client && corepack pnpm install # default: npm ci
           build_command: corepack pnpm build-storybook # default: npm run build-storybook
           path: storybook-static # default: dist/storybook
           checkout: false # default: true
