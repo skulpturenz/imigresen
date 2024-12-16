@@ -59,7 +59,7 @@ export const DialogContent = <T extends ValidComponent = "div">(
 			<DialogPrimitive.CloseButton
 				class={cn(
 					"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity",
-					"hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+					"hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-shadow",
 					"disabled:pointer-events-none data-[expanded]:bg-accent data-[expanded]:text-muted-foreground",
 				)}>
 				<X class="h-4 w-4" />

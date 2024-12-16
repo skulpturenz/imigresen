@@ -43,8 +43,8 @@ export const SwitchControl = <T extends ValidComponent = "input">(
 		<SwitchPrimitive.Input
 			ref={props.inputRef}
 			class={cn(
-				"[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-[1.5px] [&:focus-visible+div]:ring-ring",
-				"[&:focus-visible+div]:ring-offset-2 [&:focus-visible+div]:ring-offset-background",
+				"[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-2 [&:focus-visible+div]:ring-ring",
+				"[&:focus-visible+div]:ring-offset-2 [&:focus-visible+div]:ring-offset-background transition-shadow",
 			)}
 		/>
 		<SwitchPrimitive.Control
@@ -53,8 +53,8 @@ export const SwitchControl = <T extends ValidComponent = "input">(
 			class={cn(
 				"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
 				"transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-				"focus-visible:ring-offset-background data-[disabled]:cursor-not-allowed disabled:cursor-not-allowed",
-				"data-[disabled]:opacity-50 data-[checked]:bg-primary bg-input data-[checked]:data-[invalid]:bg-destructive",
+				"focus-visible:ring-offset-background data-[disabled]:cursor-not-allowed disabled:cursor-not-allowed data-[disabled]:opacity-50",
+				"data-[checked]:bg-primary bg-input data-[checked]:data-[invalid]:bg-destructive transition-shadow",
 				props.class,
 			)}>
 			{props.children}

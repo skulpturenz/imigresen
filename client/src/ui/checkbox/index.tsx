@@ -24,7 +24,7 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
 	<>
 		<CheckboxPrimitive.Input
 			class={cn(
-				"[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-[1.5px] [&:focus-visible+div]:ring-ring",
+				"[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-2 [&:focus-visible+div]:ring-ring",
 				"[&:focus-visible+div]:ring-offset-2 [&:focus-visible+div]:ring-offset-background",
 			)}
 		/>
@@ -32,7 +32,7 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
 			{...spreadProps(props)}
 			class={cn(
 				"h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-shadow focus-visible:outline-none",
-				"focus-visible:ring-[1.5px] focus-visible:ring-ring data-[disabled]:cursor-not-allowed",
+				"focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:cursor-not-allowed focus-visible:ring-offset-background",
 				"data-[checked]:bg-primary data-[checked]:text-primary-foreground data-[disabled]:opacity-50",
 				props.class,
 			)}>
