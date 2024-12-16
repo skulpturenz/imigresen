@@ -56,6 +56,7 @@ export const BreadcrumbPage: Component<ComponentProps<"span">> = props => (
 export const BreadcrumbSeparator: Component<ComponentProps<"li">> = props => (
 	<li
 		{...spreadProps(props)}
+		ref={props.ref}
 		role="presentation"
 		aria-hidden="true"
 		class={cn("[&>svg]:w-3.5 [&>svg]:h-3.5", props.class)}>
@@ -66,6 +67,7 @@ export const BreadcrumbSeparator: Component<ComponentProps<"li">> = props => (
 export const BreadcrumbEllipsis: Component<ComponentProps<"span">> = props => (
 	<span
 		{...spreadProps(props)}
+		ref={props.ref}
 		role="presentation"
 		aria-hidden="true"
 		class={cn("flex h-9 w-9 items-center justify-center", props.class)}>
