@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@ngneat/falso": "^7.2.0",
-		"@types/node": "^22.10.1",
+		"@types/node": "^22.10.2",
 		"autoprefixer": "^10.4.20",
 		"eslint": "^9.16.0",
 		"eslint-config-prettier": "^9.1.0",
