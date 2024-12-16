@@ -2,9 +2,6 @@ name: Build and Publish Storybook to GitHub Pages
 
 on:
   push:
-    branches:
-      - master
-      - dev
 
 permissions:
   contents: read
@@ -13,7 +10,6 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     
     steps:
@@ -23,11 +19,18 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
 
-      - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
+      - name: Build Storybook
+        if: github.event.ref != format('refs/heads/{0}', github.event.repository.default_branch)
+        working-directory: ./client
+        run: corepack pnpm install && corepack pnpm build-storybook
+
+      - name: Build and publish Storybook
+        uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
+        if: github.event.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:
           install_command: cd ./client && corepack pnpm install # default: npm ci
           build_command: corepack pnpm build-storybook # default: npm run build-storybook
-          path: storybook-static # default: dist/storybook
+          path: ./client/storybook-static # default: dist/storybook
           checkout: false # default: true
