@@ -9,12 +9,12 @@ import { UiContext, UiProvider } from "../src/core/context/ui";
 import { useContext } from "../src/core/context/utils";
 import { buttonVariants } from "../src/ui/button";
 import { cn } from "../src/ui/utils";
-import { theme } from "./theme";
+import { darkTheme } from "./theme";
 
 const preview: Preview = {
 	parameters: {
 		docs: {
-			theme,
+			theme: darkTheme,
 		},
 		controls: {
 			matchers: {
