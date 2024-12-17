@@ -53,7 +53,7 @@ export const ComboboxTrigger = <T extends ValidComponent = "button">(
 				props.class,
 			)}>
 			{props.children}
-			<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center text-foreground">
+			<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center">
 				<ChevronsDownUp class="h-4 w-4 opacity-50">
 					<span class="sr-only">{resources.triggerSrOnly}</span>
 				</ChevronsDownUp>
@@ -93,7 +93,7 @@ export const ComboboxItem = <T extends ValidComponent = "li">(
 			"data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
 			props.class,
 		)}>
-		<ComboboxPrimitive.ItemIndicator class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center text-foreground">
+		<ComboboxPrimitive.ItemIndicator class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 			<Check class="h-4 w-4">
 				<span class="sr-only">{resources.itemCheckedSrOnly}</span>
 			</Check>
