@@ -1,9 +1,9 @@
-import { type Component, type ParentProps } from "solid-js";
+import { type Accessor, type Component, type ParentProps } from "solid-js";
 import { RouterContext } from "./provider";
 import { type RouterSvc } from "./store";
 
 export interface RouterProviderMockProps {
-	svc: RouterSvc;
+	svc: Accessor<RouterSvc>;
 }
 
 export const RouteProviderMock: Component<

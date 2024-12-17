@@ -1,6 +1,7 @@
-import { useColorMode } from "@kobalte/core";
+import { ColorModeContext } from "@kobalte/core";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { partialRight } from "es-toolkit";
+import { useContext } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -38,6 +39,13 @@ const persistLocalStorage: (
 	storage: createJSONStorage(() => localStorage),
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
+	merge: (persistedState, currentState): UiSvc & UiSvcInternal => ({
+		...currentState,
+		...(persistedState as UiSvc & UiSvcInternal),
+		actions: {
+			...currentState.actions,
+		},
+	}),
 } satisfies PersistOptions<UiSvc & UiSvcInternal>);
 
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
@@ -50,10 +58,11 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 			mode: "default" as UiMode,
 			actions: {
 				setTheme: theme => {
-					const { setColorMode } = useColorMode();
+					const { setColorMode } =
+						useContext(ColorModeContext) ?? Object.create(null);
 
 					set({ theme });
-					setColorMode(theme);
+					setColorMode?.(theme);
 				},
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
