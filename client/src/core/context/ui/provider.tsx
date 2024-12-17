@@ -21,7 +21,7 @@ export const UiProvider: Component<ParentProps> = props => {
 
 	return (
 		<UiContext.Provider value={value()}>
-			<Show when={!value().isInitialLoading}>
+			<Show when={!value().isInitialLoading()}>
 				<I18nProvider locale={value().locale}>
 					<ColorModeScript storageType="localStorage" />
 
