@@ -3,12 +3,15 @@
 import type { Preview } from "storybook-solidjs";
 import "../src/core/assets/tailwind.css";
 import "../src/core/assets/theme.css";
+import { theme } from "./theme";
 
 const preview: Preview = {
 	parameters: {
+		docs: {
+			theme,
+		},
 		controls: {
 			matchers: {
-				color: /(background|color)$/i,
 				date: /Date$/i,
 			},
 		},
