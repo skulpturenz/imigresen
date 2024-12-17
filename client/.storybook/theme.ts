@@ -1,6 +1,6 @@
 import { create } from "@storybook/theming";
 
-export const darkTheme = create({
+export const theme = create({
 	base: "dark",
 	brandTitle: "Imigresen",
 	fontBase: "Manrope, sans-serif",
