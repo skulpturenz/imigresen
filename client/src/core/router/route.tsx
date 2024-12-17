@@ -59,12 +59,12 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	const fliptContext = useContext(FliptContext);
 	const userContext = useContext(UserContext);
 
-	const context = {
-		authn: authnContext,
-		authz: authzContext,
-		flipt: fliptContext,
-		user: userContext,
-	};
+	const context = () => ({
+		authn: authnContext(),
+		authz: authzContext(),
+		flipt: fliptContext(),
+		user: userContext(),
+	});
 
 	const getIsAllowed = async () => {
 		if (typeof props.isAllowed === "undefined") {
@@ -75,7 +75,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			return props.isAllowed;
 		}
 
-		return props.isAllowed?.(context);
+		return props.isAllowed?.(context());
 	};
 	const getIsHidden = async () => {
 		if (typeof props.isHidden === "undefined") {
@@ -86,7 +86,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			return props.isHidden;
 		}
 
-		return props.isHidden?.(context);
+		return props.isHidden?.(context());
 	};
 	const [isAllowed] = createResource(getIsAllowed);
 	const [isHidden] = createResource(getIsHidden);
@@ -171,7 +171,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 				component={route.component ?? Children}
 				path={route.path}
 				children={addRoutes(...children)}
-				onLoaded={routeContext.actions.appendRoute}
+				onLoaded={routeContext().actions.appendRoute}
 			/>
 		);
 	});
