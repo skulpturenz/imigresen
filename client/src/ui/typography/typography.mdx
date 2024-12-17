@@ -46,8 +46,9 @@ export const SampleText =
 
 {Object.entries(typography.weight).map(([section, weight]) => (
 
-<>
-	<h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
+<div style={{ color: 'white'}}>
+
+    <h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
 
     <Typeset
     	fontSizes={Object.values(typography.size)}
@@ -56,5 +57,5 @@ export const SampleText =
     	fontFamily={typography.type.primary}
     />
 
-</>
+</div>
 ))}
