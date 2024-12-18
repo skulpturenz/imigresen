@@ -71,4 +71,32 @@ describe("search-params-storage", () => {
 			hello: "world",
 		});
 	});
+
+	it("removes search params if there are none", () => {
+		const useStore = createWithSignal<Record<string, any>>(
+			persist(
+				(set, _get) => ({
+					hello: "world",
+					actions: {
+						addSearchParams: (key: string, value: string) =>
+							set({ [key]: value }),
+					},
+				}),
+				{
+					name: "test",
+					storage: createJSONStorage(createSearchParamsStorage),
+				},
+			) as any,
+		);
+
+		renderHook(() => {
+			const value = useStore();
+
+			value().actions.addSearchParams("hello", "");
+		});
+
+		const searchParams = new URLSearchParams(location.search.slice(1));
+
+		expect(Object.fromEntries(searchParams)).toEqual(Object.create(null));
+	});
 });
