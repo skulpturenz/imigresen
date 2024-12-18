@@ -1,6 +1,6 @@
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";
-import { Providers } from "./core/context/providers";
+import { Providers } from "./core/context";
 import { Router } from "./core/router";
 
 export const App = () => {
