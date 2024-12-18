@@ -1,10 +1,64 @@
-import { renderHook } from "@solidjs/testing-library";
+import { testEffect } from "@solidjs/testing-library";
 import { createSearchParamsStorage } from "core/state/search-params-storage";
+import { createEffect } from "solid-js";
 import { createWithSignal } from "solid-zustand";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 describe("search-params-storage", () => {
+	beforeEach(() => {
+		history.replaceState(null, "", "?");
+	});
+
+	it("loads state from search params", async () => {
+		const initialSearchParams = new URLSearchParams({
+			a: "hello",
+			b_c_d_e: "world",
+		});
+
+		history.replaceState(null, "", `?${initialSearchParams.toString()}`);
+
+		const useStore = createWithSignal<Record<string, any>>(
+			persist(
+				(set, _get) => ({
+					hello: "world",
+					actions: {
+						addSearchParams: (key: string, value: string) =>
+							set({ [key]: value }),
+					},
+				}),
+				{
+					name: "test",
+					storage: createJSONStorage(createSearchParamsStorage),
+					merge: (persistedState, _) => persistedState,
+				},
+			) as any,
+		);
+
+		const value = useStore();
+
+		testEffect(done =>
+			createEffect((run = 0) => {
+				if (run === 0) {
+					return run + 1;
+				}
+
+				expect(value()).toEqual({
+					a: "hello",
+					b: {
+						c: {
+							d: {
+								e: "world",
+							},
+						},
+					},
+				});
+
+				done();
+			}),
+		);
+	});
+
 	it("persists state in search params", () => {
 		const useStore = createWithSignal<Record<string, any>>(
 			persist(
@@ -22,16 +76,17 @@ describe("search-params-storage", () => {
 			) as any,
 		);
 
-		renderHook(() => {
-			const value = useStore();
+		const value = useStore();
 
-			value().actions.addSearchParams("a", "b");
-			value().actions.addSearchParams("some-number", 1);
-			value().actions.addSearchParams("has spaces", 2);
-		});
+		value().actions.addSearchParams("a", "b");
+		value().actions.addSearchParams("some-number", 1);
+		value().actions.addSearchParams("has spaces", 2);
 
 		const searchParams = new URLSearchParams(location.search.slice(1));
 
+		expect(location.search.slice(1)).toBe(
+			"hello=world&a=b&some-number=1&has+spaces=2",
+		);
 		expect(Object.fromEntries(searchParams)).toEqual({
 			hello: "world",
 			a: "b",
@@ -57,16 +112,17 @@ describe("search-params-storage", () => {
 			) as any,
 		);
 
-		renderHook(() => {
-			const value = useStore();
+		const value = useStore();
 
-			value().actions.addSearchParams("a", () => {});
-			value().actions.addSearchParams("some-number", { hello: "world " });
-			value().actions.addSearchParams("has spaces", Symbol("test"));
-		});
+		value().actions.addSearchParams("a", () => {});
+		value().actions.addSearchParams("some-number", { hello: "world " });
+		value().actions.addSearchParams("has spaces", Symbol("test"));
 
 		const searchParams = new URLSearchParams(location.search.slice(1));
 
+		expect(location.search.slice(1)).toBe(
+			"hello=world&some-number_hello=world+",
+		);
 		expect(Object.fromEntries(searchParams)).toEqual({
 			hello: "world",
 			"some-number_hello": "world ",
@@ -90,11 +146,9 @@ describe("search-params-storage", () => {
 			) as any,
 		);
 
-		renderHook(() => {
-			const value = useStore();
+		const value = useStore();
 
-			value().actions.addSearchParams("hello", "");
-		});
+		value().actions.addSearchParams("hello", "");
 
 		const searchParams = new URLSearchParams(location.search.slice(1));
 
