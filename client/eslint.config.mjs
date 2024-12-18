@@ -10,6 +10,7 @@ export default [
 	js.configs.recommended,
 	importPluginFlatConfig.recommended,
 	...tseslint.configs.recommended,
+	eslintPluginPrettierRecommended,
 	{
 		plugins: {
 			"@typescript-eslint": tseslint.plugin,
@@ -47,5 +48,30 @@ export default [
 			"import/no-unresolved": "off",
 		},
 	},
-	eslintPluginPrettierRecommended,
+	{
+		files: ["**/*.stories.{ts,tsx}"],
+		rules: {
+			"import/no-default-export": "off",
+		},
+	},
+	{
+		files: ["src/core/**/*.{ts,tsx}"],
+		ignores: [
+			"src/core/context/*.{ts,tsx}",
+			"src/core/context/flipt/**/*.{ts,tsx}",
+			"src/core/router/**/*.{ts,tsx}",
+		],
+		rules: {
+			"no-restricted-imports": [
+				"error",
+				{
+					patterns: [
+						{
+							group: ["*flipt*"],
+						},
+					],
+				},
+			],
+		},
+	},
 ];

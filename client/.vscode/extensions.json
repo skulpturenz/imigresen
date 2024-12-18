@@ -4,6 +4,8 @@
 		"austenc.tailwind-docs",
 		"esbenp.prettier-vscode",
 		"Gruntfuggly.todo-tree",
-		"IBM.output-colorizer"
+		"IBM.output-colorizer",
+		"unifiedjs.vscode-mdx",
+		"dbaeumer.vscode-eslint"
 	]
 }

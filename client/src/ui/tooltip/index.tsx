@@ -1,9 +1,9 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	TooltipContentProps,
-	TooltipRootProps,
+import {
+	type TooltipContentProps,
+	Tooltip as TooltipPrimitive,
+	type TooltipRootProps,
 } from "@kobalte/core/tooltip";
-import { Tooltip as TooltipPrimitive } from "@kobalte/core/tooltip";
 import { spreadProps } from "core/utils";
 import { type ValidComponent, mergeProps } from "solid-js";
 import { cn } from "ui/utils";

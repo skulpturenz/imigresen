@@ -1,20 +1,19 @@
-import type {
-	DropdownMenuCheckboxItemProps,
-	DropdownMenuContentProps,
-	DropdownMenuGroupLabelProps,
-	DropdownMenuItemLabelProps,
-	DropdownMenuItemProps,
-	DropdownMenuRadioItemProps,
-	DropdownMenuRootProps,
-	DropdownMenuSeparatorProps,
-	DropdownMenuSubTriggerProps,
+import {
+	type DropdownMenuCheckboxItemProps,
+	type DropdownMenuContentProps,
+	type DropdownMenuGroupLabelProps,
+	type DropdownMenuItemLabelProps,
+	type DropdownMenuItemProps,
+	type DropdownMenuRadioItemProps,
+	type DropdownMenuRootProps,
+	type DropdownMenuSeparatorProps,
+	type DropdownMenuSubTriggerProps,
+	DropdownMenu as DropdownMenuPrimitive,
 } from "@kobalte/core/dropdown-menu";
-import { DropdownMenu as DropdownMenuPrimitive } from "@kobalte/core/dropdown-menu";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { ArrowRight, Check, CircleDot } from "lucide-solid";
-import type { ComponentProps, ValidComponent } from "solid-js";
-import { mergeProps } from "solid-js";
+import { type ComponentProps, type ValidComponent, mergeProps } from "solid-js";
 import { cn } from "ui/utils";
 
 const resources = {

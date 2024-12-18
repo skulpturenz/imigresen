@@ -1,10 +1,10 @@
-import type {
-	ContentProps,
-	DescriptionProps,
-	DynamicProps,
-	LabelProps,
+import {
+	type ContentProps,
+	type DescriptionProps,
+	type DynamicProps,
+	type LabelProps,
+	default as DrawerPrimitive,
 } from "@corvu/drawer";
-import DrawerPrimitive from "@corvu/drawer";
 import { spreadProps } from "core/utils";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";

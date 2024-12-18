@@ -1,11 +1,11 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	SwitchControlProps,
-	SwitchLabelProps,
-	SwitchRootProps,
-	SwitchThumbProps,
+import {
+	type SwitchControlProps,
+	type SwitchLabelProps,
+	type SwitchRootProps,
+	type SwitchThumbProps,
+	Switch as SwitchPrimitive,
 } from "@kobalte/core/switch";
-import { Switch as SwitchPrimitive } from "@kobalte/core/switch";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";

@@ -1,6 +1,8 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { TextFieldTextAreaProps } from "@kobalte/core/text-field";
-import { TextArea as TextFieldPrimitive } from "@kobalte/core/text-field";
+import {
+	type TextFieldTextAreaProps,
+	TextArea as TextFieldPrimitive,
+} from "@kobalte/core/text-field";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";

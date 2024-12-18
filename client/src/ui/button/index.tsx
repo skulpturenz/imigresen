@@ -1,6 +1,8 @@
 import type { PolymorphicProps } from "@kobalte/core";
-import type { ButtonRootProps } from "@kobalte/core/button";
-import { Button as ButtonPrimitive } from "@kobalte/core/button";
+import {
+	Button as ButtonPrimitive,
+	type ButtonRootProps,
+} from "@kobalte/core/button";
 import { cva, type VariantProps } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";

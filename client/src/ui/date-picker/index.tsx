@@ -1,21 +1,21 @@
-import type {
-	DatePickerContentProps,
-	DatePickerControlProps,
-	DatePickerInputProps,
-	DatePickerRangeTextProps,
-	DatePickerRootProps,
-	DatePickerTableCellProps,
-	DatePickerTableCellTriggerProps,
-	DatePickerTableHeaderProps,
-	DatePickerTableProps,
-	DatePickerTableRowProps,
-	DatePickerTriggerProps,
-	DatePickerViewControlProps,
-	DatePickerViewProps,
-	DatePickerViewTriggerProps,
-	DateValue,
+import {
+	type DatePickerContentProps,
+	type DatePickerControlProps,
+	type DatePickerInputProps,
+	type DatePickerRangeTextProps,
+	type DatePickerRootProps,
+	type DatePickerTableCellProps,
+	type DatePickerTableCellTriggerProps,
+	type DatePickerTableHeaderProps,
+	type DatePickerTableProps,
+	type DatePickerTableRowProps,
+	type DatePickerTriggerProps,
+	type DatePickerViewControlProps,
+	type DatePickerViewProps,
+	type DatePickerViewTriggerProps,
+	type DateValue,
+	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
-import { DatePicker as DatePickerPrimitive } from "@ark-ui/solid/date-picker";
 import { spreadProps } from "core/utils";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import type { VoidProps } from "solid-js";
