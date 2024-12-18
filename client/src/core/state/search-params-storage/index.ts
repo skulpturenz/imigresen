@@ -1,3 +1,4 @@
+import { isPrimitive } from "es-toolkit";
 import { type StateStorage } from "zustand/middleware";
 
 export const createSearchParamsStorage = (): StateStorage => {
@@ -9,12 +10,14 @@ export const createSearchParamsStorage = (): StateStorage => {
 			return JSON.stringify(Object.fromEntries(getSearchParams()));
 		},
 		setItem: (_, newValue): void => {
-			const parsedValue = JSON.parse(JSON.stringify(newValue));
+			const parsedValue = JSON.parse(newValue);
 
-			const updatedParams = new URLSearchParams({
-				...Object.fromEntries(getSearchParams()),
-				...parsedValue,
-			});
+			const updatedParams = new URLSearchParams([
+				...Object.entries(getSearchParams()),
+				...Object.entries(parsedValue.state).filter(([_key, value]) =>
+					isPrimitive(value),
+				),
+			]);
 
 			history.replaceState(null, "", `?${updatedParams.toString()}`);
 		},
