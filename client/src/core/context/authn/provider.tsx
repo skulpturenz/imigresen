@@ -3,12 +3,14 @@ import {
 	createContext,
 	onMount,
 	Show,
+	type Accessor,
 	type Component,
 	type ParentProps,
 } from "solid-js";
 import { useStore, type AuthnSvc } from "./store";
 
-export const AuthnContext = createContext<AuthnSvc>(createAuthnContext());
+export const AuthnContext =
+	createContext<Accessor<AuthnSvc>>(createAuthnContext);
 
 export const AuthnProvider: Component<ParentProps> = props => {
 	const value = useStore();
@@ -22,7 +24,7 @@ export const AuthnProvider: Component<ParentProps> = props => {
 
 	// TODO: remove buttons
 	return (
-		<AuthnContext.Provider value={value()}>
+		<AuthnContext.Provider value={value}>
 			<Show when={!value().isInitialLoading} fallback={<Loading />}>
 				<button on:click={value().actions.login}>
 					Click here login!

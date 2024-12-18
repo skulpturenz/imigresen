@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "storybook-solidjs-vite";
+import { mergeConfig } from "vite";
 
 const config: StorybookConfig = {
 	stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -11,5 +12,9 @@ const config: StorybookConfig = {
 		name: "storybook-solidjs-vite",
 		options: {},
 	},
+	viteFinal: config =>
+		mergeConfig(config, {
+			mode: "storybook",
+		}),
 };
 export default config;
