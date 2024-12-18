@@ -1,8 +1,8 @@
 import { renderHook } from "@solidjs/testing-library";
+import { createSearchParamsStorage } from "core/state/search-params-storage";
 import { createWithSignal } from "solid-zustand";
 import { describe, expect, it } from "vitest";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { createSearchParamsStorage } from ".";
 
 describe("search-params-storage", () => {
 	it("persists state in search params", () => {
@@ -69,6 +69,7 @@ describe("search-params-storage", () => {
 
 		expect(Object.fromEntries(searchParams)).toEqual({
 			hello: "world",
+			"some-number_hello": "world ",
 		});
 	});
 
