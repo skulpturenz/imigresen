@@ -1,9 +1,9 @@
-import type {
-	ImageFallbackProps,
-	ImageImgProps,
-	ImageRootProps,
+import {
+	type ImageFallbackProps,
+	type ImageImgProps,
+	type ImageRootProps,
+	Image as ImagePrimitive,
 } from "@kobalte/core/image";
-import { Image as ImagePrimitive } from "@kobalte/core/image";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";

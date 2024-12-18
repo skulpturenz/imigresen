@@ -1,5 +1,7 @@
-import type { CheckboxControlProps } from "@kobalte/core/checkbox";
-import { Checkbox as CheckboxPrimitive } from "@kobalte/core/checkbox";
+import {
+	type CheckboxControlProps,
+	Checkbox as CheckboxPrimitive,
+} from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { Check } from "lucide-solid";

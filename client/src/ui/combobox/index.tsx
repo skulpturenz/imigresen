@@ -1,10 +1,10 @@
-import type {
-	ComboboxContentProps,
-	ComboboxInputProps,
-	ComboboxItemProps,
-	ComboboxTriggerProps,
+import {
+	type ComboboxContentProps,
+	type ComboboxInputProps,
+	type ComboboxItemProps,
+	type ComboboxTriggerProps,
+	Combobox as ComboboxPrimitive,
 } from "@kobalte/core/combobox";
-import { Combobox as ComboboxPrimitive } from "@kobalte/core/combobox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp } from "lucide-solid";

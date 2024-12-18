@@ -1,17 +1,21 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	ToastDescriptionProps,
-	ToastListProps,
-	ToastRegionProps,
-	ToastRootProps,
-	ToastTitleProps,
+import {
+	Toast as ToastPrimitive,
+	type ToastDescriptionProps,
+	type ToastListProps,
+	type ToastRegionProps,
+	type ToastRootProps,
+	type ToastTitleProps,
 } from "@kobalte/core/toast";
-import { Toast as ToastPrimitive } from "@kobalte/core/toast";
 import { cva } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import { X } from "lucide-solid";
-import type { ComponentProps, ValidComponent, VoidComponent } from "solid-js";
-import { mergeProps } from "solid-js";
+import {
+	mergeProps,
+	type ComponentProps,
+	type ValidComponent,
+	type VoidComponent,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "ui/utils";
 

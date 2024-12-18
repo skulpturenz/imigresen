@@ -7,7 +7,7 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview",
-		"lint": "eslint src/**/* --fix --no-warn-ignored",
+		"lint": "eslint src/**/* --fix --no-warn-ignored --no-error-on-unmatched-pattern --max-warnings 0",
 		"format": "prettier .  --write",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"

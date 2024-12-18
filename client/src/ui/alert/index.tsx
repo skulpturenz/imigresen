@@ -1,5 +1,7 @@
-import type { AlertRootProps } from "@kobalte/core/alert";
-import { Alert as AlertPrimitive } from "@kobalte/core/alert";
+import {
+	type AlertRootProps,
+	Alert as AlertPrimitive,
+} from "@kobalte/core/alert";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { cva } from "class-variance-authority";
 import { spreadProps } from "core/utils";

@@ -1,5 +1,7 @@
-import type { HoverCardContentProps } from "@kobalte/core/hover-card";
-import { HoverCard as HoverCardPrimitive } from "@kobalte/core/hover-card";
+import {
+	type HoverCardContentProps,
+	HoverCard as HoverCardPrimitive,
+} from "@kobalte/core/hover-card";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";

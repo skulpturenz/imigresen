@@ -1,10 +1,10 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	SelectContentProps,
-	SelectItemProps,
-	SelectTriggerProps,
+import {
+	type SelectContentProps,
+	type SelectItemProps,
+	type SelectTriggerProps,
+	Select as SelectPrimitive,
 } from "@kobalte/core/select";
-import { Select as SelectPrimitive } from "@kobalte/core/select";
 import { spreadProps } from "core/utils";
 import { Check, ChevronDown } from "lucide-solid";
 import type { ParentProps, ValidComponent } from "solid-js";

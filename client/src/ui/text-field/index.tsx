@@ -1,12 +1,12 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type {
-	TextFieldDescriptionProps,
-	TextFieldErrorMessageProps,
-	TextFieldInputProps,
-	TextFieldLabelProps,
-	TextFieldRootProps,
+import {
+	type TextFieldDescriptionProps,
+	type TextFieldErrorMessageProps,
+	type TextFieldInputProps,
+	type TextFieldLabelProps,
+	type TextFieldRootProps,
+	TextField as TextFieldPrimitive,
 } from "@kobalte/core/text-field";
-import { TextField as TextFieldPrimitive } from "@kobalte/core/text-field";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { label } from "ui/label";

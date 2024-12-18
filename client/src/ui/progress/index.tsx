@@ -1,6 +1,8 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ProgressRootProps } from "@kobalte/core/progress";
-import { Progress as ProgressPrimitive } from "@kobalte/core/progress";
+import {
+	type ProgressRootProps,
+	Progress as ProgressPrimitive,
+} from "@kobalte/core/progress";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
