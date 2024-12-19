@@ -36,7 +36,9 @@ export const createSearchParamsStorage = (): StateStorage => {
 				return zipObjectDeep(keys, values);
 			};
 
-			return JSON.stringify(nest(Object.fromEntries(getSearchParams())));
+			const state = nest(Object.fromEntries(getSearchParams()));
+
+			return JSON.stringify({ state });
 		},
 		setItem: (_, newValue): void => {
 			const parsedValue = JSON.parse(newValue);

@@ -1,6 +1,4 @@
-import { testEffect } from "@solidjs/testing-library";
 import { createSearchParamsStorage } from "core/state/search-params-storage";
-import { createEffect } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -10,7 +8,7 @@ describe("search-params-storage", () => {
 		history.replaceState(null, "", "?");
 	});
 
-	it.fails("loads state from search params", () => {
+	it("loads state from search params", async () => {
 		const initialSearchParams = new URLSearchParams({
 			a: "hello",
 			b_c_d_e: "world",
@@ -39,28 +37,16 @@ describe("search-params-storage", () => {
 
 		const value = useStore();
 
-		// TODO: failing at the moment, effect doesn't seem to be running and neither `persistedState`
-		// having the correct persisted state but `getItem` is working correctly
-		return testEffect(done =>
-			createEffect((run = 0) => {
-				if (run === 0) {
-					return run + 1;
-				}
-
-				expect(value()).toEqual({
-					a: "hello",
-					b: {
-						c: {
-							d: {
-								e: "world",
-							},
-						},
+		expect(value()).toEqual({
+			a: "hello",
+			b: {
+				c: {
+					d: {
+						e: "world",
 					},
-				});
-
-				done();
-			}),
-		);
+				},
+			},
+		});
 	});
 
 	it("persists state in search params", () => {
