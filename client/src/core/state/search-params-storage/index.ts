@@ -19,16 +19,32 @@ export const createSearchParamsStorage = (): StateStorage => {
 	};
 
 	const SEPARATOR = "_";
+	const toKeyWithName = (name: string, key: string) => `__${name}__${key}`;
 
 	return {
-		getItem: (_): string => {
+		getItem: (name): string => {
 			const nest = (record: Record<string, any>): Record<string, any> => {
 				if (!isPlainObject(record)) {
 					return Object.create(null);
 				}
 
-				const keys = Object.keys(record).map(key =>
-					key.replace(new RegExp(SEPARATOR, "g"), "."),
+				const keys = Object.keys(record).reduce<string[]>(
+					(acc, key) => {
+						if (!key.includes(toKeyWithName(name, ""))) {
+							return acc;
+						}
+
+						return [
+							...acc,
+							key
+								.replace(
+									new RegExp(toKeyWithName(name, "")),
+									"",
+								)
+								.replace(new RegExp(SEPARATOR, "g"), "."),
+						];
+					},
+					[],
 				);
 
 				const values = Object.values(record).map(value => {
@@ -46,7 +62,7 @@ export const createSearchParamsStorage = (): StateStorage => {
 
 			return JSON.stringify({ state });
 		},
-		setItem: (_, newValue): void => {
+		setItem: (name, newValue): void => {
 			const parsedValue = JSON.parse(newValue);
 
 			const flatten = (
@@ -75,8 +91,10 @@ export const createSearchParamsStorage = (): StateStorage => {
 
 					return {
 						...acc,
-						[[...(prefixKeys ?? []), key].join(SEPARATOR)]:
-							JSON.stringify(value),
+						[toKeyWithName(
+							name,
+							[...(prefixKeys ?? []), key].join(SEPARATOR),
+						)]: JSON.stringify(value),
 					};
 				}, Object.create(null));
 			};
@@ -88,12 +106,18 @@ export const createSearchParamsStorage = (): StateStorage => {
 
 			history.replaceState(null, "", `?${updatedParams.toString()}`);
 		},
-		removeItem: (_): void => {
-			if (!import.meta.env.PROD) {
-				console.warn("Clearing state will clear all search parameters");
-			}
+		removeItem: (name): void => {
+			const filteredSearchParams = new URLSearchParams(
+				Object.entries(getSearchParams()).filter(
+					([key]) => !key.includes(toKeyWithName(name, "")),
+				),
+			);
 
-			history.replaceState(null, "", "?");
+			history.replaceState(
+				null,
+				"",
+				`?${filteredSearchParams.toString()}`,
+			);
 		},
 	};
 };
