@@ -19,7 +19,7 @@ export const createSearchParamsStorage = (): StateStorage => {
 	};
 
 	const SEPARATOR = "_";
-	const toKeyWithName = (name: string, key: string) => `${name}_${key}`;
+	const toKeyWithName = (name: string, key: string) => `__${name}__${key}`;
 
 	return {
 		getItem: (name): string => {
