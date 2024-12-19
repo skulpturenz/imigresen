@@ -1,147 +1,218 @@
 import { createSearchParamsStorage } from "core/state/search-params-storage";
 import { createWithSignal } from "solid-zustand";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 describe("search-params-storage", () => {
-	beforeEach(() => {
-		history.replaceState(null, "", "?");
-	});
-
-	it("loads state from search params", async () => {
-		const initialSearchParams = new URLSearchParams({
-			a: "hello",
-			b_c_d_e: "world",
+	describe("persist and hydrate", () => {
+		afterAll(() => {
+			history.replaceState(null, "", `?`);
 		});
 
-		history.replaceState(null, "", `?${initialSearchParams.toString()}`);
+		it("persist", async () => {
+			const initialSearchParams = new URLSearchParams({
+				a: "hello",
+				b_c_d_e: "world",
+			});
 
-		const useStore = createWithSignal<Record<string, any>>(
-			persist(
-				(set, _get) => ({
-					hello: "world",
-					actions: {
-						addSearchParams: (key: string, value: string) =>
-							set({ [key]: value }),
+			history.replaceState(
+				null,
+				"",
+				`?${initialSearchParams.toString()}`,
+			);
+
+			const useStore = createWithSignal<Record<string, any>>(
+				persist(
+					(set, _get) => ({
+						hello: "world",
+						actions: {
+							addSearchParams: (key: string, value: string) =>
+								set({ [key]: value }),
+						},
+					}),
+					{
+						name: "test",
+						storage: createJSONStorage(createSearchParamsStorage),
+						merge: (persistedState, currentState) => {
+							return {
+								...(persistedState as Record<string, any>),
+								actions: (currentState as Record<string, any>)
+									.actions,
+							};
+						},
 					},
-				}),
-				{
-					name: "test",
-					storage: createJSONStorage(createSearchParamsStorage),
-					merge: persistedState => {
-						return persistedState;
+				) as any,
+			);
+
+			const value = useStore();
+
+			expect(value()).toMatchObject({
+				a: "hello",
+				b: {
+					c: {
+						d: {
+							e: "world",
+						},
 					},
 				},
-			) as any,
-		);
+			});
 
-		const value = useStore();
-
-		expect(value()).toEqual({
-			a: "hello",
-			b: {
-				c: {
-					d: {
-						e: "world",
+			value().actions.addSearchParams("nested", {
+				hello: {
+					world: {
+						test: "123 ",
 					},
 				},
-			},
+			});
 		});
-	});
 
-	it("persists state in search params", () => {
-		const useStore = createWithSignal<Record<string, any>>(
-			persist(
-				(set, _get) => ({
-					hello: "world",
-					actions: {
-						addSearchParams: (key: string, value: string) =>
-							set({ [key]: value }),
+		it("hydrate", () => {
+			const useStore = createWithSignal<Record<string, any>>(
+				persist(
+					(set, _get) => ({
+						hello: "world",
+						actions: {
+							addSearchParams: (key: string, value: string) =>
+								set({ [key]: value }),
+						},
+					}),
+					{
+						name: "test",
+						storage: createJSONStorage(createSearchParamsStorage),
+						merge: (persistedState, currentState) => {
+							return {
+								...(persistedState as Record<string, any>),
+								actions: (currentState as Record<string, any>)
+									.actions,
+							};
+						},
 					},
-				}),
-				{
-					name: "test",
-					storage: createJSONStorage(createSearchParamsStorage),
-				},
-			) as any,
-		);
+				) as any,
+			);
 
-		const value = useStore();
+			const value = useStore();
 
-		value().actions.addSearchParams("a", "b");
-		value().actions.addSearchParams("some-number", 1);
-		value().actions.addSearchParams("has spaces", 2);
-
-		const searchParams = new URLSearchParams(location.search.slice(1));
-
-		expect(location.search.slice(1)).toBe(
-			"hello=world&a=b&some-number=1&has+spaces=2",
-		);
-		expect(Object.fromEntries(searchParams)).toEqual({
-			hello: "world",
-			a: "b",
-			"some-number": "1",
-			"has spaces": "2",
-		});
-	});
-
-	it("ignores values which cannot be serialized", () => {
-		const useStore = createWithSignal<Record<string, any>>(
-			persist(
-				(set, _get) => ({
-					hello: "world",
-					actions: {
-						addSearchParams: (key: string, value: string) =>
-							set({ [key]: value }),
+			expect(value()).toMatchObject({
+				a: "hello",
+				b: {
+					c: {
+						d: {
+							e: "world",
+						},
 					},
-				}),
-				{
-					name: "test",
-					storage: createJSONStorage(createSearchParamsStorage),
 				},
-			) as any,
-		);
-
-		const value = useStore();
-
-		value().actions.addSearchParams("a", () => {});
-		value().actions.addSearchParams("some-number", { hello: "world " });
-		value().actions.addSearchParams("has spaces", Symbol("test"));
-
-		const searchParams = new URLSearchParams(location.search.slice(1));
-
-		expect(location.search.slice(1)).toBe(
-			"hello=world&some-number_hello=world+",
-		);
-		expect(Object.fromEntries(searchParams)).toEqual({
-			hello: "world",
-			"some-number_hello": "world ",
+				nested: {
+					hello: {
+						world: {
+							test: "123 ",
+						},
+					},
+				},
+			});
 		});
 	});
 
-	it("removes search params if there are none", () => {
-		const useStore = createWithSignal<Record<string, any>>(
-			persist(
-				(set, _get) => ({
-					hello: "world",
-					actions: {
-						addSearchParams: (key: string, value: string) =>
-							set({ [key]: value }),
+	describe("storing values correctly", () => {
+		beforeEach(() => {
+			history.replaceState(null, "", `?`);
+		});
+
+		it("persists state in search params", () => {
+			const useStore = createWithSignal<Record<string, any>>(
+				persist(
+					(set, _get) => ({
+						hello: "world",
+						actions: {
+							addSearchParams: (key: string, value: string) =>
+								set({ [key]: value }),
+						},
+					}),
+					{
+						name: "test",
+						storage: createJSONStorage(createSearchParamsStorage),
 					},
-				}),
-				{
-					name: "test",
-					storage: createJSONStorage(createSearchParamsStorage),
-				},
-			) as any,
-		);
+				) as any,
+			);
 
-		const value = useStore();
+			const value = useStore();
 
-		value().actions.addSearchParams("hello", "");
+			value().actions.addSearchParams("a", "b");
+			value().actions.addSearchParams("some-number", 1);
+			value().actions.addSearchParams("has spaces", 2);
 
-		const searchParams = new URLSearchParams(location.search.slice(1));
+			const searchParams = new URLSearchParams(location.search.slice(1));
 
-		expect(Object.fromEntries(searchParams)).toEqual(Object.create(null));
+			expect(location.search.slice(1)).toBe(
+				"hello=world&a=b&some-number=1&has+spaces=2",
+			);
+			expect(Object.fromEntries(searchParams)).toEqual({
+				hello: "world",
+				a: "b",
+				"some-number": "1",
+				"has spaces": "2",
+			});
+		});
+
+		it("ignores values which cannot be serialized", () => {
+			const useStore = createWithSignal<Record<string, any>>(
+				persist(
+					(set, _get) => ({
+						hello: "world",
+						actions: {
+							addSearchParams: (key: string, value: string) =>
+								set({ [key]: value }),
+						},
+					}),
+					{
+						name: "test",
+						storage: createJSONStorage(createSearchParamsStorage),
+					},
+				) as any,
+			);
+
+			const value = useStore();
+
+			value().actions.addSearchParams("a", () => {});
+			value().actions.addSearchParams("some-number", { hello: "world " });
+			value().actions.addSearchParams("has spaces", Symbol("test"));
+
+			const searchParams = new URLSearchParams(location.search.slice(1));
+
+			expect(location.search.slice(1)).toBe(
+				"hello=world&some-number_hello=world+",
+			);
+			expect(Object.fromEntries(searchParams)).toEqual({
+				hello: "world",
+				"some-number_hello": "world ",
+			});
+		});
+
+		it("removes search params if there are none", () => {
+			const useStore = createWithSignal<Record<string, any>>(
+				persist(
+					(set, _get) => ({
+						hello: "world",
+						actions: {
+							addSearchParams: (key: string, value: string) =>
+								set({ [key]: value }),
+						},
+					}),
+					{
+						name: "test",
+						storage: createJSONStorage(createSearchParamsStorage),
+					},
+				) as any,
+			);
+
+			const value = useStore();
+
+			value().actions.addSearchParams("hello", "");
+
+			const searchParams = new URLSearchParams(location.search.slice(1));
+
+			expect(Object.fromEntries(searchParams)).toEqual(
+				Object.create(null),
+			);
+		});
 	});
 });
