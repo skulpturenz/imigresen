@@ -1,7 +1,7 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { toPath } from "core/router/route";
-import { invariant } from "es-toolkit";
+import { invariant, once } from "es-toolkit";
 import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
@@ -51,7 +51,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 			clientId: authnProviderClientId,
 		}),
 		actions: {
-			init: async () => {
+			init: once(async () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isInitialLoading: true });
@@ -83,7 +83,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				set({ profile });
 				set({ isInitialLoading: false });
-			},
+			}),
 			login: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 

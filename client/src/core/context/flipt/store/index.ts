@@ -3,7 +3,7 @@ import {
 	type Flag,
 } from "@flipt-io/flipt-client-browser";
 import { secondsToMilliseconds } from "date-fns";
-import { invariant } from "es-toolkit";
+import { invariant, once } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 
 export interface FliptSvc {
@@ -37,7 +37,7 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 			flipt: null,
 			flags: [],
 			actions: {
-				init: async () => {
+				init: once(async () => {
 					set({ isInitialLoading: true });
 
 					const flipt = await FliptEvaluationClient.init(
@@ -67,7 +67,7 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 					}, interval);
 
 					set({ timeout });
-				},
+				}),
 				close: () => {
 					if (get().timeout) {
 						clearTimeout(get().timeout);
