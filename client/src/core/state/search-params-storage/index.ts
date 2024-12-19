@@ -31,7 +31,13 @@ export const createSearchParamsStorage = (): StateStorage => {
 					key.replace(new RegExp(SEPARATOR, "g"), "."),
 				);
 
-				const values = Object.values(record);
+				const values = Object.values(record).map(value => {
+					try {
+						return JSON.parse(value);
+					} catch (_err: unknown) {
+						return value;
+					}
+				});
 
 				return zipObjectDeep(keys, values);
 			};
@@ -52,7 +58,11 @@ export const createSearchParamsStorage = (): StateStorage => {
 				}
 
 				return Object.entries(record).reduce((acc, [key, value]) => {
-					if (!isPlainObject(value) && !isValuePersisted(value)) {
+					if (
+						!isPlainObject(value) &&
+						!Array.isArray(value) &&
+						!isValuePersisted(value)
+					) {
 						return acc;
 					}
 
@@ -65,7 +75,8 @@ export const createSearchParamsStorage = (): StateStorage => {
 
 					return {
 						...acc,
-						[[...(prefixKeys ?? []), key].join(SEPARATOR)]: value,
+						[[...(prefixKeys ?? []), key].join(SEPARATOR)]:
+							JSON.stringify(value),
 					};
 				}, Object.create(null));
 			};

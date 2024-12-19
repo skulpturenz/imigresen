@@ -61,6 +61,8 @@ describe("search-params-storage", () => {
 				hello: {
 					world: {
 						test: "123 ",
+						a: 2,
+						c: [1, "2", 3],
 					},
 				},
 			});
@@ -105,6 +107,7 @@ describe("search-params-storage", () => {
 					hello: {
 						world: {
 							test: "123 ",
+							a: 2,
 						},
 					},
 				},
@@ -143,11 +146,11 @@ describe("search-params-storage", () => {
 			const searchParams = new URLSearchParams(location.search.slice(1));
 
 			expect(location.search.slice(1)).toBe(
-				"hello=world&a=b&some-number=1&has+spaces=2",
+				"hello=%22world%22&a=%22b%22&some-number=1&has+spaces=2",
 			);
 			expect(Object.fromEntries(searchParams)).toEqual({
-				hello: "world",
-				a: "b",
+				hello: '"world"',
+				a: '"b"',
 				"some-number": "1",
 				"has spaces": "2",
 			});
@@ -179,11 +182,11 @@ describe("search-params-storage", () => {
 			const searchParams = new URLSearchParams(location.search.slice(1));
 
 			expect(location.search.slice(1)).toBe(
-				"hello=world&some-number_hello=world+",
+				"hello=%22world%22&some-number_hello=%22world+%22",
 			);
 			expect(Object.fromEntries(searchParams)).toEqual({
-				hello: "world",
-				"some-number_hello": "world ",
+				hello: '"world"',
+				"some-number_hello": '"world "',
 			});
 		});
 
