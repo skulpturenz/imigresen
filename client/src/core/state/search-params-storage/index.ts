@@ -89,6 +89,10 @@ export const createSearchParamsStorage = (): StateStorage => {
 			history.replaceState(null, "", `?${updatedParams.toString()}`);
 		},
 		removeItem: (_): void => {
+			if (!import.meta.env.PROD) {
+				console.warn("Clearing state will clear all search parameters");
+			}
+
 			history.replaceState(null, "", "?");
 		},
 	};
