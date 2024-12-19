@@ -68,11 +68,12 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 
 					set({ timeout });
 				}),
-				close: () => {
+				close: once(() => {
 					if (get().timeout) {
 						clearTimeout(get().timeout);
+						set({ timeout: null });
 					}
-				},
+				}),
 			},
 		};
 	},

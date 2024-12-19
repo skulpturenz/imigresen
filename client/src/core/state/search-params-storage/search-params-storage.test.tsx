@@ -11,8 +11,8 @@ describe("search-params-storage", () => {
 
 		it("persist", async () => {
 			const initialSearchParams = new URLSearchParams({
-				a: "hello",
-				b_c_d_e: "world",
+				test_a: "hello",
+				test_b_c_d_e: "world",
 			});
 
 			history.replaceState(
@@ -148,11 +148,11 @@ describe("search-params-storage", () => {
 			const searchParams = new URLSearchParams(location.search.slice(1));
 
 			expect(location.search.slice(1)).toBe(
-				"hello=%22world%22&some-number_hello=%22world+%22",
+				"test_hello=%22world%22&test_some-number_hello=%22world+%22",
 			);
 			expect(Object.fromEntries(searchParams)).toEqual({
-				hello: '"world"',
-				"some-number_hello": '"world "',
+				test_hello: '"world"',
+				"test_some-number_hello": '"world "',
 			});
 		});
 
