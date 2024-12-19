@@ -41,7 +41,15 @@ export default [
 			"import/no-default-export": "error",
 			"@typescript-eslint/no-unused-vars": [
 				"error",
-				{ argsIgnorePattern: "^_" },
+				{
+					args: "all",
+					argsIgnorePattern: "^_",
+					caughtErrors: "all",
+					caughtErrorsIgnorePattern: "^_",
+					destructuredArrayIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					ignoreRestSiblings: true,
+				},
 			],
 			"@typescript-eslint/no-empty-object-type": "warn",
 			"@typescript-eslint/no-explicit-any": "off",
