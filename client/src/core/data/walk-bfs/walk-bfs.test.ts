@@ -59,7 +59,60 @@ describe("walk-bfs", () => {
 		]);
 	});
 
-	it.todo("limits depth");
+	it("limits depth", () => {
+		const tree = {
+			hello: "world", // depth = 0
+			children: [
+				{
+					hello: "world1", // depth = 1
+					children: [
+						{
+							hello: "world2", // depth = 2
+						},
+					],
+				},
+				{
+					hello: "world3", // depth = 1
+					children: [
+						{
+							hello: "world4", // depth = 2
+							children: [
+								{
+									hello: "world5", // depth = 3
+									children: [
+										{
+											hello: "world6", // depth = 4
+											children: [
+												{
+													hello: "world7", // depth = 5
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const walk = makeWalkBfs((record: any) => record.children, 3);
+		const visited = new Set();
+
+		for (const node of walk(tree)) {
+			visited.add(node.hello);
+		}
+
+		expect([...visited]).toEqual([
+			"world",
+			"world1",
+			"world3",
+			"world2",
+			"world4",
+			"world5",
+		]);
+	});
 
 	it.todo("yields the parent node");
 });
