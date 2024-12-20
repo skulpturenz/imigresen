@@ -41,13 +41,8 @@ describe("walk-bfs", () => {
 
 	it("walks a tree breadth first", () => {
 		const walk = makeWalkBfs((record: any) => record.children);
-		const visited = new Set();
 
-		for (const { node } of walk(tree)) {
-			visited.add(node.hello);
-		}
-
-		expect([...visited]).toEqual([
+		expect(Array.from(walk(tree), ({ node }) => node.hello)).toEqual([
 			"world",
 			"world1",
 			"world3",
@@ -61,13 +56,8 @@ describe("walk-bfs", () => {
 
 	it("limits depth", () => {
 		const walk = makeWalkBfs((record: any) => record.children, 3);
-		const visited = new Set();
 
-		for (const { node } of walk(tree)) {
-			visited.add(node.hello);
-		}
-
-		expect([...visited]).toEqual([
+		expect(Array.from(walk(tree), ({ node }) => node.hello)).toEqual([
 			"world",
 			"world1",
 			"world3",
@@ -83,17 +73,16 @@ describe("walk-bfs", () => {
 		const nodeParents = {
 			world: null,
 			world1: "world",
-			world2: "world1",
 			world3: "world",
+			world2: "world1",
 			world4: "world3",
 			world5: "world4",
 			world6: "world5",
 			world7: "world6",
 		};
 
-		for (const { parent, node } of walk(tree)) {
-			/// @ts-expect-error: TODO types
-			expect(parent?.hello ?? null).toBe(nodeParents[node.hello]);
-		}
+		expect(Object.values(nodeParents)).toEqual(
+			Array.from(walk(tree), ({ parent }) => parent?.hello ?? null),
+		);
 	});
 });
