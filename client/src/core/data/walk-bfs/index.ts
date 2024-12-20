@@ -9,7 +9,9 @@ export const makeWalkBfs = (getChildren: any, maxDepth = Infinity) =>
 	): any {
 		yield { parent: parents.at(0) ?? null, node: start };
 
-		if (!Object.values(getChildren(start) ?? []).length && !next.length) {
+		const children = getChildren(start) ?? [];
+
+		if (!Object.values(children).length && !next.length) {
 			return;
 		}
 
@@ -18,16 +20,13 @@ export const makeWalkBfs = (getChildren: any, maxDepth = Infinity) =>
 				return;
 			} else {
 				yield* walkBfs(
-					Object.values(getChildren(start) ?? []).at(0),
-					Object.values(getChildren(start) ?? []).slice(1),
+					Object.values(children).at(0),
+					Object.values(children).slice(1),
 					!depthEnd ? currentDepth + 1 : currentDepth,
-					Object.values(getChildren(start) ?? []).slice(1).length,
+					Object.values(children).slice(1).length,
 					[
 						...parents.slice(1),
-						...Array.from(
-							{ length: (getChildren(start) ?? []).length },
-							() => start,
-						),
+						...Array(children.length).fill(start),
 					],
 				);
 			}
@@ -40,27 +39,18 @@ export const makeWalkBfs = (getChildren: any, maxDepth = Infinity) =>
 					depthEnd - 1,
 					[
 						...parents.slice(1),
-						...Array.from(
-							{ length: (getChildren(start) ?? []).length },
-							() => start,
-						),
+						...Array(children.length).fill(start),
 					],
 				);
 			} else {
 				yield* walkBfs(
 					next.at(0),
-					[
-						...next.slice(1),
-						...Object.values(getChildren(start) ?? []),
-					],
+					[...next.slice(1), ...Object.values(children)],
 					!depthEnd ? currentDepth + 1 : currentDepth,
 					depthEnd ? depthEnd - 1 : next.slice(1).length,
 					[
 						...parents.slice(1),
-						...Array.from(
-							{ length: (getChildren(start) ?? []).length },
-							() => start,
-						),
+						...Array(children.length).fill(start),
 					],
 				);
 			}
