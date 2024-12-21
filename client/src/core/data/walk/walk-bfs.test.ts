@@ -1,4 +1,4 @@
-import { makeWalkBfs } from "core/data/walk-bfs";
+import { makeWalkBfs } from "core/data/walk";
 import { describe, expect, it } from "vitest";
 import { makeEvery } from "./every";
 import { makeParents } from "./parents";
