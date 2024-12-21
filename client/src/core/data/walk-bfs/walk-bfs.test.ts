@@ -1,8 +1,13 @@
+import { makeWalkBfs } from "core/data/walk-bfs";
 import { describe, expect, it } from "vitest";
-import { makeWalkBfs } from ".";
 
 describe("walk-bfs", () => {
-	const tree = {
+	interface Tree {
+		hello: string;
+		children?: Tree[];
+	}
+
+	const tree: Tree = {
 		hello: "world", // depth = 0
 		children: [
 			{
@@ -40,7 +45,7 @@ describe("walk-bfs", () => {
 	};
 
 	it("walks a tree breadth first", () => {
-		const walk = makeWalkBfs((record: any) => record.children);
+		const walk = makeWalkBfs((tree: Tree) => tree.children);
 
 		expect(Array.from(walk(tree), ({ node }) => node.hello)).toEqual([
 			"world",
@@ -55,7 +60,7 @@ describe("walk-bfs", () => {
 	});
 
 	it("limits depth", () => {
-		const walk = makeWalkBfs((record: any) => record.children, 3);
+		const walk = makeWalkBfs((tree: Tree) => tree.children, 3);
 
 		expect(Array.from(walk(tree), ({ node }) => node.hello)).toEqual([
 			"world",
@@ -68,7 +73,7 @@ describe("walk-bfs", () => {
 	});
 
 	it("yields the parent node", () => {
-		const walk = makeWalkBfs((record: any) => record.children);
+		const walk = makeWalkBfs((tree: Tree) => tree.children);
 
 		const nodeParents = {
 			world: null,
