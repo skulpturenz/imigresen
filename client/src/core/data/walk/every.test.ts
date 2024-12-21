@@ -45,11 +45,11 @@ describe("every", () => {
 		],
 	};
 
-	it("false if predicate is true for every node", () => {
+	it("true if predicate is true for every node", () => {
 		const walk = makeWalkBfs((tree: Tree) => tree.children);
 		const every = makeEvery(walk);
 
-		expect(every(tree, node => Boolean(node.hello))).toBeTruthy();
-		expect(every(tree, node => node.hello === "world3")).toBeFalsy();
+		expect(every(tree, ({ node }) => Boolean(node.hello))).toBeTruthy();
+		expect(every(tree, ({ node }) => node.hello === "world3")).toBeFalsy();
 	});
 });

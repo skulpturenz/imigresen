@@ -49,7 +49,7 @@ describe("some", () => {
 		const walk = makeWalkBfs((tree: Tree) => tree.children);
 		const some = makeSome(walk);
 
-		expect(some(tree, node => node.hello === "world3")).toBeTruthy();
-		expect(some(tree, node => node.hello === "world8")).toBeFalsy();
+		expect(some(tree, ({ node }) => node.hello === "world3")).toBeTruthy();
+		expect(some(tree, ({ node }) => node.hello === "world8")).toBeFalsy();
 	});
 });
