@@ -9,6 +9,4 @@ export const makeFilter = <T>(walk: Walk<T>) =>
 
 			yield result;
 		}
-
-		return false;
 	};
