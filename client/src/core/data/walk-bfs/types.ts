@@ -1,5 +1,5 @@
 export interface WalkFactory<T> {
-	(getChildren: (parent: T) => T[] | void): Walk<T>;
+	(getChildren: (parent: T) => T[] | void, maxDepth?: number): Walk<T>;
 	(getChildren: (parent: T) => T[] | void, maxDepth: number): Walk<T>;
 }
 
