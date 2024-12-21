@@ -7,7 +7,7 @@ export const makeSome =
 			if (predicate(node)) {
 				return true;
 			}
-
-			return false;
 		}
+
+		return false;
 	};

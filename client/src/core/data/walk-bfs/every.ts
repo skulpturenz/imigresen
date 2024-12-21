@@ -7,7 +7,7 @@ export const makeEvery =
 			if (!predicate(node)) {
 				return false;
 			}
-
-			return true;
 		}
+
+		return true;
 	};
