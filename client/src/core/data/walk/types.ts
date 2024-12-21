@@ -7,6 +7,10 @@ export interface Walk<T> {
 	(start: T): IterableIterator<Node<T>>;
 }
 
+export interface WalkWithGrandparents<T> {
+	(start: T): IterableIterator<NodeWithGrandparents<T>>;
+}
+
 export interface Node<T> {
 	parent: T | null;
 	node: T;
