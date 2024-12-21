@@ -63,12 +63,18 @@ describe("filter", () => {
 			makeFilter(walk),
 			({ node }: Node<Tree>) => node.hello === "world2",
 		);
-		const walkWithGrandparents = makeParents(walkWithFilter);
+		const walkWithGrandparentsAndFilter = makeParents(walkWithFilter);
+		const walkWithGrandparents = makeParents(walk);
 
-		expect(Array.from(walkWithGrandparents(tree))).toHaveLength(1);
+		expect(Array.from(walkWithGrandparentsAndFilter(tree))).toHaveLength(1);
 		// note: if there was no filter then there would be two items in `parents`
 		expect(
-			Array.from(walkWithGrandparents(tree))?.at(0)?.parents,
-		).toHaveLength(1);
+			Array.from(walkWithGrandparents(tree)).find(
+				({ node }) => node.hello === "world2",
+			)?.parents.length,
+		).toBeGreaterThan(
+			Array.from(walkWithGrandparentsAndFilter(tree))?.at(0)?.parents
+				.length ?? 0,
+		);
 	});
 });
