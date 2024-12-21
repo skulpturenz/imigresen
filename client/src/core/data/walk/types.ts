@@ -11,3 +11,8 @@ export interface Node<T> {
 	parent: T | null;
 	node: T;
 }
+
+export interface NodeWithGrandparents<T> {
+	parents: T[];
+	node: T;
+}
