@@ -1,14 +1,11 @@
-import type {
-	Node,
-	NodeWithGrandparents,
-	Walk,
-	WalkWithGrandparents,
-} from "./types";
+import type { GeneratorReturnType, Node, Walk } from "./types";
 
-export const makeFilter = <T>(walk: Walk<T> | WalkWithGrandparents<T>) =>
+export const makeFilter = <T, U extends Node<T>>(walk: Walk<T, U>) =>
 	function* filter(
 		tree: T,
-		predicate: (node: Node<T> | NodeWithGrandparents<T>) => boolean,
+		predicate: (
+			node: GeneratorReturnType<ReturnType<typeof walk>>,
+		) => boolean,
 	) {
 		for (const result of walk(tree)) {
 			if (!predicate(result)) {
