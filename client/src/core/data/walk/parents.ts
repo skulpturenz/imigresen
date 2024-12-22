@@ -1,6 +1,6 @@
-import type { NodeWithGrandparents, Walk } from "./types";
+import type { NodeWithGrandparents, WalkWithParent } from "./types";
 
-export const makeParents = <T>(walk: Walk<T>) =>
+export const makeParents = <T>(walk: WalkWithParent<T>) =>
 	function* parents(tree: T): IterableIterator<NodeWithGrandparents<T>> {
 		const parentsMap = new Map<T, T[]>();
 

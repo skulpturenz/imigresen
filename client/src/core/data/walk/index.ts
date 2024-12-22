@@ -1,16 +1,16 @@
-import type { Node, Walk } from "./types";
+import type { NodeWithParent, WalkWithParent } from "./types";
 
 export const makeWalkBfs = <T>(
 	getChildren: (parent: T) => T[] | void,
 	maxDepth = Infinity,
-): Walk<T> =>
+): WalkWithParent<T> =>
 	function* walkBfs(
 		start: T,
 		next: T[] = [],
 		parents: T[] = [],
 		currentDepth = 0,
 		depthEndIdx = 0,
-	): IterableIterator<Node<T>> {
+	): IterableIterator<NodeWithParent<T>> {
 		yield { parent: parents.at(0) ?? null, node: start };
 
 		const children = Object.values(getChildren(start) ?? []) as T[];
