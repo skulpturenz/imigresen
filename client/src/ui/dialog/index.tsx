@@ -48,8 +48,8 @@ export const DialogContent = <T extends ValidComponent = "div">(
 			ref={props.ref}
 			class={cn(
 				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
-				"border bg-background p-6 shadow-lg duration-200 data-[expanded]:animate-in data-[closed]:animate-out",
-				"data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95",
+				"border border-border bg-background p-6 shadow-lg duration-200 data-[expanded]:animate-in data-[closed]:animate-out",
+				"data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 text-foreground",
 				"data-[expanded]:zoom-in-95 data-[closed]:slide-out-to-left-1/2 data-[closed]:slide-out-to-top-[48%]",
 				"data-[expanded]:slide-in-from-left-1/2 data-[expanded]:slide-in-from-top-[48%] sm:rounded-lg",
 				props.class,
@@ -77,7 +77,7 @@ export const DialogTitle = <T extends ValidComponent = "h2">(
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"text-lg font-semibold leading-none tracking-tight",
+			"text-lg text-foreground font-semibold leading-none tracking-tight",
 			props.class,
 		)}
 	/>
@@ -100,7 +100,7 @@ export const DialogHeader: Component<ComponentProps<"div">> = (
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex flex-col space-y-1.5 text-center sm:text-left",
+			"flex flex-col space-y-1.5 text-foreground text-center sm:text-left",
 			props.class,
 		)}
 	/>
@@ -111,7 +111,7 @@ export const DialogFooter: Component<ComponentProps<"div">> = props => (
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+			"flex flex-col-reverse text-foreground sm:flex-row sm:justify-end sm:space-x-2",
 			props.class,
 		)}
 	/>

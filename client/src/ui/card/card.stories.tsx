@@ -49,7 +49,7 @@ export const Default: Story<typeof Card> = {
 					</CardDescription>
 				</CardHeader>
 				<CardContent class="grid gap-4">
-					<div class=" flex items-center space-x-4 rounded-md border p-4">
+					<div class=" flex items-center space-x-4 rounded-md border border-border p-4">
 						<BellIcon class="h-4 w-4" />
 						<div class="flex-1 space-y-1">
 							<p class="text-sm font-medium leading-none">

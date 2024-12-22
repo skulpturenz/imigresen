@@ -31,7 +31,7 @@ export const DrawerContent = <T extends ValidComponent = "div">(
 			<DrawerPrimitive.Content
 				{...spreadProps(props)}
 				class={cn(
-					"fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-xl border bg-background",
+					"fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-xl border border-border text-foreground bg-background",
 					"after:absolute after:inset-x-0 after:top-full after:h-[50%]",
 					"after:bg-inherit data-[transitioning]:transition-transform data-[transitioning]:duration-200 md:select-none",
 					props.class,
