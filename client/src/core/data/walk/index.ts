@@ -19,46 +19,37 @@ export const makeWalkBfs = <T>(
 			return;
 		}
 
-		if (!next.length) {
-			if (currentDepth > maxDepth) {
-				return;
-			} else {
-				yield* walkBfs(
-					children.at(0) as T,
-					children.slice(1),
-					[
-						...parents.slice(1),
-						...Array(children.length).fill(start),
-					],
-					!depthEndIdx ? currentDepth + 1 : currentDepth,
-					Math.max(children.length - 1, 0),
-				);
-			}
-		} else {
-			if (currentDepth > maxDepth) {
-				yield* walkBfs(
-					next.at(0) as T,
-					next.slice(1),
-					[
-						...parents.slice(1),
-						...Array(children.length).fill(start),
-					],
-					currentDepth,
-					depthEndIdx - 1,
-				);
-			} else {
-				yield* walkBfs(
-					next.at(0) as T,
-					[...next.slice(1), ...children],
-					[
-						...parents.slice(1),
-						...Array(children.length).fill(start),
-					],
-					!depthEndIdx ? currentDepth + 1 : currentDepth,
-					depthEndIdx
-						? depthEndIdx - 1
-						: Math.max(next.length - 1, 0),
-				);
-			}
+		if (!next.length && currentDepth > maxDepth) {
+			return;
+		}
+
+		if (!next.length && currentDepth <= maxDepth) {
+			yield* walkBfs(
+				children.at(0) as T,
+				children.slice(1),
+				[...parents.slice(1), ...Array(children.length).fill(start)],
+				!depthEndIdx ? currentDepth + 1 : currentDepth,
+				Math.max(children.length - 1, 0),
+			);
+		}
+
+		if (next.length && currentDepth > maxDepth) {
+			yield* walkBfs(
+				next.at(0) as T,
+				next.slice(1),
+				[...parents.slice(1), ...Array(children.length).fill(start)],
+				currentDepth,
+				depthEndIdx - 1,
+			);
+		}
+
+		if (next.length && currentDepth <= maxDepth) {
+			yield* walkBfs(
+				next.at(0) as T,
+				[...next.slice(1), ...children],
+				[...parents.slice(1), ...Array(children.length).fill(start)],
+				!depthEndIdx ? currentDepth + 1 : currentDepth,
+				depthEndIdx ? depthEndIdx - 1 : Math.max(next.length - 1, 0),
+			);
 		}
 	};
