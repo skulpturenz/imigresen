@@ -7,13 +7,9 @@ export interface Walk<T, U extends Node<T> = Node<T>> {
 	(start: T): IterableIterator<U>;
 }
 
-export interface WalkWithParent<T> {
-	(start: T): IterableIterator<NodeWithParent<T>>;
-}
+export type WalkWithParent<T> = Walk<T, NodeWithParent<T>>;
 
-export interface WalkWithGrandparents<T> {
-	(start: T): IterableIterator<NodeWithGrandparents<T>>;
-}
+export type WalkWithGrandparents<T> = Walk<T, NodeWithGrandparents<T>>;
 
 export interface Node<T> {
 	node: T;
