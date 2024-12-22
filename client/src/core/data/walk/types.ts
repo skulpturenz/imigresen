@@ -15,14 +15,12 @@ export interface Node<T> {
 	node: T;
 }
 
-export interface NodeWithParent<T> {
+export interface NodeWithParent<T> extends Node<T> {
 	parent: T | null;
-	node: T;
 }
 
-export interface NodeWithGrandparents<T> {
+export interface NodeWithGrandparents<T> extends Node<T> {
 	parents: T[];
-	node: T;
 }
 
 export type GeneratorReturnType<T extends IterableIterator<any>> =
