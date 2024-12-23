@@ -1,7 +1,7 @@
 import { AuthnProviderMock } from "core/context/authn";
 import { createAuthnContext } from "core/context/initializers";
 import { UserProviderMock } from "core/context/user";
-import { Navbar } from "core/ui/shell";
+import { Navbar } from "core/ui/shell/navbar";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 
 export default {
