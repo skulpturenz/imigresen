@@ -12,6 +12,10 @@ export interface PageLoadingProps {
 	isLoading?: boolean;
 }
 
+const resources = {
+	srOnly: "Loading",
+};
+
 export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 	const withDefaultProps = mergeProps(
 		{
@@ -66,6 +70,8 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 							"loading-dot size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
 						)}>
 						<span class="size-6 md:size-8 lg:size-12 bg-primary absolute rounded-full animate-ping" />
+
+						<span class="sr-only">{resources.srOnly}</span>
 					</span>
 				</div>
 			</DialogPortal>
