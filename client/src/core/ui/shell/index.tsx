@@ -127,7 +127,11 @@ export const Navbar: Component<ParentProps> = () => {
 										authContext().keycloak?.authenticated
 									}>
 									<DropdownMenu placement="bottom">
-										<DropdownMenuTrigger>
+										<DropdownMenuTrigger
+											class={cn(
+												"focus-visible: outline-none focus-visible:ring-ring focus-visible:ring-2",
+												"focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full",
+											)}>
 											<Avatar class="size-8 sm:size-10">
 												<AvatarImage
 													src={
