@@ -1,0 +1,22 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as PageLoadingStories from "./page-loading.stories";
+
+<Meta of={PageLoadingStories} />
+
+<Title of={PageLoadingStories}>Page loading</Title>
+<Description of={PageLoadingStories} />
+
+<Stories includePrimary={false} />
+
+## Usage
+
+```tsx
+<Loading />
+```

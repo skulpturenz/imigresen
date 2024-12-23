@@ -1,8 +1,8 @@
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
-import { Loading } from "ui/loading";
+import { PageLoading } from "ui/page-loading";
 
 export default {
-	title: "ui/loading",
+	title: "ui/page-loading",
 	parameters: {
 		docs: {
 			description: {
@@ -12,8 +12,8 @@ export default {
 		},
 		toggleTheme: false,
 	},
-} satisfies Meta<typeof Loading>;
+} satisfies Meta<typeof PageLoading>;
 
-export const Default: Story<typeof Loading> = {
-	render: () => <Loading />,
+export const Default: Story<typeof PageLoading> = {
+	render: () => <PageLoading />,
 };

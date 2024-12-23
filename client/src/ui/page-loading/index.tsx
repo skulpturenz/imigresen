@@ -8,11 +8,11 @@ import {
 import { Dialog, DialogOverlay, DialogPortal } from "ui/dialog";
 import { cn } from "ui/utils";
 
-export interface LoadingProps {
+export interface PageLoadingProps {
 	isLoading?: boolean;
 }
 
-export const Loading: Component<ParentProps<LoadingProps>> = props => {
+export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 	const withDefaultProps = mergeProps(
 		{
 			isLoading: true,
