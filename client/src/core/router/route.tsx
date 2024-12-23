@@ -101,6 +101,8 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	> = routeSectionProps => {
 		return (
 			<>
+				<Title>{getMetaTitle(props.title)}</Title>
+
 				<PageLoading
 					isLoading={
 						(isAllowed.loading || isHidden.loading) &&
@@ -150,8 +152,6 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 
 	return (
 		<>
-			<Title>{getMetaTitle(props.title)}</Title>
-
 			<SolidRoute
 				{...spreadProps(props)}
 				component={Component}
