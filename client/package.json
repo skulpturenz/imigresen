@@ -25,7 +25,7 @@
 		"date-fns": "^4.1.0",
 		"es-toolkit": "^1.29.0",
 		"keycloak-js": "^26.0.7",
-		"lucide-solid": "^0.468.0",
+		"lucide-solid": "^0.469.0",
 		"motion": "^11.15.0",
 		"solid-js": "^1.9.3",
 		"solid-zustand": "^1.8.1",
