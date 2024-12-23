@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { DEFAULT_VIEWPORT, INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import { startCase } from "es-toolkit";
 import { type Component, type ParentProps } from "solid-js";
 import type { Preview } from "storybook-solidjs";
@@ -22,6 +23,10 @@ const preview: Preview = {
 			},
 		},
 		layout: "centered",
+		viewport: {
+			viewports: INITIAL_VIEWPORTS,
+			defaultViewport: DEFAULT_VIEWPORT,
+		},
 	},
 	decorators: [
 		(Story, context) => {

@@ -49,8 +49,15 @@ export const Mobile: Story<typeof Navbar> = {
 	decorators: Story => (
 		<AuthnProviderMock>
 			<UserProviderMock>
-				<Story />
+				<div class="w-[90vw] h-[100vh]">
+					<Story />
+				</div>
 			</UserProviderMock>
 		</AuthnProviderMock>
 	),
+	parameters: {
+		viewport: {
+			defaultViewport: "iphone12",
+		},
+	},
 };
