@@ -55,7 +55,7 @@ const preview: Preview = {
 									buttonVariants({ variant: "default" }),
 									"w-full",
 								)}
-								on:click={toggleTheme}>
+								onClick={toggleTheme}>
 								{startCase(getNextTheme())} mode
 							</button>
 						)}

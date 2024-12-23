@@ -1,8 +1,9 @@
 import { styles } from "core/constants/styles";
 import { AuthnContext } from "core/context/authn";
+import { UiContext } from "core/context/ui";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import { LogOut, Menu, Settings, User, X } from "lucide-solid";
+import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import { createSignal, Show, type Component, type ParentProps } from "solid-js";
 import { Transition } from "solid-transition-group";
 import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
@@ -22,6 +23,8 @@ const resources = {
 	logoAlt: "Imigresen",
 	doLogin: "Login",
 	doRegister: "Register",
+	doSwitchTheme: (nextTheme: "light" | "dark") =>
+		`Switch to ${nextTheme} mode`,
 	avatar: {
 		doProfile: "Profile",
 		doSettings: "Settings",
@@ -55,6 +58,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 	const authContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
+	const uiContext = useContext(UiContext);
 
 	const toInitials = (fullName: string) => {
 		const split = fullName.split(" ");
@@ -62,6 +66,22 @@ export const Navbar: Component<ParentProps> = () => {
 		return [split.at(0)?.at(0), split.at(-1)?.at(0)]
 			.filter(Boolean)
 			.join("");
+	};
+
+	const getNextTheme = () => {
+		if (uiContext().theme === "light") {
+			return "dark";
+		}
+
+		return "light";
+	};
+
+	const toggleTheme = () => {
+		uiContext().actions.setTheme(getNextTheme());
+
+		if (isMobileMenuOpen()) {
+			toggleMobileMenu();
+		}
 	};
 
 	return (
@@ -105,6 +125,19 @@ export const Navbar: Component<ParentProps> = () => {
 										!authContext().keycloak?.authenticated
 									}>
 									<div class="hidden sm:flex gap-4">
+										<Button
+											size="icon"
+											variant="outline"
+											onClick={toggleTheme}>
+											<Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+											<Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+											<span class="sr-only">
+												{resources.doSwitchTheme(
+													getNextTheme(),
+												)}
+											</span>
+										</Button>
+
 										<Button
 											variant="secondary"
 											onClick={
@@ -212,6 +245,10 @@ export const Navbar: Component<ParentProps> = () => {
 								variant="ghost"
 								onClick={authContext().actions.register}>
 								{resources.doRegister}
+							</Button>
+
+							<Button variant="ghost" onClick={toggleTheme}>
+								{resources.doSwitchTheme(getNextTheme())}
 							</Button>
 						</div>
 					</div>
