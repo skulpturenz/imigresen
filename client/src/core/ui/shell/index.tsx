@@ -3,7 +3,7 @@ import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { LogOut, Settings, User } from "lucide-solid";
-import type { Component, ParentProps } from "solid-js";
+import { Show, type Component, type ParentProps } from "solid-js";
 import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
 import { Button } from "ui/button";
 import {
@@ -65,83 +65,80 @@ export const Navbar: Component<ParentProps> = () => {
 							</div>
 
 							<div class="flex gap-4">
-								{!authContext().keycloak?.authenticated && (
-									<>
-										<Button
-											variant="secondary"
-											onClick={
-												authContext().actions.login
-											}>
-											{resources.doLogin}
-										</Button>
+								<Show
+									when={
+										!authContext().keycloak?.authenticated
+									}>
+									<Button
+										variant="secondary"
+										onClick={authContext().actions.login}>
+										{resources.doLogin}
+									</Button>
 
-										<Button
-											onClick={
-												authContext().actions.register
-											}>
-											{resources.doRegister}
-										</Button>
-									</>
-								)}
+									<Button
+										onClick={
+											authContext().actions.register
+										}>
+										{resources.doRegister}
+									</Button>
+								</Show>
 
-								{authContext().keycloak?.authenticated && (
-									<>
-										<DropdownMenu placement="bottom">
-											<DropdownMenuTrigger>
-												<Avatar>
-													<AvatarImage
-														// TODO
-														src="https://github.com/shadcn.png"
-														alt="@shadcn"
-													/>
-													<AvatarFallback>
-														{toInitials("CN")}
-													</AvatarFallback>
-												</Avatar>
-											</DropdownMenuTrigger>
+								<Show
+									when={
+										authContext().keycloak?.authenticated
+									}>
+									<DropdownMenu placement="bottom">
+										<DropdownMenuTrigger>
+											<Avatar>
+												<AvatarImage
+													// TODO
+													src="https://github.com/shadcn.png"
+													alt="@shadcn"
+												/>
+												<AvatarFallback>
+													{toInitials("CN")}
+												</AvatarFallback>
+											</Avatar>
+										</DropdownMenuTrigger>
 
-											<DropdownMenuContent class="mt-4 w-56">
-												<DropdownMenuGroup>
-													<DropdownMenuGroupLabel>
-														{
-															resources.avatar
-																.accountGroupLabel
-														}
-													</DropdownMenuGroupLabel>
-													<DropdownMenuSeparator />
-													<DropdownMenuItem class="flex gap-2">
-														<User />
-														<span>
-															{
-																resources.avatar
-																	.doProfile
-															}
-														</span>
-													</DropdownMenuItem>
-													<DropdownMenuItem class="flex gap-2">
-														<Settings />
-														<span>
-															{
-																resources.avatar
-																	.doSettings
-															}
-														</span>
-													</DropdownMenuItem>
-												</DropdownMenuGroup>
+										<DropdownMenuContent class="mt-4 w-56">
+											<DropdownMenuGroup>
+												<DropdownMenuGroupLabel>
+													{
+														resources.avatar
+															.accountGroupLabel
+													}
+												</DropdownMenuGroupLabel>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem class="flex gap-2">
-													<LogOut />
+													<User />
 													<span>
 														{
 															resources.avatar
-																.doLogout
+																.doProfile
 														}
 													</span>
 												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</>
-								)}
+												<DropdownMenuItem class="flex gap-2">
+													<Settings />
+													<span>
+														{
+															resources.avatar
+																.doSettings
+														}
+													</span>
+												</DropdownMenuItem>
+											</DropdownMenuGroup>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem class="flex gap-2">
+												<LogOut />
+												<span>
+													{resources.avatar.doLogout}
+												</span>
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</Show>
 							</div>
 						</div>
 					</div>
