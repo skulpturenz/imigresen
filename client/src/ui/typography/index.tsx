@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { Dynamic, type DynamicProps } from "solid-js/web";
+import { cn } from "ui/utils";
 
 export const typographyVariants = cva("", {
 	variants: {
@@ -34,7 +35,10 @@ export const Typography = <T extends ValidComponent>(
 			{...spreadProps(props)}
 			ref={props.ref}
 			component={props.as || "p"}
-			class={typographyVariants({ variant: props.variant })}>
+			class={cn(
+				typographyVariants({ variant: props.variant }),
+				props.class,
+			)}>
 			{props.children}
 		</Dynamic>
 	);

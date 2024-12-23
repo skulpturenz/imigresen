@@ -9,7 +9,7 @@ import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
 import { FliptContext, type FliptSvc } from "core/context/flipt";
 import { RouterContext } from "core/context/router";
-import { UserContext } from "core/context/user";
+import { UserContext, type UserSvc } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
 import {
@@ -23,7 +23,7 @@ import { Dynamic } from "solid-js/web";
 import { PageLoading } from "ui/page-loading";
 
 export interface CoreContext {
-	user: UserContext;
+	user: UserSvc;
 	authz: AuthzContext;
 	authn: AuthnSvc;
 	flipt: FliptSvc;
