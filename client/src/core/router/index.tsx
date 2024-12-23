@@ -1,10 +1,7 @@
-import {
-	Route as SolidRoute,
-	Router as SolidRouter,
-	type RouteSectionProps,
-} from "@solidjs/router";
+import { Route as SolidRoute, Router as SolidRouter } from "@solidjs/router";
 import { Router as AuthRouter } from "feat/auth";
 import { Router as HomeRouter } from "feat/home";
+import { NotFound } from "feat/not-found";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";
 
@@ -32,9 +29,4 @@ const RouterErrorBoundary: Component<ParentProps> = props => (
 		)}>
 		{props.children}
 	</ErrorBoundary>
-);
-
-// TODO: improve
-const NotFound: Component<RouteSectionProps> = _props => (
-	<span>Not found!!!</span>
 );
