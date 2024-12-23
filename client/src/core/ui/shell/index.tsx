@@ -2,8 +2,9 @@ import { styles } from "core/constants/styles";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import { LogOut, Settings, User } from "lucide-solid";
-import { Show, type Component, type ParentProps } from "solid-js";
+import { LogOut, Menu, Settings, User, X } from "lucide-solid";
+import { createSignal, Show, type Component, type ParentProps } from "solid-js";
+import { Transition } from "solid-transition-group";
 import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
 import { Button } from "ui/button";
 import {
@@ -19,6 +20,7 @@ import { cn } from "ui/utils";
 
 const resources = {
 	logoAlt: "Imigresen",
+	mobileMenuSrOnly: "Open main menu",
 	doLogin: "Login",
 	doRegister: "Register",
 	avatar: {
@@ -44,6 +46,10 @@ export const Shell: Component<ParentProps> = props => (
 );
 
 export const Navbar: Component<ParentProps> = () => {
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = createSignal(false);
+	const toggleMobileMenu = () =>
+		setIsMobileMenuOpen(isMobileMenuOpen => !isMobileMenuOpen);
+
 	const authContext = useContext(AuthnContext);
 	const _userContext = useContext(UserContext);
 
@@ -56,31 +62,56 @@ export const Navbar: Component<ParentProps> = () => {
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer)}>
 						<div class="relative flex h-16 items-center justify-between">
-							<div>
-								<a
-									href="/"
-									class="font-bold uppercase text-3xl">
-									{resources.logoAlt}
-								</a>
+							<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+								<Button
+									size="icon"
+									variant="ghost"
+									onClick={toggleMobileMenu}>
+									<span class="sr-only">
+										{resources.mobileMenuSrOnly}
+									</span>
+
+									<Show when={!isMobileMenuOpen()}>
+										<Menu aria-hidden="true" />
+									</Show>
+
+									<Show when={isMobileMenuOpen()}>
+										<X aria-hidden="true" />
+									</Show>
+								</Button>
 							</div>
 
-							<div class="flex gap-4">
+							<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+								<div class="flex shrink-0 items-center">
+									<a
+										href="/"
+										class="font-bold uppercase text-xl sm:text-3xl">
+										{resources.logoAlt}
+									</a>
+								</div>
+							</div>
+
+							<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 								<Show
 									when={
 										!authContext().keycloak?.authenticated
 									}>
-									<Button
-										variant="secondary"
-										onClick={authContext().actions.login}>
-										{resources.doLogin}
-									</Button>
+									<div class="hidden sm:flex gap-4">
+										<Button
+											variant="secondary"
+											onClick={
+												authContext().actions.login
+											}>
+											{resources.doLogin}
+										</Button>
 
-									<Button
-										onClick={
-											authContext().actions.register
-										}>
-										{resources.doRegister}
-									</Button>
+										<Button
+											onClick={
+												authContext().actions.register
+											}>
+											{resources.doRegister}
+										</Button>
+									</div>
 								</Show>
 
 								<Show
@@ -89,7 +120,7 @@ export const Navbar: Component<ParentProps> = () => {
 									}>
 									<DropdownMenu placement="bottom">
 										<DropdownMenuTrigger>
-											<Avatar>
+											<Avatar class="size-8 sm:size-10">
 												<AvatarImage
 													// TODO
 													src="https://github.com/shadcn.png"
@@ -144,6 +175,28 @@ export const Navbar: Component<ParentProps> = () => {
 					</div>
 				</div>
 			</nav>
+
+			<Transition
+				enterActiveClass="animate-in fade-in-0 zoom-in-95"
+				exitActiveClass="animate-out fade-out-0 zoom-out-95">
+				<Show when={isMobileMenuOpen()}>
+					<div class="bg-secondary transition-shadow">
+						<div class="flex flex-col gap-4">
+							<Button
+								variant="ghost"
+								onClick={authContext().actions.login}>
+								{resources.doLogin}
+							</Button>
+
+							<Button
+								variant="ghost"
+								onClick={authContext().actions.register}>
+								{resources.doRegister}
+							</Button>
+						</div>
+					</div>
+				</Show>
+			</Transition>
 		</>
 	);
 };

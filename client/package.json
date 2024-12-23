@@ -28,6 +28,7 @@
 		"lucide-solid": "^0.468.0",
 		"motion": "^11.15.0",
 		"solid-js": "^1.9.3",
+		"solid-transition-group": "^0.2.3",
 		"solid-zustand": "^1.8.1",
 		"tailwind-merge": "^2.5.5",
 		"zustand": "^5.0.2"
