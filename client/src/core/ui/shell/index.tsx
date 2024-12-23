@@ -23,7 +23,6 @@ const resources = {
 	doLogin: "Login",
 	doRegister: "Register",
 	avatar: {
-		accountGroupLabel: "My Account",
 		doProfile: "Profile",
 		doSettings: "Settings",
 		doLogout: "Logout",
@@ -55,10 +54,15 @@ export const Navbar: Component<ParentProps> = () => {
 		setIsMobileMenuOpen(isMobileMenuOpen => !isMobileMenuOpen);
 
 	const authContext = useContext(AuthnContext);
-	const _userContext = useContext(UserContext);
+	const userContext = useContext(UserContext);
 
-	// TODO
-	const toInitials = (_name: string) => "CN";
+	const toInitials = (fullName: string) => {
+		const split = fullName.split(" ");
+
+		return [split.at(0)?.at(0), split.at(-1)?.at(0)]
+			.filter(Boolean)
+			.join("");
+	};
 
 	return (
 		<>
@@ -126,12 +130,20 @@ export const Navbar: Component<ParentProps> = () => {
 										<DropdownMenuTrigger>
 											<Avatar class="size-8 sm:size-10">
 												<AvatarImage
-													// TODO
-													src="https://github.com/shadcn.png"
-													alt="@shadcn"
+													src={
+														userContext().profile
+															?.avatar
+													}
+													alt={
+														userContext().profile
+															?.fullName
+													}
 												/>
 												<AvatarFallback>
-													{toInitials("CN")}
+													{toInitials(
+														userContext().profile
+															?.fullName as string,
+													)}
 												</AvatarFallback>
 											</Avatar>
 										</DropdownMenuTrigger>
@@ -140,8 +152,8 @@ export const Navbar: Component<ParentProps> = () => {
 											<DropdownMenuGroup>
 												<DropdownMenuGroupLabel>
 													{
-														resources.avatar
-															.accountGroupLabel
+														userContext().profile
+															?.fullName
 													}
 												</DropdownMenuGroupLabel>
 												<DropdownMenuSeparator />

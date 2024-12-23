@@ -19,7 +19,6 @@ export const AuthnProvider: Component<ParentProps> = props => {
 		value().actions.init();
 	});
 
-	// TODO: remove buttons
 	return (
 		<AuthnContext.Provider value={value}>
 			<Show when={!value().isInitialLoading}>{props.children}</Show>
