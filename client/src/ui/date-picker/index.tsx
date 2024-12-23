@@ -226,11 +226,11 @@ export const DatePickerTrigger = (props: DatePickerTriggerProps) => (
 		{...spreadProps(props)}
 		class={cn(
 			"transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-9 rounded-e-md border",
-			"border-border bg-background text-foreground [&>svg]:size-4 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50",
+			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-9 rounded-e-md border group",
+			"border-border bg-background text-foreground [&>svg]:size-4 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50",
 			props.class,
 		)}>
-		<CalendarDays class="h-4 w-4 text-muted-foreground">
+		<CalendarDays class="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground">
 			<span class="sr-only">{resources.triggerSrOnly}</span>
 		</CalendarDays>
 	</DatePickerPrimitive.Trigger>
