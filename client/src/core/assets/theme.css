@@ -57,3 +57,7 @@
 		--chart-5: 333.3 71.4% 50.6%; /* pink-600 */
 	}
 }
+
+body {
+	@apply bg-background text-foreground;
+}

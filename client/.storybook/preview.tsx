@@ -24,7 +24,7 @@ const preview: Preview = {
 		layout: "centered",
 	},
 	decorators: [
-		Story => {
+		(Story, context) => {
 			const Layout: Component<ParentProps> = props => {
 				const uiContext = useContext(UiContext);
 
@@ -44,14 +44,16 @@ const preview: Preview = {
 					<div class="flex flex-col gap-4 items-center">
 						<div>{props.children}</div>
 
-						<button
-							class={cn(
-								buttonVariants({ variant: "default" }),
-								"w-full",
-							)}
-							on:click={toggleTheme}>
-							{startCase(getNextTheme())} mode
-						</button>
+						{context.parameters.toggleTheme !== false && (
+							<button
+								class={cn(
+									buttonVariants({ variant: "default" }),
+									"w-full",
+								)}
+								on:click={toggleTheme}>
+								{startCase(getNextTheme())} mode
+							</button>
+						)}
 					</div>
 				);
 			};

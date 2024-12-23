@@ -21,6 +21,7 @@ import {
 	type ParentProps,
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { PageLoading } from "ui/page-loading";
 
 export interface CoreContext {
 	user: UserContext;
@@ -95,17 +96,15 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		<Navigate href={toPath(CoreRoute.Unauthorized)} />
 	);
 
-	// TODO: improve
-	const Loading = () => <span>Loading!!!</span>;
-
 	const Component: Component<
 		RouteSectionProps<unknown>
 	> = routeSectionProps => {
 		return (
 			<>
-				<Show
-					when={!isAllowed.loading && !isHidden.loading}
-					fallback={<Loading />}>
+				<PageLoading
+					isLoading={isAllowed.loading || isHidden.loading}
+				/>
+				<Show when={!isAllowed.loading && !isHidden.loading}>
 					<Show when={isAllowed()}>
 						<Dynamic
 							{...spreadProps(routeSectionProps)}
