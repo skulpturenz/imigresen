@@ -1,0 +1,22 @@
+import {
+	Meta,
+	Title,
+	Subtitle,
+	Description,
+	Stories,
+	Source,
+} from "@storybook/blocks";
+import * as LoadingStories from "./loading.stories";
+
+<Meta of={LoadingStories} />
+
+<Title of={LoadingStories}>Loading</Title>
+<Description of={LoadingStories} />
+
+<Stories includePrimary={false} />
+
+## Usage
+
+```tsx
+<Loading />
+```

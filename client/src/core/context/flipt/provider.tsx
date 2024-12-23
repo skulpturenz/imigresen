@@ -23,14 +23,9 @@ export const FliptProvider: Component<ParentProps> = props => {
 		};
 	});
 
-	// TODO: improve
-	const Loading = () => <span>Loading!!!</span>;
-
 	return (
 		<FliptContext.Provider value={value}>
-			<Show when={!value().isInitialLoading} fallback={<Loading />}>
-				{props.children}
-			</Show>
+			<Show when={!value().isInitialLoading}>{props.children}</Show>
 		</FliptContext.Provider>
 	);
 };
