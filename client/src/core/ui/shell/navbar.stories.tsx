@@ -61,3 +61,28 @@ export const Mobile: Story<typeof Navbar> = {
 		},
 	},
 };
+
+export const MobileAuthenticated: Story<typeof Navbar> = {
+	render: Navbar,
+	decorators: Story => (
+		<AuthnProviderMock
+			svc={() => ({
+				...createAuthnContext(),
+				isInitialLoading: false,
+				keycloak: {
+					authenticated: true,
+				} as any,
+			})}>
+			<UserProviderMock>
+				<div class="w-[90vw] h-[100vh]">
+					<Story />
+				</div>
+			</UserProviderMock>
+		</AuthnProviderMock>
+	),
+	parameters: {
+		viewport: {
+			defaultViewport: "iphone12",
+		},
+	},
+};
