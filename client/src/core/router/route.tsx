@@ -21,7 +21,7 @@ import {
 	type ParentProps,
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { Loading } from "ui/loading";
+import { PageLoading } from "ui/page-loading";
 
 export interface CoreContext {
 	user: UserContext;
@@ -101,7 +101,9 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	> = routeSectionProps => {
 		return (
 			<>
-				<Loading isLoading={isAllowed.loading || isHidden.loading} />
+				<PageLoading
+					isLoading={isAllowed.loading || isHidden.loading}
+				/>
 				<Show when={!isAllowed.loading && !isHidden.loading}>
 					<Show when={isAllowed()}>
 						<Dynamic
