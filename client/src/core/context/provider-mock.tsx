@@ -6,13 +6,13 @@ import { AuthzProvider } from "./authz";
 import { FliptProviderMock } from "./flipt";
 import { RouterProviderMock } from "./router";
 import { UiProviderMock } from "./ui";
-import { UserProvider } from "./user";
+import { UserProviderMock } from "./user";
 
 export const ProvidersMock: Component<ParentProps> = props => {
 	return (
 		<MetaProvider>
 			<AuthnProviderMock>
-				<UserProvider>
+				<UserProviderMock>
 					<AuthzProvider>
 						<FliptProviderMock>
 							<RouterProviderMock>
@@ -22,7 +22,7 @@ export const ProvidersMock: Component<ParentProps> = props => {
 							</RouterProviderMock>
 						</FliptProviderMock>
 					</AuthzProvider>
-				</UserProvider>
+				</UserProviderMock>
 			</AuthnProviderMock>
 		</MetaProvider>
 	);
