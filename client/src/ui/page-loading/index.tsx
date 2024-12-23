@@ -63,9 +63,9 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 					)}>
 					<span
 						class={cn(
-							"loading-dot size-6 md:size-8 lg:size-12 rounded-full bg-amber-500 relative",
+							"loading-dot size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
 						)}>
-						<span class="size-6 md:size-8 lg:size-12 bg-amber-500 absolute rounded-full animate-ping" />
+						<span class="size-6 md:size-8 lg:size-12 bg-primary absolute rounded-full animate-ping" />
 					</span>
 				</div>
 			</DialogPortal>
