@@ -121,7 +121,7 @@ export const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
 		ref={props.ref}
 		class={cn(
 			"flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-			"focus:bg-accent data-[expanded]:bg-accent [&_svg]:pointer-events-none [&_svg]:shrink-0",
+			"focus:bg-accent focus:text-accent-foreground data-[expanded]:bg-accent [&_svg]:pointer-events-none [&_svg]:shrink-0",
 			props.class,
 		)}>
 		{props.children}
