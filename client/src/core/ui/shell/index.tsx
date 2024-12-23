@@ -235,17 +235,19 @@ export const Navbar: Component<ParentProps> = () => {
 				<Show when={isMobileMenuOpen()}>
 					<div class="bg-secondary transition-shadow">
 						<div class="flex flex-col">
-							<Button
-								variant="ghost"
-								onClick={authContext().actions.login}>
-								{resources.doLogin}
-							</Button>
+							<Show when={!authContext().keycloak?.authenticated}>
+								<Button
+									variant="ghost"
+									onClick={authContext().actions.login}>
+									{resources.doLogin}
+								</Button>
 
-							<Button
-								variant="ghost"
-								onClick={authContext().actions.register}>
-								{resources.doRegister}
-							</Button>
+								<Button
+									variant="ghost"
+									onClick={authContext().actions.register}>
+									{resources.doRegister}
+								</Button>
+							</Show>
 
 							<Button variant="ghost" onClick={toggleTheme}>
 								{resources.doSwitchTheme(getNextTheme())}
