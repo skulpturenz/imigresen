@@ -185,7 +185,7 @@ export const Navbar: Component<ParentProps> = () => {
 				exitActiveClass={resources.mobileMenu.transitionExit}>
 				<Show when={isMobileMenuOpen()}>
 					<div class="bg-secondary transition-shadow">
-						<div class="flex flex-col gap-4">
+						<div class="flex flex-col">
 							<Button
 								variant="ghost"
 								onClick={authContext().actions.login}>
