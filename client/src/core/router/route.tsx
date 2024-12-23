@@ -7,9 +7,8 @@ import {
 import { CoreRoute } from "core/constants/core-route.enum";
 import { AuthnContext, type AuthnSvc } from "core/context/authn";
 import { AuthzContext } from "core/context/authz";
-import type { FliptSvc } from "core/context/flipt";
-import { FliptContext } from "core/context/flipt/provider";
-import { RouterContext } from "core/context/router/provider";
+import { FliptContext, type FliptSvc } from "core/context/flipt";
+import { RouterContext } from "core/context/router";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
-import { AvatarFallback, AvatarImage, AvatarRoot } from "ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
 
 export default {
 	title: "ui/avatar",
@@ -11,13 +11,13 @@ export default {
 			},
 		},
 	},
-} satisfies Meta<typeof AvatarRoot>;
+} satisfies Meta<typeof Avatar>;
 
-export const Default: Story<typeof AvatarRoot> = {
+export const Default: Story<typeof Avatar> = {
 	render: () => (
-		<AvatarRoot>
+		<Avatar>
 			<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
 			<AvatarFallback>CN</AvatarFallback>
-		</AvatarRoot>
+		</Avatar>
 	),
 };
