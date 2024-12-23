@@ -28,6 +28,7 @@
 		"lucide-solid": "^0.468.0",
 		"motion": "^11.15.0",
 		"solid-js": "^1.9.3",
+		"solid-transition-group": "^0.2.3",
 		"solid-zustand": "^1.8.1",
 		"tailwind-merge": "^2.5.5",
 		"zustand": "^5.0.2"
@@ -38,6 +39,7 @@
 		"@solidjs/testing-library": "^0.8.10",
 		"@storybook/addon-essentials": "^8.5.0-alpha.20",
 		"@storybook/addon-interactions": "^8.5.0-alpha.20",
+		"@storybook/addon-viewport": "^8.4.7",
 		"@storybook/blocks": "^8.5.0-alpha.20",
 		"@storybook/manager-api": "^8.4.7",
 		"@storybook/test": "^8.5.0-alpha.20",

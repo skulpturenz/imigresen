@@ -4,7 +4,7 @@ import type { AuthzContext } from "./authz";
 import type { FliptSvc } from "./flipt";
 import type { RouterSvc } from "./router";
 import type { UiSvc } from "./ui";
-import type { UserContext } from "./user";
+import type { UserSvc } from "./user/store";
 
 export const createAuthnContext = (): AuthnSvc => ({
 	isInitialLoading: true,
@@ -50,4 +50,10 @@ export const createRouterContext = (): RouterSvc => ({
 	},
 });
 
-export const createUserContext = (): UserContext => Object.create(null);
+export const createUserContext = (): UserSvc => ({
+	isInitialLoading: true,
+	profile: null,
+	actions: {
+		init: noop,
+	},
+});

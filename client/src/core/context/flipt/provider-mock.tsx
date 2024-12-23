@@ -1,4 +1,5 @@
 import { createFliptContext } from "core/context/initializers";
+import { memoize } from "es-toolkit";
 import {
 	mergeProps,
 	onMount,
@@ -19,10 +20,10 @@ export const FliptProviderMock: Component<
 > = props => {
 	const withDefaultProps = mergeProps(
 		{
-			svc: () => ({
+			svc: memoize(() => ({
 				...createFliptContext(),
 				isInitialLoading: false,
-			}),
+			})),
 		},
 		props,
 	);

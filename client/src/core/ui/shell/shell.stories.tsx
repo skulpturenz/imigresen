@@ -49,8 +49,40 @@ export const Mobile: Story<typeof Shell> = {
 	decorators: Story => (
 		<AuthnProviderMock>
 			<UserProviderMock>
-				<Story />
+				<div class="w-[90vw] h-[100vh]">
+					<Story />
+				</div>
 			</UserProviderMock>
 		</AuthnProviderMock>
 	),
+	parameters: {
+		viewport: {
+			defaultViewport: "iphone12",
+		},
+	},
+};
+
+export const MobileAuthenticated: Story<typeof Shell> = {
+	render: () => <Shell>Page Content</Shell>,
+	decorators: Story => (
+		<AuthnProviderMock
+			svc={() => ({
+				...createAuthnContext(),
+				isInitialLoading: false,
+				keycloak: {
+					authenticated: true,
+				} as any,
+			})}>
+			<UserProviderMock>
+				<div class="w-[90vw] h-[100vh]">
+					<Story />
+				</div>
+			</UserProviderMock>
+		</AuthnProviderMock>
+	),
+	parameters: {
+		viewport: {
+			defaultViewport: "iphone12",
+		},
+	},
 };
