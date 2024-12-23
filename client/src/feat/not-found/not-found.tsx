@@ -8,14 +8,12 @@ export const NotFound = () => {
 
 	return (
 		<main class="py-24 sm:py-32">
-			<Typography variant="small" class="text-foreground">
-				{resources.notFound}
-			</Typography>
+			<Typography variant="small">{resources.notFound}</Typography>
 
 			<Typography
 				variant="h1"
 				as="h1"
-				class="mt-4 text-balance text-foreground">
+				class="mt-4 text-balance text-foreground underline decoration-destructive underline-offset-4">
 				{resources.header}
 			</Typography>
 
