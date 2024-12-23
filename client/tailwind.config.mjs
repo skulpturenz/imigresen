@@ -57,6 +57,7 @@ export default {
 			},
 			fontFamily: {
 				sans: ["Manrope", ...defaultTheme.fontFamily.sans],
+				mono: ["Ubuntu Mono", ...defaultTheme.fontFamily.mono],
 			},
 			keyframes: {
 				"accordion-down": {

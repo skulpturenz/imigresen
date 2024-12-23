@@ -1,3 +1,4 @@
+import { Title } from "@solidjs/meta";
 import {
 	Navigate,
 	Route as SolidRoute,
@@ -101,7 +102,11 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		return (
 			<>
 				<PageLoading
-					isLoading={isAllowed.loading || isHidden.loading}
+					isLoading={
+						(isAllowed.loading || isHidden.loading) &&
+						(typeof props.isAllowed !== "undefined" ||
+							typeof props.isHidden !== "undefined")
+					}
 				/>
 				<Show when={!isAllowed.loading && !isHidden.loading}>
 					<Show when={isAllowed()}>
@@ -135,15 +140,27 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 		});
 	});
 
+	const getMetaTitle = (title?: string) => {
+		if (title) {
+			return `${title} | Imigresen`;
+		}
+
+		return "Imigresen";
+	};
+
 	return (
-		<SolidRoute
-			{...spreadProps(props)}
-			component={Component}
-			info={{
-				isAllowed: Boolean(isAllowed()),
-				isHidden: Boolean(isHidden()),
-			}}
-		/>
+		<>
+			<Title>{getMetaTitle(props.title)}</Title>
+
+			<SolidRoute
+				{...spreadProps(props)}
+				component={Component}
+				info={{
+					isAllowed: Boolean(isAllowed()),
+					isHidden: Boolean(isHidden()),
+				}}
+			/>
+		</>
 	);
 };
 
