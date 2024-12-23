@@ -20,7 +20,6 @@ import { cn } from "ui/utils";
 
 const resources = {
 	logoAlt: "Imigresen",
-	mobileMenuSrOnly: "Open main menu",
 	doLogin: "Login",
 	doRegister: "Register",
 	avatar: {
@@ -28,6 +27,11 @@ const resources = {
 		doProfile: "Profile",
 		doSettings: "Settings",
 		doLogout: "Logout",
+	},
+	mobileMenu: {
+		srOnly: "Open main menu",
+		transitionEnter: "animate-in fade-in-0 zoom-in-95",
+		transitionExit: "animate-out fade-out-0 zoom-out-95",
 	},
 };
 
@@ -68,7 +72,7 @@ export const Navbar: Component<ParentProps> = () => {
 									variant="ghost"
 									onClick={toggleMobileMenu}>
 									<span class="sr-only">
-										{resources.mobileMenuSrOnly}
+										{resources.mobileMenu.srOnly}
 									</span>
 
 									<Show when={!isMobileMenuOpen()}>
@@ -177,8 +181,8 @@ export const Navbar: Component<ParentProps> = () => {
 			</nav>
 
 			<Transition
-				enterActiveClass="animate-in fade-in-0 zoom-in-95"
-				exitActiveClass="animate-out fade-out-0 zoom-out-95">
+				enterActiveClass={resources.mobileMenu.transitionEnter}
+				exitActiveClass={resources.mobileMenu.transitionExit}>
 				<Show when={isMobileMenuOpen()}>
 					<div class="bg-secondary transition-shadow">
 						<div class="flex flex-col gap-4">
