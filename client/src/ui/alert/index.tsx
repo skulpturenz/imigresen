@@ -10,7 +10,7 @@ import { cn } from "ui/utils";
 
 export const alertVariants = cva(
 	[
-		"relative w-full rounded-lg border px-4 py-3 text-sm [&:has(svg)]:pl-11 [&>svg+div]:translate-y-[-3px]",
+		"relative w-full rounded-lg border border-border px-4 py-3 text-sm [&:has(svg)]:pl-11 [&>svg+div]:translate-y-[-3px]",
 		"[&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
 	].join(" "),
 	{
@@ -44,13 +44,16 @@ export const Alert = <T extends ValidComponent = "div">(
 export const AlertTitle = (props: ComponentProps<"div">) => (
 	<div
 		{...spreadProps(props)}
-		class={cn("font-medium leading-5 tracking-tight", props.class)}
+		class={cn(
+			"font-medium text-foreground leading-5 tracking-tight",
+			props.class,
+		)}
 	/>
 );
 
 export const AlertDescription = (props: ComponentProps<"div">) => (
 	<div
 		{...spreadProps(props)}
-		class={cn("text-sm [&_p]:leading-relaxed", props.class)}
+		class={cn("text-sm text-foreground [&_p]:leading-relaxed", props.class)}
 	/>
 );

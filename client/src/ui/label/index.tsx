@@ -10,7 +10,7 @@ export const label = cva(
 	{
 		variants: {
 			label: {
-				true: "data-[invalid]:text-destructive",
+				true: "text-foreground data-[invalid]:text-destructive",
 			},
 			error: {
 				true: "text-destructive",

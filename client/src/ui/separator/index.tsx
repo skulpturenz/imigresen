@@ -13,7 +13,7 @@ export const Separator = <T extends ValidComponent = "hr">(
 	<SeparatorPrimitive
 		{...spreadProps(props)}
 		class={cn(
-			"shrink-0 bg-border",
+			"shrink-0 border-border bg-border",
 			"data-[orientation=horizontal]:h-[1px] data-[orientation=horizontal]:w-full",
 			"data-[orientation=vertical]:h-full data-[orientation=vertical]:w-[1px]",
 			props.class,

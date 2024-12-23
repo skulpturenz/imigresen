@@ -47,7 +47,7 @@ export const DropdownMenuContent = <T extends ValidComponent = "div">(
 			{...spreadProps(props)}
 			ref={props.ref}
 			class={cn(
-				"min-w-[8rem] z-50 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+				"min-w-[8rem] z-50 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md",
 				"transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-background",
 				"focus-visible:ring-ring data-[expanded]:animate-in data-[closed]:animate-out",
 				"data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
@@ -101,7 +101,7 @@ export const DropdownMenuSeparator = <T extends ValidComponent = "hr">(
 	<DropdownMenuPrimitive.Separator
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn("-mx-1 my-1 h-px bg-muted", props.class)}
+		class={cn("-mx-1 my-1 h-px border border-border", props.class)}
 	/>
 );
 
@@ -109,7 +109,7 @@ export const DropdownMenuShortcut = (props: ComponentProps<"span">) => (
 	<span
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn("ml-auto text-xs tracking-widest opacity-60", props.class)}
+		class={cn("ml-auto text-sm tracking-widest opacity-60", props.class)}
 	/>
 );
 
@@ -140,7 +140,7 @@ export const DropdownMenuSubContent = <T extends ValidComponent = "div">(
 			{...(spreadProps(props) as DropdownMenuRootProps)}
 			ref={props.ref as Pick<ComponentProps<T>, "ref">}
 			class={cn(
-				"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground",
+				"z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground",
 				"shadow-lg data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				props.class,

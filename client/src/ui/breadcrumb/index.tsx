@@ -10,7 +10,12 @@ export const resources = {
 };
 
 export const Breadcrumb: Component<ComponentProps<"nav">> = props => (
-	<nav {...spreadProps(props)} ref={props.ref} aria-label="breadcrumb" />
+	<nav
+		{...spreadProps(props)}
+		ref={props.ref}
+		class={cn("text-foreground", props.class)}
+		aria-label="breadcrumb"
+	/>
 );
 
 export const BreadcrumbList: Component<ComponentProps<"ol">> = props => (
@@ -18,7 +23,7 @@ export const BreadcrumbList: Component<ComponentProps<"ol">> = props => (
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+			"flex flex-wrap items-center gap-1.5 break-words text-muted-foreground text-sm sm:gap-2.5",
 			props.class,
 		)}
 	/>

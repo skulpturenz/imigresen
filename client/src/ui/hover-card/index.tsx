@@ -18,7 +18,7 @@ export const HoverCardContent = <T extends ValidComponent = "div">(
 		<HoverCardPrimitive.Content
 			{...spreadProps(props)}
 			class={cn(
-				"z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+				"z-50 w-64 rounded-md border border-border bg-popover p-4 text-popover-foreground shadow-md outline-none",
 				"data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				props.class,

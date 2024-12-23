@@ -33,7 +33,7 @@ export const ComboboxInput = <T extends ValidComponent = "input">(
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"h-full bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none",
+			"h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
 			"disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:border-0 focus:shadow-none focus:ring-0",
 			props.class,
 		)}
@@ -53,8 +53,8 @@ export const ComboboxTrigger = <T extends ValidComponent = "button">(
 				props.class,
 			)}>
 			{props.children}
-			<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center text-foreground">
-				<ChevronsDownUp class="h-4 w-4 opacity-50">
+			<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground">
+				<ChevronsDownUp class="h-4 w-4">
 					<span class="sr-only">{resources.triggerSrOnly}</span>
 				</ChevronsDownUp>
 			</ComboboxPrimitive.Icon>
@@ -70,7 +70,7 @@ export const ComboboxContent = <T extends ValidComponent = "div">(
 			{...spreadProps(props)}
 			ref={props.ref}
 			class={cn(
-				"relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground",
+				"relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground",
 				"shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				"origin-[--kb-combobox-content-transform-origin]",

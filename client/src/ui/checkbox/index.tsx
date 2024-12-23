@@ -34,7 +34,7 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
 			{...spreadProps(props)}
 			class={cn(
 				"h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-shadow focus-visible:outline-none",
-				"focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:cursor-not-allowed focus-visible:ring-offset-background",
+				"focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:cursor-not-allowed focus-visible:ring-offset-transparent",
 				"data-[checked]:bg-primary data-[checked]:text-primary-foreground data-[disabled]:opacity-50",
 				props.class,
 			)}>

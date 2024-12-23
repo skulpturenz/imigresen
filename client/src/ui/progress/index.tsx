@@ -20,7 +20,12 @@ export const Progress = <T extends ValidComponent = "div">(
 		class={cn("flex w-full flex-col gap-2", props.class)}>
 		{props.children}
 		<ProgressPrimitive.Track class="h-4 overflow-hidden rounded-full bg-secondary">
-			<ProgressPrimitive.Fill class="h-full w-[--kb-progress-fill-width] bg-primary transition-all duration-500 ease-linear data-[progress=complete]:bg-primary" />
+			<ProgressPrimitive.Fill
+				class={cn(
+					"h-full w-[--kb-progress-fill-width] bg-primary transition-all duration-500 ease-linear",
+					"data-[progress=complete]:bg-primary",
+				)}
+			/>
 		</ProgressPrimitive.Track>
 	</ProgressPrimitive>
 );
