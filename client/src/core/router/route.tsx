@@ -152,7 +152,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
-	const routeContext = useContext(RouterContext);
+	const getRouteContext = useContext(RouterContext);
 
 	const InternalRoute = Route as Component<
 		ParentProps<RouteProps & RouteInternalProps>
@@ -161,17 +161,25 @@ export const addRoutes = (...routes: RouteProps[]) => {
 	const Children: Component<RouteSectionProps> = props => props.children;
 
 	return Object.values(routes).map(route => {
-		const children = Array.isArray(route.children)
-			? route.children
-			: ([route.children].filter(Boolean) as RouteProps[]);
+		// note: we don't want this to be within a reactive scope
+		// otherwise we just get infinite loading
+		const children = addRoutes(
+			...(Array.isArray(route.children)
+				? route.children
+				: ([route.children].filter(Boolean) as RouteProps[])),
+		);
+
+		// note: we don't want this to be within a reactive scope
+		// otherwise we just get infinite loading
+		const routeContext = getRouteContext();
 
 		return (
 			<InternalRoute
 				{...route}
 				component={route.component ?? Children}
+				children={children}
 				path={route.path}
-				children={addRoutes(...children)}
-				onLoaded={routeContext().actions.appendRoute}
+				onLoaded={routeContext.actions.appendRoute}
 			/>
 		);
 	});
