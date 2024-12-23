@@ -18,7 +18,7 @@ export const Router: Component<RouterProps> = _props => {
 		},
 		{
 			path: ["/", toPath(CoreRoute.Home)],
-			title: resources.pageTitle,
+			title: resources.metaTitle,
 			component: Home,
 			isAllowed: async () => {
 				await delay(2000);
