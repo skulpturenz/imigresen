@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { startCase } from "es-toolkit";
-import type { Component, ParentProps } from "solid-js";
+import { type Component, type ParentProps } from "solid-js";
 import type { Preview } from "storybook-solidjs";
 import "../src/core/assets/tailwind.css";
 import "../src/core/assets/theme.css";
