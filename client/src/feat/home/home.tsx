@@ -5,7 +5,7 @@ import {
 	getCoreRowModel,
 	type ColumnDef,
 } from "@tanstack/solid-table";
-import { For, Show, type Accessor } from "solid-js";
+import { For, Show } from "solid-js";
 import {
 	Table,
 	TableBody,
@@ -14,18 +14,55 @@ import {
 	TableHeader,
 	TableRow,
 } from "ui/table";
+import { usePassportApplications } from "./hooks/usePassportApplications";
+import type { PassportApplication } from "./types";
 
-export const Home = () => <span class="font-bold text-4xl">Here!!</span>;
+export const Home = () => {
+	const { queries } = usePassportApplications();
 
-type DataTableProps<TData, TValue> = {
-	columns: ColumnDef<TData, TValue>[];
-	data: Accessor<TData[] | undefined>;
+	const columns: ColumnDef<PassportApplication>[] = [
+		{
+			accessorKey: "principalApplicant",
+			header: "Principal Applicant",
+		},
+		{
+			accessorKey: "applicationType",
+			header: "Type",
+		},
+		{
+			accessorKey: "applicationUuid",
+			header: "ID",
+		},
+		{
+			accessorKey: "status",
+			header: "Status",
+		},
+		{
+			accessorKey: "submittedOn",
+			header: "Submitted",
+			cell: props => props.getValue<Date>().toLocaleString(),
+		},
+	];
+
+	return (
+		<Show when={!queries.passportApplications.isLoading}>
+			<DataTable
+				columns={columns}
+				data={queries.passportApplications.data}
+			/>
+		</Show>
+	);
 };
 
-const _DataTable = <TData, TValue>(props: DataTableProps<TData, TValue>) => {
+interface DataTableProps<TData, TValue> {
+	columns: ColumnDef<TData, TValue>[];
+	data: TData[] | undefined;
+}
+
+const DataTable = <TData, TValue>(props: DataTableProps<TData, TValue>) => {
 	const table = createSolidTable({
 		get data() {
-			return props.data() || [];
+			return props.data || [];
 		},
 		columns: props.columns,
 		getCoreRowModel: getCoreRowModel(),
