@@ -25,6 +25,8 @@ export const particlesConfig = {
 	delay: 0,
 	fullScreen: {
 		enable: true,
+		// setting a negative value seems to break things when toggling
+		// theme on safari, does not happen on chrome
 		zIndex: 0, // note: adjust z-index
 	},
 	detectRetina: true,
