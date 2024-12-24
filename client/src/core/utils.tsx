@@ -8,7 +8,7 @@ export const withComponents =
 	(Component: Component) => {
 		const Merged: Component<ParentProps> = props => {
 			const Reduced = components.reduce(
-				(Acc: Component, Component: Component<ParentProps>) => () => (
+				(Acc, Component) => () => (
 					<Component>
 						<Acc />
 					</Component>
