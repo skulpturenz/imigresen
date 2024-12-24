@@ -1,6 +1,7 @@
 import { ColorModeContext } from "@kobalte/core";
+import { QueryClient } from "@tanstack/solid-query";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { partialRight } from "es-toolkit";
+import { once, partialRight, toMerged } from "es-toolkit";
 import { useContext } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
@@ -19,7 +20,9 @@ export interface UiSvc {
 	locale: string;
 	theme: UiTheme;
 	mode: UiMode;
+	queryClient?: QueryClient | null;
 	actions: {
+		init: () => void;
 		setTheme: (theme: UiTheme) => void;
 		setMode: (mode: UiMode) => void;
 	};
@@ -39,24 +42,35 @@ const persistLocalStorage: (
 	storage: createJSONStorage(() => localStorage),
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
-	merge: (persistedState, currentState): UiSvc & UiSvcInternal => ({
-		...currentState,
-		...(persistedState as UiSvc & UiSvcInternal),
-		actions: {
-			...currentState.actions,
-		},
-	}),
+	merge: toMerged as any,
 } satisfies PersistOptions<UiSvc & UiSvcInternal>);
 
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 	persistLocalStorage((set, get) => {
 		return {
-			isInitialLoading: () => !get()?.hasHydrated,
+			isInitialLoading: () =>
+				Boolean(!get()?.hasHydrated || !get().queryClient),
 			locale: "en-US", // https://www.ietf.org/rfc/bcp/bcp47.txt
 			hasHydrated: false,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,
+			queryClient: null,
 			actions: {
+				init: once(() => {
+					const queryClient = new QueryClient({
+						defaultOptions: {
+							queries: {
+								throwOnError: true,
+								suspense: true,
+							},
+							mutations: {
+								throwOnError: true,
+							},
+						},
+					});
+
+					set({ queryClient });
+				}),
 				setTheme: theme => {
 					const { setColorMode } =
 						useContext(ColorModeContext) ?? Object.create(null);

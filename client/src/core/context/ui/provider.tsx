@@ -4,10 +4,12 @@ import {
 	localStorageManager,
 } from "@kobalte/core";
 import { I18nProvider } from "@kobalte/core/i18n";
+import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
 import { createUiContext } from "core/context/initializers";
 import {
 	createContext,
 	createEffect,
+	onMount,
 	Show,
 	type Accessor,
 	type Component,
@@ -47,22 +49,29 @@ export const UiProvider: Component<ParentProps> = props => {
 		}
 	});
 
+	onMount(() => {
+		value().actions.init();
+	});
+
 	return (
 		<UiContext.Provider value={value}>
 			<Show when={!value().isInitialLoading()}>
-				<I18nProvider locale={value().locale}>
-					<ColorModeScript storageType="localStorage" />
+				<QueryClientProvider
+					client={value().queryClient as QueryClient}>
+					<I18nProvider locale={value().locale}>
+						<ColorModeScript storageType="localStorage" />
 
-					<ColorModeProvider
-						initialColorMode={value().theme}
-						storageManager={localStorageManager}>
-						{props.children}
+						<ColorModeProvider
+							initialColorMode={value().theme}
+							storageManager={localStorageManager}>
+							{props.children}
 
-						<ToastRegion>
-							<ToastList />
-						</ToastRegion>
-					</ColorModeProvider>
-				</I18nProvider>
+							<ToastRegion>
+								<ToastList />
+							</ToastRegion>
+						</ColorModeProvider>
+					</I18nProvider>
+				</QueryClientProvider>
 			</Show>
 		</UiContext.Provider>
 	);
