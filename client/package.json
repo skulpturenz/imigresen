@@ -20,6 +20,9 @@
 		"@open-policy-agent/opa-wasm": "^1.10.0",
 		"@solidjs/meta": "^0.29.4",
 		"@solidjs/router": "^0.15.1",
+		"@tsparticles/configs": "^3.7.3",
+		"@tsparticles/engine": "^3.7.1",
+		"@tsparticles/solid": "^3.0.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
@@ -31,6 +34,7 @@
 		"solid-transition-group": "^0.2.3",
 		"solid-zustand": "^1.8.1",
 		"tailwind-merge": "^2.5.5",
+		"tsparticles": "^3.7.1",
 		"zustand": "^5.0.2"
 	},
 	"devDependencies": {
