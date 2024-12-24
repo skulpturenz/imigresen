@@ -27,7 +27,9 @@ export const particlesConfig = {
 		enable: true,
 		// setting a negative value seems to break things when toggling
 		// theme on safari, does not happen on chrome
-		zIndex: 0, // note: adjust z-index
+		// see: https://gsap.com/community/forums/topic/16341-zindex-and-safari-issue/
+		// fix: if z-index is negative then reinitialize particles, fixes issues on safari
+		zIndex: -1, // note: adjust z-index
 	},
 	detectRetina: true,
 	duration: 0,

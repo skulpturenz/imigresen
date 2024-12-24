@@ -1,10 +1,12 @@
 /// @ts-expect-error: export error
 import { initParticlesEngine, default as Particles } from "@tsparticles/solid";
 import { styles } from "core/constants/styles";
+import { UiContext } from "core/context/ui";
+import { useContext } from "core/context/utils";
 import {
+	createEffect,
 	createSignal,
 	createUniqueId,
-	onMount,
 	Show,
 	type Component,
 	type ParentProps,
@@ -17,9 +19,7 @@ import { particlesConfig } from "./particles-config";
 export const Shell: Component<ParentProps> = props => {
 	return (
 		<>
-			<div class="absolute">
-				<ParticlesBackground />
-			</div>
+			<ParticlesBackground />
 
 			<Navbar />
 
@@ -36,11 +36,16 @@ export const Shell: Component<ParentProps> = props => {
 
 const ParticlesBackground = () => {
 	const [init, setInit] = createSignal(false);
+	const uiContext = useContext(UiContext);
 
-	onMount(() => {
-		if (init()) {
+	createEffect(previousTheme => {
+		const theme = uiContext().theme;
+
+		if (previousTheme === theme && init()) {
 			return;
 		}
+
+		setInit(false);
 
 		initParticlesEngine((engine: any) => {
 			// this loads the tsparticles package bundle, it's the easiest method for getting everything ready
@@ -49,11 +54,17 @@ const ParticlesBackground = () => {
 		}).then(() => {
 			setInit(true);
 		});
+
+		return theme;
 	});
 
 	return (
 		<Show when={init()}>
-			<Particles id={createUniqueId()} options={particlesConfig} />
+			<Particles
+				className="absolute"
+				id={createUniqueId()}
+				options={particlesConfig}
+			/>
 		</Show>
 	);
 };
