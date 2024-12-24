@@ -20,6 +20,7 @@
 		"@open-policy-agent/opa-wasm": "^1.10.0",
 		"@solidjs/meta": "^0.29.4",
 		"@solidjs/router": "^0.15.1",
+		"@tanstack/solid-table": "^8.20.5",
 		"@tsparticles/configs": "^3.7.3",
 		"@tsparticles/engine": "^3.7.1",
 		"@tsparticles/solid": "^3.0.0",
