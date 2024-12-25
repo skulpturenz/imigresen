@@ -3,6 +3,7 @@ import {
 	flexRender,
 	// eslint-disable-next-line import/named
 	getCoreRowModel,
+	// eslint-disable-next-line import/named
 	getPaginationRowModel,
 	type ColumnDef,
 } from "@tanstack/solid-table";

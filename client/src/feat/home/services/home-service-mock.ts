@@ -8,7 +8,7 @@ import {
 } from "@ngneat/falso";
 import type { PassportApplication } from "../types";
 
-export const homeService = (_token: string) => {
+export const homeService = (_token?: string) => {
 	const getPassportApplications = () =>
 		toCollection(
 			() => ({

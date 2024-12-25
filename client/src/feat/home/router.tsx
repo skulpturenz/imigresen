@@ -2,8 +2,10 @@ import { Navigate } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
+import { withComponents } from "core/utils";
 import { delay } from "es-toolkit";
 import { type Component } from "solid-js";
+import { HomeProviderMock } from "./context";
 import { Home } from "./home";
 import { resources } from "./resources";
 
@@ -19,8 +21,7 @@ export const Router: Component<RouterProps> = _props => {
 		{
 			path: ["/", toPath(CoreRoute.Home)],
 			title: resources.metaTitle,
-			// component: withComponents(HomeContext)(Home),
-			component: Home,
+			component: withComponents(HomeProviderMock)(Home),
 			isAllowed: async () => {
 				await delay(2000);
 
