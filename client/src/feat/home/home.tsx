@@ -3,9 +3,11 @@ import {
 	flexRender,
 	// eslint-disable-next-line import/named
 	getCoreRowModel,
+	getPaginationRowModel,
 	type ColumnDef,
 } from "@tanstack/solid-table";
 import { For, Show } from "solid-js";
+import { Button } from "ui/button";
 import {
 	Table,
 	TableBody,
@@ -46,10 +48,12 @@ export const Home = () => {
 
 	return (
 		<Show when={!queries.passportApplications.isLoading}>
-			<DataTable
-				columns={columns}
-				data={queries.passportApplications.data}
-			/>
+			<div class="bg-background">
+				<DataTable
+					columns={columns}
+					data={queries.passportApplications.data}
+				/>
+			</div>
 		</Show>
 	);
 };
@@ -66,64 +70,94 @@ const DataTable = <TData, TValue>(props: DataTableProps<TData, TValue>) => {
 		},
 		columns: props.columns,
 		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
 	});
 
 	return (
-		<Table>
-			<TableHeader>
-				<For each={table.getHeaderGroups()}>
-					{headerGroup => (
-						<TableRow>
-							<For each={headerGroup.headers}>
-								{header => {
-									return (
-										<TableHead>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef
-															.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								}}
-							</For>
-						</TableRow>
-					)}
-				</For>
-			</TableHeader>
-			<TableBody>
-				<Show
-					when={table.getRowModel().rows?.length}
-					fallback={
-						<TableRow>
-							<TableCell
-								colSpan={props.columns.length}
-								class="h-24 text-center">
-								No results.
-							</TableCell>
-						</TableRow>
-					}>
-					<For each={table.getRowModel().rows}>
-						{row => (
-							<TableRow
-								data-state={row.getIsSelected() && "selected"}>
-								<For each={row.getVisibleCells()}>
-									{cell => (
-										<TableCell>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									)}
+		<div class="flex flex-col gap-4">
+			<Table>
+				<TableHeader>
+					<For each={table.getHeaderGroups()}>
+						{headerGroup => (
+							<TableRow>
+								<For each={headerGroup.headers}>
+									{header => {
+										return (
+											<TableHead>
+												{header.isPlaceholder
+													? null
+													: flexRender(
+															header.column
+																.columnDef
+																.header,
+															header.getContext(),
+														)}
+											</TableHead>
+										);
+									}}
 								</For>
 							</TableRow>
 						)}
 					</For>
-				</Show>
-			</TableBody>
-		</Table>
+				</TableHeader>
+				<TableBody>
+					<Show
+						when={table.getRowModel().rows?.length}
+						fallback={
+							<TableRow>
+								<TableCell
+									colSpan={props.columns.length}
+									class="h-24 text-center">
+									No results.
+								</TableCell>
+							</TableRow>
+						}>
+						<For each={table.getRowModel().rows}>
+							{row => (
+								<TableRow
+									data-state={
+										row.getIsSelected() && "selected"
+									}>
+									<For each={row.getVisibleCells()}>
+										{cell => (
+											<TableCell>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
+											</TableCell>
+										)}
+									</For>
+								</TableRow>
+							)}
+						</For>
+					</Show>
+				</TableBody>
+			</Table>
+
+			<div class="flex justify-between">
+				<div>
+					{(table.getState().pagination.pageIndex ?? 0) + 1} of{" "}
+					{table.getPageCount()}
+				</div>
+				<div class="flex justify-end gap-4">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={table.previousPage}
+						disabled={!table.getCanPreviousPage()}>
+						Previous
+					</Button>
+
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={table.nextPage}
+						disabled={!table.getCanNextPage()}>
+						Next
+					</Button>
+				</div>
+			</div>
+		</div>
 	);
 };
