@@ -10,10 +10,10 @@ export const HomeContext = createContext<HomeSvc>(createHomeContext());
 
 export const HomeProvider: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
-	const value = homeService(authnContext().keycloak?.token);
 
 	return (
-		<HomeContext.Provider value={value}>
+		<HomeContext.Provider
+			value={homeService(authnContext().keycloak?.token)}>
 			{props.children}
 		</HomeContext.Provider>
 	);

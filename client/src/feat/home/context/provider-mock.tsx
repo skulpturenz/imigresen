@@ -6,10 +6,10 @@ import { HomeContext } from "./provider";
 
 export const HomeProviderMock: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
-	const value = homeService(authnContext().keycloak?.token);
 
 	return (
-		<HomeContext.Provider value={value}>
+		<HomeContext.Provider
+			value={homeService(authnContext().keycloak?.token)}>
 			{props.children}
 		</HomeContext.Provider>
 	);
