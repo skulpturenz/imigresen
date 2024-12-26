@@ -14,6 +14,8 @@
 	},
 	"dependencies": {
 		"@ark-ui/solid": "^4.6.0",
+		"@automerge/automerge": "^2.2.8",
+		"@automerge/automerge-repo": "^1.2.1",
 		"@corvu/drawer": "^0.2.2",
 		"@flipt-io/flipt-client-browser": "^0.3.1",
 		"@kobalte/core": "^0.13.7",
@@ -79,6 +81,8 @@
 		"vite": "^6.0.1",
 		"vite-plugin-compression": "^0.5.1",
 		"vite-plugin-solid": "^2.11.0",
+		"vite-plugin-top-level-await": "^1.4.4",
+		"vite-plugin-wasm": "^3.4.1",
 		"vite-plugin-webfont-dl": "^3.10.3",
 		"vitest": "^2.1.8"
 	},
