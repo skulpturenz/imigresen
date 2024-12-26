@@ -1,5 +1,7 @@
 import { ColorModeContext } from "@kobalte/core";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { QueryClient } from "@tanstack/solid-query";
+import { type Persister } from "@tanstack/solid-query-persist-client";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { once, partialRight, toMerged } from "es-toolkit";
 import { useContext } from "solid-js";
@@ -21,6 +23,7 @@ export interface UiSvc {
 	theme: UiTheme;
 	mode: UiMode;
 	queryClient?: QueryClient | null;
+	queryClientPersistor?: Persister | null;
 	actions: {
 		init: () => void;
 		setTheme: (theme: UiTheme) => void;
@@ -49,12 +52,17 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 	persistLocalStorage((set, get) => {
 		return {
 			isInitialLoading: () =>
-				Boolean(!get()?.hasHydrated || !get().queryClient),
+				Boolean(
+					!get()?.hasHydrated ||
+						!get().queryClient ||
+						!get().queryClientPersistor,
+				),
 			locale: "en-US", // https://www.ietf.org/rfc/bcp/bcp47.txt
 			hasHydrated: false,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,
 			queryClient: null,
+			queryClientPersistor: null,
 			actions: {
 				init: once(() => {
 					const queryClient = new QueryClient({
@@ -69,7 +77,12 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 						},
 					});
 
+					const queryClientPersistor = createSyncStoragePersister({
+						storage: window.localStorage,
+					});
+
 					set({ queryClient });
+					set({ queryClientPersistor });
 				}),
 				setTheme: theme => {
 					const { setColorMode } =

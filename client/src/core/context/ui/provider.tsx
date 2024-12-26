@@ -4,7 +4,11 @@ import {
 	localStorageManager,
 } from "@kobalte/core";
 import { I18nProvider } from "@kobalte/core/i18n";
-import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
+import { type QueryClient } from "@tanstack/solid-query";
+import {
+	PersistQueryClientProvider,
+	type Persister,
+} from "@tanstack/solid-query-persist-client";
 import { createUiContext } from "core/context/initializers";
 import {
 	createContext,
@@ -56,8 +60,11 @@ export const UiProvider: Component<ParentProps> = props => {
 	return (
 		<UiContext.Provider value={value}>
 			<Show when={!value().isInitialLoading()}>
-				<QueryClientProvider
-					client={value().queryClient as QueryClient}>
+				<PersistQueryClientProvider
+					client={value().queryClient as QueryClient}
+					persistOptions={{
+						persister: value().queryClientPersistor as Persister,
+					}}>
 					<I18nProvider locale={value().locale}>
 						<ColorModeScript storageType="localStorage" />
 
@@ -71,7 +78,7 @@ export const UiProvider: Component<ParentProps> = props => {
 							</ToastRegion>
 						</ColorModeProvider>
 					</I18nProvider>
-				</QueryClientProvider>
+				</PersistQueryClientProvider>
 			</Show>
 		</UiContext.Provider>
 	);
