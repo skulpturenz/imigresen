@@ -20,11 +20,26 @@ export const NotFound = () => {
 			<Typography
 				variant="large"
 				class="mt-6 text-pretty text-foreground">
-				{resources.subtitle(params.path)}
+				{!params.path && resources.subtitle(params.path).at(0)}
+
+				{params.path && (
+					<>
+						{resources.subtitle(params.path).at(0)}&nbsp;
+						<Typography as="code" variant="code">
+							{resources.subtitle(params.path).at(1)}
+						</Typography>
+						{resources.subtitle(params.path).at(2)}
+					</>
+				)}
 			</Typography>
 
-			<Button class="mt-10">
-				<A href="/">{resources.doBackToHome}</A>
+			<Button as={A} href="/" class="mt-10">
+				<>
+					{resources.doBackToHome.at(0)}&nbsp;
+					<Typography as="code" variant="code">
+						{resources.doBackToHome.at(1)}
+					</Typography>
+				</>
 			</Button>
 		</main>
 	);

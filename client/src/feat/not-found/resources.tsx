@@ -4,18 +4,10 @@ export const resources = {
 	header: "Page not found",
 	subtitle: (path?: string) => {
 		if (!path) {
-			return "Sorry, we couldn't find the page you're looking for.";
+			return ["Sorry, we couldn't find the page you're looking for."];
 		}
 
-		return (
-			<>
-				Sorry we couldn't find the page <code>/{path}</code>.
-			</>
-		);
+		return ["Sorry we couldn't find the page", `/${path}`, "."];
 	},
-	doBackToHome: (
-		<>
-			Go back <code>/home</code>
-		</>
-	),
+	doBackToHome: ["Go back", "/home"],
 };
