@@ -85,8 +85,8 @@ importers:
         version: 5.0.2(@types/react@19.0.1)(react@18.3.1)
     devDependencies:
       '@chromatic-com/storybook':
-        specifier: ^3.2.2
-        version: 3.2.2(react@18.3.1)(storybook@8.5.0-alpha.20(prettier@3.4.2))
+        specifier: ^3.2.3
+        version: 3.2.3(react@18.3.1)(storybook@8.5.0-alpha.20(prettier@3.4.2))
       '@ngneat/falso':
         specifier: ^7.2.0
         version: 7.2.0
@@ -311,8 +311,8 @@ packages:
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
 
-  '@chromatic-com/storybook@3.2.2':
-    resolution: {integrity: sha512-xmXt/GW0hAPbzNTrxYuVo43Adrtjue4DeVrsoIIEeJdGaPNNeNf+DHMlJKOBdlHmCnFUoe9R/0mLM9zUp5bKWw==}
+  '@chromatic-com/storybook@3.2.3':
+    resolution: {integrity: sha512-3+hfANx79kIjP1qrOSLxpoAXOiYUA0S7A0WI0A24kASrv7USFNNW8etR5TjUilMb0LmqKUn3wDwUK2h6aceQ9g==}
     engines: {node: '>=16.0.0', yarn: '>=1.22.18'}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
@@ -3899,7 +3899,7 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@chromatic-com/storybook@3.2.2(react@18.3.1)(storybook@8.5.0-alpha.20(prettier@3.4.2))':
+  '@chromatic-com/storybook@3.2.3(react@18.3.1)(storybook@8.5.0-alpha.20(prettier@3.4.2))':
     dependencies:
       chromatic: 11.20.2
       filesize: 10.1.6
