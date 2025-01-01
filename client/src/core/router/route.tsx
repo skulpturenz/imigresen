@@ -42,14 +42,21 @@ export interface RouteProps<S extends string = any, T = unknown>
 		| ((coreContext: CoreContext) => Promise<boolean>)
 		| ((coreContext: CoreContext) => boolean);
 	children?: RouteProps | RouteProps[];
+	meta?: {
+		navigationConfig?: {
+			sort?: number;
+			title?: string;
+			description?: string;
+		};
+	};
 }
 
 export interface RouteInternalProps {
-	info?: RouteMeta;
+	info?: RouteInternalMeta;
 	onLoaded?: (route: RouteProps & RouteInternalProps) => void;
 }
 
-export interface RouteMeta {
+export interface RouteInternalMeta {
 	isAllowed: boolean;
 	isHidden: boolean;
 }
@@ -99,6 +106,14 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	const Component: Component<
 		RouteSectionProps<unknown>
 	> = routeSectionProps => {
+		const getMetaTitle = (title?: string) => {
+			if (title) {
+				return `${title} | Imigresen`;
+			}
+
+			return "Imigresen";
+		};
+
 		return (
 			<>
 				<Title>{getMetaTitle(props.title)}</Title>
@@ -130,7 +145,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			return;
 		}
 
-		const { onLoaded, ...routeDefinition } = props as RouteProps &
+		const { onLoaded, meta, ...routeDefinition } = props as RouteProps &
 			RouteInternalProps;
 
 		onLoaded?.({
@@ -138,17 +153,10 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			info: {
 				isAllowed: Boolean(isAllowed()),
 				isHidden: Boolean(isHidden()),
+				...meta,
 			},
 		});
 	});
-
-	const getMetaTitle = (title?: string) => {
-		if (title) {
-			return `${title} | Imigresen`;
-		}
-
-		return "Imigresen";
-	};
 
 	return (
 		<>
@@ -158,6 +166,7 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 				info={{
 					isAllowed: Boolean(isAllowed()),
 					isHidden: Boolean(isHidden()),
+					...props.meta,
 				}}
 			/>
 		</>
