@@ -362,7 +362,9 @@ export const Navbar: Component<ParentProps> = () => {
 						</div>
 
 						<Show when={navigationMenuItems().length}>
-							<Navbar />
+							<div class="border-border border-t-2 py-2">
+								<Navbar />
+							</div>
 						</Show>
 					</div>
 				</div>
