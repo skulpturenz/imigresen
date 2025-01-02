@@ -3,7 +3,7 @@ import { invariant } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 
 export interface RouterSvc {
-	routes: Record<string, Omit<RouteProps & RouteInternalProps, "path">>;
+	routes: Record<string, RouteProps & RouteInternalProps>;
 	actions: {
 		appendRoute: (route: RouteProps & RouteInternalProps) => void;
 		getRoute: (path: string) => RouteProps;
@@ -21,6 +21,7 @@ export const useStore = createWithSignal<RouterSvc>((set, get) => ({
 
 			set({ routes: { ...get().routes, [route.info?.hrefPath]: route } });
 
+			// only nested routes
 			if (
 				(Array.isArray(route.path) &&
 					!route.path.some(path => path === route.info?.hrefPath)) ||

@@ -205,7 +205,18 @@ export const Navbar: Component<ParentProps> = () => {
 
 	const getNavigationMenuItems = () => {
 		const menuItems = Object.values(routerContext().routes)
-			// .filter(route => !route.info?.isHidden && route.info?.isAllowed)
+			.filter(
+				route =>
+					!route.info?.isHidden &&
+					route.info?.isAllowed &&
+					// only top level routes
+					((Array.isArray(route.path) &&
+						route.path.some(
+							path => path === route.info?.hrefPath,
+						)) ||
+						(!Array.isArray(route.path) &&
+							route.info?.hrefPath === route.path)),
+			)
 			.map(route => {
 				const getAllChildren = (
 					currentRoute: RouteProps & RouteInternalProps,
@@ -271,7 +282,9 @@ export const Navbar: Component<ParentProps> = () => {
 										menuItem.trigger,
 									)}>
 									{menuItem.trigger.meta?.navigationConfig
-										?.title || menuItem.trigger.title}
+										?.title ||
+										menuItem.trigger.title ||
+										"Parent"}
 								</NavigationMenuTrigger>
 
 								<NavigationMenuContent>
@@ -282,7 +295,9 @@ export const Navbar: Component<ParentProps> = () => {
 												<NavigationMenuItemLabel>
 													{link.meta?.navigationConfig
 														?.title ||
-														menuItem.trigger.title}
+														menuItem.trigger
+															.title ||
+														"child"}
 												</NavigationMenuItemLabel>
 
 												<Show
