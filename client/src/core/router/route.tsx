@@ -148,8 +148,15 @@ export const Route: Component<
 			return;
 		}
 
-		const { onLoaded, meta, info, ...routeDefinition } =
-			props as RouteProps & RouteInternalProps;
+		const {
+			onLoaded,
+			meta,
+			info,
+			// These children are not useful to us, we need to be able to retrieve props
+			// and these children are resolved jsx elements
+			children: _children,
+			...routeDefinition
+		} = props as RouteProps & RouteInternalProps;
 
 		onLoaded?.({
 			...routeDefinition,
@@ -225,8 +232,6 @@ export const addRoutes = (...routes: RouteProps[]) => {
 				<InternalRoute
 					{...route}
 					component={route.component ?? Children}
-					// TODO: want to be able to access props within `InternalRoute`
-					// and if we map to a jsx element we can't do that (i think)
 					children={children}
 					path={route.path}
 					info={{
