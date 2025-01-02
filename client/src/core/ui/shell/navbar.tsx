@@ -12,7 +12,6 @@ import {
 import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import {
-	createEffect,
 	createMemo,
 	createSignal,
 	For,
@@ -184,7 +183,7 @@ export const Navbar: Component<ParentProps> = () => {
 	);
 
 	const DesktopMenu = () => (
-		<div class="hidden sm:flex gap-4">
+		<div class="hidden sm:flex gap-2">
 			<Button size="icon" variant="outline" onClick={toggleTheme}>
 				<Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 				<Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -247,11 +246,6 @@ export const Navbar: Component<ParentProps> = () => {
 
 	const navigationMenuItems = createMemo(getNavigationMenuItems);
 
-	// TODO: remove
-	createEffect(() => {
-		console.log(navigationMenuItems());
-	});
-
 	const makeOnClickNavigationMenuTrigger =
 		(route: RouteProps & RouteInternalProps) => () => {
 			if (route.component === Children) {
@@ -282,9 +276,7 @@ export const Navbar: Component<ParentProps> = () => {
 										menuItem.trigger,
 									)}>
 									{menuItem.trigger.meta?.navigationConfig
-										?.title ||
-										menuItem.trigger.title ||
-										"Parent"}
+										?.title || menuItem.trigger.title}
 								</NavigationMenuTrigger>
 
 								<NavigationMenuContent>
@@ -295,9 +287,7 @@ export const Navbar: Component<ParentProps> = () => {
 												<NavigationMenuItemLabel>
 													{link.meta?.navigationConfig
 														?.title ||
-														menuItem.trigger
-															.title ||
-														"child"}
+														menuItem.trigger.title}
 												</NavigationMenuItemLabel>
 
 												<Show
@@ -328,7 +318,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 	return (
 		<>
-			<nav class="bg-background">
+			<nav class="bg-muted">
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer)}>
 						<div class="relative flex h-16 items-center justify-between">
@@ -362,9 +352,7 @@ export const Navbar: Component<ParentProps> = () => {
 						</div>
 
 						<Show when={navigationMenuItems().length}>
-							<div class="border-border border-t-2 py-2">
-								<Navbar />
-							</div>
+							<Navbar />
 						</Show>
 					</div>
 				</div>
