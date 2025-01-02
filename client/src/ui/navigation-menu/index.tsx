@@ -108,7 +108,10 @@ export const NavigationMenuTrigger = <T extends ValidComponent = "button">(
 	const withDefaultProps = mergeProps<NavigationMenuTriggerProps<T>[]>(
 		{
 			get withArrow() {
-				return props.as === undefined ? true : props.withArrow;
+				return typeof props.as === "undefined" &&
+					typeof props.withArrow === "undefined"
+					? true
+					: props.withArrow;
 			},
 		},
 		props,

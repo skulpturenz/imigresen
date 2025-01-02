@@ -4,11 +4,7 @@ import { RouterContext } from "core/context/router";
 import { UiContext } from "core/context/ui";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import {
-	Children,
-	type RouteInternalProps,
-	type RouteProps,
-} from "core/router/route";
+import { type RouteInternalProps, type RouteProps } from "core/router/route";
 import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import {
@@ -248,15 +244,6 @@ export const Navbar: Component<ParentProps> = () => {
 
 	const navigationMenuItems = createMemo(getNavigationMenuItems);
 
-	const makeOnClickNavigationMenuTrigger =
-		(route: RouteProps & RouteInternalProps) => () => {
-			if (route.component === Children) {
-				return;
-			}
-
-			window.location.pathname = route.info?.hrefPath as string;
-		};
-
 	const Navbar = () => (
 		<NavigationMenu>
 			<For each={navigationMenuItems()}>
@@ -274,9 +261,8 @@ export const Navbar: Component<ParentProps> = () => {
 						<Show when={menuItem.children.length}>
 							<NavigationMenuItem>
 								<NavigationMenuTrigger
-									onClick={makeOnClickNavigationMenuTrigger(
-										menuItem.trigger,
-									)}>
+									as="a"
+									href={menuItem.trigger.info?.hrefPath}>
 									{menuItem.trigger.meta?.navigationConfig
 										?.title || menuItem.trigger.title}
 								</NavigationMenuTrigger>
