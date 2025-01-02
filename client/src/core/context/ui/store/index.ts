@@ -1,8 +1,6 @@
-import { ColorModeContext } from "@kobalte/core";
 import { QueryClient } from "@tanstack/solid-query";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { once, partialRight, toMerged } from "es-toolkit";
-import { useContext } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -80,14 +78,7 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 
 					set({ queryClient });
 				}),
-				setTheme: theme => {
-					const { setColorMode } =
-						useContext(ColorModeContext) ?? Object.create(null);
-
-					set({ theme });
-					// TODO: `setColorMode` is `undefined`
-					setColorMode(theme);
-				},
+				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
 			},

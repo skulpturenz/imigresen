@@ -1,8 +1,3 @@
-import {
-	ColorModeProvider,
-	ColorModeScript,
-	localStorageManager,
-} from "@kobalte/core";
 import { I18nProvider } from "@kobalte/core/i18n";
 import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
 import { createUiContext } from "core/context/initializers";
@@ -59,17 +54,11 @@ export const UiProvider: Component<ParentProps> = props => {
 				<QueryClientProvider
 					client={value().queryClient as QueryClient}>
 					<I18nProvider locale={value().locale}>
-						<ColorModeScript storageType="localStorage" />
+						{props.children}
 
-						<ColorModeProvider
-							initialColorMode={value().theme}
-							storageManager={localStorageManager}>
-							{props.children}
-
-							<ToastRegion>
-								<ToastList />
-							</ToastRegion>
-						</ColorModeProvider>
+						<ToastRegion>
+							<ToastList />
+						</ToastRegion>
 					</I18nProvider>
 				</QueryClientProvider>
 			</Show>
