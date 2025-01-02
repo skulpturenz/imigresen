@@ -26,7 +26,9 @@ export const RouterProviderMock: Component<
 
 	return (
 		<RouterContext.Provider value={withDefaultProps.svc}>
-			<PageLoading isLoading={value().isInitialLoading()} />
+			<PageLoading
+				isLoading={withDefaultProps.svc().isInitialLoading()}
+			/>
 
 			<div
 				class={cn(

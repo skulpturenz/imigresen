@@ -57,7 +57,7 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 		);
 
 		onCleanup(() => {
-			controls.complete();
+			controls.stop();
 		});
 	});
 
