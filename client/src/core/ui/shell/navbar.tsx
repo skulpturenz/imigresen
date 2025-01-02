@@ -236,6 +236,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 	const navigationMenuItems = createMemo(getNavigationMenuItems);
 
+	// TODO: remove
 	createEffect(() => {
 		console.log(navigationMenuItems());
 	});
@@ -248,6 +249,67 @@ export const Navbar: Component<ParentProps> = () => {
 
 			window.location.pathname = route.info?.hrefPath as string;
 		};
+
+	const Navbar = () => (
+		<NavigationMenu>
+			<For each={navigationMenuItems()}>
+				{menuItem => (
+					<>
+						<Show when={!menuItem.children.length}>
+							<NavigationMenuTrigger
+								as="a"
+								href={menuItem.trigger.info?.hrefPath}>
+								{menuItem.trigger.meta?.navigationConfig
+									?.title || menuItem.trigger.title}
+							</NavigationMenuTrigger>
+						</Show>
+
+						<Show when={menuItem.children.length}>
+							<NavigationMenuItem>
+								<NavigationMenuTrigger
+									onClick={makeOnClickNavigationMenuTrigger(
+										menuItem.trigger,
+									)}>
+									{menuItem.trigger.meta?.navigationConfig
+										?.title || menuItem.trigger.title}
+								</NavigationMenuTrigger>
+
+								<NavigationMenuContent>
+									<For each={menuItem.children}>
+										{link => (
+											<NavigationMenuLink
+												href={link.info?.hrefPath}>
+												<NavigationMenuItemLabel>
+													{link.meta?.navigationConfig
+														?.title ||
+														menuItem.trigger.title}
+												</NavigationMenuItemLabel>
+
+												<Show
+													when={
+														link.meta
+															?.navigationConfig
+															?.description
+													}>
+													<NavigationMenuDescription>
+														{
+															link.meta
+																?.navigationConfig
+																?.description
+														}
+													</NavigationMenuDescription>
+												</Show>
+											</NavigationMenuLink>
+										)}
+									</For>
+								</NavigationMenuContent>
+							</NavigationMenuItem>
+						</Show>
+					</>
+				)}
+			</For>
+		</NavigationMenu>
+	);
 
 	return (
 		<>
@@ -283,103 +345,15 @@ export const Navbar: Component<ParentProps> = () => {
 								</Show>
 							</div>
 						</div>
+
+						<Show when={navigationMenuItems().length}>
+							<Navbar />
+						</Show>
 					</div>
 				</div>
 			</nav>
 
 			<MobileMenu />
-
-			<Show when={navigationMenuItems().length}>
-				<div class="bg-secondary">
-					<div class={cn(styles.contentContainer)}>
-						<div class={cn(styles.narrowContentContainer)}>
-							<NavigationMenu>
-								<For each={navigationMenuItems()}>
-									{menuItem => (
-										<>
-											<Show
-												when={
-													!menuItem.children.length
-												}>
-												<NavigationMenuTrigger
-													as="a"
-													href={
-														menuItem.trigger.info
-															?.hrefPath
-													}>
-													{menuItem.trigger.meta
-														?.navigationConfig
-														?.title ||
-														menuItem.trigger.title}
-												</NavigationMenuTrigger>
-											</Show>
-
-											<Show
-												when={menuItem.children.length}>
-												<NavigationMenuItem>
-													<NavigationMenuTrigger
-														onClick={makeOnClickNavigationMenuTrigger(
-															menuItem.trigger,
-														)}>
-														{menuItem.trigger.meta
-															?.navigationConfig
-															?.title ||
-															menuItem.trigger
-																.title}
-													</NavigationMenuTrigger>
-
-													<NavigationMenuContent>
-														<For
-															each={
-																menuItem.children
-															}>
-															{link => (
-																<NavigationMenuLink
-																	href={
-																		link
-																			.info
-																			?.hrefPath
-																	}>
-																	<NavigationMenuItemLabel>
-																		{link
-																			.meta
-																			?.navigationConfig
-																			?.title ||
-																			menuItem
-																				.trigger
-																				.title}
-																	</NavigationMenuItemLabel>
-
-																	<Show
-																		when={
-																			link
-																				.meta
-																				?.navigationConfig
-																				?.description
-																		}>
-																		<NavigationMenuDescription>
-																			{
-																				link
-																					.meta
-																					?.navigationConfig
-																					?.description
-																			}
-																		</NavigationMenuDescription>
-																	</Show>
-																</NavigationMenuLink>
-															)}
-														</For>
-													</NavigationMenuContent>
-												</NavigationMenuItem>
-											</Show>
-										</>
-									)}
-								</For>
-							</NavigationMenu>
-						</div>
-					</div>
-				</div>
-			</Show>
 		</>
 	);
 };
