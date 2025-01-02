@@ -52,16 +52,19 @@ export interface RouteProps<S extends string = any, T = unknown>
 }
 
 export interface RouteInternalProps {
-	info?: RouteInternalMeta;
+	info?: Partial<RouteInternalMeta>;
 	onLoaded?: (route: RouteProps & RouteInternalProps) => void;
 }
 
 export interface RouteInternalMeta {
+	hrefPath: string;
 	isAllowed: boolean;
 	isHidden: boolean;
 }
 
-export const Route: Component<ParentProps<RouteProps>> = props => {
+export const Route: Component<
+	ParentProps<Omit<RouteProps, "children"> & RouteInternalProps>
+> = props => {
 	const authnContext = useContext(AuthnContext);
 	const authzContext = useContext(AuthzContext);
 	const fliptContext = useContext(FliptContext);
@@ -145,15 +148,16 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			return;
 		}
 
-		const { onLoaded, meta, ...routeDefinition } = props as RouteProps &
-			RouteInternalProps;
+		const { onLoaded, meta, info, ...routeDefinition } =
+			props as RouteProps & RouteInternalProps;
 
 		onLoaded?.({
 			...routeDefinition,
 			info: {
+				...meta,
+				...info,
 				isAllowed: Boolean(isAllowed()),
 				isHidden: Boolean(isHidden()),
-				...meta,
 			},
 		});
 	});
@@ -164,9 +168,10 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 				{...spreadProps(props)}
 				component={Component}
 				info={{
+					...props.meta,
+					...props.info,
 					isAllowed: Boolean(isAllowed()),
 					isHidden: Boolean(isHidden()),
-					...props.meta,
 				}}
 			/>
 		</>
@@ -176,35 +181,62 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
-	const getRouteContext = useContext(RouterContext);
+	const addRoutesWithParentPath = (
+		parentPath: string | null,
+		...routes: RouteProps[]
+	) => {
+		const getRouteContext = useContext(RouterContext);
 
-	const InternalRoute = Route as Component<
-		ParentProps<RouteProps & RouteInternalProps>
-	>;
+		const InternalRoute = Route as Component<
+			ParentProps<RouteProps & RouteInternalProps>
+		>;
 
-	const Children: Component<RouteSectionProps> = props => props.children;
+		const Children: Component<RouteSectionProps> = props => props.children;
 
-	return Object.values(routes).map(route => {
-		// note: we don't want this to be within a reactive scope
-		// otherwise we just get infinite loading
-		const children = addRoutes(
-			...(Array.isArray(route.children)
-				? route.children
-				: ([route.children].filter(Boolean) as RouteProps[])),
-		);
+		const getHrefPath = (path: string | string[]) => {
+			if (Array.isArray(path)) {
+				return [parentPath || null, path.at(0)]
+					.filter(Boolean)
+					.join("/")
+					.replace(/(\/)\/+/g, "$1");
+			}
 
-		// note: we don't want this to be within a reactive scope
-		// otherwise we just get infinite loading
-		const routeContext = getRouteContext();
+			return [parentPath || null, path]
+				.filter(Boolean)
+				.join("/")
+				.replace(/(\/)\/+/g, "$1");
+		};
 
-		return (
-			<InternalRoute
-				{...route}
-				component={route.component ?? Children}
-				children={children}
-				path={route.path}
-				onLoaded={routeContext.actions.appendRoute}
-			/>
-		);
-	});
+		return Object.values(routes).map(route => {
+			// note: we don't want this to be within a reactive scope
+			// otherwise we just get infinite loading
+			const children = addRoutesWithParentPath(
+				getHrefPath(route.path),
+				...(Array.isArray(route.children)
+					? route.children
+					: ([route.children].filter(Boolean) as RouteProps[])),
+			);
+
+			// note: we don't want this to be within a reactive scope
+			// otherwise we just get infinite loading
+			const routeContext = getRouteContext();
+
+			return (
+				<InternalRoute
+					{...route}
+					component={route.component ?? Children}
+					// TODO: want to be able to access props within `InternalRoute`
+					// and if we map to a jsx element we can't do that (i think)
+					children={children}
+					path={route.path}
+					info={{
+						hrefPath: getHrefPath(route.path),
+					}}
+					onLoaded={routeContext.actions.appendRoute}
+				/>
+			);
+		});
+	};
+
+	return addRoutesWithParentPath(null, ...routes);
 };

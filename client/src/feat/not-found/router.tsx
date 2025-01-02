@@ -10,6 +10,7 @@ export const Router: Component<RouterProps> = _props => {
 			path: "*path",
 			title: resources.metaTitle,
 			component: NotFound,
+			isHidden: true,
 		},
 	] as RouteProps[];
 
