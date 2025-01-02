@@ -1,8 +1,11 @@
 import { styles } from "core/constants/styles";
 import { AuthnContext } from "core/context/authn";
+import { RouterContext } from "core/context/router";
 import { UiContext } from "core/context/ui";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import type { RouteInternalProps, RouteProps } from "core/router/route";
+import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import { createSignal, Show, type Component, type ParentProps } from "solid-js";
 import { Transition } from "solid-transition-group";
@@ -45,6 +48,7 @@ export const Navbar: Component<ParentProps> = () => {
 	const authContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const uiContext = useContext(UiContext);
+	const routerContext = useContext(RouterContext);
 
 	const toInitials = (fullName: string) => {
 		const split = fullName.split(" ");
@@ -177,6 +181,37 @@ export const Navbar: Component<ParentProps> = () => {
 			</Button>
 		</div>
 	);
+
+	const _getNavigationMenuItems = () => {
+		const allRoutes = Object.values(routerContext().routes)
+			.filter(route => !route.info?.isHidden && route.info?.isAllowed)
+			.map(route => {
+				const getAllChildren = (
+					currentRoute: RouteProps & RouteInternalProps,
+				): (RouteProps & RouteInternalProps)[] => {
+					if (Array.isArray(currentRoute.children)) {
+						return [
+							...currentRoute.children,
+							...flatMapDeep(
+								currentRoute.children ?? [],
+								getAllChildren,
+							),
+						] as (RouteProps & RouteInternalProps)[];
+					}
+
+					return [currentRoute.children].filter(
+						Boolean,
+					) as (RouteProps & RouteInternalProps)[];
+				};
+
+				return {
+					trigger: route,
+					children: getAllChildren(route),
+				};
+			});
+
+		return allRoutes;
+	};
 
 	return (
 		<>
