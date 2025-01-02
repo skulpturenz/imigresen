@@ -1,7 +1,6 @@
 import { createRouterContext } from "core/context/initializers";
 import {
 	createContext,
-	Show,
 	type Accessor,
 	type Component,
 	type ParentProps,
@@ -16,12 +15,9 @@ export const RouterContext =
 export const RouterProvider: Component<ParentProps> = props => {
 	const value = useStore();
 
-	// TODO: without `Show` animations don't seem to run
 	return (
 		<RouterContext.Provider value={value}>
-			<Show when={value().isInitialLoading()}>
-				<PageLoading isLoading={value().isInitialLoading()} />
-			</Show>
+			<PageLoading isLoading={value().isInitialLoading()} />
 
 			<div
 				class={cn(

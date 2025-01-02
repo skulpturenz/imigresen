@@ -1,6 +1,5 @@
 import {
 	mergeProps,
-	Show,
 	type Accessor,
 	type Component,
 	type ParentProps,
@@ -25,12 +24,9 @@ export const RouterProviderMock: Component<
 		props,
 	);
 
-	// TODO: without `Show` animations don't seem to run
 	return (
 		<RouterContext.Provider value={withDefaultProps.svc}>
-			<Show when={value().isInitialLoading()}>
-				<PageLoading isLoading={value().isInitialLoading()} />
-			</Show>
+			<PageLoading isLoading={value().isInitialLoading()} />
 
 			<div
 				class={cn(

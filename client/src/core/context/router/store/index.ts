@@ -19,92 +19,98 @@ export interface RouterInternalSvc {
 }
 
 export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
-	(set, get) => ({
-		routes: Object.create(null),
-		isInitialLoading: () => get().routesLoadingMask !== ROUTES_LOADED_MASK,
-		routesLoadingMask: ROUTES_LOADED_MASK,
-		actions: {
-			getNextMask: () => {
-				const sequence = routeMaskGenerator();
+	(set, get) => {
+		const routeMaskSequence = routeMaskGenerator();
 
-				const mask = sequence.next().value as number;
+		return {
+			routes: Object.create(null),
+			isInitialLoading: () =>
+				get().routesLoadingMask !== ROUTES_LOADED_MASK,
+			routesLoadingMask: ROUTES_LOADED_MASK,
+			actions: {
+				getNextMask: () => {
+					const mask = routeMaskSequence.next().value as number;
 
-				set({ routesLoadingMask: get().routesLoadingMask ^ mask });
+					set({ routesLoadingMask: get().routesLoadingMask ^ mask });
 
-				return sequence.next().value as number;
-			},
-			appendRoute: route => {
-				invariant(
-					route.info?.mask,
-					"Missing `mask` - route configured incorrectly",
-				);
-				invariant(
-					route.info?.hrefPath,
-					"Missing `hrefPath` - route configured incorrectly",
-				);
-
-				set({
-					routes: { ...get().routes, [route.info?.hrefPath]: route },
-				});
-
-				const isNestedRoute = (
-					route: RouteProps & RouteInternalProps,
-				) =>
-					(Array.isArray(route.path) &&
-						!route.path.some(
-							path => path === route.info?.hrefPath,
-						)) ||
-					(!Array.isArray(route.path) &&
-						route.info?.hrefPath !== route.path);
-
-				if (isNestedRoute(route)) {
-					const root = route.info.hrefPath
-						.split(/\//)
-						.slice(0, 2)
-						.join("/");
-
-					const getChildren = (
-						route: RouteProps & RouteInternalProps,
-					) => {
-						if (Array.isArray(route.children)) {
-							return route.children;
-						}
-
-						if (route.children) {
-							return [route.children];
-						}
-
-						return [];
-					};
+					return mask;
+				},
+				appendRoute: route => {
+					invariant(
+						route.info?.mask,
+						"Missing `mask` - route configured incorrectly",
+					);
+					invariant(
+						route.info?.hrefPath,
+						"Missing `hrefPath` - route configured incorrectly",
+					);
 
 					set({
 						routes: {
 							...get().routes,
-							[root]: {
-								...get().routes[root],
-								children: [
-									...getChildren(get().routes[root]),
-									route,
-								],
-							},
+							[route.info?.hrefPath]: route,
 						},
 					});
-				}
 
-				set({
-					routesLoadingMask:
-						get().routesLoadingMask ^ route.info.mask,
-				});
+					const isNestedRoute = (
+						route: RouteProps & RouteInternalProps,
+					) =>
+						(Array.isArray(route.path) &&
+							!route.path.some(
+								path => path === route.info?.hrefPath,
+							)) ||
+						(!Array.isArray(route.path) &&
+							route.info?.hrefPath !== route.path);
+
+					if (isNestedRoute(route)) {
+						const root = route.info.hrefPath
+							.split(/\//)
+							.slice(0, 2)
+							.join("/");
+
+						const getChildren = (
+							route: RouteProps & RouteInternalProps,
+						) => {
+							if (Array.isArray(route.children)) {
+								return route.children;
+							}
+
+							if (route.children) {
+								return [route.children];
+							}
+
+							return [];
+						};
+
+						set({
+							routes: {
+								...get().routes,
+								[root]: {
+									...get().routes[root],
+									children: [
+										...getChildren(get().routes[root]),
+										route,
+									],
+								},
+							},
+						});
+					}
+
+					set({
+						routesLoadingMask:
+							get().routesLoadingMask ^ route.info.mask,
+					});
+				},
+				getRoute: path => {
+					const route = get().routes[path];
+
+					invariant(route, `No route matching path ${path}`);
+
+					return route;
+				},
 			},
-			getRoute: path => {
-				const route = get().routes[path];
-
-				invariant(route, `No route matching path ${path}`);
-
-				return route;
-			},
-		},
-	}),
+		};
+	},
 );
 
 function* routeMaskGenerator() {

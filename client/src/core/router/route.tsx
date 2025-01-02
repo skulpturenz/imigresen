@@ -222,6 +222,9 @@ export const addRoutes = (...routes: RouteProps[]) => {
 			// otherwise we just get infinite loading
 			const routeContext = getRouteContext();
 
+			const mask = routeContext.actions.getNextMask();
+			const hrefPath = getHrefPath(route.path);
+
 			return (
 				<InternalRoute
 					{...route}
@@ -229,8 +232,8 @@ export const addRoutes = (...routes: RouteProps[]) => {
 					children={children}
 					path={route.path}
 					info={{
-						mask: routeContext.actions.getNextMask(),
-						hrefPath: getHrefPath(route.path),
+						mask,
+						hrefPath,
 					}}
 					onLoaded={routeContext.actions.appendRoute}
 				/>
