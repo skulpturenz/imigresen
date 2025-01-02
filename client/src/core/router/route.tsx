@@ -57,6 +57,7 @@ export interface RouteInternalProps {
 }
 
 export interface RouteInternalMeta {
+	mask: number;
 	hrefPath: string;
 	isAllowed: boolean;
 	isHidden: boolean;
@@ -228,6 +229,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 					children={children}
 					path={route.path}
 					info={{
+						mask: routeContext.actions.getNextMask(),
 						hrefPath: getHrefPath(route.path),
 					}}
 					onLoaded={routeContext.actions.appendRoute}

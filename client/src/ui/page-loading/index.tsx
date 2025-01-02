@@ -1,5 +1,6 @@
 import { animate } from "motion";
 import {
+	createUniqueId,
 	mergeProps,
 	onMount,
 	type Component,
@@ -17,6 +18,8 @@ const resources = {
 };
 
 export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
+	const id = createUniqueId();
+
 	const withDefaultProps = mergeProps(
 		{
 			isLoading: true,
@@ -30,7 +33,7 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 		}
 
 		animate(
-			".loading-dot",
+			`.loading-dot-${id}`,
 			{
 				x: [-40, 40],
 				y: [0, -60],
@@ -67,7 +70,8 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 					)}>
 					<span
 						class={cn(
-							"loading-dot size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
+							`loading-dot-${id}`,
+							"size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
 						)}>
 						<span class="size-6 md:size-8 lg:size-12 bg-primary absolute rounded-full animate-ping" />
 
