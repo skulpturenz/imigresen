@@ -47,15 +47,17 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 					routes: { ...get().routes, [route.info?.hrefPath]: route },
 				});
 
-				// only nested routes
-				if (
+				const isNestedRoute = (
+					route: RouteProps & RouteInternalProps,
+				) =>
 					(Array.isArray(route.path) &&
 						!route.path.some(
 							path => path === route.info?.hrefPath,
 						)) ||
 					(!Array.isArray(route.path) &&
-						route.info.hrefPath !== route.path)
-				) {
+						route.info?.hrefPath !== route.path);
+
+				if (isNestedRoute(route)) {
 					const root = route.info.hrefPath
 						.split(/\//)
 						.slice(0, 2)
@@ -87,12 +89,12 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 							},
 						},
 					});
-
-					set({
-						routesLoadingMask:
-							get().routesLoadingMask ^ route.info.mask,
-					});
 				}
+
+				set({
+					routesLoadingMask:
+						get().routesLoadingMask ^ route.info.mask,
+				});
 			},
 			getRoute: path => {
 				const route = get().routes[path];

@@ -199,18 +199,17 @@ export const Navbar: Component<ParentProps> = () => {
 	);
 
 	const getNavigationMenuItems = () => {
+		const isTopLevelRoute = (route: RouteProps & RouteInternalProps) =>
+			(Array.isArray(route.path) &&
+				route.path.some(path => path === route.info?.hrefPath)) ||
+			(!Array.isArray(route.path) && route.info?.hrefPath === route.path);
+
 		const menuItems = Object.values(routerContext().routes)
 			.filter(
 				route =>
 					!route.info?.isHidden &&
 					route.info?.isAllowed &&
-					// only top level routes
-					((Array.isArray(route.path) &&
-						route.path.some(
-							path => path === route.info?.hrefPath,
-						)) ||
-						(!Array.isArray(route.path) &&
-							route.info?.hrefPath === route.path)),
+					isTopLevelRoute(route),
 			)
 			.map(route => {
 				const getAllChildren = (
