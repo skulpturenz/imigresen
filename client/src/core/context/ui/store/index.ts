@@ -42,7 +42,16 @@ const persistLocalStorage: (
 	storage: createJSONStorage(() => localStorage),
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
-	merge: toMerged as any,
+	merge: (persistedState, currentState) => {
+		// take out state which is not serializable
+		const {
+			queryClient: _queryClient,
+			actions: _actions,
+			...rest
+		} = persistedState as UiSvc & UiSvcInternal;
+
+		return toMerged(currentState, rest) as UiSvc & UiSvcInternal;
+	},
 } satisfies PersistOptions<UiSvc & UiSvcInternal>);
 
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
@@ -76,7 +85,8 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 						useContext(ColorModeContext) ?? Object.create(null);
 
 					set({ theme });
-					setColorMode?.(theme);
+					// TODO: `setColorMode` is `undefined`
+					setColorMode(theme);
 				},
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
