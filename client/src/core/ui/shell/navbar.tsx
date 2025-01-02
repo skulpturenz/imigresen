@@ -4,10 +4,22 @@ import { RouterContext } from "core/context/router";
 import { UiContext } from "core/context/ui";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import type { RouteInternalProps, RouteProps } from "core/router/route";
+import {
+	Children,
+	type RouteInternalProps,
+	type RouteProps,
+} from "core/router/route";
 import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
-import { createSignal, Show, type Component, type ParentProps } from "solid-js";
+import {
+	createEffect,
+	createMemo,
+	createSignal,
+	For,
+	Show,
+	type Component,
+	type ParentProps,
+} from "solid-js";
 import { Transition } from "solid-transition-group";
 import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
 import { Button } from "ui/button";
@@ -20,6 +32,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "ui/dropdown-menu";
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuDescription,
+	NavigationMenuItem,
+	NavigationMenuItemLabel,
+	NavigationMenuLink,
+	NavigationMenuTrigger,
+} from "ui/navigation-menu";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -182,9 +203,9 @@ export const Navbar: Component<ParentProps> = () => {
 		</div>
 	);
 
-	const _getNavigationMenuItems = () => {
-		const allRoutes = Object.values(routerContext().routes)
-			.filter(route => !route.info?.isHidden && route.info?.isAllowed)
+	const getNavigationMenuItems = () => {
+		const menuItems = Object.values(routerContext().routes)
+			// .filter(route => !route.info?.isHidden && route.info?.isAllowed)
 			.map(route => {
 				const getAllChildren = (
 					currentRoute: RouteProps & RouteInternalProps,
@@ -210,8 +231,23 @@ export const Navbar: Component<ParentProps> = () => {
 				};
 			});
 
-		return allRoutes;
+		return menuItems;
 	};
+
+	const navigationMenuItems = createMemo(getNavigationMenuItems);
+
+	createEffect(() => {
+		console.log(navigationMenuItems());
+	});
+
+	const makeOnClickNavigationMenuTrigger =
+		(route: RouteProps & RouteInternalProps) => () => {
+			if (route.component === Children) {
+				return;
+			}
+
+			window.location.pathname = route.info?.hrefPath as string;
+		};
 
 	return (
 		<>
@@ -252,6 +288,98 @@ export const Navbar: Component<ParentProps> = () => {
 			</nav>
 
 			<MobileMenu />
+
+			<Show when={navigationMenuItems().length}>
+				<div class="bg-secondary">
+					<div class={cn(styles.contentContainer)}>
+						<div class={cn(styles.narrowContentContainer)}>
+							<NavigationMenu>
+								<For each={navigationMenuItems()}>
+									{menuItem => (
+										<>
+											<Show
+												when={
+													!menuItem.children.length
+												}>
+												<NavigationMenuTrigger
+													as="a"
+													href={
+														menuItem.trigger.info
+															?.hrefPath
+													}>
+													{menuItem.trigger.meta
+														?.navigationConfig
+														?.title ||
+														menuItem.trigger.title}
+												</NavigationMenuTrigger>
+											</Show>
+
+											<Show
+												when={menuItem.children.length}>
+												<NavigationMenuItem>
+													<NavigationMenuTrigger
+														onClick={makeOnClickNavigationMenuTrigger(
+															menuItem.trigger,
+														)}>
+														{menuItem.trigger.meta
+															?.navigationConfig
+															?.title ||
+															menuItem.trigger
+																.title}
+													</NavigationMenuTrigger>
+
+													<NavigationMenuContent>
+														<For
+															each={
+																menuItem.children
+															}>
+															{link => (
+																<NavigationMenuLink
+																	href={
+																		link
+																			.info
+																			?.hrefPath
+																	}>
+																	<NavigationMenuItemLabel>
+																		{link
+																			.meta
+																			?.navigationConfig
+																			?.title ||
+																			menuItem
+																				.trigger
+																				.title}
+																	</NavigationMenuItemLabel>
+
+																	<Show
+																		when={
+																			link
+																				.meta
+																				?.navigationConfig
+																				?.description
+																		}>
+																		<NavigationMenuDescription>
+																			{
+																				link
+																					.meta
+																					?.navigationConfig
+																					?.description
+																			}
+																		</NavigationMenuDescription>
+																	</Show>
+																</NavigationMenuLink>
+															)}
+														</For>
+													</NavigationMenuContent>
+												</NavigationMenuItem>
+											</Show>
+										</>
+									)}
+								</For>
+							</NavigationMenu>
+						</div>
+					</div>
+				</div>
+			</Show>
 		</>
 	);
 };

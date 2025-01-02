@@ -198,8 +198,6 @@ export const addRoutes = (...routes: RouteProps[]) => {
 			ParentProps<RouteProps & RouteInternalProps>
 		>;
 
-		const Children: Component<RouteSectionProps> = props => props.children;
-
 		const getHrefPath = (path: string | string[]) => {
 			if (Array.isArray(path)) {
 				return [parentPath || null, path.at(0)]
@@ -245,3 +243,5 @@ export const addRoutes = (...routes: RouteProps[]) => {
 
 	return addRoutesWithParentPath(null, ...routes);
 };
+
+export const Children: Component<RouteSectionProps> = props => props.children;
