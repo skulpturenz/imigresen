@@ -227,12 +227,14 @@ export const Navbar: Component<ParentProps> = () => {
 								currentRoute.children ?? [],
 								getAllChildren,
 							),
-						] as (RouteProps & RouteInternalProps)[];
+						];
 					}
 
-					return [currentRoute.children].filter(
-						Boolean,
-					) as (RouteProps & RouteInternalProps)[];
+					if (!currentRoute.children) {
+						return [];
+					}
+
+					return [currentRoute.children];
 				};
 
 				return {
