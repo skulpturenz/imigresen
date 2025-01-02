@@ -306,9 +306,9 @@ export const Navbar: Component<ParentProps> = () => {
 
 	return (
 		<>
-			<nav class="bg-muted">
+			<nav class="bg-muted py-4">
 				<div class={cn(styles.contentContainer)}>
-					<div class={cn(styles.narrowContentContainer)}>
+					<div class={cn(styles.narrowContentContainer, "space-y-4")}>
 						<div class="relative flex h-16 items-center justify-between">
 							<MobileMenuTrigger />
 
