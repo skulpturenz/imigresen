@@ -199,14 +199,9 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		>;
 
 		const getHrefPath = (path: string | string[]) => {
-			if (Array.isArray(path)) {
-				return [parentPath || null, path.at(0)]
-					.filter(Boolean)
-					.join("/")
-					.replace(/(\/)\/+/g, "$1");
-			}
+			const pathKey = Array.isArray(path) ? path.at(0) : path;
 
-			return [parentPath || null, path]
+			return [parentPath || null, pathKey]
 				.filter(Boolean)
 				.join("/")
 				.replace(/(\/)\/+/g, "$1");
