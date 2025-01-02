@@ -15,6 +15,10 @@ import {
 } from "solid-js";
 import { cn } from "ui/utils";
 
+const resources = {
+	triggerSrOnly: "Expand",
+};
+
 export const NavigationMenuItem = NavigationMenuPrimitive.Menu;
 
 export const NavigationMenuLink = NavigationMenuPrimitive.Item;
@@ -123,6 +127,8 @@ export const NavigationMenuTrigger = <T extends ValidComponent = "button">(
 			<Show when={withDefaultProps.withArrow}>
 				<NavigationMenuPrimitive.Icon class="group">
 					<ChevronDown class="ml-1 size-3 transition-transform duration-300 group-data-[expanded]:rotate-180" />
+
+					<span class="sr-only">{resources.triggerSrOnly}</span>
 				</NavigationMenuPrimitive.Icon>
 			</Show>
 		</NavigationMenuPrimitive.Trigger>
