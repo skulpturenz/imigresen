@@ -115,6 +115,9 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 
 function* routeMaskGenerator() {
 	for (let i = 0; i < Infinity; i++) {
+		// note: use large values here, we're unlikely to have that many routes
+		// and if there are overflow issues then it means that values are being
+		// pulled more than once for a route
 		yield Math.pow(2, i);
 	}
 }
