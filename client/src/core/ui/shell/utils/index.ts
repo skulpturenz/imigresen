@@ -1,4 +1,5 @@
 import type { RouteInternalProps, RouteProps } from "core/router/route";
+import { isNil } from "es-toolkit";
 import type { NavbarItem } from "../types";
 
 export const sortNavigationRoutes = (
@@ -6,7 +7,10 @@ export const sortNavigationRoutes = (
 	b: RouteProps & RouteInternalProps,
 ) => {
 	// if sort order is specified then sort asc
-	if (a.meta?.navigationConfig?.sort && b.meta?.navigationConfig?.sort) {
+	if (
+		!isNil(a.meta?.navigationConfig?.sort) &&
+		!isNil(b.meta?.navigationConfig?.sort)
+	) {
 		return a.meta.navigationConfig.sort - b.meta.navigationConfig.sort;
 	}
 
