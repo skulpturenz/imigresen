@@ -1,7 +1,6 @@
 import { useLocale } from "@kobalte/core";
-import { translator, type Flatten } from "@solid-primitives/i18n";
+import { flatten, translator, type Flatten } from "@solid-primitives/i18n";
 import { useContext } from "core/context/utils";
-import { invariant } from "es-toolkit";
 import {
 	createContext,
 	createResource,
@@ -58,10 +57,10 @@ export const withI18n =
 		</I18nProvider>
 	);
 
-export const useI18n = () => {
+export const useI18n = (fallback?: Record<string, any>) => {
 	const i18nContext = useContext(I18nContext);
 
-	invariant(i18nContext, "`use18n` should be used within an `I18nContext`");
-
-	return translator(i18nContext.i18n);
+	return translator(
+		i18nContext.i18n ?? flatten(fallback ?? Object.create(null)),
+	);
 };
