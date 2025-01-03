@@ -138,7 +138,9 @@ describe("sortNavigationRoutes", () => {
 
 		expect(
 			sorted.map(route => route.meta?.navigationConfig?.description),
-		).toEqual(["b", "a", "d", "c"]);
+		).toEqual(
+			routes.map(route => route.meta?.navigationConfig?.description),
+		);
 	});
 
 	it("mixed case", () => {
