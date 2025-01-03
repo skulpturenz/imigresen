@@ -1,10 +1,20 @@
 import { styles } from "core/constants/styles";
 import { AuthnContext } from "core/context/authn";
+import { RouterContext } from "core/context/router";
 import { UiContext } from "core/context/ui";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import { type RouteInternalProps, type RouteProps } from "core/router/route";
+import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
-import { createSignal, Show, type Component, type ParentProps } from "solid-js";
+import {
+	createMemo,
+	createSignal,
+	For,
+	Show,
+	type Component,
+	type ParentProps,
+} from "solid-js";
 import { Transition } from "solid-transition-group";
 import { Avatar, AvatarFallback, AvatarImage } from "ui/avatar";
 import { Button } from "ui/button";
@@ -17,6 +27,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "ui/dropdown-menu";
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuDescription,
+	NavigationMenuItem,
+	NavigationMenuItemLabel,
+	NavigationMenuLink,
+	NavigationMenuTrigger,
+} from "ui/navigation-menu";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -45,6 +64,7 @@ export const Navbar: Component<ParentProps> = () => {
 	const authContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const uiContext = useContext(UiContext);
+	const routerContext = useContext(RouterContext);
 
 	const toInitials = (fullName: string) => {
 		const split = fullName.split(" ");
@@ -159,7 +179,7 @@ export const Navbar: Component<ParentProps> = () => {
 	);
 
 	const DesktopMenu = () => (
-		<div class="hidden sm:flex gap-4">
+		<div class="hidden sm:flex gap-2">
 			<Button size="icon" variant="outline" onClick={toggleTheme}>
 				<Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 				<Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -178,11 +198,89 @@ export const Navbar: Component<ParentProps> = () => {
 		</div>
 	);
 
+	const getNavigationMenuItems = () => {
+		const menuItems = Object.values(routerContext().routes)
+			.filter(
+				route =>
+					!route.info?.isHidden &&
+					route.info?.isAllowed &&
+					isTopLevelRoute(route),
+			)
+			.map(route => ({
+				trigger: route,
+				children: getAllChildren(route),
+			}));
+
+		return menuItems;
+	};
+
+	const navigationMenuItems = createMemo(getNavigationMenuItems);
+
+	const Navbar = () => (
+		<NavigationMenu>
+			<For each={navigationMenuItems()}>
+				{menuItem => (
+					<>
+						<Show when={!menuItem.children.length}>
+							<NavigationMenuTrigger
+								as="a"
+								href={menuItem.trigger.info?.hrefPath}>
+								{menuItem.trigger.meta?.navigationConfig
+									?.title || menuItem.trigger.title}
+							</NavigationMenuTrigger>
+						</Show>
+
+						<Show when={menuItem.children.length}>
+							<NavigationMenuItem>
+								<NavigationMenuTrigger
+									as="a"
+									href={menuItem.trigger.info?.hrefPath}>
+									{menuItem.trigger.meta?.navigationConfig
+										?.title || menuItem.trigger.title}
+								</NavigationMenuTrigger>
+
+								<NavigationMenuContent>
+									<For each={menuItem.children}>
+										{link => (
+											<NavigationMenuLink
+												href={link.info?.hrefPath}>
+												<NavigationMenuItemLabel>
+													{link.meta?.navigationConfig
+														?.title ||
+														menuItem.trigger.title}
+												</NavigationMenuItemLabel>
+
+												<Show
+													when={
+														link.meta
+															?.navigationConfig
+															?.description
+													}>
+													<NavigationMenuDescription>
+														{
+															link.meta
+																?.navigationConfig
+																?.description
+														}
+													</NavigationMenuDescription>
+												</Show>
+											</NavigationMenuLink>
+										)}
+									</For>
+								</NavigationMenuContent>
+							</NavigationMenuItem>
+						</Show>
+					</>
+				)}
+			</For>
+		</NavigationMenu>
+	);
+
 	return (
 		<>
-			<nav class="bg-background">
+			<nav class="bg-muted py-4">
 				<div class={cn(styles.contentContainer)}>
-					<div class={cn(styles.narrowContentContainer)}>
+					<div class={cn(styles.narrowContentContainer, "space-y-4")}>
 						<div class="relative flex h-16 items-center justify-between">
 							<MobileMenuTrigger />
 
@@ -212,6 +310,10 @@ export const Navbar: Component<ParentProps> = () => {
 								</Show>
 							</div>
 						</div>
+
+						<Show when={navigationMenuItems().length}>
+							<Navbar />
+						</Show>
 					</div>
 				</div>
 			</nav>
@@ -219,4 +321,26 @@ export const Navbar: Component<ParentProps> = () => {
 			<MobileMenu />
 		</>
 	);
+};
+
+const isTopLevelRoute = (route: RouteProps & RouteInternalProps) =>
+	(Array.isArray(route.path) &&
+		route.path.some(path => path === route.info?.hrefPath)) ||
+	(!Array.isArray(route.path) && route.info?.hrefPath === route.path);
+
+const getAllChildren = (
+	currentRoute: RouteProps & RouteInternalProps,
+): (RouteProps & RouteInternalProps)[] => {
+	if (Array.isArray(currentRoute.children)) {
+		return [
+			...currentRoute.children,
+			...flatMapDeep(currentRoute.children ?? [], getAllChildren),
+		];
+	}
+
+	if (!currentRoute.children) {
+		return [];
+	}
+
+	return [currentRoute.children];
 };

@@ -20,6 +20,7 @@ export const Router: Component<RouterProps> = _props => {
 
 						return true;
 					},
+					isHidden: true,
 				},
 				{
 					path: toPath(AuthRoute.LogoutCallback),
@@ -29,8 +30,10 @@ export const Router: Component<RouterProps> = _props => {
 
 						return true;
 					},
+					isHidden: true,
 				},
 			],
+			isHidden: true,
 		},
 	] as RouteProps[];
 

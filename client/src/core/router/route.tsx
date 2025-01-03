@@ -42,19 +42,30 @@ export interface RouteProps<S extends string = any, T = unknown>
 		| ((coreContext: CoreContext) => Promise<boolean>)
 		| ((coreContext: CoreContext) => boolean);
 	children?: RouteProps | RouteProps[];
+	meta?: {
+		navigationConfig?: {
+			sort?: number;
+			title?: string;
+			description?: string;
+		};
+	};
 }
 
 export interface RouteInternalProps {
-	info?: RouteMeta;
+	info?: Partial<RouteInternalMeta>;
 	onLoaded?: (route: RouteProps & RouteInternalProps) => void;
 }
 
-export interface RouteMeta {
+export interface RouteInternalMeta {
+	mask: number;
+	hrefPath: string;
 	isAllowed: boolean;
 	isHidden: boolean;
 }
 
-export const Route: Component<ParentProps<RouteProps>> = props => {
+export const Route: Component<
+	ParentProps<Omit<RouteProps, "children"> & RouteInternalProps>
+> = props => {
 	const authnContext = useContext(AuthnContext);
 	const authzContext = useContext(AuthzContext);
 	const fliptContext = useContext(FliptContext);
@@ -99,6 +110,14 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 	const Component: Component<
 		RouteSectionProps<unknown>
 	> = routeSectionProps => {
+		const getMetaTitle = (title?: string) => {
+			if (title) {
+				return `${title} | Imigresen`;
+			}
+
+			return "Imigresen";
+		};
+
 		return (
 			<>
 				<Title>{getMetaTitle(props.title)}</Title>
@@ -130,25 +149,26 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 			return;
 		}
 
-		const { onLoaded, ...routeDefinition } = props as RouteProps &
-			RouteInternalProps;
+		const {
+			onLoaded,
+			meta,
+			info,
+			// These children are not useful to us, we need to be able to retrieve props
+			// and these children are resolved jsx elements
+			children: _children,
+			...routeDefinition
+		} = props as RouteProps & RouteInternalProps;
 
 		onLoaded?.({
 			...routeDefinition,
 			info: {
+				...meta,
+				...info,
 				isAllowed: Boolean(isAllowed()),
 				isHidden: Boolean(isHidden()),
 			},
 		});
 	});
-
-	const getMetaTitle = (title?: string) => {
-		if (title) {
-			return `${title} | Imigresen`;
-		}
-
-		return "Imigresen";
-	};
 
 	return (
 		<>
@@ -156,6 +176,8 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 				{...spreadProps(props)}
 				component={Component}
 				info={{
+					...props.meta,
+					...props.info,
 					isAllowed: Boolean(isAllowed()),
 					isHidden: Boolean(isHidden()),
 				}}
@@ -167,35 +189,59 @@ export const Route: Component<ParentProps<RouteProps>> = props => {
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
-	const getRouteContext = useContext(RouterContext);
+	const addRoutesWithParentPath = (
+		parentPath: string | null,
+		...routes: RouteProps[]
+	) => {
+		const getRouteContext = useContext(RouterContext);
 
-	const InternalRoute = Route as Component<
-		ParentProps<RouteProps & RouteInternalProps>
-	>;
+		const InternalRoute = Route as Component<
+			ParentProps<RouteProps & RouteInternalProps>
+		>;
 
-	const Children: Component<RouteSectionProps> = props => props.children;
+		const getHrefPath = (path: string | string[]) => {
+			const pathKey = Array.isArray(path) ? path.at(0) : path;
 
-	return Object.values(routes).map(route => {
-		// note: we don't want this to be within a reactive scope
-		// otherwise we just get infinite loading
-		const children = addRoutes(
-			...(Array.isArray(route.children)
-				? route.children
-				: ([route.children].filter(Boolean) as RouteProps[])),
-		);
+			return [parentPath || null, pathKey]
+				.filter(Boolean)
+				.join("/")
+				.replace(/(\/)\/+/g, "$1");
+		};
 
-		// note: we don't want this to be within a reactive scope
-		// otherwise we just get infinite loading
-		const routeContext = getRouteContext();
+		return Object.values(routes).map(route => {
+			// note: we don't want this to be within a reactive scope
+			// otherwise we just get infinite loading
+			const children = addRoutesWithParentPath(
+				getHrefPath(route.path),
+				...(Array.isArray(route.children)
+					? route.children
+					: ([route.children].filter(Boolean) as RouteProps[])),
+			);
 
-		return (
-			<InternalRoute
-				{...route}
-				component={route.component ?? Children}
-				children={children}
-				path={route.path}
-				onLoaded={routeContext.actions.appendRoute}
-			/>
-		);
-	});
+			// note: we don't want this to be within a reactive scope
+			// otherwise we just get infinite loading
+			const routeContext = getRouteContext();
+
+			const mask = routeContext.actions.getNextMask();
+			const hrefPath = getHrefPath(route.path);
+
+			return (
+				<InternalRoute
+					{...route}
+					component={route.component ?? Children}
+					children={children}
+					path={route.path}
+					info={{
+						mask,
+						hrefPath,
+					}}
+					onLoaded={routeContext.actions.appendRoute}
+				/>
+			);
+		});
+	};
+
+	return addRoutesWithParentPath(null, ...routes);
 };
+
+export const Children: Component<RouteSectionProps> = props => props.children;

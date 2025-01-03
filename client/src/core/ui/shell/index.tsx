@@ -19,8 +19,6 @@ import { particlesConfig } from "./particles-config";
 export const Shell: Component<ParentProps> = props => {
 	return (
 		<>
-			<ParticlesBackground />
-
 			<Navbar />
 
 			<div class="mt-8">
@@ -30,6 +28,8 @@ export const Shell: Component<ParentProps> = props => {
 					</div>
 				</div>
 			</div>
+
+			<ParticlesBackground />
 		</>
 	);
 };
