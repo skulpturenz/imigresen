@@ -37,6 +37,8 @@ import {
 	NavigationMenuTrigger,
 } from "ui/navigation-menu";
 import { cn } from "ui/utils";
+import type { NavbarItem } from "./types";
+import { sortNavbarItems, sortNavigationRoutes } from "./utils";
 
 const resources = {
 	logoAlt: "Imigresen",
@@ -198,27 +200,36 @@ export const Navbar: Component<ParentProps> = () => {
 		</div>
 	);
 
-	const getNavigationMenuItems = () => {
-		const menuItems = Object.values(routerContext().routes)
-			.filter(
-				route =>
-					!route.info?.isHidden &&
-					route.info?.isAllowed &&
-					isTopLevelRoute(route),
-			)
-			.map(route => ({
-				trigger: route,
-				children: getAllChildren(route),
-			}));
+	const getNavbarItems = () => {
+		const navbarItems = Object.values(routerContext().routes)
+			.reduce<NavbarItem[]>((acc, route) => {
+				if (
+					route.info?.isHidden ||
+					!route.info?.isAllowed ||
+					!isTopLevelRoute(route)
+				) {
+					return acc;
+				}
 
-		return menuItems;
+				return [
+					...acc,
+					{
+						trigger: route,
+						children:
+							getAllChildren(route).sort(sortNavigationRoutes),
+					},
+				];
+			}, [])
+			.sort(sortNavbarItems);
+
+		return navbarItems;
 	};
 
-	const navigationMenuItems = createMemo(getNavigationMenuItems);
+	const navbarItems = createMemo(getNavbarItems);
 
 	const Navbar = () => (
 		<NavigationMenu>
-			<For each={navigationMenuItems()}>
+			<For each={navbarItems()}>
 				{menuItem => (
 					<>
 						<Show when={!menuItem.children.length}>
@@ -311,7 +322,7 @@ export const Navbar: Component<ParentProps> = () => {
 							</div>
 						</div>
 
-						<Show when={navigationMenuItems().length}>
+						<Show when={navbarItems().length}>
 							<Navbar />
 						</Show>
 					</div>
