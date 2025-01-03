@@ -52,35 +52,11 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 						},
 					});
 
-					const isNestedRoute = (
-						route: RouteProps & RouteInternalProps,
-					) =>
-						(Array.isArray(route.path) &&
-							!route.path.some(
-								path => path === route.info?.hrefPath,
-							)) ||
-						(!Array.isArray(route.path) &&
-							route.info?.hrefPath !== route.path);
-
 					if (isNestedRoute(route)) {
 						const root = route.info.hrefPath
 							.split(/\//)
 							.slice(0, 2)
 							.join("/");
-
-						const getChildren = (
-							route: RouteProps & RouteInternalProps,
-						) => {
-							if (Array.isArray(route.children)) {
-								return route.children;
-							}
-
-							if (route.children) {
-								return [route.children];
-							}
-
-							return [];
-						};
 
 						set({
 							routes: {
@@ -113,6 +89,11 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 	},
 );
 
+const isNestedRoute = (route: RouteProps & RouteInternalProps) =>
+	(Array.isArray(route.path) &&
+		!route.path.some(path => path === route.info?.hrefPath)) ||
+	(!Array.isArray(route.path) && route.info?.hrefPath !== route.path);
+
 function* routeMaskGenerator() {
 	for (let i = 0; i < Infinity; i++) {
 		// note: use large values here, we're unlikely to have that many routes
@@ -121,3 +102,15 @@ function* routeMaskGenerator() {
 		yield Math.pow(2, i);
 	}
 }
+
+const getChildren = (route: RouteProps & RouteInternalProps) => {
+	if (Array.isArray(route.children)) {
+		return route.children;
+	}
+
+	if (route.children) {
+		return [route.children];
+	}
+
+	return [];
+};

@@ -199,11 +199,6 @@ export const Navbar: Component<ParentProps> = () => {
 	);
 
 	const getNavigationMenuItems = () => {
-		const isTopLevelRoute = (route: RouteProps & RouteInternalProps) =>
-			(Array.isArray(route.path) &&
-				route.path.some(path => path === route.info?.hrefPath)) ||
-			(!Array.isArray(route.path) && route.info?.hrefPath === route.path);
-
 		const menuItems = Object.values(routerContext().routes)
 			.filter(
 				route =>
@@ -211,32 +206,10 @@ export const Navbar: Component<ParentProps> = () => {
 					route.info?.isAllowed &&
 					isTopLevelRoute(route),
 			)
-			.map(route => {
-				const getAllChildren = (
-					currentRoute: RouteProps & RouteInternalProps,
-				): (RouteProps & RouteInternalProps)[] => {
-					if (Array.isArray(currentRoute.children)) {
-						return [
-							...currentRoute.children,
-							...flatMapDeep(
-								currentRoute.children ?? [],
-								getAllChildren,
-							),
-						];
-					}
-
-					if (!currentRoute.children) {
-						return [];
-					}
-
-					return [currentRoute.children];
-				};
-
-				return {
-					trigger: route,
-					children: getAllChildren(route),
-				};
-			});
+			.map(route => ({
+				trigger: route,
+				children: getAllChildren(route),
+			}));
 
 		return menuItems;
 	};
@@ -348,4 +321,26 @@ export const Navbar: Component<ParentProps> = () => {
 			<MobileMenu />
 		</>
 	);
+};
+
+const isTopLevelRoute = (route: RouteProps & RouteInternalProps) =>
+	(Array.isArray(route.path) &&
+		route.path.some(path => path === route.info?.hrefPath)) ||
+	(!Array.isArray(route.path) && route.info?.hrefPath === route.path);
+
+const getAllChildren = (
+	currentRoute: RouteProps & RouteInternalProps,
+): (RouteProps & RouteInternalProps)[] => {
+	if (Array.isArray(currentRoute.children)) {
+		return [
+			...currentRoute.children,
+			...flatMapDeep(currentRoute.children ?? [], getAllChildren),
+		];
+	}
+
+	if (!currentRoute.children) {
+		return [];
+	}
+
+	return [currentRoute.children];
 };
