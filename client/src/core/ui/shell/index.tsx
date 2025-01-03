@@ -1,4 +1,5 @@
 /// @ts-expect-error: export error
+import { useLocale } from "@kobalte/core";
 import { initParticlesEngine, default as Particles } from "@tsparticles/solid";
 import { styles } from "core/constants/styles";
 import { UiContext } from "core/context/ui";
@@ -17,8 +18,10 @@ import { Navbar } from "./navbar";
 import { particlesConfig } from "./particles-config";
 
 export const Shell: Component<ParentProps> = props => {
+	const { locale, direction } = useLocale();
+
 	return (
-		<>
+		<div lang={locale()} dir={direction()}>
 			<Navbar />
 
 			<div class="mt-8">
@@ -30,7 +33,7 @@ export const Shell: Component<ParentProps> = props => {
 			</div>
 
 			<ParticlesBackground />
-		</>
+		</div>
 	);
 };
 

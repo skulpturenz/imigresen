@@ -23,6 +23,7 @@ export interface UiSvc {
 		init: () => void;
 		setTheme: (theme: UiTheme) => void;
 		setMode: (mode: UiMode) => void;
+		setLocale: (locale: string) => void;
 	};
 }
 
@@ -81,6 +82,7 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
+				setLocale: (locale: string) => set({ locale }),
 			},
 		};
 	}),

@@ -17,6 +17,7 @@ import {
 	createEffect,
 	createResource,
 	Show,
+	Suspense,
 	type Component,
 	type ParentProps,
 } from "solid-js";
@@ -129,7 +130,8 @@ export const Route: Component<
 							typeof props.isHidden !== "undefined")
 					}
 				/>
-				<Show when={!isAllowed.loading && !isHidden.loading}>
+
+				<Suspense>
 					<Show when={isAllowed()}>
 						<Dynamic
 							{...spreadProps(routeSectionProps)}
@@ -139,7 +141,7 @@ export const Route: Component<
 					<Show when={!isAllowed()}>
 						<UnauthorizedRedirect />
 					</Show>
-				</Show>
+				</Suspense>
 			</>
 		);
 	};
