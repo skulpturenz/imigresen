@@ -230,46 +230,51 @@ export const Navbar: Component<ParentProps> = () => {
 	const Navbar = () => (
 		<NavigationMenu>
 			<For each={navbarItems()}>
-				{menuItem => (
+				{navbarItem => (
 					<>
-						<Show when={!menuItem.children.length}>
+						<Show when={!navbarItem.children.length}>
 							<NavigationMenuTrigger
 								as="a"
-								href={menuItem.trigger.info?.hrefPath}>
-								{menuItem.trigger.meta?.navigationConfig
-									?.title || menuItem.trigger.title}
+								href={navbarItem.trigger.info?.hrefPath}>
+								{navbarItem.trigger.meta?.navigationConfig
+									?.title || navbarItem.trigger.title}
 							</NavigationMenuTrigger>
 						</Show>
 
-						<Show when={menuItem.children.length}>
+						<Show when={navbarItem.children.length}>
 							<NavigationMenuItem>
 								<NavigationMenuTrigger
 									as="a"
-									href={menuItem.trigger.info?.hrefPath}>
-									{menuItem.trigger.meta?.navigationConfig
-										?.title || menuItem.trigger.title}
+									href={navbarItem.trigger.info?.hrefPath}>
+									{navbarItem.trigger.meta?.navigationConfig
+										?.title || navbarItem.trigger.title}
 								</NavigationMenuTrigger>
 
 								<NavigationMenuContent>
-									<For each={menuItem.children}>
-										{link => (
+									<For each={navbarItem.children}>
+										{navbarItemChild => (
 											<NavigationMenuLink
-												href={link.info?.hrefPath}>
+												href={
+													navbarItemChild.info
+														?.hrefPath
+												}>
 												<NavigationMenuItemLabel>
-													{link.meta?.navigationConfig
+													{navbarItemChild.meta
+														?.navigationConfig
 														?.title ||
-														menuItem.trigger.title}
+														navbarItem.trigger
+															.title}
 												</NavigationMenuItemLabel>
 
 												<Show
 													when={
-														link.meta
+														navbarItemChild.meta
 															?.navigationConfig
 															?.description
 													}>
 													<NavigationMenuDescription>
 														{
-															link.meta
+															navbarItemChild.meta
 																?.navigationConfig
 																?.description
 														}
