@@ -50,6 +50,14 @@ export const I18nProvider: Component<
 	);
 };
 
+export const withI18n =
+	({ fetcher, initialValue }: I18nProviderProps) =>
+	(Component: Component) => (
+		<I18nProvider fetcher={fetcher} initialValue={initialValue}>
+			<Component />
+		</I18nProvider>
+	);
+
 export const useI18n = () => {
 	const i18nContext = useContext(I18nContext);
 

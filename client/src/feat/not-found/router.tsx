@@ -1,3 +1,4 @@
+import { withI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
 import { addRoutes, type RouteProps } from "core/router/route";
 import { NotFound } from "feat/not-found/not-found";
@@ -9,7 +10,10 @@ export const Router: Component<RouterProps> = _props => {
 		{
 			path: "*path",
 			title: resources.metaTitle,
-			component: NotFound,
+			// TODO
+			component: withI18n({
+				fetcher: () => Promise.resolve(Object.create(null)),
+			})(NotFound),
 			isHidden: true,
 		},
 	] as RouteProps[];
