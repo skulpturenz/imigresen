@@ -4,7 +4,7 @@ import { toPath } from "core/router/route";
 import { Show } from "solid-js";
 
 interface UnathorizedLocationState {
-	from: string;
+	referer: string;
 }
 
 export const Unauthorized = () => {
@@ -12,11 +12,11 @@ export const Unauthorized = () => {
 
 	return (
 		<>
-			<Show when={!location.state}>
+			<Show when={!location.state?.referer}>
 				<Navigate href={toPath(CoreRoute.Home)} />
 			</Show>
 
-			<Show when={location.state}>Unauthorized!!</Show>
+			<Show when={location.state?.referer}>Unauthorized!!</Show>
 		</>
 	);
 };

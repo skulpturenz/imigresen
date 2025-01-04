@@ -107,7 +107,7 @@ export const Route: Component<
 	const UnauthorizedRedirect = () => (
 		<Navigate
 			href={toPath(CoreRoute.Unauthorized)}
-			state={{ from: props.info?.hrefPath }}
+			state={{ referer: props.info?.hrefPath }}
 		/>
 	);
 
