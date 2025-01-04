@@ -56,7 +56,7 @@ export const I18nProvider: Component<
 	);
 };
 
-export const withI18n =
+export const makeWithI18n =
 	({ fetcher, initialValue }: I18nProviderProps) =>
 	(Component: Component) =>
 	(props: ParentProps<any>) => (
