@@ -65,14 +65,12 @@ export const withI18n =
 		</I18nProvider>
 	);
 
-export const useI18n = <T extends Record<string, any> = Record<string, any>>(
-	fallback?: Accessor<Flatten<T>>,
-) => {
+export const useI18n = <
+	T extends Record<string, any> = Record<string, any>,
+>() => {
 	const i18nContext = useContext(I18nContext);
 
 	invariant(i18nContext, "`useI18n` must be used within an `I18nContext`");
 
-	return translator<Flatten<T>>(
-		(i18nContext.i18n as Accessor<Flatten<T>>) ?? fallback,
-	);
+	return translator<Flatten<T>>(i18nContext.i18n as Accessor<Flatten<T>>);
 };
