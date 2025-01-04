@@ -16,22 +16,20 @@ import {
 } from "solid-js";
 import { PageLoading } from "ui/page-loading";
 
-export const I18nContext = createContext<I18nSvc | null>(null);
+const I18nContext = createContext<I18nSvc | null>(null);
 
-export interface I18nSvc<T extends Record<string, any> = Record<string, any>> {
+interface I18nSvc<T extends Record<string, any> = Record<string, any>> {
 	i18n: Resource<Flatten<T>>;
 }
 
-export interface I18nProviderProps<
+interface I18nProviderProps<
 	T extends Record<string, any> = Record<string, any>,
 > {
 	fetcher: (locale: Locale) => Promise<Flatten<T>>;
 	initialValue?: Flatten<T>;
 }
 
-export const I18nProvider: Component<
-	ParentProps<I18nProviderProps>
-> = props => {
+const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 	const { locale } = useLocale();
 
 	const [i18n] = createResource(locale as Accessor<Locale>, props.fetcher, {
