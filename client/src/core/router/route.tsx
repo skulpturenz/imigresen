@@ -132,14 +132,16 @@ export const Route: Component<
 				/>
 
 				<Suspense>
-					<Show when={isAllowed()}>
-						<Dynamic
-							{...spreadProps(routeSectionProps)}
-							component={props.component}
-						/>
-					</Show>
-					<Show when={!isAllowed()}>
-						<UnauthorizedRedirect />
+					<Show when={!isAllowed.loading && !isHidden.loading}>
+						<Show when={isAllowed()}>
+							<Dynamic
+								{...spreadProps(routeSectionProps)}
+								component={props.component}
+							/>
+						</Show>
+						<Show when={!isAllowed()}>
+							<UnauthorizedRedirect />
+						</Show>
 					</Show>
 				</Suspense>
 			</>
