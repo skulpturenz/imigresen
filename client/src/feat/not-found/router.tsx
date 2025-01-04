@@ -3,16 +3,16 @@ import type { RouterProps } from "core/router";
 import { addRoutes, type RouteProps } from "core/router/route";
 import { NotFound } from "feat/not-found/not-found";
 import { type Component } from "solid-js";
-import { resources } from "./resources";
+import { fetcher } from "./resources";
+import { resources } from "./resources/i18n/en-US";
 
 export const Router: Component<RouterProps> = _props => {
 	const routes = [
 		{
 			path: "*path",
 			title: resources.metaTitle,
-			// TODO
 			component: withI18n({
-				fetcher: () => Promise.resolve(Object.create(null)),
+				fetcher: fetcher,
 			})(NotFound),
 			isHidden: true,
 		},

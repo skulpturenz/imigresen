@@ -1,10 +1,14 @@
 import { useLocale } from "@kobalte/core";
-import { flatten, translator, type Flatten } from "@solid-primitives/i18n";
-import { useContext } from "core/context/utils";
+import { translator, type Flatten } from "@solid-primitives/i18n";
+import { spreadProps } from "core/utils";
+import { invariant } from "es-toolkit";
 import {
 	createContext,
 	createResource,
+	Show,
 	Suspense,
+	useContext,
+	type Accessor,
 	type Component,
 	type ParentProps,
 	type Resource,
@@ -38,12 +42,14 @@ export const I18nProvider: Component<
 			<PageLoading isLoading={i18n.loading} />
 
 			<Suspense>
-				<I18nContext.Provider
-					value={{
-						i18n,
-					}}>
-					{props.children}
-				</I18nContext.Provider>
+				<Show when={i18n()}>
+					<I18nContext.Provider
+						value={{
+							i18n,
+						}}>
+						{props.children}
+					</I18nContext.Provider>
+				</Show>
 			</Suspense>
 		</>
 	);
@@ -51,16 +57,21 @@ export const I18nProvider: Component<
 
 export const withI18n =
 	({ fetcher, initialValue }: I18nProviderProps) =>
-	(Component: Component) => (
+	(Component: Component) =>
+	(props: ParentProps<any>) => (
 		<I18nProvider fetcher={fetcher} initialValue={initialValue}>
-			<Component />
+			<Component {...spreadProps(props)} />
 		</I18nProvider>
 	);
 
-export const useI18n = (fallback?: Record<string, any>) => {
+export const useI18n = <T extends Record<string, any> = Record<string, any>>(
+	fallback?: Accessor<Flatten<T>>,
+) => {
 	const i18nContext = useContext(I18nContext);
 
-	return translator(
-		i18nContext.i18n ?? flatten(fallback ?? Object.create(null)),
+	invariant(i18nContext, "`useI18n` must be used within an `I18nContext`");
+
+	return translator<Flatten<T>>(
+		(i18nContext.i18n as Accessor<Flatten<T>>) ?? fallback,
 	);
 };
