@@ -9,13 +9,15 @@ import {
 	type PersistOptions,
 } from "zustand/middleware";
 
+export type Locale = "en-US" | "en-MY" | "ms-MY";
+
 export type UiTheme = "light" | "dark" | "system";
 
 export type UiMode = "default" | "zen";
 
 export interface UiSvc {
 	isInitialLoading: () => boolean;
-	locale: string;
+	locale: Locale;
 	theme: UiTheme;
 	mode: UiMode;
 	queryClient?: QueryClient | null;
@@ -23,6 +25,7 @@ export interface UiSvc {
 		init: () => void;
 		setTheme: (theme: UiTheme) => void;
 		setMode: (mode: UiMode) => void;
+		setLocale: (locale: Locale) => void;
 	};
 }
 
@@ -81,6 +84,7 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
+				setLocale: (locale: Locale) => set({ locale }),
 			},
 		};
 	}),

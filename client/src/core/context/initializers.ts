@@ -29,6 +29,7 @@ export const createUiContext = (): UiSvc => ({
 		init: noop,
 		setTheme: noop,
 		setMode: noop,
+		setLocale: noop,
 	},
 });
 
