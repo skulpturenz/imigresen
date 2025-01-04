@@ -2,6 +2,7 @@ import { Router as SolidRouter } from "@solidjs/router";
 import { Router as AuthRouter } from "feat/auth";
 import { Router as HomeRouter } from "feat/home";
 import { Router as NotFoundRouter } from "feat/not-found";
+import { Router as UnauthorizedRouter } from "feat/unauthorized";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";
 
@@ -13,6 +14,7 @@ export const Router = () => {
 			<SolidRouter>
 				<AuthRouter />
 				<HomeRouter />
+				<UnauthorizedRouter />
 				<NotFoundRouter />
 			</SolidRouter>
 		</RouterErrorBoundary>

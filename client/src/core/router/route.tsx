@@ -105,7 +105,10 @@ export const Route: Component<
 	const [isHidden] = createResource(getIsHidden);
 
 	const UnauthorizedRedirect = () => (
-		<Navigate href={toPath(CoreRoute.Unauthorized)} />
+		<Navigate
+			href={toPath(CoreRoute.Unauthorized)}
+			state={{ referer: props.info?.hrefPath }}
+		/>
 	);
 
 	const Component: Component<
