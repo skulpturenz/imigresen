@@ -3,7 +3,7 @@ import { splitProps, type Component, type ParentProps } from "solid-js";
 export const spreadProps = <T extends Record<any, any>>(props: T) =>
 	splitProps(props, []).at(-1) as T;
 
-export const withComponents =
+export const withParents =
 	(...components: Component<ParentProps>[]) =>
 	(Component: Component): Component =>
 	(props: ParentProps<any>) => {

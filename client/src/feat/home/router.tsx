@@ -3,7 +3,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import { makeWithI18n, useI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
-import { withComponents } from "core/utils";
+import { withParents } from "core/utils";
 import { delay } from "es-toolkit";
 import { type Component } from "solid-js";
 import { HomeProvider } from "./context";
@@ -27,7 +27,7 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 		{
 			path: ["/", toPath(CoreRoute.Home)],
 			title: t("metaTitle"),
-			component: withI18n(withComponents(HomeProvider)(Home)),
+			component: withI18n(withParents(HomeProvider)(Home)),
 			isAllowed: async () => {
 				await delay(2000);
 
