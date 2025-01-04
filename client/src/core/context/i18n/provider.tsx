@@ -14,7 +14,6 @@ import {
 	type ParentProps,
 	type Resource,
 } from "solid-js";
-import { PageLoading } from "ui/page-loading";
 
 const I18nContext = createContext<I18nSvc | null>(null);
 
@@ -38,8 +37,6 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 
 	return (
 		<>
-			<PageLoading isLoading={i18n.loading} />
-
 			<Suspense>
 				<Show when={i18n()}>
 					<I18nContext.Provider
