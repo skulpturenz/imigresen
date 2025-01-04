@@ -43,7 +43,7 @@ export const I18nProvider: Component<
 			<PageLoading isLoading={i18n.loading} />
 
 			<Suspense>
-				<Show when={i18n()}>
+				<Show when={!i18n.loading}>
 					<I18nContext.Provider
 						value={{
 							i18n,
