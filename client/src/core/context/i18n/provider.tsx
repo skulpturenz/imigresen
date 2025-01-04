@@ -41,7 +41,7 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 			<PageLoading isLoading={i18n.loading} />
 
 			<Suspense>
-				<Show when={!i18n.loading}>
+				<Show when={!i18n.loading && i18n()}>
 					<I18nContext.Provider
 						value={{
 							i18n,
@@ -70,5 +70,5 @@ export const useI18n = <
 
 	invariant(i18nContext, "`useI18n` must be used within an `I18nContext`");
 
-	return translator<Flatten<T>>(i18nContext.i18n as Resource<Flatten<T>>);
+	return translator<Flatten<T>>(i18nContext.i18n as Accessor<Flatten<T>>);
 };
