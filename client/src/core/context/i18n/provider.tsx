@@ -1,14 +1,13 @@
 import { useLocale } from "@kobalte/core";
 import { translator, type Flatten } from "@solid-primitives/i18n";
 import type { Locale } from "core/context/ui";
+import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
-import { invariant } from "es-toolkit";
 import {
 	createContext,
 	createResource,
 	Show,
 	Suspense,
-	useContext,
 	type Accessor,
 	type Component,
 	type ParentProps,
@@ -64,8 +63,6 @@ export const useI18n = <
 	T extends Record<string, any> = Record<string, any>,
 >() => {
 	const i18nContext = useContext(I18nContext);
-
-	invariant(i18nContext, "`useI18n` must be used within an `I18nContext`");
 
 	return translator<Flatten<T>>(i18nContext.i18n as Accessor<Flatten<T>>);
 };
