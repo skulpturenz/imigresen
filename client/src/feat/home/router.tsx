@@ -15,6 +15,7 @@ const withI18n = makeWithI18n({ fetcher });
 
 export const Router: Component<RouterProps> = withI18n(_props => {
 	const t = useI18n<typeof resources>();
+
 	const HomeRedirect = () => <Navigate href={toPath(CoreRoute.Home)} />;
 
 	const routes = [
@@ -26,7 +27,7 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 		{
 			path: ["/", toPath(CoreRoute.Home)],
 			title: t("metaTitle"),
-			component: withComponents(HomeProvider)(Home),
+			component: withI18n(withComponents(HomeProvider)(Home)),
 			isAllowed: async () => {
 				await delay(2000);
 

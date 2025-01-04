@@ -5,7 +5,8 @@ export const spreadProps = <T extends Record<any, any>>(props: T) =>
 
 export const withComponents =
 	(...components: Component<ParentProps>[]) =>
-	(Component: Component) => {
+	(Component: Component): Component =>
+	(props: ParentProps<any>) => {
 		const Merged: Component<ParentProps> = props => {
 			const Reduced = components.reduce(
 				(Acc, Component) => () => (
@@ -21,7 +22,7 @@ export const withComponents =
 
 		return (
 			<Merged>
-				<Component />
+				<Component {...spreadProps(props)} />
 			</Merged>
 		);
 	};
