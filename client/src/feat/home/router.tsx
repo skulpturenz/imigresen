@@ -1,6 +1,6 @@
 import { Navigate } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
-import { makeWithI18n, useI18n } from "core/context/i18n";
+import { useI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
 import { withParents } from "core/utils";
@@ -8,10 +8,8 @@ import { delay } from "es-toolkit";
 import { type Component } from "solid-js";
 import { HomeProvider } from "./context";
 import { Home } from "./home";
-import { fetcher } from "./resources";
+import { withI18n } from "./resources";
 import type { resources } from "./resources/i18n/en-US";
-
-const withI18n = makeWithI18n({ fetcher });
 
 export const Router: Component<RouterProps> = withI18n(_props => {
 	const t = useI18n<typeof resources>();
