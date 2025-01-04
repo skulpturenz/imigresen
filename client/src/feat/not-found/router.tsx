@@ -1,8 +1,7 @@
 import { useI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
 import { addRoutes, type RouteProps } from "core/router/route";
-import { NotFound } from "feat/not-found/not-found";
-import { type Component } from "solid-js";
+import { lazy, type Component } from "solid-js";
 import { withI18n } from "./resources";
 import type { resources } from "./resources/i18n/en-US";
 
@@ -13,7 +12,11 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 		{
 			path: "*path",
 			title: t("metaTitle"),
-			component: withI18n(NotFound),
+			component: lazy(() =>
+				import("./not-found").then(exports => ({
+					default: withI18n(exports.NotFound),
+				})),
+			),
 			isHidden: true,
 		},
 	] as RouteProps[];

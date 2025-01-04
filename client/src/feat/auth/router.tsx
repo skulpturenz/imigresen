@@ -3,9 +3,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
 import { delay } from "es-toolkit";
-import { type Component } from "solid-js";
-import { LoginCallback } from "./login-callback";
-import { LogoutCallback } from "./logout-callback";
+import { lazy, type Component } from "solid-js";
 
 export const Router: Component<RouterProps> = _props => {
 	const routes = [
@@ -14,7 +12,11 @@ export const Router: Component<RouterProps> = _props => {
 			children: [
 				{
 					path: toPath(AuthRoute.LoginCallback),
-					component: LoginCallback,
+					component: lazy(() =>
+						import("./login-callback").then(exports => ({
+							default: exports.LoginCallback,
+						})),
+					),
 					isAllowed: async () => {
 						await delay(2000);
 
@@ -24,7 +26,11 @@ export const Router: Component<RouterProps> = _props => {
 				},
 				{
 					path: toPath(AuthRoute.LogoutCallback),
-					component: LogoutCallback,
+					component: lazy(() =>
+						import("./logout-callback").then(exports => ({
+							default: exports.LogoutCallback,
+						})),
+					),
 					isAllowed: async () => {
 						await delay(2000);
 

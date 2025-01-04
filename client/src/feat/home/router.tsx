@@ -5,9 +5,7 @@ import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
 import { withParents } from "core/utils";
 import { delay } from "es-toolkit";
-import { type Component } from "solid-js";
-import { HomeProvider } from "./context";
-import { Home } from "./home";
+import { lazy, type Component } from "solid-js";
 import { withI18n } from "./resources";
 import type { resources } from "./resources/i18n/en-US";
 
@@ -25,7 +23,13 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 		{
 			path: ["/", toPath(CoreRoute.Home)],
 			title: t("metaTitle"),
-			component: withI18n(withParents(HomeProvider)(Home)),
+			component: lazy(async () => {
+				const { HomeProvider } = await import("./context");
+
+				return import("./home").then(exports => ({
+					default: withI18n(withParents(HomeProvider)(exports.Home)),
+				}));
+			}),
 			isAllowed: async () => {
 				await delay(2000);
 
