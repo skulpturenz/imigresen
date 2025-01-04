@@ -1,5 +1,5 @@
-/// @ts-expect-error: export error
 import { useLocale } from "@kobalte/core";
+/// @ts-expect-error: export error
 import { initParticlesEngine, default as Particles } from "@tsparticles/solid";
 import { styles } from "core/constants/styles";
 import { UiContext } from "core/context/ui";

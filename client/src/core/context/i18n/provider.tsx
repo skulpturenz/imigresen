@@ -1,5 +1,6 @@
 import { useLocale } from "@kobalte/core";
 import { translator, type Flatten } from "@solid-primitives/i18n";
+import type { Locale } from "core/context/ui";
 import { spreadProps } from "core/utils";
 import { invariant } from "es-toolkit";
 import {
@@ -24,7 +25,7 @@ export interface I18nSvc<T extends Record<string, any> = Record<string, any>> {
 export interface I18nProviderProps<
 	T extends Record<string, any> = Record<string, any>,
 > {
-	fetcher: (locale: string) => Promise<Flatten<T>>;
+	fetcher: (locale: Locale) => Promise<Flatten<T>>;
 	initialValue?: Flatten<T>;
 }
 
@@ -33,7 +34,7 @@ export const I18nProvider: Component<
 > = props => {
 	const { locale } = useLocale();
 
-	const [i18n] = createResource(locale, props.fetcher, {
+	const [i18n] = createResource(locale as Accessor<Locale>, props.fetcher, {
 		initialValue: props.initialValue,
 	});
 
