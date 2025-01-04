@@ -41,7 +41,7 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 			<PageLoading isLoading={i18n.loading} />
 
 			<Suspense>
-				<Show when={!i18n.loading && i18n()}>
+				<Show when={i18n()}>
 					<I18nContext.Provider
 						value={{
 							i18n,
