@@ -70,5 +70,5 @@ export const useI18n = <
 
 	invariant(i18nContext, "`useI18n` must be used within an `I18nContext`");
 
-	return translator<Flatten<T>>(i18nContext.i18n as Accessor<Flatten<T>>);
+	return translator<Flatten<T>>(i18nContext.i18n as Resource<Flatten<T>>);
 };
