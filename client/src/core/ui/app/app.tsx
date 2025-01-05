@@ -3,7 +3,6 @@ import { Providers } from "core/context";
 import { useI18n } from "core/context/i18n";
 import { Router } from "core/router";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
-import { Portal } from "solid-js/web";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -42,34 +41,27 @@ const AppErrorBoundary: Component<ParentProps> = props => {
 					};
 
 					return (
-						<>
-							<Portal>
-								<AlertDialog defaultOpen>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>
-												{t("errorBoundary.title")}
-											</AlertDialogTitle>
-											<AlertDialogDescription>
-												{t("errorBoundary.description")}
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogClose
-												onClick={onClickCancel}>
-												{t("errorBoundary.doCancel")}
-											</AlertDialogClose>
-											<AlertDialogAction
-												onClick={onClickBackToHome}>
-												{t(
-													"errorBoundary.doBackToHome",
-												)}
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
-							</Portal>
-						</>
+						<AlertDialog defaultOpen>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										{t("errorBoundary.title")}
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										{t("errorBoundary.description")}
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogClose onClick={onClickCancel}>
+										{t("errorBoundary.doCancel")}
+									</AlertDialogClose>
+									<AlertDialogAction
+										onClick={onClickBackToHome}>
+										{t("errorBoundary.doBackToHome")}
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					);
 				});
 
