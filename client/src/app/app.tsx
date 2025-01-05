@@ -34,6 +34,7 @@ const AppErrorBoundary: Component<ParentProps> = props => {
 				const Fallback = withI18n(() => {
 					const t = useI18n<typeof resources>();
 
+					const onClickCancel = reset;
 					const onClickBackToHome = () => {
 						reset();
 
@@ -54,7 +55,8 @@ const AppErrorBoundary: Component<ParentProps> = props => {
 											</AlertDialogDescription>
 										</AlertDialogHeader>
 										<AlertDialogFooter>
-											<AlertDialogClose onClick={reset}>
+											<AlertDialogClose
+												onClick={onClickCancel}>
 												{t("errorBoundary.doCancel")}
 											</AlertDialogClose>
 											<AlertDialogAction
