@@ -32,10 +32,13 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 
 	const { locale } = useLocale();
 
-	const usedLocale: Accessor<Locale> = () =>
+	// if the provider is used outside of `UiProvider` which sets the app default locale
+	// then the `locale` will point to the system locale which may or may not be supported
+	// in that case, just set things to `en-US`
+	const normalizedLocale: Accessor<Locale> = () =>
 		locale() === defaultLocale() ? "en-US" : (locale() as Locale);
 
-	const [i18n] = createResource(usedLocale, props.fetcher, {
+	const [i18n] = createResource(normalizedLocale, props.fetcher, {
 		initialValue: props.initialValue,
 	});
 
