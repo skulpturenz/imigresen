@@ -90,6 +90,17 @@ export const Route: Component<
 
 		return props.isAllowed?.(context());
 	};
+	const getIsAllowedInitialValue = () => {
+		if (typeof props.isAllowed !== "boolean") {
+			return;
+		}
+
+		return props.isAllowed;
+	};
+	const [isAllowed] = createResource(getIsAllowed, {
+		initialValue: getIsAllowedInitialValue(),
+	});
+
 	const getIsHidden = async () => {
 		if (typeof props.isHidden === "undefined") {
 			return false;
@@ -101,8 +112,16 @@ export const Route: Component<
 
 		return props.isHidden?.(context());
 	};
-	const [isAllowed] = createResource(getIsAllowed);
-	const [isHidden] = createResource(getIsHidden);
+	const getIsHiddenInitialValue = () => {
+		if (typeof props.isHidden !== "boolean") {
+			return;
+		}
+
+		return props.isHidden;
+	};
+	const [isHidden] = createResource(getIsHidden, {
+		initialValue: getIsHiddenInitialValue(),
+	});
 
 	const UnauthorizedRedirect = () => (
 		<Navigate
@@ -128,14 +147,17 @@ export const Route: Component<
 
 				<PageLoading
 					isLoading={
-						(isAllowed.loading || isHidden.loading) &&
-						(typeof props.isAllowed !== "undefined" ||
-							typeof props.isHidden !== "undefined")
+						typeof isAllowed() === "undefined" ||
+						typeof isHidden() === "undefined"
 					}
 				/>
 
 				<Suspense>
-					<Show when={!isAllowed.loading && !isHidden.loading}>
+					<Show
+						when={
+							typeof isAllowed() !== "undefined" &&
+							typeof isHidden() !== "undefined"
+						}>
 						<Show when={isAllowed()}>
 							<Dynamic
 								{...spreadProps(routeSectionProps)}
@@ -152,7 +174,10 @@ export const Route: Component<
 	};
 
 	createEffect(() => {
-		if (isAllowed.loading || isHidden.loading) {
+		if (
+			typeof isAllowed() === "undefined" ||
+			typeof isHidden() === "undefined"
+		) {
 			return;
 		}
 
@@ -198,7 +223,7 @@ export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 export const addRoutes = (...routes: RouteProps[]) => {
 	const addRoutesWithParentPath = (
 		parentPath: string | null,
-		...routes: RouteProps[]
+		routes: RouteProps[],
 	) => {
 		const getRouteContext = useContext(RouterContext);
 
@@ -215,14 +240,14 @@ export const addRoutes = (...routes: RouteProps[]) => {
 				.replace(/(\/)\/+/g, "$1");
 		};
 
-		return Object.values(routes).map(route => {
+		return routes.map(route => {
 			// note: we don't want this to be within a reactive scope
 			// otherwise we just get infinite loading
 			const children = addRoutesWithParentPath(
 				getHrefPath(route.path),
-				...(Array.isArray(route.children)
+				Array.isArray(route.children)
 					? route.children
-					: ([route.children].filter(Boolean) as RouteProps[])),
+					: ([route.children].filter(Boolean) as RouteProps[]),
 			);
 
 			// note: we don't want this to be within a reactive scope
@@ -248,7 +273,7 @@ export const addRoutes = (...routes: RouteProps[]) => {
 		});
 	};
 
-	return addRoutesWithParentPath(null, ...routes);
+	return addRoutesWithParentPath(null, routes);
 };
 
 export const Children: Component<RouteSectionProps> = props => props.children;
