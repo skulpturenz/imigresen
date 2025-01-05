@@ -27,13 +27,13 @@ export const App = () => {
 	);
 };
 
-const AppErrorBoundary: Component<ParentProps> = withI18n(
-	(props: ParentProps) => {
-		const t = useI18n<typeof resources>();
+const AppErrorBoundary: Component<ParentProps> = props => {
+	return (
+		<ErrorBoundary
+			fallback={(_err, reset) => {
+				const Fallback = withI18n(() => {
+					const t = useI18n<typeof resources>();
 
-		return (
-			<ErrorBoundary
-				fallback={(_err, reset) => {
 					const onClickBackToHome = () => {
 						reset();
 
@@ -69,9 +69,11 @@ const AppErrorBoundary: Component<ParentProps> = withI18n(
 							</Portal>
 						</>
 					);
-				}}>
-				{props.children}
-			</ErrorBoundary>
-		);
-	},
-);
+				});
+
+				return <Fallback />;
+			}}>
+			{props.children}
+		</ErrorBoundary>
+	);
+};
