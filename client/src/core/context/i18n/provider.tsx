@@ -1,4 +1,4 @@
-import { useLocale } from "@kobalte/core";
+import { createDefaultLocale, useLocale } from "@kobalte/core";
 import { translator, type Flatten } from "@solid-primitives/i18n";
 import type { Locale } from "core/context/ui";
 import { useContext } from "core/context/utils";
@@ -28,9 +28,14 @@ interface I18nProviderProps<
 }
 
 const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
+	const { locale: defaultLocale } = createDefaultLocale();
+
 	const { locale } = useLocale();
 
-	const [i18n] = createResource(locale as Accessor<Locale>, props.fetcher, {
+	const usedLocale: Accessor<Locale> = () =>
+		locale() === defaultLocale() ? "en-US" : (locale() as Locale);
+
+	const [i18n] = createResource(usedLocale, props.fetcher, {
 		initialValue: props.initialValue,
 	});
 
