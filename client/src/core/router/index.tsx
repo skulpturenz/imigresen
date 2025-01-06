@@ -4,7 +4,7 @@ import { Router as HomeRouter } from "feat/home";
 import { Router as NotFoundRouter } from "feat/not-found";
 import { Router as UnauthorizedRouter } from "feat/unauthorized";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
-import { Portal } from "solid-js/web";
+import { Fallback } from "./fallback";
 
 export type RouterProps = Record<string, unknown>;
 
@@ -21,14 +21,9 @@ export const Router = () => {
 	);
 };
 
-// TODO: improve
 const RouterErrorBoundary: Component<ParentProps> = props => (
 	<ErrorBoundary
-		fallback={(err, reset) => (
-			<Portal>
-				<div onClick={reset}>Error: {err.toString()}</div>
-			</Portal>
-		)}>
+		fallback={(err, reset) => <Fallback err={err} reset={reset} />}>
 		{props.children}
 	</ErrorBoundary>
 );

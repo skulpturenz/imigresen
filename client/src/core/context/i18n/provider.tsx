@@ -30,7 +30,20 @@ interface I18nProviderProps<
 const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 	const { locale } = useLocale();
 
-	const [i18n] = createResource(locale as Accessor<Locale>, props.fetcher, {
+	// if the provider is used outside of `UiProvider` which sets the app default locale
+	// then the `locale` will point to the system locale which may or may not be supported
+	// in that case, just set things to `en-US`
+	const getLocale = (): Locale => {
+		const supportedLocales: Locale[] = ["en-US", "en-MY", "ms-MY"];
+
+		if (!supportedLocales.includes(locale() as Locale)) {
+			return "en-US";
+		}
+
+		return locale() as Locale;
+	};
+
+	const [i18n] = createResource(getLocale, props.fetcher, {
 		initialValue: props.initialValue,
 	});
 
@@ -52,8 +65,8 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 
 export const makeWithI18n =
 	({ fetcher, initialValue }: I18nProviderProps) =>
-	(Component: Component) =>
-	(props: ParentProps<any>) => (
+	<T extends Record<string, any>>(Component: Component<T>) =>
+	(props: T) => (
 		<I18nProvider fetcher={fetcher} initialValue={initialValue}>
 			<Component {...spreadProps(props)} />
 		</I18nProvider>
