@@ -1,4 +1,4 @@
-import { createDefaultLocale, useLocale } from "@kobalte/core";
+import { useLocale } from "@kobalte/core";
 import { translator, type Flatten } from "@solid-primitives/i18n";
 import type { Locale } from "core/context/ui";
 import { useContext } from "core/context/utils";
@@ -28,17 +28,22 @@ interface I18nProviderProps<
 }
 
 const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
-	const { locale: defaultLocale } = createDefaultLocale();
-
 	const { locale } = useLocale();
 
 	// if the provider is used outside of `UiProvider` which sets the app default locale
 	// then the `locale` will point to the system locale which may or may not be supported
 	// in that case, just set things to `en-US`
-	const normalizedLocale: Accessor<Locale> = () =>
-		locale() === defaultLocale() ? "en-US" : (locale() as Locale);
+	const getLocale = (): Locale => {
+		const supportedLocales: Locale[] = ["en-US", "en-MY", "ms-MY"];
 
-	const [i18n] = createResource(normalizedLocale, props.fetcher, {
+		if (!supportedLocales.includes(locale() as Locale)) {
+			return "en-US";
+		}
+
+		return locale() as Locale;
+	};
+
+	const [i18n] = createResource(getLocale, props.fetcher, {
 		initialValue: props.initialValue,
 	});
 
