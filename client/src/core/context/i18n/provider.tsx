@@ -60,8 +60,8 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 
 export const makeWithI18n =
 	({ fetcher, initialValue }: I18nProviderProps) =>
-	(Component: Component) =>
-	(props: ParentProps<any>) => (
+	<T extends Record<string, any>>(Component: Component<T>) =>
+	(props: T) => (
 		<I18nProvider fetcher={fetcher} initialValue={initialValue}>
 			<Component {...spreadProps(props)} />
 		</I18nProvider>
