@@ -1,8 +1,8 @@
 // import { ProvidersMock as Providers } from "core/context/provider-mock";
 import { Providers } from "core/context";
+import { Router } from "core/router";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
-import { Portal } from "solid-js/web";
-import { Router } from "./core/router";
+import { Fallback } from "./fallback";
 
 export const App = () => {
 	return (
@@ -16,11 +16,7 @@ export const App = () => {
 
 const AppErrorBoundary: Component<ParentProps> = props => (
 	<ErrorBoundary
-		fallback={(err, reset) => (
-			<Portal>
-				<div onClick={reset}>Error: {err.toString()}</div>
-			</Portal>
-		)}>
+		fallback={(err, reset) => <Fallback err={err} reset={reset} />}>
 		{props.children}
 	</ErrorBoundary>
 );

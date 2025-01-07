@@ -1,9 +1,10 @@
 import { AuthnProviderMock } from "core/context/authn";
 import { Shell } from "core/ui/shell";
-import { withComponents } from "core/utils";
+import { withParents } from "core/utils";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { HomeProviderMock } from "./context";
 import { Home } from "./home";
+import { withI18n } from "./resources";
 
 export default {
 	title: "feat/home",
@@ -12,6 +13,11 @@ export default {
 
 export const Default: Story<typeof Home> = {
 	render: Home,
-	decorators: Story =>
-		withComponents(Shell, HomeProviderMock, AuthnProviderMock)(Story),
+	decorators: Story => {
+		const Component = withI18n(
+			withParents(Shell, HomeProviderMock, AuthnProviderMock)(Story),
+		);
+
+		return <Component />;
+	},
 };

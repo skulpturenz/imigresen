@@ -30,6 +30,7 @@ export const createUiContext = (): UiSvc => ({
 		init: noop,
 		setTheme: noop,
 		setMode: noop,
+		setLocale: noop,
 	},
 });
 
@@ -46,8 +47,10 @@ export const createFliptContext = (): FliptSvc => ({
 });
 
 export const createRouterContext = (): RouterSvc => ({
+	isInitialLoading: () => true,
 	routes: Object.create(null),
 	actions: {
+		getNextMask: noop as any,
 		appendRoute: noop,
 		getRoute: noop as any,
 	},

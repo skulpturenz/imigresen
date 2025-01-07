@@ -1,10 +1,10 @@
 import { MetaProvider } from "@solidjs/meta";
 import { Shell } from "core/ui/shell";
 import { type Component, type ParentProps } from "solid-js";
-import { AuthnProvider } from "./authn/provider";
+import { AuthnProvider } from "./authn";
 import { AuthzProvider } from "./authz";
-import { FliptProvider } from "./flipt/provider";
-import { RouterProvider } from "./router/provider";
+import { FliptProvider } from "./flipt";
+import { RouterProvider } from "./router";
 import { UiProvider } from "./ui";
 import { UserProvider } from "./user";
 

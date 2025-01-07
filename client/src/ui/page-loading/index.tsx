@@ -1,7 +1,9 @@
 import { animate } from "motion";
 import {
+	createEffect,
+	createSignal,
 	mergeProps,
-	onMount,
+	onCleanup,
 	type Component,
 	type ParentProps,
 } from "solid-js";
@@ -17,6 +19,10 @@ const resources = {
 };
 
 export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
+	const [loaderRef, setLoaderRef] = createSignal<HTMLSpanElement | null>(
+		null,
+	);
+
 	const withDefaultProps = mergeProps(
 		{
 			isLoading: true,
@@ -24,13 +30,13 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 		props,
 	);
 
-	onMount(() => {
-		if (!withDefaultProps.isLoading) {
+	createEffect(() => {
+		if (!withDefaultProps.isLoading || !loaderRef()) {
 			return;
 		}
 
-		animate(
-			".loading-dot",
+		const controls = animate(
+			loaderRef() as HTMLSpanElement,
 			{
 				x: [-40, 40],
 				y: [0, -60],
@@ -49,6 +55,10 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 				},
 			},
 		);
+
+		onCleanup(() => {
+			controls.stop();
+		});
 	});
 
 	return (
@@ -66,8 +76,9 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 						"h-screen w-screen flex gap-2 md:gap-4 lg:gap-4 justify-center items-center z-50 fixed translate-x-[-50%] translate-y-[-50%] left-[50%] top-[50%]",
 					)}>
 					<span
+						ref={setLoaderRef}
 						class={cn(
-							"loading-dot size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
+							"size-6 md:size-8 lg:size-12 rounded-full bg-primary relative",
 						)}>
 						<span class="size-6 md:size-8 lg:size-12 bg-primary absolute rounded-full animate-ping" />
 

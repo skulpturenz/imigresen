@@ -4,6 +4,8 @@ import {
 	type Component,
 	type ParentProps,
 } from "solid-js";
+import { PageLoading } from "ui/page-loading";
+import { cn } from "ui/utils";
 import { RouterContext } from "./provider";
 import { useStore, type RouterSvc } from "./store";
 
@@ -24,7 +26,16 @@ export const RouterProviderMock: Component<
 
 	return (
 		<RouterContext.Provider value={withDefaultProps.svc}>
-			{withDefaultProps.children}
+			<PageLoading
+				isLoading={withDefaultProps.svc().isInitialLoading()}
+			/>
+
+			<div
+				class={cn(
+					value().isInitialLoading() ? "opacity-0" : "opacity-100",
+				)}>
+				{withDefaultProps.children}
+			</div>
 		</RouterContext.Provider>
 	);
 };

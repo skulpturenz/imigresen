@@ -24,4 +24,7 @@ export default defineConfig({
 			ui: join(__dirname, "./src/ui"),
 		},
 	},
+	build: {
+		sourcemap: true,
+	},
 });

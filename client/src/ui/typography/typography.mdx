@@ -8,7 +8,7 @@ import * as TypographyStories from "./typography.stories";
 export const typography = {
 	type: {
 		primary: ["Manrope", ...defaultTheme.fontFamily.sans].join(", "),
-		mono: ["Ubuntu Mono", ...defaultTheme.fontFamily.mono].join(", "),
+		mono: ["JetBrains Mono", ...defaultTheme.fontFamily.mono].join(", "),
 	},
 	weight: {
 		primary: {
@@ -21,8 +21,14 @@ export const typography = {
 			extraBold: "800",
 		},
 		mono: {
+			thin: "100",
+			extraLight: "200",
+			light: "300",
 			regular: "400",
+			medium: "500",
+			semiBold: "600",
 			bold: "700",
+			extraBold: "800",
 		},
 	},
 	size: {
@@ -53,7 +59,7 @@ export const SampleText =
 
 {Object.entries(typography.weight.primary).map(([section, weight]) => (
 
-<div style={{ color: 'white'}}>
+<div key={`sans-${weight}`} style={{ color: 'white'}}>
 
     <h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
 
@@ -67,13 +73,13 @@ export const SampleText =
 </div>
 ))}
 
-**Font:** Ubuntu Mono
+**Font:** JetBrains Mono
 
 **Weights:** {Object.entries(typography.weight.mono).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
 
 {Object.entries(typography.weight.mono).map(([section, weight]) => (
 
-<div style={{ color: 'white'}}>
+<div key={`mono-${weight}`} style={{ color: 'white'}}>
 
     <h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
 

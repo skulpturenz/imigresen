@@ -1,10 +1,8 @@
-import { ColorModeContext } from "@kobalte/core";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { QueryClient } from "@tanstack/solid-query";
 import { type Persister } from "@tanstack/solid-query-persist-client";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { once, partialRight, toMerged } from "es-toolkit";
-import { useContext } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -13,13 +11,15 @@ import {
 	type PersistOptions,
 } from "zustand/middleware";
 
+export type Locale = "en-US" | "en-MY" | "ms-MY";
+
 export type UiTheme = "light" | "dark" | "system";
 
 export type UiMode = "default" | "zen";
 
 export interface UiSvc {
 	isInitialLoading: () => boolean;
-	locale: string;
+	locale: Locale;
 	theme: UiTheme;
 	mode: UiMode;
 	queryClient?: QueryClient | null;
@@ -28,6 +28,7 @@ export interface UiSvc {
 		init: () => void;
 		setTheme: (theme: UiTheme) => void;
 		setMode: (mode: UiMode) => void;
+		setLocale: (locale: Locale) => void;
 	};
 }
 
@@ -45,7 +46,16 @@ const persistLocalStorage: (
 	storage: createJSONStorage(() => localStorage),
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
-	merge: toMerged as any,
+	merge: (persistedState, currentState) => {
+		// take out state which is not serializable
+		const {
+			queryClient: _queryClient,
+			actions: _actions,
+			...rest
+		} = persistedState as UiSvc & UiSvcInternal;
+
+		return toMerged(currentState, rest) as UiSvc & UiSvcInternal;
+	},
 } satisfies PersistOptions<UiSvc & UiSvcInternal>);
 
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
@@ -84,15 +94,10 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 					set({ queryClient });
 					set({ queryClientPersistor });
 				}),
-				setTheme: theme => {
-					const { setColorMode } =
-						useContext(ColorModeContext) ?? Object.create(null);
-
-					set({ theme });
-					setColorMode?.(theme);
-				},
+				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
+				setLocale: (locale: Locale) => set({ locale }),
 			},
 		};
 	}),
