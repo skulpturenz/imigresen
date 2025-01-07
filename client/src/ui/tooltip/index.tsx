@@ -29,7 +29,7 @@ export const TooltipContent = <T extends ValidComponent = "div">(
 		<TooltipPrimitive.Content
 			{...spreadProps(props)}
 			class={cn(
-				"z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md",
+				"z-50 overflow-hidden rounded-md border border-border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md",
 				"data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				props.class,

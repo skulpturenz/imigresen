@@ -2,7 +2,7 @@
 import "core/assets/tailwind.css";
 import "core/assets/theme.css";
 import { render } from "solid-js/web";
-import { App } from "./App.tsx";
+import { App } from "./core/ui/app";
 
 const root = document.getElementById("root");
 

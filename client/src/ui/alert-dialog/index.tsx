@@ -45,7 +45,7 @@ export const AlertDialogContent = <T extends ValidComponent = "div">(
 			ref={props.ref}
 			className={cn(
 				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%]",
-				"translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200",
+				"translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200",
 				"data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				"data-[closed]:slide-out-to-left-1/2 data-[closed]:slide-out-to-top-[48%]",
@@ -61,7 +61,7 @@ export const AlertDialogHeader: Component<ComponentProps<"div">> = props => (
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex flex-col space-y-2 text-center sm:text-left",
+			"flex flex-col space-y-2 text-foreground text-center sm:text-left",
 			props.class,
 		)}
 	/>
@@ -72,7 +72,7 @@ export const AlertDialogFooter: Component<ComponentProps<"div">> = props => (
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+			"flex flex-col-reverse text-foreground sm:flex-row sm:justify-end sm:space-x-2",
 			props.class,
 		)}
 	/>
@@ -84,7 +84,7 @@ export const AlertDialogTitle = <T extends ValidComponent = "h2">(
 	<AlertDialogPrimitive.Title
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn("text-lg font-semibold", props.class)}
+		class={cn("text-lg text-foreground font-semibold", props.class)}
 	/>
 );
 

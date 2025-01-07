@@ -9,7 +9,7 @@ import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 
-export const AvatarRoot = <T extends ValidComponent = "span">(
+export const Avatar = <T extends ValidComponent = "span">(
 	props: PolymorphicProps<T, ImageRootProps<T>>,
 ) => (
 	<ImagePrimitive
@@ -39,7 +39,7 @@ export const AvatarFallback = <T extends ValidComponent = "span">(
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
-			"flex h-full w-full items-center justify-center rounded-full bg-muted",
+			"flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground",
 			props.class,
 		)}
 	/>

@@ -4,8 +4,8 @@ import { default as defaultTheme } from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
-	darkMode: ["class", '[data-kb-theme="dark"]'],
-	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+	darkMode: ["class"],
+	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,mdx}"],
 	theme: {
 		extend: {
 			container: {
@@ -57,6 +57,7 @@ export default {
 			},
 			fontFamily: {
 				sans: ["Manrope", ...defaultTheme.fontFamily.sans],
+				mono: ["JetBrains Mono", ...defaultTheme.fontFamily.mono],
 			},
 			keyframes: {
 				"accordion-down": {

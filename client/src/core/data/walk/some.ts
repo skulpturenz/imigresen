@@ -1,8 +1,13 @@
-import type { Node, Walk } from "./types";
+import type { GeneratorReturnType, Node, Walk } from "./types";
 
 export const makeSome =
-	<T>(walk: Walk<T>) =>
-	(tree: T, predicate: (node: Node<T>) => boolean) => {
+	<T, U extends Node<T>>(walk: Walk<T, U>) =>
+	(
+		tree: T,
+		predicate: (
+			node: GeneratorReturnType<ReturnType<typeof walk>>,
+		) => boolean,
+	) => {
 		for (const result of walk(tree)) {
 			if (predicate(result)) {
 				return true;

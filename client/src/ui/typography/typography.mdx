@@ -8,15 +8,28 @@ import * as TypographyStories from "./typography.stories";
 export const typography = {
 	type: {
 		primary: ["Manrope", ...defaultTheme.fontFamily.sans].join(", "),
+		mono: ["JetBrains Mono", ...defaultTheme.fontFamily.mono].join(", "),
 	},
 	weight: {
-		extraLight: "200",
-		light: "300",
-		regular: "400",
-		medium: "500",
-		semiBold: "600",
-		bold: "700",
-		extraBold: "800",
+		primary: {
+			extraLight: "200",
+			light: "300",
+			regular: "400",
+			medium: "500",
+			semiBold: "600",
+			bold: "700",
+			extraBold: "800",
+		},
+		mono: {
+			thin: "100",
+			extraLight: "200",
+			light: "300",
+			regular: "400",
+			medium: "500",
+			semiBold: "600",
+			bold: "700",
+			extraBold: "800",
+		},
 	},
 	size: {
 		xs: 12,
@@ -42,11 +55,11 @@ export const SampleText =
 
 **Font:** Manrope
 
-**Weights:** {Object.entries(typography.weight).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
+**Weights:** {Object.entries(typography.weight.primary).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
 
-{Object.entries(typography.weight).map(([section, weight]) => (
+{Object.entries(typography.weight.primary).map(([section, weight]) => (
 
-<div style={{ color: 'white'}}>
+<div key={`sans-${weight}`} style={{ color: 'white'}}>
 
     <h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
 
@@ -55,6 +68,26 @@ export const SampleText =
     	fontWeight={weight}
     	sampleText={SampleText}
     	fontFamily={typography.type.primary}
+    />
+
+</div>
+))}
+
+**Font:** JetBrains Mono
+
+**Weights:** {Object.entries(typography.weight.mono).map(([weight, value]) => `${value} (${startCase(weight)})`).join(", ")}
+
+{Object.entries(typography.weight.mono).map(([section, weight]) => (
+
+<div key={`mono-${weight}`} style={{ color: 'white'}}>
+
+    <h2 style={{ fontWeight: weight }}>{startCase(section)}</h2>
+
+    <Typeset
+    	fontSizes={Object.values(typography.size)}
+    	fontWeight={weight}
+    	sampleText={SampleText}
+    	fontFamily={typography.type.mono}
     />
 
 </div>

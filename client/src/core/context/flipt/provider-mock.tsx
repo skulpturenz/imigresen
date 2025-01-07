@@ -1,4 +1,7 @@
+import { createFliptContext } from "core/context/initializers";
+import { memoize } from "es-toolkit";
 import {
+	mergeProps,
 	onMount,
 	Show,
 	type Accessor,
@@ -9,23 +12,35 @@ import { FliptContext } from "./provider";
 import { type FliptSvc } from "./store";
 
 export interface FliptProviderMockProps {
-	svc: Accessor<FliptSvc>;
+	svc?: Accessor<FliptSvc>;
 }
 
 export const FliptProviderMock: Component<
 	ParentProps<FliptProviderMockProps>
 > = props => {
+	const withDefaultProps = mergeProps(
+		{
+			svc: memoize(() => ({
+				...createFliptContext(),
+				isInitialLoading: false,
+			})),
+		},
+		props,
+	);
+
 	onMount(() => {
-		props.svc().actions.init();
+		withDefaultProps.svc().actions.init();
 
 		return () => {
-			props.svc().actions.close();
+			withDefaultProps.svc().actions.close();
 		};
 	});
 
 	return (
-		<FliptContext.Provider value={props.svc}>
-			<Show when={!props.svc().isInitialLoading}>{props.children}</Show>
+		<FliptContext.Provider value={withDefaultProps.svc}>
+			<Show when={!withDefaultProps.svc().isInitialLoading}>
+				{withDefaultProps.children}
+			</Show>
 		</FliptContext.Provider>
 	);
 };

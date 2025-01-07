@@ -190,7 +190,7 @@ export const DatePickerContent = (props: DatePickerContentProps) => (
 	<DatePickerPrimitive.Content
 		{...spreadProps(props)}
 		class={cn(
-			"rounded-md border bg-popover p-3 text-popover-foreground shadow-md outline-none",
+			"rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none",
 			"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
 			"data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50",
 			props.class,
@@ -213,9 +213,9 @@ export const DatePickerInput = (props: DatePickerInputProps) => (
 	<DatePickerPrimitive.Input
 		{...spreadProps(props)}
 		class={cn(
-			"w-full h-9 border border-border focus:border-border bg-background px-3 py-1 text-sm shadow-sm",
+			"w-full h-9 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground shadow-sm",
 			"placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-			"focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
+			"focus-visible:ring-offset-background focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
 			props.class,
 		)}
 	/>
@@ -226,11 +226,11 @@ export const DatePickerTrigger = (props: DatePickerTriggerProps) => (
 		{...spreadProps(props)}
 		class={cn(
 			"transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-9 rounded-e-md border",
-			"border-border bg-background text-foreground [&>svg]:size-4 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50",
+			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-9 rounded-e-md border group",
+			"border-border bg-background text-foreground [&>svg]:size-4 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50",
 			props.class,
 		)}>
-		<CalendarDays class="h-4 w-4">
+		<CalendarDays class="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground">
 			<span class="sr-only">{resources.triggerSrOnly}</span>
 		</CalendarDays>
 	</DatePickerPrimitive.Trigger>

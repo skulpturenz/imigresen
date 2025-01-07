@@ -1,4 +1,7 @@
+import { createAuthnContext } from "core/context/initializers";
+import { memoize } from "es-toolkit";
 import {
+	mergeProps,
 	onMount,
 	Show,
 	type Accessor,
@@ -9,19 +12,31 @@ import { AuthnContext } from "./provider";
 import { type AuthnSvc } from "./store";
 
 export interface AuthnProviderMockProps {
-	svc: Accessor<AuthnSvc>;
+	svc?: Accessor<AuthnSvc>;
 }
 
 export const AuthnProviderMock: Component<
 	ParentProps<AuthnProviderMockProps>
 > = props => {
+	const withDefaultProps = mergeProps(
+		{
+			svc: memoize(() => ({
+				...createAuthnContext(),
+				isInitialLoading: false,
+			})),
+		},
+		props,
+	);
+
 	onMount(() => {
-		props.svc().actions.init();
+		withDefaultProps.svc().actions.init();
 	});
 
 	return (
-		<AuthnContext.Provider value={props.svc}>
-			<Show when={!props.svc().isInitialLoading}>{props.children}</Show>
+		<AuthnContext.Provider value={withDefaultProps.svc}>
+			<Show when={!withDefaultProps.svc().isInitialLoading}>
+				{withDefaultProps.children}
+			</Show>
 		</AuthnContext.Provider>
 	);
 };

@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 
+import { DEFAULT_VIEWPORT, INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import { startCase } from "es-toolkit";
-import type { Component, ParentProps } from "solid-js";
+import { type Component, type ParentProps } from "solid-js";
 import type { Preview } from "storybook-solidjs";
 import "../src/core/assets/tailwind.css";
 import "../src/core/assets/theme.css";
@@ -22,9 +23,13 @@ const preview: Preview = {
 			},
 		},
 		layout: "centered",
+		viewport: {
+			viewports: INITIAL_VIEWPORTS,
+			defaultViewport: DEFAULT_VIEWPORT,
+		},
 	},
 	decorators: [
-		Story => {
+		(Story, context) => {
 			const Layout: Component<ParentProps> = props => {
 				const uiContext = useContext(UiContext);
 
@@ -44,14 +49,16 @@ const preview: Preview = {
 					<div class="flex flex-col gap-4 items-center">
 						<div>{props.children}</div>
 
-						<button
-							class={cn(
-								buttonVariants({ variant: "default" }),
-								"w-full",
-							)}
-							on:click={toggleTheme}>
-							{startCase(getNextTheme())} mode
-						</button>
+						{context.parameters.toggleTheme !== false && (
+							<button
+								class={cn(
+									buttonVariants({ variant: "default" }),
+									"w-full",
+								)}
+								onClick={toggleTheme}>
+								{startCase(getNextTheme())} mode
+							</button>
+						)}
 					</div>
 				);
 			};

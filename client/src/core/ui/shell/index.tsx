@@ -1,5 +1,23 @@
-import type { Component, ParentProps } from "solid-js";
+import { useLocale } from "@kobalte/core";
+import { styles } from "core/constants/styles";
+import { type Component, type ParentProps } from "solid-js";
+import { cn } from "ui/utils";
+import { Navbar } from "./navbar";
 
-export const Shell: Component<ParentProps> = props => <>{props.children}</>;
+export const Shell: Component<ParentProps> = props => {
+	const { locale, direction } = useLocale();
 
-export const Navbar: Component<ParentProps> = props => <>{props.children}</>;
+	return (
+		<div lang={locale()} dir={direction()}>
+			<Navbar />
+
+			<div class="mt-8">
+				<div class={cn(styles.contentContainer)}>
+					<div class={cn(styles.narrowContentContainer)}>
+						{props.children}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};

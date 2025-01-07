@@ -59,22 +59,46 @@ describe("filter", () => {
 
 	it("returns a `Walk`", () => {
 		const walk = makeWalkBfs((tree: Tree) => tree.children);
-		const walkWithFilter = partialRight(
-			makeFilter(walk),
-			({ node }: Node<Tree>) => node.hello === "world2",
-		);
-		const walkWithGrandparentsAndFilter = makeParents(walkWithFilter);
-		const walkWithGrandparents = makeParents(walk);
 
-		expect(Array.from(walkWithGrandparentsAndFilter(tree))).toHaveLength(1);
+		const walkWithGrandparents = makeParents(walk);
+		const walkWithFilterAndGrandparents = makeParents(
+			partialRight(
+				makeFilter(walk),
+				({ node }: Node<Tree>) => node.hello === "world2",
+			),
+		);
+		const walkWithGrandparentsAndFilter = makeFilter(makeParents(walk));
+
 		// note: if there was no filter then there would be two items in `parents`
+		expect(Array.from(walkWithFilterAndGrandparents(tree))).toHaveLength(1);
 		expect(
 			Array.from(walkWithGrandparents(tree)).find(
 				({ node }) => node.hello === "world2",
 			)?.parents.length,
 		).toBeGreaterThan(
-			Array.from(walkWithGrandparentsAndFilter(tree))?.at(0)?.parents
+			Array.from(walkWithFilterAndGrandparents(tree))?.at(0)?.parents
 				.length ?? 0,
+		);
+
+		expect(
+			Array.from(
+				walkWithGrandparentsAndFilter(
+					tree,
+					({ node }) => node.hello === "world2",
+				),
+			),
+		).toHaveLength(1);
+		expect(
+			Array.from(walkWithGrandparents(tree)).find(
+				({ node }) => node.hello === "world2",
+			)?.parents.length,
+		).toBe(
+			Array.from(
+				walkWithGrandparentsAndFilter(
+					tree,
+					({ node }) => node.hello === "world2",
+				),
+			)?.at(0)?.parents.length ?? 0,
 		);
 	});
 });
