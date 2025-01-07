@@ -3,6 +3,7 @@ import type {
 	PartialValues,
 	ValidateForm,
 } from "@modular-forms/solid";
+import { invariant } from "es-toolkit";
 import type { Accessor } from "solid-js";
 import type {
 	Schema,
@@ -30,8 +31,10 @@ export function yupForm<TFieldValues extends FieldValues>(
 			return Object.create(null);
 		}
 
+		invariant(error.path, "undefined path");
+
 		return Object.fromEntries(
-			error.errors.map(message => [error.path as string, message]),
+			error.errors.map(message => [error.path, message]),
 		);
 	};
 }
