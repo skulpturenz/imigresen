@@ -17,6 +17,7 @@
 		"@corvu/drawer": "^0.2.2",
 		"@flipt-io/flipt-client-browser": "^0.3.1",
 		"@kobalte/core": "^0.13.7",
+		"@modular-forms/solid": "^0.25.0",
 		"@open-policy-agent/opa-wasm": "^1.10.0",
 		"@solid-primitives/i18n": "^2.1.1",
 		"@solidjs/meta": "^0.29.4",

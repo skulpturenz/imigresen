@@ -1,0 +1,37 @@
+import type {
+	FieldValues,
+	PartialValues,
+	ValidateForm,
+} from "@modular-forms/solid";
+import type { Accessor } from "solid-js";
+import type {
+	Schema,
+	ValidationError,
+	ValidateOptions as YupValidateOptions,
+} from "yup";
+
+export interface ValidateOptions<
+	TContext extends Record<string, any> = Record<string, any>,
+> extends Omit<YupValidateOptions, "context"> {
+	context: Accessor<TContext>;
+}
+
+export function yupForm<TFieldValues extends FieldValues>(
+	schema: Schema<any, any, TFieldValues>,
+	options?: ValidateOptions,
+): ValidateForm<TFieldValues> {
+	return async (values: PartialValues<TFieldValues>) => {
+		const error: ValidationError | null = await schema
+			.validate(values, options)
+			.then(() => null)
+			.catch(err => err);
+
+		if (!error) {
+			return Object.create(null);
+		}
+
+		return Object.fromEntries(
+			error.errors.map(message => [error.path as string, message]),
+		);
+	};
+}
