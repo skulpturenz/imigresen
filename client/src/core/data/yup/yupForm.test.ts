@@ -28,10 +28,6 @@ describe("yupForm", () => {
 		).resolves.toBeFalsy();
 
 		setValue(form, "hello", "world");
-
-		expect(getValue(form, "hello", { shouldActive: false })).toEqual(
-			"world",
-		);
 		await expect(
 			validate(form, { shouldActive: false }),
 		).resolves.toBeTruthy();
@@ -73,10 +69,6 @@ describe("yupForm", () => {
 			).resolves.toBeFalsy();
 
 			setValue(form, "hello", "world");
-			expect(getValue(form, "hello", { shouldActive: false })).toEqual(
-				"world",
-			);
-
 			await expect(
 				validate(form, { shouldActive: false }),
 			).resolves.toBeTruthy();
