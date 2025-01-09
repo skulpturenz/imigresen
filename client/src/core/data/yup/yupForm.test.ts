@@ -33,7 +33,7 @@ describe("yupForm", () => {
 		const schema = object({
 			hello: string()
 				.optional()
-				.when((_, schema, context: any) => {
+				.when((_, schema, { context }) => {
 					if (context.hello === "world") {
 						return schema.required();
 					}
