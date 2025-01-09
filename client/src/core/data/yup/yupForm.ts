@@ -25,7 +25,13 @@ export const yupForm = <
 				},
 			})
 			.then(() => null)
-			.catch(err => err);
+			.catch(error => {
+				if (options?.debug) {
+					console.error(error);
+				}
+
+				return error;
+			});
 
 		if (!error) {
 			return Object.create(null);
