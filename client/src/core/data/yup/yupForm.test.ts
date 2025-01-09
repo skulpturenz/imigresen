@@ -33,7 +33,7 @@ describe("yupForm", () => {
 		).resolves.toBeTruthy();
 	});
 
-	it("allows passing a context", async () =>
+	it("allows passing a context", () =>
 		createRoot(async dispose => {
 			const [context, setContext] = createSignal({
 				hello: "world",
