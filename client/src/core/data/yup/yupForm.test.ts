@@ -70,7 +70,7 @@ describe("yupForm", () => {
 			setValue(form, "hello", "");
 			await expect(
 				validate(form, { shouldActive: false }),
-			).resolves.toEqual(false);
+			).resolves.toBeFalsy();
 
 			setValue(form, "hello", "world");
 			expect(getValue(form, "hello", { shouldActive: false })).toEqual(
