@@ -5,22 +5,17 @@ import type {
 } from "@modular-forms/solid";
 import { invariant } from "es-toolkit";
 import type { Accessor } from "solid-js";
-import type {
-	Schema,
-	ValidationError,
-	ValidateOptions as YupValidateOptions,
-} from "yup";
+import type { Schema, ValidationError } from "yup";
+import type { ValidateOptions } from "./types";
 
-export interface ValidateOptions<
+export const yupForm = <
+	TType = any,
 	TContext extends Record<string, any> = Record<string, any>,
-> extends Omit<YupValidateOptions, "context"> {
-	context: Accessor<TContext>;
-}
-
-export function yupForm<TFieldValues extends FieldValues>(
-	schema: Schema<any, any, TFieldValues>,
-	options?: ValidateOptions,
-): ValidateForm<TFieldValues> {
+	TFieldValues extends FieldValues = FieldValues,
+>(
+	schema: Schema<TType, Accessor<TContext>, TFieldValues>,
+	options?: ValidateOptions<TContext>,
+): ValidateForm<TFieldValues> => {
 	return async (values: PartialValues<TFieldValues>) => {
 		const error: ValidationError | null = await schema
 			.validate(values, options)
@@ -37,4 +32,4 @@ export function yupForm<TFieldValues extends FieldValues>(
 			error.errors.map(message => [error.path, message]),
 		);
 	};
-}
+};
