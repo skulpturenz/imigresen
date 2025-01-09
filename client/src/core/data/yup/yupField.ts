@@ -1,5 +1,4 @@
 import type { FieldValue, Maybe, ValidateField } from "@modular-forms/solid";
-import type { Accessor } from "solid-js";
 import type { Schema, ValidationError } from "yup";
 import type { ValidateOptions } from "./types";
 
@@ -9,12 +8,17 @@ export const yupField = <
 	TContext extends Record<string, any> = Record<string, any>,
 	TFieldValue extends FieldValue = FieldValue,
 >(
-	schema: Schema<TType, Accessor<TContext>, TFieldValue>,
+	schema: Schema<TType, TContext, TFieldValue>,
 	options?: ValidateOptions<TContext>,
 ): ValidateField<TFieldValue> => {
 	return async (value: Maybe<TFieldValue>) => {
 		const error: ValidationError | null = await schema
-			.validate(value, options)
+			.validate(value, {
+				...options,
+				get context() {
+					return options?.context();
+				},
+			})
 			.then(() => null)
 			.catch(err => err);
 
