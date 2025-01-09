@@ -3,6 +3,7 @@ import type { Accessor } from "solid-js";
 import type { Schema, ValidationError } from "yup";
 import type { ValidateOptions } from "./types";
 
+// see: https://github.com/fabian-hiller/modular-forms/blob/main/packages/solid/src/adapters/zodField.ts
 export const yupField = <
 	TType = any,
 	TContext extends Record<string, any> = Record<string, any>,
