@@ -4,6 +4,7 @@ import {
 	setValue,
 	validate,
 } from "@modular-forms/solid";
+import { createRoot, createSignal } from "solid-js";
 import { describe, expect, it } from "vitest";
 import { type InferType, object, string } from "yup";
 import { yupForm } from "./yupForm";
@@ -22,58 +23,71 @@ describe("yupForm", () => {
 		expect(getValue(form, "hello", { shouldActive: false })).toBeFalsy();
 
 		setValue(form, "hello", "");
-		await expect(validate(form, { shouldActive: false })).resolves.toEqual(
-			false,
-		);
+		await expect(
+			validate(form, { shouldActive: false }),
+		).resolves.toBeFalsy();
 
 		setValue(form, "hello", "world");
 
 		expect(getValue(form, "hello", { shouldActive: false })).toEqual(
 			"world",
 		);
-		await expect(validate(form, { shouldActive: false })).resolves.toEqual(
-			true,
-		);
+		await expect(
+			validate(form, { shouldActive: false }),
+		).resolves.toBeTruthy();
 	});
 
-	it("allows passing a context", async () => {
-		const schema = object({
-			hello: string()
-				.optional()
-				.when((_, schema, { context }) => {
-					if (context.hello === "world") {
-						return schema.required();
-					}
-
-					return schema;
-				}),
-		});
-
-		const options = {
-			context: () => ({
+	it("allows passing a context", async () =>
+		createRoot(async dispose => {
+			const [context, setContext] = createSignal({
 				hello: "world",
-			}),
-		};
+			});
+			const schema = object({
+				hello: string()
+					.optional()
+					.when((_, schema, { context }) => {
+						if (context.hello === "world") {
+							return schema.required();
+						}
 
-		const form = createFormStore<InferType<typeof schema>>({
-			/// @ts-expect-error: TODO: type error
-			validate: yupForm(schema, options),
-		});
+						return schema;
+					}),
+			});
 
-		expect(getValue(form, "hello", { shouldActive: false })).toBeFalsy();
+			const options = {
+				context,
+			};
 
-		setValue(form, "hello", "");
-		await expect(validate(form, { shouldActive: false })).resolves.toEqual(
-			false,
-		);
+			const form = createFormStore<InferType<typeof schema>>({
+				/// @ts-expect-error: TODO: type error
+				validate: yupForm(schema, options),
+			});
 
-		setValue(form, "hello", "world");
-		expect(getValue(form, "hello", { shouldActive: false })).toEqual(
-			"world",
-		);
+			expect(
+				getValue(form, "hello", { shouldActive: false }),
+			).toBeFalsy();
 
-		await expect(validate(form, { shouldActive: false })).resolves.toEqual(
-			true,
-		);
-	});
+			setValue(form, "hello", "");
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toEqual(false);
+
+			setValue(form, "hello", "world");
+			expect(getValue(form, "hello", { shouldActive: false })).toEqual(
+				"world",
+			);
+
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toBeTruthy();
+
+			setContext({ hello: "world!!!" });
+
+			setValue(form, "hello", "");
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toBeTruthy();
+
+			dispose();
+		}));
 });

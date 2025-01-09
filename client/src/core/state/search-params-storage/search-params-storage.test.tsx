@@ -11,7 +11,7 @@ describe("search-params-storage", () => {
 		});
 
 		it("persist", () =>
-			createRoot(() => {
+			createRoot(dispose => {
 				const initialSearchParams = new URLSearchParams({
 					__test__a: "hello",
 					__test__b_c_d_e: "world",
@@ -71,10 +71,12 @@ describe("search-params-storage", () => {
 						},
 					},
 				});
+
+				dispose();
 			}));
 
 		it("hydrate", () =>
-			createRoot(() => {
+			createRoot(dispose => {
 				const useStore = createWithSignal<Record<string, any>>(
 					persist(
 						(set, _get) => ({
@@ -121,6 +123,8 @@ describe("search-params-storage", () => {
 						},
 					},
 				});
+
+				dispose();
 			}));
 	});
 
@@ -130,7 +134,7 @@ describe("search-params-storage", () => {
 		});
 
 		it("ignores values which cannot be serialized", () =>
-			createRoot(() => {
+			createRoot(dispose => {
 				const useStore = createWithSignal<Record<string, any>>(
 					persist(
 						(set, _get) => ({
@@ -173,10 +177,12 @@ describe("search-params-storage", () => {
 					__test__hello: '"world"',
 					"__test__some-number_hello": '"world "',
 				});
+
+				dispose();
 			}));
 
 		it("removes search params if there are none", () =>
-			createRoot(() => {
+			createRoot(dispose => {
 				const useStore = createWithSignal<Record<string, any>>(
 					persist(
 						(set, _get) => ({
@@ -206,6 +212,8 @@ describe("search-params-storage", () => {
 				expect(Object.fromEntries(searchParams)).toEqual(
 					Object.create(null),
 				);
+
+				dispose();
 			}));
 	});
 });
