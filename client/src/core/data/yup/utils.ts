@@ -5,14 +5,10 @@ import type { Schema } from "yup";
 // TODO: options types
 export const whenOptions =
 	<T extends Schema, U extends Schema>(
-		_values: any,
-		schema: T,
-		options: any,
-	) =>
-	(
 		predicate: (options: any) => boolean,
 		fn: (schema: T, options: any) => U,
-	) => {
+	) =>
+	(_values: any, schema: T, options: any) => {
 		if (predicate(options)) {
 			return fn(schema, options);
 		}
