@@ -4,11 +4,10 @@ import type { ValidateOptions } from "./types";
 
 // see: https://github.com/fabian-hiller/modular-forms/blob/main/packages/solid/src/adapters/zodField.ts
 export const yupField = <
-	TType = any,
-	TContext extends Record<string, any> = Record<string, any>,
 	TFieldValue extends FieldValue = FieldValue,
+	TContext extends Record<string, any> = Record<string, any>,
 >(
-	schema: Schema<TType, TContext, TFieldValue>,
+	schema: Schema<TFieldValue, TContext>,
 	options?: ValidateOptions<TContext>,
 ): ValidateField<TFieldValue> => {
 	return async (value: Maybe<TFieldValue>) => {
@@ -32,6 +31,6 @@ export const yupField = <
 			return "";
 		}
 
-		return error.errors.at(0)?.at(0) ?? "";
+		return error.errors.at(0) ?? "";
 	};
 };
