@@ -69,7 +69,26 @@ export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {
 		const key = Object.entries((parent as SchemaObjectDescription).fields)
 			.find(([_, value]) => value === node)
 			?.at(0);
-		const path = [...parents, key].filter(Boolean).join(".");
+		const path = [
+			...parents.map((node, idx, arr) => {
+				const parent = arr.at(Math.max(idx - 1, 0)) ?? null;
+
+				if (!parent) {
+					return "";
+				}
+
+				const key = Object.entries(
+					(parent as SchemaObjectDescription).fields,
+				)
+					.find(([_, value]) => value === node)
+					?.at(0);
+
+				return key ?? "";
+			}),
+			key,
+		]
+			.filter(Boolean)
+			.join(".");
 
 		if (node.tests.some(test => test.name === "required")) {
 			requiredFields.add(path);
