@@ -1,3 +1,4 @@
+import type { Flatten } from "@solid-primitives/i18n";
 import { makeWalkBfs } from "core/data//walk";
 import { makeParents } from "core/data/walk/parents";
 import { isNil } from "es-toolkit";
@@ -37,8 +38,13 @@ export const hasSomeParentField =
 		paths.some(path => !isNil(get(options.parent, path)));
 
 // TODO: types
+// TODO: don't depend on i18n
 export const isParentFieldEqual =
-	(path: string, value: any) => (options: any) =>
+	<T extends Record<string, any> = Record<string, any>>(
+		path: keyof Flatten<T>,
+		value: any,
+	) =>
+	(options: any) =>
 		get(options.parent, path) === value;
 
 export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {

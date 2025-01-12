@@ -117,8 +117,14 @@ export const schema = object({
 		.when(
 			// when application made for dependents is required
 			whenOptions(
-				isParentFieldEqual("isDependentRequest", true),
+				/// @ts-expect-error: TODO remove
+				isParentFieldEqual<Test>("isDependentRequest", true),
 				toRequired,
 			),
 		),
 });
+
+// TODO: remove
+export interface Test {
+	hello: string;
+}
