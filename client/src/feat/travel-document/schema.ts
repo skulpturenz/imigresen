@@ -64,21 +64,61 @@ export const schema = object({
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
 	isPersonalDetailsValid: boolean().default(false),
-	isDependentPictureCurrent: boolean().when(
-		// when application made for dependents is required
-		whenOptions(isParentFieldEqual("isDependentRequest", true), toRequired),
-	),
+	isDependentPictureCurrent: boolean()
+		.when(
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", false),
+				toNullish,
+			),
+		)
+		.when(
+			// when application made for dependents is required
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", true),
+				toRequired,
+			),
+		),
 	isAllInformationValid: boolean().default(false),
-	principalCaregiverFullName: string().when(
-		// when application made for dependents is required
-		whenOptions(isParentFieldEqual("isDependentRequest", true), toRequired),
-	),
-	principalCaregiverIdentityCardNumber: string().when(
-		// when application made for dependents is required
-		whenOptions(isParentFieldEqual("isDependentRequest", true), toRequired),
-	),
-	principalCaregiverSignature: string().when(
-		// when application made for dependents is required
-		whenOptions(isParentFieldEqual("isDependentRequest", true), toRequired),
-	),
+	principalCaregiverFullName: string()
+		.when(
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", false),
+				toNullish,
+			),
+		)
+		.when(
+			// when application made for dependents is required
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", true),
+				toRequired,
+			),
+		),
+	principalCaregiverIdentityCardNumber: string()
+		.when(
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", false),
+				toNullish,
+			),
+		)
+		.when(
+			// when application made for dependents is required
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", true),
+				toRequired,
+			),
+		),
+	principalCaregiverSignature: string()
+		.when(
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", false),
+				toNullish,
+			),
+		)
+		.when(
+			// when application made for dependents is required
+			whenOptions(
+				isParentFieldEqual("isDependentRequest", true),
+				toRequired,
+			),
+		),
 });
