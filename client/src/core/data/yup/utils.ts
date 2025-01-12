@@ -94,7 +94,8 @@ export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {
 			requiredFields.add(path);
 		}
 
-		if (node.optional) {
+		// TODO: check
+		if (node.optional === true) {
 			requiredFields.add(path);
 		}
 	}
