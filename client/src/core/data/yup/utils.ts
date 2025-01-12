@@ -65,7 +65,7 @@ export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {
 	const requiredFields = new Set<string>();
 
 	for (const { node, parents } of walkWithParents(description)) {
-		const path = [parents, node]
+		const path = [...parents, node]
 			.map((node, idx, arr) => {
 				const parent = arr.at(Math.max(idx - 1, 0)) ?? null;
 
