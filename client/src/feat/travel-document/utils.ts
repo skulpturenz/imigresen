@@ -17,7 +17,7 @@ export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {
 	);
 	const walkWithParents = makeParents(walk);
 
-	const requiredFields = new Set<string>();
+	const optionalFields = new Set<string>();
 
 	for (const { node, parents } of walkWithParents(description)) {
 		const path = [...parents, node]
@@ -39,15 +39,14 @@ export const findOptionalFieldPaths = <T extends Schema>(schema: T) => {
 			.filter(Boolean)
 			.join(".");
 
-		if (node.tests.some(test => test.name === "required")) {
-			requiredFields.add(path);
+		if (!node.tests.some(test => test.name === "required")) {
+			optionalFields.add(path);
 		}
 
-		// TODO: check
-		if (node.optional === true) {
-			requiredFields.add(path);
+		if (node.optional) {
+			optionalFields.add(path);
 		}
 	}
 
-	return requiredFields;
+	return optionalFields;
 };
