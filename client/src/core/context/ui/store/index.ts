@@ -9,7 +9,7 @@ import {
 	type PersistOptions,
 } from "zustand/middleware";
 
-export type Locale = "en-US" | "en-MY" | "ms-MY";
+export type Locale = "en-US" | "ms-MY" | "zh-CN";
 
 export type UiTheme = "light" | "dark" | "system";
 
