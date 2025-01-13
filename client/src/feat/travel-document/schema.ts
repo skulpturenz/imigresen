@@ -17,7 +17,9 @@ export const schema = object({
 	requestType: string()
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
-	isDependentRequest: boolean().default(false),
+	isDependentRequest: boolean()
+		.when(whenOptions(options => !options.context.isFinal, toNullish))
+		.when(whenOptions(options => options.context.isFinal, toRequired)),
 	fullName: string()
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
@@ -36,7 +38,7 @@ export const schema = object({
 	gender: string()
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
-	currentAddress: string()
+	currentStreetAddress: string()
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
 	postcode: string()
@@ -63,7 +65,9 @@ export const schema = object({
 	currentPassportNumber: string()
 		.when(whenOptions(options => !options.context.isFinal, toNullish))
 		.when(whenOptions(options => options.context.isFinal, toRequired)),
-	isPersonalDetailsValid: boolean().default(false),
+	isPersonalDetailsValid: boolean()
+		.when(whenOptions(options => !options.context.isFinal, toNullish))
+		.when(whenOptions(options => options.context.isFinal, toRequired)),
 	isDependentPictureCurrent: boolean()
 		.when(
 			whenOptions(
@@ -117,14 +121,8 @@ export const schema = object({
 		.when(
 			// when application made for dependents is required
 			whenOptions(
-				/// @ts-expect-error: TODO remove
-				isParentFieldEqual<Test>("isDependentRequest", true),
+				isParentFieldEqual("isDependentRequest", true),
 				toRequired,
 			),
 		),
 });
-
-// TODO: remove
-export interface Test {
-	hello: string;
-}
