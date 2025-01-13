@@ -19,6 +19,7 @@ export default defineConfig({
 			core: join(__dirname, "./src/core"),
 			ui: join(__dirname, "./src/ui"),
 		},
+		conditions: ["development", "browser"],
 	},
 	build: {
 		sourcemap: true,
