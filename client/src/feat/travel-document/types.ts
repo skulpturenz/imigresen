@@ -57,8 +57,8 @@ export enum TravelDocumentRequestType {
 
 // TODO: BE
 export enum Gender {
-	Female = 0,
-	Male,
+	Female = "F",
+	Male = "M",
 }
 
 // TODO: BE
