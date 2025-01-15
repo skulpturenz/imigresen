@@ -1,0 +1,15 @@
+{
+	"name": "Debian Clojure",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/.env"
+	],
+	"containerEnv": {
+		"SERVICE_NAME": "imigresen-api",
+		"JAVA_ENV": "development"
+	},
+	"postStartCommand": "java -version"
+}
