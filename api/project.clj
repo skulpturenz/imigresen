@@ -7,14 +7,17 @@
                  [com.stuartsierra/component "1.1.0"]
                  [com.github.steffan-westcott/clj-otel-api "0.2.7"]
                  [ring/ring-core "1.13.0"]
+                 [ring/ring-devel "1.13.0"]
                  [ring/ring-jetty-adapter "1.13.0"]
                  [compojure "1.7.1"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [com.github.seancorfield/honeysql "2.6.1243"]
                  [com.github.igrishaev/pg2-core "0.1.29"]
-                 [io.flipt/flipt-java "1.1.2"]]
+                 [io.flipt/flipt-java "1.1.2"]
+                 [environ "1.2.0"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
-  :test-paths ["src"])
+  :test-paths ["src"]
+  :plugins [[lein-environ "1.2.0"]])
