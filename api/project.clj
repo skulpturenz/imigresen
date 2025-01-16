@@ -11,7 +11,9 @@
                  [com.github.seancorfield/honeysql "2.6.1243"]
                  [com.github.igrishaev/pg2-core "0.1.29"]
                  [io.flipt/flipt-java "1.1.2"]
-                 [environ "1.2.0"]]
+                 [environ "1.2.0"]
+                 [metosin/ring-swagger "1.0.0"]
+                 [metosin/ring-swagger-ui "5.18.2"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
