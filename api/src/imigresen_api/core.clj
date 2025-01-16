@@ -18,4 +18,5 @@
   [& _args]
   (println "Hello, World!")
   (ring.adapter.jetty/run-jetty
-   (if (not= environ.core/env :java-env "production") reloadable-app app) {:port 3000}))
+   (if (not= (environ.core/env :java-env) "production") reloadable-app app)
+   {:port 3000}))
