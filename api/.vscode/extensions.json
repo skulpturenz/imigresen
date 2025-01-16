@@ -2,6 +2,7 @@
 	"recommendations": [
 		"betterthantomorrow.calva",
 		"Gruntfuggly.todo-tree",
-		"IBM.output-colorizer"
+		"IBM.output-colorizer",
+		"ms-vscode.makefile-tools"
 	]
 }
