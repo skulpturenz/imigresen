@@ -1,6 +1,5 @@
 (ns imigresen-api.core-test
-  (:require [clojure.test :refer :all]
-            [imigresen-api.core :refer :all]))
+  (:require [clojure.test :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
