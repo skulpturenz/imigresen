@@ -4,7 +4,7 @@ dev:
 	lein ring server-headless
 
 build:
-	lein ring uberwar
+	lein ring uberjar
 
 test:
 	lein test
