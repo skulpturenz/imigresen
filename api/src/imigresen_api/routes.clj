@@ -1,5 +1,6 @@
 (ns imigresen-api.routes
   (:require
+   [clojure.spec.alpha]
    [reitit.ring]
    [reitit.swagger]
    [reitit.swagger-ui]
@@ -12,21 +13,31 @@
    [muuntaja.core]
    [reitit.ring.middleware.multipart]))
 
+
+(clojure.spec.alpha/def ::string string?)
+
+(clojure.spec.alpha/def ::file reitit.ring.middleware.multipart/temp-file-part)
+(clojure.spec.alpha/def ::file-params (clojure.spec.alpha/keys :req-un [::file]))
+(clojure.spec.alpha/def ::name string?)
+(clojure.spec.alpha/def ::size int?)
+(clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
+
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
     [["/docs/swagger.json"
       {:get {:no-doc true
-             :swagger {:info {:title "my-api"}}
+             :swagger {:info {:title "imigresen-api"}}
              :handler (reitit.swagger/create-swagger-handler)}}]
 
      ["/hello-world"
-      {:post {:summary "upload a file"
-              ;; TODO: update to return text/plain
-              :responses {200 {:body ::file-response}}
-              :handler (fn [& _args]
-                         {:status 200
-                          :body "Hello world!"})}}]
+      {:get {:summary "hello world!!"
+             :parameters nil
+             :responses {200 {:content {"text/plain" {:schema string?}}}}
+             :handler (fn [& _args]
+                        {:status 200
+                         :headers {"Content-Type" "text/plain"}
+                         :body "Hello world!"})}}]
 
      ["/files"
       {:tags ["files"]}
