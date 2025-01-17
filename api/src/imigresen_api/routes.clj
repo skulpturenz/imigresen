@@ -24,9 +24,13 @@
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
 
 (defmacro defroute
-  "handler = (data state) => response"
+  ""
   ([route method handler] [route {(keyword method) {:no-doc true :handler handler}}])
   ([route method handler swagger] [route {(keyword method) (assoc swagger :handler handler)}]))
+
+(defmacro defcontext
+  ""
+  [context options & children] (apply vector context options children))
 
 (def hello-world-route ["/hello-world"
                         {:get {:summary "hello world!!"
@@ -55,15 +59,35 @@
              :swagger {:info {:title "imigresen-api"}}
              :handler (reitit.swagger/create-swagger-handler)}}]
 
-     [""
-      {:tags ["test"]}
+     (defcontext
+       ""
+       {:tags ["test"]}
 
-      hello-world-route]
+       (defroute
+         "/hello-world"
+         "get"
+         (fn [& _args] {:status 200
+                        :headers {"Content-Type" "text/plain"}
+                        :body "Hello world!"})
+         {:summary "hello world!!"
+          :parameters nil
+          :responses {200 {:content {"text/plain" {:schema string?}}
+                           :body ::string}}}))
 
-     ["/files"
-      {:tags ["files"]}
+     (defcontext
+       "/files"
+       {:tags ["files"]}
 
-      files-upload-route]]
+       (defroute
+         "/upload"
+         "post"
+         (fn [{{{:keys [file]} :multipart} :parameters}]
+           {:status 200
+            :body {:name (:filename file)
+                   :size (:size file)}})
+         {:summary "upload a file"
+          :parameters {:multipart ::file-params}
+          :responses {200 {:body ::file-response}}}))]
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
