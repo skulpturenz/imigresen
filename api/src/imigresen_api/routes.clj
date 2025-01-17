@@ -22,6 +22,25 @@
 (clojure.spec.alpha/def ::size int?)
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
 
+(def hello-world-route ["/hello-world"
+                        {:get {:summary "hello world!!"
+                               :parameters nil
+                               :responses {200 {:content {"text/plain" {:schema string?}}
+                                                :body ::string}}
+                               :handler (fn [& _args]
+                                          {:status 200
+                                           :headers {"Content-Type" "text/plain"}
+                                           :body "Hello world!"})}}])
+
+(def files-upload-route ["/upload"
+                         {:post {:summary "upload a file"
+                                 :parameters {:multipart ::file-params}
+                                 :responses {200 {:body ::file-response}}
+                                 :handler (fn [{{{:keys [file]} :multipart} :parameters}]
+                                            {:status 200
+                                             :body {:name (:filename file)
+                                                    :size (:size file)}})}}])
+
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
@@ -33,27 +52,12 @@
      [""
       {:tags ["test"]}
 
-      ["/hello-world"
-       {:get {:summary "hello world!!"
-              :parameters nil
-              :responses {200 {:content {"text/plain" {:schema string?}}
-                               :body ::string}}
-              :handler (fn [& _args]
-                         {:status 200
-                          :headers {"Content-Type" "text/plain"}
-                          :body "Hello world!"})}}]]
+      hello-world-route]
 
      ["/files"
       {:tags ["files"]}
 
-      ["/upload"
-       {:post {:summary "upload a file"
-               :parameters {:multipart ::file-params}
-               :responses {200 {:body ::file-response}}
-               :handler (fn [{{{:keys [file]} :multipart} :parameters}]
-                          {:status 200
-                           :body {:name (:filename file)
-                                  :size (:size file)}})}}]]]
+      files-upload-route]]
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
