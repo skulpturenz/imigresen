@@ -30,14 +30,18 @@
              :swagger {:info {:title "imigresen-api"}}
              :handler (reitit.swagger/create-swagger-handler)}}]
 
-     ["/hello-world"
-      {:get {:summary "hello world!!"
-             :parameters nil
-             :responses {200 {:content {"text/plain" {:schema string?}}}}
-             :handler (fn [& _args]
-                        {:status 200
-                         :headers {"Content-Type" "text/plain"}
-                         :body "Hello world!"})}}]
+     [""
+      {:tags ["test"]}
+
+      ["/hello-world"
+       {:get {:summary "hello world!!"
+              :parameters nil
+              :responses {200 {:content {"text/plain" {:schema string?}}
+                               :body ::string}}
+              :handler (fn [& _args]
+                         {:status 200
+                          :headers {"Content-Type" "text/plain"}
+                          :body "Hello world!"})}}]]
 
      ["/files"
       {:tags ["files"]}
@@ -66,6 +70,7 @@
                          reitit.ring.middleware.multipart/multipart-middleware]}})
 
    (reitit.ring/routes
+    ;; oauth
     (reitit.swagger-ui/create-swagger-ui-handler
      {:path "/docs"
       :config {:validatorUrl nil
