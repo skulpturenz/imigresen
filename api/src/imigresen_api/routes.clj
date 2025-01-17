@@ -1,6 +1,7 @@
 (ns imigresen-api.routes
   (:require
    [clojure.spec.alpha]
+   [clojure.string]
    [reitit.ring]
    [reitit.swagger]
    [reitit.swagger-ui]
@@ -25,8 +26,8 @@
 
 (defmacro defroute
   ""
-  ([route method handler] [route {(keyword method) {:no-doc true :handler handler}}])
-  ([route method handler swagger] [route {(keyword method) (assoc swagger :handler handler)}]))
+  ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
+  ([route method handler swagger] [route {(keyword (clojure.string/lower-case method)) (assoc swagger :handler handler)}]))
 
 (defmacro defcontext
   ""
@@ -46,7 +47,7 @@
 
        (defroute
          "/hello-world"
-         "get"
+         "GET"
          (fn [& _args] {:status 200
                         :headers {"Content-Type" "text/plain"}
                         :body "Hello world!"})
