@@ -25,7 +25,18 @@
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
 
 (defmacro defroute
-  ""
+  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger.
+   
+   Valid methods:
+   - GET
+   - HEAD
+   - POST
+   - PUT
+   - DELETE
+   - CONNECT
+   - OPTIONS
+   - TRACE
+   - PATCH"
   ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
   ([route method handler swagger] [route {(keyword (clojure.string/lower-case method)) (assoc swagger :handler handler)}]))
 
@@ -93,6 +104,7 @@
                :urls [{:name "swagger" :url "swagger.json"}]
                :urls.primaryName "swagger"
                :operationsSorter "alpha"}})
-    (reitit.ring/create-default-handler))))
+
+    (reitit.ring/create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
 
 (mount.core/start)
