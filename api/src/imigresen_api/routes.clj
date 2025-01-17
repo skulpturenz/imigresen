@@ -11,7 +11,8 @@
    [reitit.ring.coercion]
    [reitit.ring.middleware.exception]
    [muuntaja.core]
-   [reitit.ring.middleware.multipart]))
+   [reitit.ring.middleware.multipart]
+   [mount.core]))
 
 
 (clojure.spec.alpha/def ::string string?)
@@ -21,6 +22,23 @@
 (clojure.spec.alpha/def ::name string?)
 (clojure.spec.alpha/def ::size int?)
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
+
+(mount.core/defstate test-state
+  :start (println "starting")
+  :stop (println "stopping"))
+
+(defn create-state "" [] {:test-state test-state})
+
+;; TODO: single global state map
+(def state (create-state))
+
+;; TODO
+(defn defhandler "" [f state] (partial f state))
+
+(defmacro defroute
+  "handler = (data state) => response"
+  ([route method handler] [route {(keyword method) {:no-doc true :handler handler}}])
+  ([route method handler swagger] [route {(keyword method) (assoc swagger :handler handler)}]))
 
 (def hello-world-route ["/hello-world"
                         {:get {:summary "hello world!!"

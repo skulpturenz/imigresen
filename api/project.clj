@@ -13,7 +13,8 @@
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
                  [metosin/ring-swagger-ui "5.18.2"]
-                 [metosin/muuntaja "0.6.11"]]
+                 [metosin/muuntaja "0.6.11"]
+                 [mount "0.1.20"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
