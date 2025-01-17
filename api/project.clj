@@ -6,14 +6,14 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [com.github.steffan-westcott/clj-otel-api "0.2.7"]
                  [ring/ring-core "1.13.0"]
-                 [compojure "1.7.1"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [com.github.seancorfield/honeysql "2.6.1243"]
                  [com.github.igrishaev/pg2-core "0.1.29"]
                  [io.flipt/flipt-java "1.1.2"]
                  [environ "1.2.0"]
-                 [metosin/ring-swagger "1.0.0"]
-                 [metosin/ring-swagger-ui "5.18.2"]]
+                 [metosin/reitit "0.7.2"]
+                 [metosin/ring-swagger-ui "5.18.2"]
+                 [metosin/muuntaja "0.6.11"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all

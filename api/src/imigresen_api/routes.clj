@@ -1,12 +1,64 @@
 (ns imigresen-api.routes
   (:require
-   [compojure.core]
-   [compojure.route]
-   [ring.swagger.swagger-ui]))
+   [reitit.ring]
+   [reitit.swagger]
+   [reitit.swagger-ui]
+   [reitit.dev.pretty]
+   [reitit.coercion.spec]
+   [reitit.ring.middleware.parameters]
+   [reitit.ring.middleware.muuntaja]
+   [reitit.ring.coercion]
+   [reitit.ring.middleware.exception]
+   [muuntaja.core]
+   [reitit.ring.middleware.multipart]))
 
-(compojure.core/defroutes app
-  ;; TODO: oauth
-  (ring.swagger.swagger-ui/swagger-ui {:path "/docs"})
-  (compojure.core/GET "/test" [] "TEST!!")
-  (compojure.core/GET "/" [& _args] "Hello world!!")
-  (compojure.route/not-found "Not found!!"))
+(def app
+  (reitit.ring/ring-handler
+   (reitit.ring/router
+    [["/docs/swagger.json"
+      {:get {:no-doc true
+             :swagger {:info {:title "my-api"}}
+             :handler (reitit.swagger/create-swagger-handler)}}]
+
+     ["/hello-world"
+      {:post {:summary "upload a file"
+              ;; TODO: update to return text/plain
+              :responses {200 {:body ::file-response}}
+              :handler (fn [& _args]
+                         {:status 200
+                          :body "Hello world!"})}}]
+
+     ["/files"
+      {:tags ["files"]}
+
+      ["/upload"
+       {:post {:summary "upload a file"
+               :parameters {:multipart ::file-params}
+               :responses {200 {:body ::file-response}}
+               :handler (fn [{{{:keys [file]} :multipart} :parameters}]
+                          {:status 200
+                           :body {:name (:filename file)
+                                  :size (:size file)}})}}]]]
+
+    {:exception reitit.dev.pretty/exception
+     :data {:coercion reitit.coercion.spec/coercion
+            :muuntaja muuntaja.core/instance
+            :middleware [reitit.swagger/swagger-feature ;; swagger feature 
+                         reitit.ring.middleware.parameters/parameters-middleware ;; query-params & form-params
+                         reitit.ring.middleware.muuntaja/format-negotiate-middleware ;; content-negotiation
+                         reitit.ring.middleware.muuntaja/format-response-middleware ;; encoding response body
+                         reitit.ring.middleware.exception/exception-middleware ;; exception handling
+                         reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
+                         reitit.ring.coercion/coerce-response-middleware ;; coercing response bodys
+                         reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
+                         ;; multipart
+                         reitit.ring.middleware.multipart/multipart-middleware]}})
+
+   (reitit.ring/routes
+    (reitit.swagger-ui/create-swagger-ui-handler
+     {:path "/docs"
+      :config {:validatorUrl nil
+               :urls [{:name "swagger" :url "swagger.json"}]
+               :urls.primaryName "swagger"
+               :operationsSorter "alpha"}})
+    (reitit.ring/create-default-handler))))
