@@ -26,6 +26,8 @@
     (pg.pool/close (:pool @pg2))
     (send pg2 dissoc :pool)))
 
+(defn borrow-connection "Borrow a connection from the connection pool" [] (pg.pool/borrow-connection (:pool @pg2)))
+
 (mount.core/defstate pg
   :start (start)
   :stop (stop))
