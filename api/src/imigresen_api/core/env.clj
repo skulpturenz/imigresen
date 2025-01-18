@@ -4,7 +4,7 @@
    [clojure.string]
    [clojure.spec.alpha]))
 
-(defn get-env
+(defn env
   "Get the value of an environment variable
    
    Specify `spec?` to validate the variable and throw an exception if it is not valid
