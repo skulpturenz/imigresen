@@ -19,11 +19,12 @@
 (defn create-config
   ([connection-string]
    (let [uri (URI. connection-string)
-         ssl-mode (clojure.string/lower-case (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri))))]
+         ssl-mode (:sslmode (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri))))]
      {:host (.getHost uri)
       :port (.getPort uri)
-      :user (first (clojure.string/split ":" (.getUserInfo uri)))
-      :password (second (clojure.string/split ":" (.getUserInfo uri)))
+      :user (first (clojure.string/split (.getUserInfo uri) #":"))
+      :password (second (clojure.string/split (.getUserInfo uri) #":"))
+      :database (clojure.string/replace (.getPath uri) #"/" "")
       ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
       :use-ssl (clojure.core.match/match ssl-mode
                  "disable" false

@@ -1,10 +1,11 @@
 (ns imigresen-api.core.env-test
-  (:require [clojure.test]
-            [environ.core]
-            [clojure.java.io]
-            [imigresen-api.core.env]
-            [clojure.spec.alpha]
-            [clojure.edn]))
+  (:require
+   [clojure.test]
+   [environ.core]
+   [clojure.java.io]
+   [imigresen-api.core.env]
+   [clojure.spec.alpha]
+   [clojure.edn]))
 
 (defn refresh-ns []
   (remove-ns 'environ.core)
