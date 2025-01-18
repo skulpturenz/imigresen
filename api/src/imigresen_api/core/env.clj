@@ -15,10 +15,10 @@
   ([key schema?]
    (let [value (environ.core/env key)]
      (if (clojure.spec.alpha/valid? schema? value)
-       value
+       (clojure.spec.alpha/conform schema? value)
        (throw (Exception. (clojure.string/join " " ["env" (name keyword) "is not valid"]))))))
   ([key schema? default-value?]
    (let [value (if (nil? (environ.core/env key)) default-value? (environ.core/env key))]
      (if (clojure.spec.alpha/valid? schema? value)
-       value
+       (clojure.spec.alpha/conform schema? value)
        (throw (Exception. (clojure.string/join " " ["env" (name keyword) "is not valid"])))))))
