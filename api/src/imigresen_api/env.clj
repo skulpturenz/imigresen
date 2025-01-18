@@ -6,12 +6,12 @@
 (defn get-env
   "Get the value of an environment variable
    
-   Specify `strict` to throw an exception if the variable is `nil` or provide a `default-value`
+   Specify `strict?` to throw an exception if the variable is `nil` or provide a `default-value?`
    
    Environment variables are loaded with `environ`: https://github.com/weavejester/environ"
   {:arglists `([key]
                [key strict?]
-               [key default-value])}
+               [key default-value?])}
   ([key] (get key false))
   ([key & args]
    (if (not (nil? (environ.core/env key)))
