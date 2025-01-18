@@ -13,8 +13,22 @@
    [reitit.ring.middleware.exception]
    [muuntaja.core]
    [reitit.ring.middleware.multipart]
-   [mount.core]))
+   [mount.core]
+   [buddy.auth.backends]
+   [buddy.auth.middleware]
+   [keycloak.deployment]
+   [keycloak.backend]))
 
+;; TODO
+(def keycloak-deployment (keycloak.deployment/deployment
+                          (keycloak.deployment/client-conf {:auth-server-url "http://localhost:8090/auth"
+                                                            :admin-realm      "master"
+                                                            :realm            "my-realm"
+                                                            :admin-username   "admin"
+                                                            :admin-password   "adminpass"
+                                                            :client-admin-cli "admin-cli"
+                                                            :client-id        "my-backend"
+                                                            :client-secret    "1d741292-74a0-42c8-99b7-6a6a744ebb25"})))
 
 (clojure.spec.alpha/def ::string string?)
 
@@ -29,7 +43,14 @@
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger"
   ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
-  ([route method handler options] [route {(keyword (clojure.string/lower-case method)) (assoc options :handler handler)}]))
+  ([route method handler options]
+   [route {(keyword (clojure.string/lower-case method))
+           (assoc options
+                  :handler (if (:protected options)
+                             (buddy.auth.middleware/wrap-authentication
+                              handler
+                              (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                             handler))}]))
 
 (defmacro defcontext
   ""

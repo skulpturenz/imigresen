@@ -14,7 +14,9 @@
                  [metosin/reitit "0.7.2"]
                  [metosin/ring-swagger-ui "5.18.2"]
                  [metosin/muuntaja "0.6.11"]
-                 [mount "0.1.20"]]
+                 [mount "0.1.20"]
+                 [keycloak-clojure/keycloak-clojure "1.31.2"]
+                 [buddy/buddy-auth "3.0.1"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
