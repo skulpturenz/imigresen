@@ -45,7 +45,7 @@
                           {:migrations-table (clojure.string/join
                                               "-"
                                               [(environ.core/env :pg-migrations-table)
-                                               (imigresen-api.core.env/env :java-env #{"production" "development"} "development")])
+                                               (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environments "development")])
                            :migrations-path (environ.core/env :pg-migrations-path)
                            :pool-min-size (environ.core/env :pg-pool-min-size)
                            :pool-max-size (environ.core/env :pg-pool-max-size)

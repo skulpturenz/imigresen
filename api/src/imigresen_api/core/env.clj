@@ -4,6 +4,8 @@
    [clojure.string]
    [clojure.spec.alpha]))
 
+(def valid-environments #{"production" "development"})
+
 (defn env
   "Get the value of an environment variable
    
