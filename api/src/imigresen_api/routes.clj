@@ -43,21 +43,23 @@
                                                             :client-secret    (environ.core/env :kc-oauth-client-secret)})))
 
 (defmacro defroute
-  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger"
+  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
+   
+   Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route"
   ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
   ([route method handler options]
    [route {(keyword (clojure.string/lower-case method))
            (assoc options
                   :handler (clojure.core.match/match [options]
-                             [{:protected _}] (-> handler
-                                                  (buddy.auth.middleware/wrap-authentication
-                                                   (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
-                             [{:protected _ :policies _}] (-> handler
-                                                              (buddy.auth.middleware/wrap-authentication
-                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                              (buddy.auth.middleware/wrap-authorization
-                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                              (buddy.auth.accessrules/wrap-access-rules (:policies options)))
+                             [{:protected true}] (-> handler
+                                                     (buddy.auth.middleware/wrap-authentication
+                                                      (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
+                             [{:protected true :policies _}] (-> handler
+                                                                 (buddy.auth.middleware/wrap-authentication
+                                                                  (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                 (buddy.auth.middleware/wrap-authorization
+                                                                  (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                 (buddy.auth.accessrules/wrap-access-rules (:policies options)))
                              :else handler))}]))
 
 (defmacro defcontext
