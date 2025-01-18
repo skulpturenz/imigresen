@@ -8,9 +8,9 @@
                  [ring/ring-core "1.13.0"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [com.github.seancorfield/honeysql "2.6.1243"]
-                 [com.github.igrishaev/pg2-core "0.1.29"]
-                 [com.github.igrishaev/pg2-migration "0.1.29"]
-                 [com.github.igrishaev/pg2-honey "0.1.29"]
+                 [com.github.igrishaev/pg2-core "0.1.30"]
+                 [com.github.igrishaev/pg2-migration "0.1.30"]
+                 [com.github.igrishaev/pg2-honey "0.1.30"]
                  [io.flipt/flipt-java "1.1.2"]
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
@@ -26,5 +26,6 @@
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
-            [lein-ring "0.12.6" :auto-refresh? true]]
+            [lein-ring "0.12.6" :auto-refresh? true]
+            [lein-auto "0.1.3"]]
   :ring {:handler imigresen-api.routes/app})
