@@ -9,7 +9,8 @@
    [clojure.walk]
    [ring.util.codec]
    [pg.ssl]
-   [clojure.core.match])
+   [clojure.core.match]
+   [environ.core :as environ])
   (:import
    (java.net URI)))
 
@@ -47,7 +48,11 @@
                           :database (environ.core/env :pg-database)
                           :use-ssl (environ.core/env :pg-use-ssl)
                           :migrations-table (clojure.string/join "-" [(environ.core/env :pg-migrations-table) (environ.core/env :java-env)])
-                          :migrations-path (environ.core/env :pg-migrations-path)}}))
+                          :migrations-path (environ.core/env :pg-migrations-path)
+                          :pool-min-size (environ.core/env :pg-pool-min-size)
+                          :pool-max-size (environ.core/env :pg-pool-max-size)
+                          :pool-expire-threshold-ms (environ.core/env :pg-pool-expire-threshold-ms)
+                          :pool-borrow-conn-timeout-ms (environ.core/env :pg-pool-borrow-conn-timeout-ms)}}))
 
 (defn start []
   (pg.migrations.core/migrate-all (:config @pg2))
