@@ -33,16 +33,17 @@
 
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 
+;; TODO: remove default values
 (defn create-keycloak-deployment []
   (keycloak.deployment/deployment
-   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.core.env/env :kc-auth-server-url string?)
-                                     :admin-realm      (imigresen-api.core.env/env :kc-admin-realm string?)
-                                     :realm            (imigresen-api.core.env/env :kc-realm string?)
-                                     :admin-username   (imigresen-api.core.env/env :kc-admin-username string?)
-                                     :admin-password   (imigresen-api.core.env/env :kc-admin-password string?)
-                                     :client-admin-cli (imigresen-api.core.env/env :kc-client-admin-cli string?)
-                                     :client-id        (imigresen-api.core.env/env :kc-oauth-client-id string?)
-                                     :client-secret    (imigresen-api.core.env/env :kc-oauth-client-secret string?)})))
+   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.core.env/env :kc-auth-server-url string? "http://localhost:8090/auth")
+                                     :admin-realm      (imigresen-api.core.env/env :kc-admin-realm string? "master")
+                                     :realm            (imigresen-api.core.env/env :kc-realm string? "my-realm")
+                                     :admin-username   (imigresen-api.core.env/env :kc-admin-username string? "admin")
+                                     :admin-password   (imigresen-api.core.env/env :kc-admin-password string? "adminpass")
+                                     :client-admin-cli (imigresen-api.core.env/env :kc-client-admin-cli string? "admin-cli")
+                                     :client-id        (imigresen-api.core.env/env :kc-oauth-client-id string? "my-backend")
+                                     :client-secret    (imigresen-api.core.env/env :kc-oauth-client-secret string? "1d741292-74a0-42c8-99b7-6a6a744ebb25")})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger

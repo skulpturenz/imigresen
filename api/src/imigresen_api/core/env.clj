@@ -24,3 +24,5 @@
      (if (clojure.spec.alpha/valid? schema? value)
        (clojure.spec.alpha/conform schema? value)
        (throw (Exception. (clojure.string/join " " ["env" (name key) "is not valid"])))))))
+
+(def current-env (env :java-env valid-environment? "development"))
