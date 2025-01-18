@@ -1,4 +1,4 @@
-.PHONY: dev build test
+.PHONY: dev build test test.watch
 
 dev:
 	lein ring server-headless
@@ -8,3 +8,6 @@ build:
 
 test:
 	lein test
+
+test.watch:
+	lein auto test
