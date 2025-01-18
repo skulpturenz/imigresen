@@ -4,7 +4,7 @@
    [clojure.string]
    [clojure.spec.alpha]))
 
-(def valid-environments #{"production" "development"})
+(def valid-environment? #{"production" "development"})
 
 (defn env
   "Get the value of an environment variable
@@ -13,14 +13,14 @@
    Specify a `default-value?` to provide a default value if the variable is `nil`
    
    Environment variables are loaded with `environ`: https://github.com/weavejester/environ"
-  ([key] (get key false))
+  ([key] (environ.core/env key))
   ([key schema?]
-   (let [value (environ.core/env key)]
+   (let [value (env key)]
      (if (clojure.spec.alpha/valid? schema? value)
        (clojure.spec.alpha/conform schema? value)
-       (throw (Exception. (clojure.string/join " " ["env" (name keyword) "is not valid"]))))))
+       (throw (Exception. (clojure.string/join " " ["env" (name key) "is not valid"]))))))
   ([key schema? default-value?]
-   (let [value (if (nil? (environ.core/env key)) default-value? (environ.core/env key))]
+   (let [value (if (nil? (env key)) default-value? (environ.core/env key))]
      (if (clojure.spec.alpha/valid? schema? value)
        (clojure.spec.alpha/conform schema? value)
-       (throw (Exception. (clojure.string/join " " ["env" (name keyword) "is not valid"])))))))
+       (throw (Exception. (clojure.string/join " " ["env" (name key) "is not valid"])))))))
