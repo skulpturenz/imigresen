@@ -24,11 +24,15 @@
 (defn set-env [env]
   (doseq [kv env] (System/setProperty (name (key kv)) (str (val kv)))))
 
+(defn clear-env [& env]
+  (doseq [k env] (System/clearProperty (name k))))
+
 (clojure.test/deftest get-env-value
   (clojure.test/testing "gets env value"
     (set-env {:get-env-value "world"})
     (let [env (refresh-env)]
-      (clojure.test/is (= (env :get-env-value) "world")))))
+      (clojure.test/is (= (env :get-env-value) "world")))
+    (clear-env :get-env-value)))
 
 (clojure.test/deftest spec
   (clojure.test/testing "validates against spec"
@@ -36,7 +40,8 @@
     (let [env (refresh-env)]
       (clojure.test/is (thrown? Exception (env :spec number?) 1))
       (clojure.test/is
-       (= (env :spec (clojure.spec.alpha/and string? (clojure.spec.alpha/conformer #(clojure.edn/read-string %)) number?)) 1)))))
+       (= (env :spec (clojure.spec.alpha/and string? (clojure.spec.alpha/conformer #(clojure.edn/read-string %)) number?)) 1)))
+    (clear-env :spec)))
 
 (clojure.test/deftest default-value
   (clojure.test/testing "provide default value"
