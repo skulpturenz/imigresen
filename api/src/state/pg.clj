@@ -9,8 +9,7 @@
    [clojure.walk]
    [ring.util.codec]
    [pg.ssl]
-   [clojure.core.match]
-   [environ.core :as environ])
+   [clojure.core.match])
   (:import
    (java.net URI)))
 
@@ -47,7 +46,13 @@
                           :password (environ.core/env :pg-password)
                           :database (environ.core/env :pg-database)
                           :use-ssl (environ.core/env :pg-use-ssl)
-                          :migrations-table (clojure.string/join "-" [(environ.core/env :pg-migrations-table) (environ.core/env :java-env)])
+                          :migrations-table (clojure.string/join
+                                             "-"
+                                             [(environ.core/env :pg-migrations-table)
+                                              ;; TODO: retrieve env with default value
+                                              (if (not (nil? (environ.core/env :java-env)))
+                                                (environ.core/env :java-env)
+                                                "development")])
                           :migrations-path (environ.core/env :pg-migrations-path)
                           :pool-min-size (environ.core/env :pg-pool-min-size)
                           :pool-max-size (environ.core/env :pg-pool-max-size)
