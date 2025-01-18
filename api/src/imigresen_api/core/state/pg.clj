@@ -4,7 +4,7 @@
    [environ.core]
    [pg.core]
    [clojure.string]
-   [pg.migrations.core]
+   [pg.migration.core]
    [pg.pool]
    [clojure.walk]
    [ring.util.codec]
@@ -45,7 +45,7 @@
                           {:migrations-table (clojure.string/join
                                               "-"
                                               [(environ.core/env :pg-migrations-table)
-                                               (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environments "development")])
+                                               (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environment? "development")])
                            :migrations-path (environ.core/env :pg-migrations-path)
                            :pool-min-size (environ.core/env :pg-pool-min-size)
                            :pool-max-size (environ.core/env :pg-pool-max-size)
@@ -53,7 +53,7 @@
                            :pool-borrow-conn-timeout-ms (environ.core/env :pg-pool-borrow-conn-timeout-ms)})}))
 
 (defn start []
-  (pg.migrations.core/migrate-all (:config @pg2))
+  (pg.migration.core/migrate-all (:config @pg2))
   (send pg2 assoc :pool (pg.pool/pool (:config @pg2))))
 
 (defn stop []
