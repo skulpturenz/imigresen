@@ -7,26 +7,37 @@
    [pg.migrations.core]
    [pg.pool]
    [clojure.walk]
-   [ring.util.codec])
+   [ring.util.codec]
+   [pg.ssl]
+   [clojure.core.match])
   (:import
    (java.net URI)))
 
-(defn create-config [connection-string]
+(defn create-config
+  [connection-string
+   ssl-client-key-absolute-path?
+   ssl-client-cert-absolute-path?
+   ssl-cert-ca-absolute-path?]
+  (when (and (not (nil? ssl-client-key-absolute-path?)) (not (nil? ssl-client-cert-absolute-path?)))
+    [pg.ssl/context ssl-client-key-absolute-path? ssl-client-cert-absolute-path?])
+  (when (not (nil? ssl-cert-ca-absolute-path?))
+    (pg.ssl/context ssl-cert-ca-absolute-path?))
+  (when (and (not (nil? ssl-client-key-absolute-path?)) (not (nil? ssl-client-cert-absolute-path?)) (not (nil? ssl-cert-ca-absolute-path?)))
+    (pg.ssl/context ssl-client-key-absolute-path? ssl-client-cert-absolute-path? ssl-cert-ca-absolute-path?))
   (let [uri (URI. connection-string)
-        ssl-mode (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))]
+        ssl-mode (clojure.string/lower-case (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri))))]
     {:host (.getHost uri)
      :port (.getPort uri)
      :user (first (clojure.string/split ":" (.getUserInfo uri)))
      :password (second (clojure.string/split ":" (.getUserInfo uri)))
-     ;; TODO: sslmode
      ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
-     ;; disable - only try a non-SSL connection
-     ;; allow - first try a non-SSL connection; if that fails, try an SSL connection
-     ;; prefer (default) - first try an SSL connection; if that fails, try a non-SSL connection
-     ;; require - only try an SSL connection. If a root CA file is present, verify the certificate in the same way as if verify-ca was specified
-     ;; verify-ca - only try an SSL connection, and verify that the server certificate is issued by a trusted CA.
-     ;; verify-full - only try an SSL connection, verify that the server certificate is issued by a trusted CA and that the server hostname matches that in the certificate.
-     :use-ssl (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))}))
+     :use-ssl (clojure.core.match/match ssl-mode
+                "disable" false
+                "allow" false
+                "prefer" true
+                "require" true
+                "verify-ca" true
+                "verify-full" true)}))
 
 ;; TODO: parse connection string
 (def pg2 (agent {:config {:host (environ.core/env :pg-host)
