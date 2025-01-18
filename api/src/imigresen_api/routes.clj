@@ -24,25 +24,16 @@
 (clojure.spec.alpha/def ::size int?)
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
 
+;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
+
 (defmacro defroute
-  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger.
-   
-   Valid methods:
-   - GET
-   - HEAD
-   - POST
-   - PUT
-   - DELETE
-   - CONNECT
-   - OPTIONS
-   - TRACE
-   - PATCH"
+  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger"
   ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
-  ([route method handler swagger] [route {(keyword (clojure.string/lower-case method)) (assoc swagger :handler handler)}]))
+  ([route method handler options] [route {(keyword (clojure.string/lower-case method)) (assoc options :handler handler)}]))
 
 (defmacro defcontext
   ""
-  [context options & children] (apply vector context options children))
+  [context options & children] (apply vector (if (= context "/") "" context) options children))
 
 (def app
   (reitit.ring/ring-handler
@@ -53,7 +44,7 @@
              :handler (reitit.swagger/create-swagger-handler)}}]
 
      (defcontext
-       ""
+       "/"
        {:tags ["test"]}
 
        (defroute
