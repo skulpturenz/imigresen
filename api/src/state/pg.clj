@@ -9,7 +9,8 @@
    [clojure.walk]
    [ring.util.codec]
    [pg.ssl]
-   [clojure.core.match])
+   [clojure.core.match]
+   [imigresen-api.env])
   (:import
    (java.net URI)))
 
@@ -49,10 +50,7 @@
                           :migrations-table (clojure.string/join
                                              "-"
                                              [(environ.core/env :pg-migrations-table)
-                                              ;; TODO: retrieve env with default value
-                                              (if (not (nil? (environ.core/env :java-env)))
-                                                (environ.core/env :java-env)
-                                                "development")])
+                                              (imigresen-api.env/get-env :java-env "development")])
                           :migrations-path (environ.core/env :pg-migrations-path)
                           :pool-min-size (environ.core/env :pg-pool-min-size)
                           :pool-max-size (environ.core/env :pg-pool-max-size)
