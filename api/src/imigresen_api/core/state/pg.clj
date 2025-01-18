@@ -32,7 +32,8 @@
                  "prefer" true
                  "require" true
                  "verify-ca" true
-                 "verify-full" true)}))
+                 "verify-full" true
+                 :else false)}))
   ([connection-string ssl-cert-ca-absolute-path?]
    (pg.ssl/context ssl-cert-ca-absolute-path?)
    (create-config connection-string))
