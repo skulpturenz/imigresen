@@ -9,6 +9,8 @@
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [com.github.seancorfield/honeysql "2.6.1243"]
                  [com.github.igrishaev/pg2-core "0.1.29"]
+                 [com.github.igrishaev/pg2-migration "0.1.29"]
+                 [com.github.igrishaev/pg2-honey "0.1.29"]
                  [io.flipt/flipt-java "1.1.2"]
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
