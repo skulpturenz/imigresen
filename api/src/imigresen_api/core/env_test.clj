@@ -35,11 +35,8 @@
     (set-env {:spec 1})
     (let [env (refresh-env)]
       (clojure.test/is (thrown? Exception (env :spec number?) 1))
-      (clojure.test/is (=
-                        (env
-                         :spec
-                         (clojure.spec.alpha/and string? (clojure.spec.alpha/conformer #(clojure.edn/read-string %))))
-                        1)))))
+      (clojure.test/is
+       (= (env :spec (clojure.spec.alpha/and string? (clojure.spec.alpha/conformer #(clojure.edn/read-string %)))) 1)))))
 
 (clojure.test/deftest default-value
   (clojure.test/testing "provide default value"
