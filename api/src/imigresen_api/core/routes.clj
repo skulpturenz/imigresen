@@ -33,37 +33,39 @@
 
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 
-(def keycloak-deployment (keycloak.deployment/deployment
-                          (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.core.env/env :kc-auth-server-url string?)
-                                                            :admin-realm      (imigresen-api.core.env/env :kc-admin-realm string?)
-                                                            :realm            (imigresen-api.core.env/env :kc-realm string?)
-                                                            :admin-username   (imigresen-api.core.env/env :kc-admin-username string?)
-                                                            :admin-password   (imigresen-api.core.env/env :kc-admin-password string?)
-                                                            :client-admin-cli (imigresen-api.core.env/env :kc-client-admin-cli string?)
-                                                            :client-id        (imigresen-api.core.env/env :kc-oauth-client-id string?)
-                                                            :client-secret    (imigresen-api.core.env/env :kc-oauth-client-secret string?)})))
+(defn create-keycloak-deployment []
+  (keycloak.deployment/deployment
+   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.core.env/env :kc-auth-server-url string?)
+                                     :admin-realm      (imigresen-api.core.env/env :kc-admin-realm string?)
+                                     :realm            (imigresen-api.core.env/env :kc-realm string?)
+                                     :admin-username   (imigresen-api.core.env/env :kc-admin-username string?)
+                                     :admin-password   (imigresen-api.core.env/env :kc-admin-password string?)
+                                     :client-admin-cli (imigresen-api.core.env/env :kc-client-admin-cli string?)
+                                     :client-id        (imigresen-api.core.env/env :kc-oauth-client-id string?)
+                                     :client-secret    (imigresen-api.core.env/env :kc-oauth-client-secret string?)})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
    
    Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route"
   ([route method handler options?]
-   [route {(keyword (clojure.string/lower-case method))
-           (assoc (merge {} options?)
-                  :handler (if (not (nil? options?))
-                             (clojure.core.match/match [options?]
-                               [{:protected true}] (-> handler
-                                                       (buddy.auth.middleware/wrap-authentication
-                                                        (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
-                               [{:protected true :policies _}] (-> handler
-                                                                   (buddy.auth.middleware/wrap-authentication
-                                                                    (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                   (buddy.auth.middleware/wrap-authorization
-                                                                    (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                   (buddy.auth.accessrules/wrap-access-rules (:policies options?)))
-                               :else handler)
-                             handler)
-                  :no-doc (or (nil? options?) (:no-doc options?)))}])
+   [route (let [keycloak-deployment (create-keycloak-deployment)]
+            {(keyword (clojure.string/lower-case method))
+             (assoc (merge {} options?)
+                    :handler (if (not (nil? options?))
+                               (clojure.core.match/match [options?]
+                                 [{:protected true}] (-> handler
+                                                         (buddy.auth.middleware/wrap-authentication
+                                                          (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
+                                 [{:protected true :policies _}] (-> handler
+                                                                     (buddy.auth.middleware/wrap-authentication
+                                                                      (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                     (buddy.auth.middleware/wrap-authorization
+                                                                      (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                     (buddy.auth.accessrules/wrap-access-rules (:policies options?)))
+                                 :else handler)
+                               handler)
+                    :no-doc (or (nil? options?) (:no-doc options?)))})])
   ([route docstring? method handler options?]
    ^{:doc docstring?}
    `(defroute ~route ~method ~handler ~options?)))
