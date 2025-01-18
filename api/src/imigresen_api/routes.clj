@@ -38,10 +38,12 @@
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
-    [["/docs/swagger.json"
-      {:get {:no-doc true
-             :swagger {:info {:title "imigresen-api"}}
-             :handler (reitit.swagger/create-swagger-handler)}}]
+    [(defroute
+       "/docs/swagger.json"
+       "get"
+       (reitit.swagger/create-swagger-handler)
+       {:no-doc true
+        :swagger {:info {:title "imigresen-api"}}})
 
      (defcontext
        "/"
