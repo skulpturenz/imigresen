@@ -16,19 +16,11 @@
    [mount.core]
    [buddy.auth.backends]
    [buddy.auth.middleware]
+   [buddy.auth.accessrules]
    [keycloak.deployment]
-   [keycloak.backend]))
-
-;; TODO
-(def keycloak-deployment (keycloak.deployment/deployment
-                          (keycloak.deployment/client-conf {:auth-server-url "http://localhost:8090/auth"
-                                                            :admin-realm      "master"
-                                                            :realm            "my-realm"
-                                                            :admin-username   "admin"
-                                                            :admin-password   "adminpass"
-                                                            :client-admin-cli "admin-cli"
-                                                            :client-id        "my-backend"
-                                                            :client-secret    "1d741292-74a0-42c8-99b7-6a6a744ebb25"})))
+   [keycloak.backend]
+   [environ.core]
+   [clojure.core.match]))
 
 (clojure.spec.alpha/def ::string string?)
 
@@ -40,17 +32,33 @@
 
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 
+(def keycloak-deployment (keycloak.deployment/deployment
+                          (keycloak.deployment/client-conf {:auth-server-url (environ.core/env :kc-auth-server-url)
+                                                            :admin-realm      (environ.core/env :kc-admin-realm)
+                                                            :realm            (environ.core/env :kc-realm)
+                                                            :admin-username   (environ.core/env :kc-admin-username)
+                                                            :admin-password   (environ.core/env :kc-admin-password)
+                                                            :client-admin-cli (environ.core/env :kc-client-admin-cli)
+                                                            :client-id        (environ.core/env :kc-oauth-client-id)
+                                                            :client-secret    (environ.core/env :kc-oauth-client-secret)})))
+
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger"
   ([route method handler] [route {(keyword (clojure.string/lower-case method)) {:no-doc true :handler handler}}])
   ([route method handler options]
    [route {(keyword (clojure.string/lower-case method))
            (assoc options
-                  :handler (if (:protected options)
-                             (buddy.auth.middleware/wrap-authentication
-                              handler
-                              (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                             handler))}]))
+                  :handler (clojure.core.match/match [options]
+                             [{:protected _}] (-> handler
+                                                  (buddy.auth.middleware/wrap-authentication
+                                                   (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
+                             [{:protected _ :policies _}] (-> handler
+                                                              (buddy.auth.middleware/wrap-authentication
+                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                              (buddy.auth.middleware/wrap-authorization
+                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                              (buddy.auth.accessrules/wrap-access-rules (:policies options)))
+                             :else handler))}]))
 
 (defmacro defcontext
   ""

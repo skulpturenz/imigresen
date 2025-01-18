@@ -16,7 +16,8 @@
                  [metosin/muuntaja "0.6.11"]
                  [mount "0.1.20"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
-                 [buddy/buddy-auth "3.0.1"]]
+                 [buddy/buddy-auth "3.0.1"]
+                 [org.clojure/core.match "1.1.0"]]
   :main ^:skip-aot imigresen-api.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
