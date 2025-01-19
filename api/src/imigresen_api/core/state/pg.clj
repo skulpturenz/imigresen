@@ -20,12 +20,15 @@
   ([connection-string]
    (let [uri (URI. connection-string)]
      {:host (.getHost uri)
-      :port (.getPort uri)
-      :user (first (clojure.string/split (.getUserInfo uri) #":"))
-      :password (second (clojure.string/split (.getUserInfo uri) #":"))
-      :database (clojure.string/replace (.getPath uri) #"/" "")
+      :port (let [port (try (.getPort uri) (catch Exception _e 5432))]
+              (if (not= port -1) port 5432))
+      :user (try (first (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
+      :password (try (second (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
+      :database (try (clojure.string/replace (.getPath uri) #"/" "") (catch Exception _e ""))
       ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
-      :use-ssl (clojure.core.match/match (:sslmode (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri))))
+      :use-ssl (clojure.core.match/match (:sslmode (try
+                                                     (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))
+                                                     (catch Exception _e {})))
                  "disable" false
                  "allow" false
                  "prefer" true
