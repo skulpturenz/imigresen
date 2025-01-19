@@ -26,32 +26,34 @@
     "verify-full" true
     :else false))
 
-(defn create-config
-  ([connection-string]
-   (let [uri (URI. connection-string)]
-     {:host (.getHost uri)
-      :port (let [port (try (.getPort uri) (catch Exception _e 5432))]
-              (if (not= port -1) port 5432))
-      :user (try (first (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
-      :password (try (second (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
-      :database (try (clojure.string/replace (.getPath uri) #"/" "") (catch Exception _e ""))
-      ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
-      :use-ssl (use-ssl
-                (:sslmode (try (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))
-                               (catch Exception _e {}))))}))
+(defn parse-uri [connection-string]
+  (let [uri (URI. connection-string)]
+    {:host (.getHost uri)
+     :port (let [port (try (.getPort uri) (catch Exception _e 5432))]
+             (if (not= port -1) port 5432))
+     :user (try (first (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
+     :password (try (second (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
+     :database (try (clojure.string/replace (.getPath uri) #"/" "") (catch Exception _e ""))
+        ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
+     :use-ssl (use-ssl
+               (:sslmode (try (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))
+                              (catch Exception _e {}))))}))
+
+(defn config-pg2
+  ([connection-string] (parse-uri connection-string))
   ([connection-string ssl-cert-ca-absolute-path?]
    (pg.ssl/context ssl-cert-ca-absolute-path?)
-   (create-config connection-string))
+   (config-pg2 connection-string))
   ([connection-string ssl-client-key-absolute-path? ssl-client-cert-absolute-path?]
    (pg.ssl/context ssl-client-key-absolute-path? ssl-client-cert-absolute-path?)
-   (create-config connection-string))
+   (config-pg2 connection-string))
   ([connection-string ssl-client-key-absolute-path? ssl-client-cert-absolute-path? ssl-cert-ca-absolute-path?]
    (pg.ssl/context ssl-client-key-absolute-path? ssl-client-cert-absolute-path? ssl-cert-ca-absolute-path?)
-   (create-config connection-string)))
+   (config-pg2 connection-string)))
 
-(defn create-pg2-config []
+(defn set-pg2-config []
   (send pg2-agent assoc :config (merge
-                                 (create-config (imigresen-api.core.env/env :pg-connection-string string?))
+                                 (config-pg2 (imigresen-api.core.env/env :pg-connection-string string?))
                                  {:migrations-table (clojure.string/join
                                                      "-"
                                                      [(environ.core/env :pg-migrations-table)
@@ -62,7 +64,7 @@
                                   :pool-expire-threshold-ms (environ.core/env :pg-pool-expire-threshold-ms)
                                   :pool-borrow-conn-timeout-ms (environ.core/env :pg-pool-borrow-conn-timeout-ms)})))
 (defn start []
-  (create-pg2-config)
+  (set-pg2-config)
   (pg.migration.core/migrate-all (:config @pg2-agent))
   (send pg2-agent assoc :pool (pg.pool/pool (:config @pg2-agent))))
 

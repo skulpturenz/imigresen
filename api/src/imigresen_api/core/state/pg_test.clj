@@ -4,8 +4,8 @@
    [imigresen-api.core.state.pg]
    [clojure.set]))
 
-(clojure.test/deftest create-config-valid-connection-string
-  (clojure.test/testing "create config from connection string"
+(clojure.test/deftest parse-uri
+  (clojure.test/testing "parses postgres uri"
     (let [connection-strings {"postgresql://user:password@test-pg.com:12345/test-database?sslmode=require" {:host "test-pg.com"
                                                                                                             :port 12345
                                                                                                             :user "user"
@@ -30,7 +30,7 @@
                                                           :password ""
                                                           :database ""
                                                           :use-ssl false}}]
-      (clojure.test/is (= (map imigresen-api.core.state.pg/create-config (keys connection-strings)) (vals connection-strings))))))
+      (clojure.test/is (= (map imigresen-api.core.state.pg/parse-uri (keys connection-strings)) (vals connection-strings))))))
 
 (clojure.test/deftest ssl-modes
   (clojure.test/testing "ssl modes"
