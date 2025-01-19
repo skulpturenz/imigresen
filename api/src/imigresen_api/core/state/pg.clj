@@ -16,6 +16,16 @@
 
 (def pg2 (agent {}))
 
+(defn use-ssl [ssl-mode]
+  (clojure.core.match/match ssl-mode
+    "disable" false
+    "allow" false
+    "prefer" true
+    "require" true
+    "verify-ca" true
+    "verify-full" true
+    :else false))
+
 (defn create-config
   ([connection-string]
    (let [uri (URI. connection-string)]
@@ -26,16 +36,9 @@
       :password (try (second (clojure.string/split (.getUserInfo uri) #":")) (catch Exception _e ""))
       :database (try (clojure.string/replace (.getPath uri) #"/" "") (catch Exception _e ""))
       ;; https://www.postgresql.org/docs/8.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE
-      :use-ssl (clojure.core.match/match (:sslmode (try
-                                                     (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))
-                                                     (catch Exception _e {})))
-                 "disable" false
-                 "allow" false
-                 "prefer" true
-                 "require" true
-                 "verify-ca" true
-                 "verify-full" true
-                 :else false)}))
+      :use-ssl (use-ssl
+                (:sslmode (try (clojure.walk/keywordize-keys (ring.util.codec/form-decode (.getQuery uri)))
+                               (catch Exception _e {}))))}))
   ([connection-string ssl-cert-ca-absolute-path?]
    (pg.ssl/context ssl-cert-ca-absolute-path?)
    (create-config connection-string))

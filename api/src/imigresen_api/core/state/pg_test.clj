@@ -29,6 +29,18 @@
                                                      :database ""
                                                      :use-ssl false}})
 
+(def ssl-modes {"disable" false
+                "allow" false
+                "prefer" true
+                "require" true
+                "verify-ca" true
+                "verify-full" true
+                "invalid" false})
+
 (clojure.test/deftest create-config-valid-connection-string
   (clojure.test/testing "create config from connection string"
-    (clojure.test/is (= (set (map imigresen-api.core.state.pg/create-config (keys connection-strings))) (set (vals connection-strings))))))
+    (clojure.test/is (= (map imigresen-api.core.state.pg/create-config (keys connection-strings)) (vals connection-strings)))))
+
+(clojure.test/deftest ssl-mode
+  (clojure.test/testing "ssl modes"
+    (clojure.test/is (= (map imigresen-api.core.state.pg/use-ssl (keys ssl-modes)) (vals ssl-modes)))))
