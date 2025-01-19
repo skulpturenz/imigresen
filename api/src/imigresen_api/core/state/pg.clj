@@ -14,7 +14,7 @@
   (:import
    (java.net URI)))
 
-(def pg2 (agent {}))
+(def pg2-agent (agent {}))
 
 (defn use-ssl [ssl-mode]
   (clojure.core.match/match ssl-mode
@@ -50,29 +50,29 @@
    (create-config connection-string)))
 
 (defn create-pg2-config []
-  (send pg2 assoc :config (merge
-                           (create-config (imigresen-api.core.env/env :pg-connection-string string?))
-                           {:migrations-table (clojure.string/join
-                                               "-"
-                                               [(environ.core/env :pg-migrations-table)
-                                                (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environment? "development")])
-                            :migrations-path (environ.core/env :pg-migrations-path)
-                            :pool-min-size (environ.core/env :pg-pool-min-size)
-                            :pool-max-size (environ.core/env :pg-pool-max-size)
-                            :pool-expire-threshold-ms (environ.core/env :pg-pool-expire-threshold-ms)
-                            :pool-borrow-conn-timeout-ms (environ.core/env :pg-pool-borrow-conn-timeout-ms)})))
+  (send pg2-agent assoc :config (merge
+                                 (create-config (imigresen-api.core.env/env :pg-connection-string string?))
+                                 {:migrations-table (clojure.string/join
+                                                     "-"
+                                                     [(environ.core/env :pg-migrations-table)
+                                                      (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environment? "development")])
+                                  :migrations-path (environ.core/env :pg-migrations-path)
+                                  :pool-min-size (environ.core/env :pg-pool-min-size)
+                                  :pool-max-size (environ.core/env :pg-pool-max-size)
+                                  :pool-expire-threshold-ms (environ.core/env :pg-pool-expire-threshold-ms)
+                                  :pool-borrow-conn-timeout-ms (environ.core/env :pg-pool-borrow-conn-timeout-ms)})))
 (defn start []
   (create-pg2-config)
-  (pg.migration.core/migrate-all (:config @pg2))
-  (send pg2 assoc :pool (pg.pool/pool (:config @pg2))))
+  (pg.migration.core/migrate-all (:config @pg2-agent))
+  (send pg2-agent assoc :pool (pg.pool/pool (:config @pg2-agent))))
 
 (defn stop []
-  (when (not (nil? (:pool @pg2)))
-    (pg.pool/close (:pool @pg2))
-    (send pg2 dissoc :pool)))
+  (when (not (nil? (:pool @pg2-agent)))
+    (pg.pool/close (:pool @pg2-agent))
+    (send pg2-agent dissoc :pool)))
 
-(defn borrow-connection "Borrow a connection from the connection pool" [] (pg.pool/borrow-connection (:pool @pg2)))
+(defn borrow "Borrow a connection from the connection pool" [] (pg.pool/borrow-connection (:pool @pg2-agent)))
 
-(mount.core/defstate pg
+(mount.core/defstate pg-state
   :start (start)
   :stop (stop))
