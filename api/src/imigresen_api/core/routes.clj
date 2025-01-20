@@ -169,7 +169,7 @@
 
 (defmacro comptime [form & args]
   (if (ifn? form)
-    `(~form ~args) ;; TODO: unevaluated
+    (apply form args) ;; TODO: fails when arity > 2 with `+`
     form))
 
 (defmacro caught [form & args]
