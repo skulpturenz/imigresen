@@ -31,6 +31,7 @@
 (clojure.spec.alpha/def ::size int?)
 (clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
 
+;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 
 ;; TODO: remove default values
@@ -48,7 +49,9 @@
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
    
-   Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route"
+   Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route
+   
+   Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
   {:clj-kondo/lint-as 'clojure.core/def}
   ([name route method handler options?]
    `(def
@@ -73,14 +76,16 @@
   ([name route docstring? method handler options?]
    `(def ~(with-meta name {:doc docstring?}) (var-get (defroute ~name ~route ~method ~handler ~options?)))))
 
-(defmacro defcontext
-  "Creates a parent route definition"
+(defmacro defroutes
+  "Creates a route definition with child routes
+   
+   Docs: Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
   {:clj-kondo/lint-as 'clojure.core/def
    :arglists '([context docstring? options? & children]
                [context options? & children])}
   ([name context & args]
    (if (string? (first args))
-     `(def ~(with-meta name {:doc (first args)}) (var-get (defcontext ~name ~context ~@(rest args)))) ;; [name context docstring? tags? & children]
+     `(def ~(with-meta name {:doc (first args)}) (var-get (defroutes ~name ~context ~@(rest args)))) ;; [name context docstring? tags? & children]
      `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args))))) ;; [name context tags? & children]
 
 (defroute hello-world-route
@@ -95,7 +100,7 @@
    :responses {200 {:content {"text/plain" {:schema string?}}
                     :body ::string}}})
 
-(defcontext root-context
+(defroutes root-routes
   "/"
   "Docs docs docs!!!"
   {:tags ["test"]}
@@ -124,7 +129,7 @@
    :parameters {:multipart ::file-params}
    :responses {200 {:body ::file-response}}})
 
-(defcontext files-context
+(defroutes files-routes
   "/files"
   {:tags ["files"]}
 
@@ -133,7 +138,7 @@
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
-    [swagger-config-route root-context files-context]
+    [swagger-config-route root-routes files-routes]
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
