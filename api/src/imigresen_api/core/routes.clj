@@ -71,9 +71,7 @@
                                     handler)
                          :no-doc (or (nil? options?) (:no-doc options?)))})]))
   ([name route docstring? method handler options?]
-   ^{:doc docstring?}
-   `(defroute ~name ~route ~method ~handler ~options?)))
-
+   `(def ~(with-meta name {:doc docstring?}) (var-get (defroute ~name ~route ~method ~handler ~options?)))))
 
 (defmacro defcontext
   "Creates a parent route definition"
@@ -82,8 +80,7 @@
                [context options? & children])}
   ([name context & args]
    (if (string? (first args))
-     ^{:doc (first args)}
-     `(defcontext ~name ~context ~@(rest args)) ;; [name context docstring? tags? & children]
+     `(def ~(with-meta name {:doc (first args)}) (var-get (defcontext ~name ~context ~@(rest args)))) ;; [name context docstring? tags? & children]
      `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args))))) ;; [name context tags? & children]
 
 (defroute hello-world-route
