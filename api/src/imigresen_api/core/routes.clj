@@ -88,7 +88,7 @@
 
 (defroute hello-world-route
   "/hello-world"
-  ;; "Hello world docstring!!"
+  "Hello world docstring!!"
   "GET"
   (fn [& _args] {:status 200
                  :headers {"Content-Type" "text/plain"}
