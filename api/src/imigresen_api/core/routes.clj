@@ -49,81 +49,94 @@
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
    
    Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route"
-  ([route method handler options?]
-   [route (let [keycloak-deployment (create-keycloak-deployment)]
-            {(keyword (clojure.string/lower-case method))
-             (assoc (merge {} options?)
-                    :handler (if (not (nil? options?))
-                               (clojure.core.match/match [options?]
-                                 [{:protected true}] (-> handler
-                                                         (buddy.auth.middleware/wrap-authentication
-                                                          (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
-                                 [{:protected true :policies _}] (-> handler
-                                                                     (buddy.auth.middleware/wrap-authentication
-                                                                      (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                     (buddy.auth.middleware/wrap-authorization
-                                                                      (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                     (buddy.auth.accessrules/wrap-access-rules (:policies options?)))
-                                 :else handler)
-                               handler)
-                    :no-doc (or (nil? options?) (:no-doc options?)))})])
-  ([route docstring? method handler options?]
+  {:clj-kondo/lint-as 'clojure.core/def}
+  ([name route method handler options?]
+   `(def
+      ~(symbol name)
+      [~route ~(let [keycloak-deployment (create-keycloak-deployment)]
+                 {(keyword (clojure.string/lower-case method))
+                  (assoc (merge {} options?)
+                         :handler (if (not (nil? options?))
+                                    (clojure.core.match/match [options?]
+                                      [{:protected true}] (-> handler
+                                                              (buddy.auth.middleware/wrap-authentication
+                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
+                                      [{:protected true :policies _}] (-> handler
+                                                                          (buddy.auth.middleware/wrap-authentication
+                                                                           (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                          (buddy.auth.middleware/wrap-authorization
+                                                                           (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
+                                                                          (buddy.auth.accessrules/wrap-access-rules (:policies options?)))
+                                      :else handler)
+                                    handler)
+                         :no-doc (or (nil? options?) (:no-doc options?)))})]))
+  ([name route docstring? method handler options?]
    ^{:doc docstring?}
-   `(defroute ~route ~method ~handler ~options?)))
+   `(defroute ~name ~route ~method ~handler ~options?)))
+
 
 (defmacro defcontext
   "Creates a parent route definition"
-  {:arglists '([context docstring? options? & children]
+  {:clj-kondo/lint-as 'clojure.core/def
+   :arglists '([context docstring? options? & children]
                [context options? & children])}
-  ([context & args]
+  ([name context & args]
    (if (string? (first args))
      ^{:doc (first args)}
-     `(defcontext ~context ~@(rest args)) ;; [context docstring? tags? & children]
-     (apply vector (if (= context "/") "" context) args)))) ;; [context tags? & children]
+     `(defcontext ~name ~context ~@(rest args)) ;; [name context docstring? tags? & children]
+     `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args))))) ;; [name context tags? & children]
+
+(defroute hello-world-route
+  "/hello-world"
+  ;; "Hello world docstring!!"
+  "GET"
+  (fn [& _args] {:status 200
+                 :headers {"Content-Type" "text/plain"}
+                 :body "Hello world!"})
+  {:summary "hello world!!"
+   :parameters nil
+   :responses {200 {:content {"text/plain" {:schema string?}}
+                    :body ::string}}})
+
+(defcontext root-context
+  "/"
+  "Docs docs docs!!!"
+  {:tags ["test"]}
+
+  hello-world-route)
+
+(defroute
+  swagger-config-route
+  "/docs/swagger.json"
+  "Test!"
+  "get"
+  (reitit.swagger/create-swagger-handler)
+  {:no-doc true
+   :swagger {:info {:title "imigresen-api"}}})
+
+(defroute
+  upload-route
+  "/upload"
+  "Upload doc string!!!"
+  "post"
+  (fn [{{{:keys [file]} :multipart} :parameters}]
+    {:status 200
+     :body {:name (:filename file)
+            :size (:size file)}})
+  {:summary "upload a file"
+   :parameters {:multipart ::file-params}
+   :responses {200 {:body ::file-response}}})
+
+(defcontext files-context
+  "/files"
+  {:tags ["files"]}
+
+  upload-route)
 
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
-    [(defroute
-       "/docs/swagger.json"
-       "Test!"
-       "get"
-       (reitit.swagger/create-swagger-handler)
-       {:no-doc true
-        :swagger {:info {:title "imigresen-api"}}})
-
-     (defcontext
-       "/"
-       "Docs docs docs!!!"
-       {:tags ["test"]}
-
-       (defroute
-         "/hello-world"
-         "Hello world docstring!!"
-         "GET"
-         (fn [& _args] {:status 200
-                        :headers {"Content-Type" "text/plain"}
-                        :body "Hello world!"})
-         {:summary "hello world!!"
-          :parameters nil
-          :responses {200 {:content {"text/plain" {:schema string?}}
-                           :body ::string}}}))
-
-     (defcontext
-       "/files"
-       {:tags ["files"]}
-
-       (defroute
-         "/upload"
-         "Upload doc string!!!"
-         "post"
-         (fn [{{{:keys [file]} :multipart} :parameters}]
-           {:status 200
-            :body {:name (:filename file)
-                   :size (:size file)}})
-         {:summary "upload a file"
-          :parameters {:multipart ::file-params}
-          :responses {200 {:body ::file-response}}}))]
+    [swagger-config-route root-context files-context]
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
