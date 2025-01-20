@@ -167,10 +167,11 @@
 
 (mount.core/start)
 
+;; TODO how to view expanded form when used inside fn body?
 (defmacro comptime [form & args]
   (if (ifn? form)
     (apply (resolve (symbol form)) args)
-    form))
+    (eval form)))
 
 (defmacro caught [form & args]
   (if (ifn? form)
