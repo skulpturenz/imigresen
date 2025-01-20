@@ -28,4 +28,4 @@
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]
             [lein-auto "0.1.3"]]
-  :ring {:handler imigresen-api.routes/app})
+  :ring {:handler imigresen-api.core.routes/app})
