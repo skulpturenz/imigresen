@@ -58,7 +58,7 @@
       ~(symbol name)
       [~route ~(let [keycloak-deployment (create-keycloak-deployment)]
                  {(keyword (clojure.string/lower-case method))
-                  (assoc (merge {} options?)
+                  (assoc options?
                          :handler (if (not (nil? options?))
                                     (clojure.core.match/match [options?]
                                       [{:protected true}] (-> handler
