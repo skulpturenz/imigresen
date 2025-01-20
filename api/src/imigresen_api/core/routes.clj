@@ -166,3 +166,13 @@
     (reitit.ring/create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
 
 (mount.core/start)
+
+(defmacro comptime [form & args]
+  (if (ifn? form)
+    `(~form ~args) ;; TODO: unevaluated
+    form))
+
+(defmacro caught [form & args]
+  (if (ifn? form)
+    `(try (~form ~@args) (catch Exception e# e#))
+    `(try ~form (catch Exception e# e#))))
