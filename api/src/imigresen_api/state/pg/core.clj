@@ -9,9 +9,9 @@
    [clojure.walk]
    [ring.util.codec]
    [pg.ssl]
-   [clojure.core.match :only [match]]
-   [imigresen-api.app.env :only [env]]
-   [imigresen-api.app.utils :only [caught exception?]])
+   [clojure.core.match :refer [match]]
+   [imigresen-api.app.env :refer [env]]
+   [imigresen-api.app.utils :refer [caught exception?]])
   (:import
    (java.net URI)))
 

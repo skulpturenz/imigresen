@@ -5,7 +5,7 @@
    [clojure.java.io]
    [imigresen-api.app.env]
    [clojure.spec.alpha :as s]
-   [clojure.edn :only [read-string]]))
+   [clojure.edn :refer [read-string]]))
 
 (defn refresh-ns []
   (remove-ns 'environ.core)

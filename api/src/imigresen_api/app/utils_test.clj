@@ -1,8 +1,8 @@
 (ns imigresen-api.app.utils-test
   (:require
-   [imigresen-api.app.utils :only [caught comptime]]
+   [imigresen-api.app.utils :refer [caught comptime]]
    [clojure.test :as t]
-   [clojure.core.match :only [match]]
+   [clojure.core.match :refer [match]]
    [clojure.string :as str])
   (:import
    (java.net URI)))

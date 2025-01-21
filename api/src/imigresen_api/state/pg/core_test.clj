@@ -1,7 +1,7 @@
 (ns imigresen-api.state.pg.core-test
   (:require
    [clojure.test :as t]
-   [imigresen-api.state.pg.core :only [parse-uri use-ssl]]
+   [imigresen-api.state.pg.core :refer [parse-uri use-ssl]]
    [clojure.set]))
 
 (t/deftest parse-uris

@@ -1,3 +1,15 @@
-(ns imigresen-api.api.core)
+(ns imigresen-api.api.core
+  (:require
+   [imigresen-api.api.routes :refer [defroute]]
+   [reitit.swagger :refer [create-swagger-handler]]))
 
-(def handlers [])
+(defroute
+  swagger-config-route
+  "/docs/swagger.json"
+  "Test!"
+  "get"
+  (create-swagger-handler)
+  {:no-doc true
+   :swagger {:info {:title "imigresen-api"}}})
+
+(def handlers [swagger-config-route])
