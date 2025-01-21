@@ -166,14 +166,3 @@
     (reitit.ring/create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
 
 (mount.core/start)
-
-;; TODO how to view expanded form when used inside fn body?
-(defmacro comptime [form & args]
-  (if (ifn? form)
-    (apply (resolve (symbol form)) args)
-    (eval form)))
-
-(defmacro caught [form & args]
-  (if (ifn? form)
-    `(try (~form ~@args) (catch Exception e# e#))
-    `(try ~form (catch Exception e# e#))))
