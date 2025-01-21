@@ -1,6 +1,5 @@
 (ns imigresen-api.api.routes
   (:require
-   [clojure.string :as str]
    [reitit.swagger]
    [reitit.dev.pretty]
    [reitit.coercion.spec]
@@ -44,7 +43,7 @@
    `(def
       ~(symbol name)
       [~route ~(let [keycloak-deployment (create-keycloak-deployment)]
-                 {(keyword (str/lower-case method))
+                 {method
                   (assoc options?
                          :handler (if (not (nil? options?))
                                     (match [options?]
@@ -59,7 +58,7 @@
                                       :else handler)
                                     handler)
                          :no-doc (or (nil? options?) (:no-doc options?)))})]))
-  ([name route docstring? method handler options?]
+  ([name docstring? route method handler options?]
    `(def ~(with-meta name {:doc docstring?}) (var-get (defroute ~name ~route ~method ~handler ~options?)))))
 
 (defmacro defroutes
