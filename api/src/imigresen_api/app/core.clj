@@ -33,7 +33,7 @@
                                          reitit.ring.middleware.multipart/multipart-middleware]}})
 
    (routes (create-swagger-ui-handler
-            ;; oauth
+            ;; TODO: oauth
             {:path "/docs"
              :config {:validatorUrl nil
                       :urls [{:name "swagger" :url "swagger.json"}]
