@@ -1,7 +1,7 @@
-(ns imigresen-api.core.state.pg-test
+(ns imigresen-api.state.pg.core-test
   (:require
    [clojure.test]
-   [imigresen-api.core.state.pg]
+   [imigresen-api.state.pg.core]
    [clojure.set]))
 
 (clojure.test/deftest parse-uri
@@ -30,7 +30,7 @@
                                                           :password ""
                                                           :database ""
                                                           :use-ssl false}}]
-      (clojure.test/is (= (map imigresen-api.core.state.pg/parse-uri (keys connection-strings)) (vals connection-strings))))))
+      (clojure.test/is (= (map imigresen-api.state.pg.core/parse-uri (keys connection-strings)) (vals connection-strings))))))
 
 (clojure.test/deftest ssl-modes
   (clojure.test/testing "ssl modes"
@@ -41,4 +41,4 @@
                      "verify-ca" true
                      "verify-full" true
                      "invalid" false}]
-      (clojure.test/is (= (map imigresen-api.core.state.pg/use-ssl (keys ssl-modes)) (vals ssl-modes))))))
+      (clojure.test/is (= (map imigresen-api.state.pg.core/use-ssl (keys ssl-modes)) (vals ssl-modes))))))

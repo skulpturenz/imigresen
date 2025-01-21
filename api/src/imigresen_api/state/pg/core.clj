@@ -1,4 +1,4 @@
-(ns imigresen-api.core.state.pg
+(ns imigresen-api.state.pg.core
   (:require
    [mount.core]
    [environ.core]
@@ -10,7 +10,7 @@
    [ring.util.codec]
    [pg.ssl]
    [clojure.core.match]
-   [imigresen-api.core.env])
+   [imigresen-api.app.env])
   (:import
    (java.net URI)))
 
@@ -52,11 +52,11 @@
 
 (defn set-pg2-config []
   (send pg2-agent assoc :config (merge
-                                 (config-pg2 (imigresen-api.core.env/env :pg-connection-string string?))
+                                 (config-pg2 (imigresen-api.app.env/env :pg-connection-string string?))
                                  {:migrations-table (clojure.string/join
                                                      "-"
                                                      [(environ.core/env :pg-migrations-table)
-                                                      (imigresen-api.core.env/env :java-env imigresen-api.core.env/valid-environment? "development")])
+                                                      (imigresen-api.app.env/env :java-env imigresen-api.app.env/valid-environment? "development")])
                                   :migrations-path (environ.core/env :pg-migrations-path)
                                   :pool-min-size (environ.core/env :pg-pool-min-size)
                                   :pool-max-size (environ.core/env :pg-pool-max-size)

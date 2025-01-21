@@ -1,4 +1,4 @@
-(ns imigresen-api.core.env
+(ns imigresen-api.app.env
   (:require
    [environ.core]
    [clojure.string]

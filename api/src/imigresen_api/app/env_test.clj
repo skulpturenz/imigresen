@@ -1,23 +1,23 @@
-(ns imigresen-api.core.env-test
+(ns imigresen-api.app.env-test
   (:require
    [clojure.test]
    [environ.core]
    [clojure.java.io]
-   [imigresen-api.core.env]
+   [imigresen-api.app.env]
    [clojure.spec.alpha]
    [clojure.edn]))
 
 (defn refresh-ns []
   (remove-ns 'environ.core)
-  (remove-ns 'imigresen-api.core.env)
+  (remove-ns 'imigresen-api.app.env)
   (dosync (alter @#'clojure.core/*loaded-libs* disj 'environ.core))
-  (dosync (alter @#'clojure.core/*loaded-libs* disj 'imigresen-api.core.env))
+  (dosync (alter @#'clojure.core/*loaded-libs* disj 'imigresen-api.app.env))
   (require 'environ.core)
-  (require 'imigresen-api.core.env))
+  (require 'imigresen-api.app.env))
 
 (defn refresh-env []
   (refresh-ns)
-  (var-get (find-var 'imigresen-api.core.env/env)))
+  (var-get (find-var 'imigresen-api.app.env/env)))
 
 (defn delete-file [file]
   (.delete (clojure.java.io/file file)))

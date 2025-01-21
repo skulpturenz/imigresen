@@ -20,7 +20,7 @@
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [buddy/buddy-auth "3.0.1"]
                  [org.clojure/core.match "1.1.0"]]
-  :main ^:skip-aot imigresen-api.core
+  :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
@@ -28,4 +28,4 @@
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]
             [lein-auto "0.1.3"]]
-  :ring {:handler imigresen-api.core.routes/app})
+  :ring {:handler imigresen-api.app.core/app})

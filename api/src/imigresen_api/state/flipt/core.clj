@@ -1,4 +1,4 @@
-(ns imigresen-api.core.state.flipt
+(ns imigresen-api.state.flipt.core
   (:require
    [mount.core])
   (:import

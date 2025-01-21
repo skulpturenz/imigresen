@@ -1,6 +1,5 @@
-(ns imigresen-api.core.routes
+(ns imigresen-api.app.core
   (:require
-   [clojure.spec.alpha]
    [clojure.string]
    [reitit.ring]
    [reitit.swagger]
@@ -20,31 +19,25 @@
    [keycloak.deployment]
    [keycloak.backend]
    [environ.core]
-   [imigresen-api.core.env]
-   [clojure.core.match]))
+   [imigresen-api.app.env]
+   [clojure.core.match]
+   [imigresen-api.api.core]))
 
-(clojure.spec.alpha/def ::string string?)
-
-(clojure.spec.alpha/def ::file reitit.ring.middleware.multipart/temp-file-part)
-(clojure.spec.alpha/def ::file-params (clojure.spec.alpha/keys :req-un [::file]))
-(clojure.spec.alpha/def ::name string?)
-(clojure.spec.alpha/def ::size int?)
-(clojure.spec.alpha/def ::file-response (clojure.spec.alpha/keys :req-un [::name ::size]))
+(mount.core/start)
 
 ;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
-
 ;; TODO: remove default values
 (defn create-keycloak-deployment []
   (keycloak.deployment/deployment
-   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.core.env/env :kc-auth-server-url string? "http://localhost:8090/auth")
-                                     :admin-realm      (imigresen-api.core.env/env :kc-admin-realm string? "master")
-                                     :realm            (imigresen-api.core.env/env :kc-realm string? "my-realm")
-                                     :admin-username   (imigresen-api.core.env/env :kc-admin-username string? "admin")
-                                     :admin-password   (imigresen-api.core.env/env :kc-admin-password string? "adminpass")
-                                     :client-admin-cli (imigresen-api.core.env/env :kc-client-admin-cli string? "admin-cli")
-                                     :client-id        (imigresen-api.core.env/env :kc-oauth-client-id string? "my-backend")
-                                     :client-secret    (imigresen-api.core.env/env :kc-oauth-client-secret string? "1d741292-74a0-42c8-99b7-6a6a744ebb25")})))
+   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.app.env/env :kc-auth-server-url string? "http://localhost:8090/auth")
+                                     :admin-realm      (imigresen-api.app.env/env :kc-admin-realm string? "master")
+                                     :realm            (imigresen-api.app.env/env :kc-realm string? "my-realm")
+                                     :admin-username   (imigresen-api.app.env/env :kc-admin-username string? "admin")
+                                     :admin-password   (imigresen-api.app.env/env :kc-admin-password string? "adminpass")
+                                     :client-admin-cli (imigresen-api.app.env/env :kc-client-admin-cli string? "admin-cli")
+                                     :client-id        (imigresen-api.app.env/env :kc-oauth-client-id string? "my-backend")
+                                     :client-secret    (imigresen-api.app.env/env :kc-oauth-client-secret string? "1d741292-74a0-42c8-99b7-6a6a744ebb25")})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
@@ -88,57 +81,11 @@
      `(def ~(with-meta name {:doc (first args)}) (var-get (defroutes ~name ~context ~@(rest args)))) ;; [name context docstring? tags? & children]
      `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args))))) ;; [name context tags? & children]
 
-(defroute hello-world-route
-  "/hello-world"
-  "Hello world docstring!!"
-  "GET"
-  (fn [& _args] {:status 200
-                 :headers {"Content-Type" "text/plain"}
-                 :body "Hello world!"})
-  {:summary "hello world!!"
-   :parameters nil
-   :responses {200 {:content {"text/plain" {:schema string?}}
-                    :body ::string}}})
-
-(defroutes root-routes
-  "/"
-  "Docs docs docs!!!"
-  {:tags ["test"]}
-
-  hello-world-route)
-
-(defroute
-  swagger-config-route
-  "/docs/swagger.json"
-  "Test!"
-  "get"
-  (reitit.swagger/create-swagger-handler)
-  {:no-doc true
-   :swagger {:info {:title "imigresen-api"}}})
-
-(defroute
-  upload-route
-  "/upload"
-  "Upload doc string!!!"
-  "post"
-  (fn [{{{:keys [file]} :multipart} :parameters}]
-    {:status 200
-     :body {:name (:filename file)
-            :size (:size file)}})
-  {:summary "upload a file"
-   :parameters {:multipart ::file-params}
-   :responses {200 {:body ::file-response}}})
-
-(defroutes files-routes
-  "/files"
-  {:tags ["files"]}
-
-  upload-route)
-
 (def app
   (reitit.ring/ring-handler
    (reitit.ring/router
-    [swagger-config-route root-routes files-routes]
+
+    imigresen-api.api.core/handlers
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
@@ -164,5 +111,3 @@
                :operationsSorter "alpha"}})
 
     (reitit.ring/create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
-
-(mount.core/start)
