@@ -9,3 +9,5 @@
   (if (ifn? form)
     `(try (~form ~@args) (catch Exception e# e#))
     `(try ~form (catch Exception e# e#))))
+
+(defn exception? [x] (instance? Exception x))

@@ -1,9 +1,9 @@
 (ns imigresen-api.app.core
   (:require
    [clojure.string]
-   [reitit.ring]
+   [reitit.ring :only [ring-handler router routes create-default-handler]]
    [reitit.swagger]
-   [reitit.swagger-ui]
+   [reitit.swagger-ui :only [create-swagger-ui-handler]]
    [reitit.dev.pretty]
    [reitit.coercion.spec]
    [reitit.ring.middleware.parameters]
@@ -13,15 +13,15 @@
    [muuntaja.core]
    [reitit.ring.middleware.multipart]
    [mount.core]
-   [buddy.auth.backends]
-   [buddy.auth.middleware]
-   [buddy.auth.accessrules]
-   [keycloak.deployment]
-   [keycloak.backend]
+   [buddy.auth.backends :only [token]]
+   [buddy.auth.middleware :only [wrap-authentication wrap-authorization]]
+   [buddy.auth.accessrules :only [wrap-access-rules]]
+   [keycloak.deployment :only [deployment client-conf]]
+   [keycloak.backend :only [buddy-verify-token-fn]]
    [environ.core]
-   [imigresen-api.app.env]
-   [clojure.core.match]
-   [imigresen-api.api.core]))
+   [imigresen-api.app.env :only [env]]
+   [clojure.core.match :only [match]]
+   [imigresen-api.api.core :only [handlers]]))
 
 (mount.core/start)
 
@@ -29,15 +29,15 @@
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 ;; TODO: remove default values
 (defn create-keycloak-deployment []
-  (keycloak.deployment/deployment
-   (keycloak.deployment/client-conf {:auth-server-url (imigresen-api.app.env/env :kc-auth-server-url string? "http://localhost:8090/auth")
-                                     :admin-realm      (imigresen-api.app.env/env :kc-admin-realm string? "master")
-                                     :realm            (imigresen-api.app.env/env :kc-realm string? "my-realm")
-                                     :admin-username   (imigresen-api.app.env/env :kc-admin-username string? "admin")
-                                     :admin-password   (imigresen-api.app.env/env :kc-admin-password string? "adminpass")
-                                     :client-admin-cli (imigresen-api.app.env/env :kc-client-admin-cli string? "admin-cli")
-                                     :client-id        (imigresen-api.app.env/env :kc-oauth-client-id string? "my-backend")
-                                     :client-secret    (imigresen-api.app.env/env :kc-oauth-client-secret string? "1d741292-74a0-42c8-99b7-6a6a744ebb25")})))
+  (deployment
+   (client-conf {:auth-server-url (env :kc-auth-server-url string? "http://localhost:8090/auth")
+                 :admin-realm      (env :kc-admin-realm string? "master")
+                 :realm            (env :kc-realm string? "my-realm")
+                 :admin-username   (env :kc-admin-username string? "admin")
+                 :admin-password   (env :kc-admin-password string? "adminpass")
+                 :client-admin-cli (env :kc-client-admin-cli string? "admin-cli")
+                 :client-id        (env :kc-oauth-client-id string? "my-backend")
+                 :client-secret    (env :kc-oauth-client-secret string? "1d741292-74a0-42c8-99b7-6a6a744ebb25")})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
@@ -53,16 +53,15 @@
                  {(keyword (clojure.string/lower-case method))
                   (assoc options?
                          :handler (if (not (nil? options?))
-                                    (clojure.core.match/match [options?]
-                                      [{:protected true}] (-> handler
-                                                              (buddy.auth.middleware/wrap-authentication
-                                                               (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)})))
+                                    (match [options?]
+                                      [{:protected true}] (-> handler (wrap-authentication
+                                                                       (token {:authfn (buddy-verify-token-fn keycloak-deployment)})))
                                       [{:protected true :policies _}] (-> handler
-                                                                          (buddy.auth.middleware/wrap-authentication
-                                                                           (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                          (buddy.auth.middleware/wrap-authorization
-                                                                           (buddy.auth.backends/token {:authfn (keycloak.backend/buddy-verify-token-fn keycloak-deployment)}))
-                                                                          (buddy.auth.accessrules/wrap-access-rules (:policies options?)))
+                                                                          (wrap-authentication
+                                                                           (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
+                                                                          (wrap-authorization
+                                                                           (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
+                                                                          (wrap-access-rules (:policies options?)))
                                       :else handler)
                                     handler)
                          :no-doc (or (nil? options?) (:no-doc options?)))})]))
@@ -78,14 +77,16 @@
                [context options? & children])}
   ([name context & args]
    (if (string? (first args))
-     `(def ~(with-meta name {:doc (first args)}) (var-get (defroutes ~name ~context ~@(rest args)))) ;; [name context docstring? tags? & children]
-     `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args))))) ;; [name context tags? & children]
+     ;; [name context docstring? tags? & children]
+     `(def ~(with-meta name {:doc (first args)}) (var-get (defroutes ~name ~context ~@(rest args))))
+     ;; [name context tags? & children]
+     `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args)))))
 
 (def app
-  (reitit.ring/ring-handler
-   (reitit.ring/router
+  (ring-handler
+   (router
 
-    imigresen-api.api.core/handlers
+    handlers
 
     {:exception reitit.dev.pretty/exception
      :data {:coercion reitit.coercion.spec/coercion
@@ -101,13 +102,13 @@
                          ;; multipart
                          reitit.ring.middleware.multipart/multipart-middleware]}})
 
-   (reitit.ring/routes
+   (routes
     ;; oauth
-    (reitit.swagger-ui/create-swagger-ui-handler
+    (create-swagger-ui-handler
      {:path "/docs"
       :config {:validatorUrl nil
                :urls [{:name "swagger" :url "swagger.json"}]
                :urls.primaryName "swagger"
                :operationsSorter "alpha"}})
 
-    (reitit.ring/create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
+    (create-default-handler [:not-found :method-not-allowed :not-acceptable]))))

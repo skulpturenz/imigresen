@@ -1,8 +1,8 @@
 (ns imigresen-api.app.env
   (:require
    [environ.core]
-   [clojure.string]
-   [clojure.spec.alpha]))
+   [clojure.string :only [join]]
+   [clojure.spec.alpha :only [valid? conform]]))
 
 (def valid-environment? #{"production" "development"})
 
@@ -16,13 +16,13 @@
   ([key] (environ.core/env key))
   ([key schema?]
    (let [value (env key)]
-     (if (clojure.spec.alpha/valid? schema? value)
-       (clojure.spec.alpha/conform schema? value)
-       (throw (Exception. (clojure.string/join " " ["env" (name key) "is not valid"]))))))
+     (if (valid? schema? value)
+       (conform schema? value)
+       (throw (Exception. (join " " ["env" (name key) "is not valid"]))))))
   ([key schema? default-value?]
    (let [value (if (nil? (env key)) default-value? (environ.core/env key))]
-     (if (clojure.spec.alpha/valid? schema? value)
-       (clojure.spec.alpha/conform schema? value)
-       (throw (Exception. (clojure.string/join " " ["env" (name key) "is not valid"])))))))
+     (if (valid? schema? value)
+       (conform schema? value)
+       (throw (Exception. (join " " ["env" (name key) "is not valid"])))))))
 
 (def current-env (env :java-env valid-environment? "development"))
