@@ -103,8 +103,8 @@ importers:
         specifier: ^8.5.0-alpha.20
         version: 8.5.0-alpha.20(storybook@8.5.0-beta.7(prettier@3.4.2))
       '@storybook/theming':
-        specifier: ^8.4.7
-        version: 8.4.7(storybook@8.5.0-beta.7(prettier@3.4.2))
+        specifier: ^8.5.0
+        version: 8.5.0(storybook@8.5.0-beta.7(prettier@3.4.2))
       '@tailwindcss/container-queries':
         specifier: ^0.1.1
         version: 0.1.1(tailwindcss@3.4.16)
@@ -1276,8 +1276,8 @@ packages:
     peerDependencies:
       storybook: ^8.5.0-beta.7
 
-  '@storybook/theming@8.4.7':
-    resolution: {integrity: sha512-99rgLEjf7iwfSEmdqlHkSG3AyLcK0sfExcr0jnc6rLiAkBhzuIsvcHjjUwkR210SOCgXqBPW0ZA6uhnuyppHLw==}
+  '@storybook/theming@8.5.0':
+    resolution: {integrity: sha512-591LbOj/HMmHYUfLgrMerxhF1A9mY61HWKxcRpB6xxalc1Xw1kRtQ49DcwuTXnUu9ktBB3nuOzPNPQPFSh/7PQ==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
@@ -4762,7 +4762,7 @@ snapshots:
       '@vitest/spy': 2.0.5
       storybook: 8.5.0-beta.7(prettier@3.4.2)
 
-  '@storybook/theming@8.4.7(storybook@8.5.0-beta.7(prettier@3.4.2))':
+  '@storybook/theming@8.5.0(storybook@8.5.0-beta.7(prettier@3.4.2))':
     dependencies:
       storybook: 8.5.0-beta.7(prettier@3.4.2)
 
