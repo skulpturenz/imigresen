@@ -19,7 +19,9 @@
                  [mount "0.1.20"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [buddy/buddy-auth "3.0.1"]
-                 [org.clojure/core.match "1.1.0"]]
+                 [org.clojure/core.match "1.1.0"]
+                 [migratus "1.6.3"]
+                 [org.slf4j/slf4j-log4j12 "2.0.16"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
@@ -27,7 +29,8 @@
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]
-            [lein-auto "0.1.3"]]
+            [lein-auto "0.1.3"]
+            [migratus-lein "0.7.3"]]
   :ring {:handler imigresen-api.app.core/app}
   :aliases {"dev" ["ring" "server-headless"]
             "build" ["ring" "uberjar"]

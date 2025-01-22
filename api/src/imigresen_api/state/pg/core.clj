@@ -11,7 +11,8 @@
    [pg.ssl]
    [clojure.core.match :refer [match]]
    [imigresen-api.app.env :refer [env]]
-   [imigresen-api.app.utils :refer [caught exception?]])
+   [imigresen-api.app.utils :refer [caught exception?]]
+   [imigresen-api.app.migrations :refer [migrate]])
   (:import
    (java.net URI)))
 
@@ -67,7 +68,7 @@
                                   :pool-borrow-conn-timeout-ms (env :pg-pool-borrow-conn-timeout-ms)})))
 (defn start []
   (set-pg2-config)
-  (pg.migration.core/migrate-all (:config @pg2-agent))
+  (migrate)
   (send pg2-agent assoc :pool (pg.pool/pool (:config @pg2-agent))))
 
 (defn stop []
