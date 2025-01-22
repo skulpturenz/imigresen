@@ -28,4 +28,10 @@
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]
             [lein-auto "0.1.3"]]
-  :ring {:handler imigresen-api.app.core/app})
+  :ring {:handler imigresen-api.app.core/app}
+  :aliases {"dev" ["ring" "server-headless"]
+            "build" ["ring" "uberjar"]
+            "build.watch" ["auto" "ring" "uberjar"]
+            "test" ["test"]
+            "test.watch" ["auto" "test"]
+            "repl" ["repl"]})
