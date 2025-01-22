@@ -11,6 +11,8 @@
                  [com.github.seancorfield/next.jdbc "1.3.981"]
                  [org.postgresql/postgresql "42.7.5"]
                  [org.xerial/sqlite-jdbc "3.48.0.0"]
+                 [com.layerware/hugsql-core "0.5.3"]
+                 [com.layerware/hugsql-adapter-next-jdbc "0.5.3"]
                  [io.flipt/flipt-java "1.1.2"]
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
