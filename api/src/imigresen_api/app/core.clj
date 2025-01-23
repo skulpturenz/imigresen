@@ -11,10 +11,14 @@
    [reitit.ring.middleware.exception]
    [muuntaja.core]
    [reitit.ring.middleware.multipart]
-   [mount.core]
-   [imigresen-api.api.core :refer [handlers]]))
+   [mount.core :as mount]
+   [imigresen-api.api.core :refer [handlers]]
+   [imigresen-api.state.db.core]))
 
-(mount.core/start)
+(defn start-states []
+  (mount/start #'imigresen-api.state.db.core/db-state))
+
+(start-states)
 
 (def app
   (ring-handler

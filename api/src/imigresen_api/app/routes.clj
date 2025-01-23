@@ -25,6 +25,8 @@
 ;; TODO: remove default values
 (defn create-keycloak-deployment []
   (deployment
+   ;; TODO: when reading from env why are there quotes?
+   ;; KC_AUTH_SERVER_URL="https://wewegre.com/wefwerw"
    (client-conf {:auth-server-url (env :kc-auth-server-url (s/and string? (s/conformer #(str/replace % "\"" ""))))
                  :admin-realm      (env :kc-admin-realm (s/and string? (s/conformer #(str/replace % "\"" ""))))
                  :realm            (env :kc-realm (s/and string? (s/conformer #(str/replace % "\"" ""))))
