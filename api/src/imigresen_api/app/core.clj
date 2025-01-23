@@ -16,7 +16,7 @@
    [imigresen-api.state.db.core]))
 
 (defn start-states []
-  (mount/start #'imigresen-api.state.db.core/db-state))
+  (mount/start #'imigresen-api.state.db.core/db))
 
 (start-states)
 

@@ -26,7 +26,7 @@
   (println "DB Pool stop" " " (:jdbc-connection-string @db-agent)) ;; TODO: logging
   (.close ^HikariDataSource (:ds @db-agent)))
 
-(defstate db-state
+(defstate db
   ;; TODO: weird quotes thing
   :start (start (env :jdbc-connection-string string?))
   :stop (stop))
