@@ -1,4 +1,4 @@
-(ns imigresen-api.api.routes
+(ns imigresen-api.app.routes
   (:require
    [reitit.swagger]
    [reitit.dev.pretty]
@@ -16,21 +16,23 @@
    [keycloak.deployment :refer [deployment client-conf]]
    [keycloak.backend :refer [buddy-verify-token-fn]]
    [imigresen-api.app.env :refer [env]]
-   [clojure.core.match :refer [match]]))
+   [clojure.core.match :refer [match]]
+   [clojure.spec.alpha :as s]
+   [clojure.string :as str]))
 
 ;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
 ;; TODO: remove default values
 (defn create-keycloak-deployment []
   (deployment
-   (client-conf {:auth-server-url (env :kc-auth-server-url string?)
-                 :admin-realm      (env :kc-admin-realm string?)
-                 :realm            (env :kc-realm string?)
-                 :admin-username   (env :kc-admin-username string?)
-                 :admin-password   (env :kc-admin-password string?)
-                 :client-admin-cli (env :kc-client-admin-cli string?)
-                 :client-id        (env :kc-oauth-client-id string?)
-                 :client-secret    (env :kc-oauth-client-secret string?)})))
+   (client-conf {:auth-server-url (env :kc-auth-server-url (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :admin-realm      (env :kc-admin-realm (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :realm            (env :kc-realm (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :admin-username   (env :kc-admin-username (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :admin-password   (env :kc-admin-password (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :client-admin-cli (env :kc-client-admin-cli (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :client-id        (env :kc-oauth-client-id (s/and string? (s/conformer #(str/replace % "\"" ""))))
+                 :client-secret    (env :kc-oauth-client-secret (s/and string? (s/conformer #(str/replace % "\"" ""))))})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
@@ -64,7 +66,7 @@
 (defmacro defroutes
   "Creates a route definition with child routes
    
-   Docs: Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
+   Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
   {:clj-kondo/lint-as 'clojure.core/def
    :arglists '([context docstring? options? & children]
                [context options? & children])}

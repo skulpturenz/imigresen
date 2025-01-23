@@ -4,7 +4,7 @@
    [clojure.string :refer [join]]
    [clojure.spec.alpha :refer [valid? conform]]))
 
-(def valid-environment? #{"production" "development"})
+(def valid-environment? #{"production" "development" "test"})
 
 (defn env
   "Get the value of an environment variable

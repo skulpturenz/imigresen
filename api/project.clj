@@ -10,6 +10,7 @@
                  [com.github.seancorfield/honeysql "2.6.1243"]
                  [com.github.seancorfield/next.jdbc "1.3.981"]
                  [org.postgresql/postgresql "42.7.5"]
+                 [com.zaxxer/HikariCP "6.2.1"]
                  [org.xerial/sqlite-jdbc "3.48.0.0"]
                  [com.layerware/hugsql-core "0.5.3"]
                  [com.layerware/hugsql-adapter-next-jdbc "0.5.3"]
@@ -26,7 +27,8 @@
                  [org.slf4j/slf4j-log4j12 "2.0.16"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all
+  :profiles {:test {:dependencies [[nubank/mockfn "0.7.0"]]}
+             :uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
