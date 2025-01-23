@@ -11,7 +11,7 @@
                  [com.github.seancorfield/next.jdbc "1.3.981"]
                  [org.postgresql/postgresql "42.7.5"]
                  [com.zaxxer/HikariCP "6.2.1"]
-                 [org.xerial/sqlite-jdbc "3.48.0.0"]
+                 [org.duckdb/duckdb_jdbc "1.1.3"]
                  [com.layerware/hugsql-core "0.5.3"]
                  [com.layerware/hugsql-adapter-next-jdbc "0.5.3"]
                  [io.flipt/flipt-java "1.1.2"]
