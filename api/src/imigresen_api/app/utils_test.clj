@@ -1,6 +1,6 @@
 (ns imigresen-api.app.utils-test
   (:require
-   [imigresen-api.app.utils :refer [caught comptime]]
+   [imigresen-api.app.utils :refer [caught comptime truthy]]
    [clojure.test :as t]
    [clojure.core.match :refer [match]]
    [clojure.string :as str])
@@ -32,3 +32,7 @@
                "hello" :success
                :else :failure)
              :success))))
+
+(t/deftest truthy-first
+  (t/testing "returns first truthy value"
+    (t/is (= (truthy nil 1 nil 2 nil 3) 1))))

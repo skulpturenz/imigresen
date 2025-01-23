@@ -3,7 +3,7 @@
    [mount.core :refer [defstate]]
    [next.jdbc :as jdbc]
    [next.jdbc.connection :as connection]
-   [migratus.core :as migratus]
+   [imigresen-api.app.migrations :refer [migrate]]
    [imigresen-api.app.env :refer [env]])
   (:import
    (com.zaxxer.hikari HikariDataSource)))
@@ -19,8 +19,7 @@
   (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
   ;; initialize pool and validate
   (.close (jdbc/get-connection (:ds @db-agent)))
-  ;; TODO: don't think we need to specify `:managed-connection?` as pooled
-  (migratus/up {:connection (jdbc/get-connection (:ds @db-agent))}))
+  (migrate (jdbc/get-connection (:ds @db-agent))))
 
 (defn stop []
   (println "DB Pool stop" " " (:jdbc-connection-string @db-agent)) ;; TODO: logging

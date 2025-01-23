@@ -11,3 +11,6 @@
     `(try ~form (catch Exception e# e#))))
 
 (defn exception? [x] (instance? Exception x))
+
+(defn truthy [& args]
+  (first (filter some? args)))
