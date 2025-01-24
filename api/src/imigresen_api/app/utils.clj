@@ -10,7 +10,7 @@
     `(try (~form ~@args) (catch Exception e# e#))
     `(try ~form (catch Exception e# e#))))
 
-(defn exception? [x] (instance? Exception x))
+(defn exception? [x] (isa? (class x) Exception))
 
 (defn truthy [& args]
   (first (filter some? args)))
