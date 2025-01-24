@@ -1,6 +1,6 @@
 (ns imigresen-api.api.core
   (:require
-   [imigresen-api.app.routes :refer [defroute]]
+   [imigresen-api.app.routes :refer [defroute status-codes]]
    [reitit.swagger :refer [create-swagger-handler]]))
 
 (defroute swagger-config-route "Test!" "/docs/swagger.json" :get
@@ -8,4 +8,8 @@
   {:no-doc true
    :swagger {:info {:title "imigresen-api"}}})
 
-(def handlers [swagger-config-route])
+(defroute health-check "/healthcheck" :get (fn [_req] {:status (:no-content status-codes)
+                                                       :body "."}))
+
+(def handlers [swagger-config-route
+               health-check])
