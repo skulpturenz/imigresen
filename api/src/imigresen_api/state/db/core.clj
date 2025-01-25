@@ -8,8 +8,7 @@
    [clojure.string :as str]
    [clojure.walk :refer [keywordize-keys]]
    [ring.util.codec :refer [form-decode form-encode]]
-   [imigresen-api.app.utils :refer [caught exception?]]
-   [clojure.spec.alpha :as s])
+   [imigresen-api.app.utils :refer [caught exception?]])
   (:import
    (com.zaxxer.hikari HikariDataSource)
    (java.net URI)))
@@ -52,5 +51,5 @@
                                                                                                          :sslmode (:sslmode parsed)}))))
 
 (defstate db
-  :start (start (create-jdbc-connection-string (env :pg-connection-string (s/and string? (s/conformer #(str/replace % "\"" ""))))))
+  :start (start (create-jdbc-connection-string (env :pg-connection-string string?)))
   :stop (stop))

@@ -16,9 +16,7 @@
    [keycloak.deployment :refer [deployment client-conf]]
    [keycloak.backend :refer [buddy-verify-token-fn]]
    [imigresen-api.app.env :refer [env]]
-   [clojure.core.match :refer [match]]
-   [clojure.spec.alpha :as s]
-   [clojure.string :as str]))
+   [clojure.core.match :refer [match]]))
 
 ;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
@@ -26,10 +24,10 @@
 (defn create-keycloak-deployment []
   (deployment
    ;; TODO: when reading from env why are there quotes?
-   (client-conf {:auth-server-url (env :kc-auth-server-url (s/and string? (s/conformer #(str/replace % "\"" ""))))
-                 :realm            (env :kc-realm (s/and string? (s/conformer #(str/replace % "\"" ""))))
-                 :client-id        (env :kc-oauth-client-id (s/and string? (s/conformer #(str/replace % "\"" ""))))
-                 :client-secret    (env :kc-oauth-client-secret (s/and string? (s/conformer #(str/replace % "\"" ""))))})))
+   (client-conf {:auth-server-url (env :kc-auth-server-url string?)
+                 :realm            (env :kc-realm string?)
+                 :client-id        (env :kc-oauth-client-id string?)
+                 :client-secret    (env :kc-oauth-client-secret string?)})))
 
 (defmacro defroute
   "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
