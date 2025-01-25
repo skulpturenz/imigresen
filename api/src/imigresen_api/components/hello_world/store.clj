@@ -5,6 +5,6 @@
    [imigresen-api.state.db.core :refer [db]]))
 
 (defn get-data []
-  (let [query {:select :0}
+  (let [query {:select [["world" :hello]]}
         results (jdbc/execute! (:ds @db) (sql/format query))]
     (first results)))

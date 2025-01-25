@@ -65,8 +65,9 @@
    
    Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
   {:clj-kondo/lint-as 'clojure.core/def
-   :arglists '([context docstring? options? & children]
-               [context options? & children])}
+   :arglists '([name context & children]
+               [name context docstring? options? & children]
+               [name context options? & children])}
   ([name context & args]
    (if (string? (first args))
      ;; [name context docstring? tags? & children]

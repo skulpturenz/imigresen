@@ -1,19 +1,11 @@
 (ns imigresen-api.components.hello-world.spec
   (:require
-   [clojure.test :as t]
    [imigresen-api.state.db.mock]
    [imigresen-api.state.db.core]
-   [imigresen-api.components.hello-world.core :as core]
-   [mount.core :as mount]))
+   [spec-tools.data-spec :as ds]))
 
-(defn fixture [f]
-  (mount/start #'imigresen-api.state.db.mock/db)
-  (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
-  (f)
-  (mount/stop))
+(def example (ds/spec {:name :core/example
+                       :spec {:hello string?}}))
 
-(t/use-fixtures :once fixture)
-
-(t/deftest example-test
-  (t/testing "returns 0"
-    (t/is (= (:0 (core/example)) 0))))
+(def example-incorrect (ds/spec {:name :core/example-incorrect
+                                 :spec {:hello number?}}))

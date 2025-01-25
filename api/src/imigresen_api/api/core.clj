@@ -1,7 +1,8 @@
 (ns imigresen-api.api.core
   (:require
    [imigresen-api.app.routes :refer [defroute status-codes]]
-   [reitit.swagger :refer [create-swagger-handler]]))
+   [reitit.swagger :refer [create-swagger-handler]]
+   [imigresen-api.api.example.core :as example]))
 
 (defroute swagger-config-route "/docs/swagger.json" :get
   (create-swagger-handler)
@@ -12,4 +13,5 @@
                                                        :body "."}))
 
 (def handlers [swagger-config-route
-               health-check])
+               health-check
+               example/example-routes])
