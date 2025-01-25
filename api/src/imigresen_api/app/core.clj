@@ -1,19 +1,18 @@
 (ns imigresen-api.app.core
-  (:require
-   [reitit.ring :refer [ring-handler router routes create-default-handler]]
-   [reitit.swagger]
-   [reitit.swagger-ui :refer [create-swagger-ui-handler]]
-   [reitit.dev.pretty]
-   [reitit.coercion.spec]
-   [reitit.ring.middleware.parameters]
-   [reitit.ring.middleware.muuntaja]
-   [reitit.ring.coercion]
-   [reitit.ring.middleware.exception]
-   [muuntaja.core]
-   [reitit.ring.middleware.multipart]
-   [mount.core :as mount]
-   [imigresen-api.api.core :refer [handlers]]
-   [imigresen-api.state.db.core]))
+  (:require [reitit.ring :refer [ring-handler router routes create-default-handler]]
+            [reitit.swagger]
+            [reitit.swagger-ui :refer [create-swagger-ui-handler]]
+            [reitit.dev.pretty]
+            [reitit.coercion.spec]
+            [reitit.ring.middleware.parameters]
+            [reitit.ring.middleware.muuntaja]
+            [reitit.ring.coercion]
+            [reitit.ring.middleware.exception]
+            [muuntaja.core]
+            [reitit.ring.middleware.multipart]
+            [mount.core :as mount]
+            [imigresen-api.api.core :refer [handlers]]
+            [imigresen-api.state.db.core]))
 
 (defn init []
   (mount/start #'imigresen-api.state.db.core/db))

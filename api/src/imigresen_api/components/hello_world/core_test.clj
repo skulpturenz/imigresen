@@ -1,10 +1,9 @@
 (ns imigresen-api.components.hello-world.core-test
-  (:require
-   [clojure.test :as t]
-   [imigresen-api.state.db.mock]
-   [imigresen-api.state.db.core]
-   [imigresen-api.components.hello-world.core :as core]
-   [mount.core :as mount]))
+  (:require [clojure.test :as t]
+            [imigresen-api.state.db.mock]
+            [imigresen-api.state.db.core]
+            [imigresen-api.components.hello-world.core :as core]
+            [mount.core :as mount]))
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.db.mock/db)

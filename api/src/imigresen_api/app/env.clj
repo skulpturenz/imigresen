@@ -1,8 +1,7 @@
 (ns imigresen-api.app.env
-  (:require
-   [environ.core]
-   [clojure.string :refer [join replace]]
-   [clojure.spec.alpha :refer [valid? conform]]))
+  (:require [environ.core]
+            [clojure.string :refer [join replace]]
+            [clojure.spec.alpha :refer [valid? conform]]))
 
 (def valid-environment? #{"production" "development" "test"})
 

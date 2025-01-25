@@ -1,8 +1,7 @@
 (ns imigresen-api.app.migrations
-  (:require
-   [migratus.core :as migratus]
-   [imigresen-api.app.env :refer [env]]
-   [clojure.spec.alpha :as s]))
+  (:require [migratus.core :as migratus]
+            [imigresen-api.app.env :refer [env]]
+            [clojure.spec.alpha :as s]))
 
 (defn- create-config [data-source]
   {:store :database

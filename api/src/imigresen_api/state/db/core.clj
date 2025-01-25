@@ -1,17 +1,15 @@
 (ns imigresen-api.state.db.core
-  (:require
-   [mount.core :refer [defstate]]
-   [next.jdbc :as jdbc]
-   [next.jdbc.connection :as connection]
-   [imigresen-api.app.migrations :refer [migrate]]
-   [imigresen-api.app.env :refer [env]]
-   [clojure.string :as str]
-   [clojure.walk :refer [keywordize-keys]]
-   [ring.util.codec :refer [form-decode form-encode]]
-   [imigresen-api.app.utils :refer [caught exception?]])
-  (:import
-   (com.zaxxer.hikari HikariDataSource)
-   (java.net URI)))
+  (:require [mount.core :refer [defstate]]
+            [next.jdbc :as jdbc]
+            [next.jdbc.connection :as connection]
+            [imigresen-api.app.migrations :refer [migrate]]
+            [imigresen-api.app.env :refer [env]]
+            [clojure.string :as str]
+            [clojure.walk :refer [keywordize-keys]]
+            [ring.util.codec :refer [form-decode form-encode]]
+            [imigresen-api.app.utils :refer [caught exception?]])
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (java.net URI)))
 
 (def ^:private db-agent (agent {}))
 

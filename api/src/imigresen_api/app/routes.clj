@@ -1,22 +1,21 @@
 (ns imigresen-api.app.routes
-  (:require
-   [reitit.swagger]
-   [reitit.dev.pretty]
-   [reitit.coercion.spec]
-   [reitit.ring.middleware.parameters]
-   [reitit.ring.middleware.muuntaja]
-   [reitit.ring.coercion]
-   [reitit.ring.middleware.exception]
-   [muuntaja.core]
-   [reitit.ring.middleware.multipart]
-   [mount.core]
-   [buddy.auth.backends :refer [token]]
-   [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
-   [buddy.auth.accessrules :refer [wrap-access-rules]]
-   [keycloak.deployment :refer [deployment client-conf]]
-   [keycloak.backend :refer [buddy-verify-token-fn]]
-   [imigresen-api.app.env :refer [env]]
-   [clojure.core.match :refer [match]]))
+  (:require [reitit.swagger]
+            [reitit.dev.pretty]
+            [reitit.coercion.spec]
+            [reitit.ring.middleware.parameters]
+            [reitit.ring.middleware.muuntaja]
+            [reitit.ring.coercion]
+            [reitit.ring.middleware.exception]
+            [muuntaja.core]
+            [reitit.ring.middleware.multipart]
+            [mount.core]
+            [buddy.auth.backends :refer [token]]
+            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+            [buddy.auth.accessrules :refer [wrap-access-rules]]
+            [keycloak.deployment :refer [deployment client-conf]]
+            [keycloak.backend :refer [buddy-verify-token-fn]]
+            [imigresen-api.app.env :refer [env]]
+            [clojure.core.match :refer [match]]))
 
 ;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction

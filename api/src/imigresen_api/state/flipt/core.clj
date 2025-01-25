@@ -1,8 +1,6 @@
 (ns imigresen-api.state.flipt.core
-  (:require
-   [mount.core])
-  (:import
-   (io.flipt.api FliptClient)))
+  (:require [mount.core])
+  (:import (io.flipt.api FliptClient)))
 
 (def flipt-agent (agent {}))
 

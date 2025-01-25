@@ -1,12 +1,11 @@
 (ns imigresen-api.components.hello-world.interface-test
-  (:require
-   [clojure.spec.alpha :as s]
-   [imigresen-api.components.hello-world.interface :as impl]
-   [imigresen-api.components.hello-world.interface-spec :as spec]
-   [clojure.test :as t]
-   [mount.core :as mount]
-   [imigresen-api.state.db.mock]
-   [imigresen-api.state.db.core]))
+  (:require [clojure.spec.alpha :as s]
+            [imigresen-api.components.hello-world.interface :as impl]
+            [imigresen-api.components.hello-world.interface-spec :as spec]
+            [clojure.test :as t]
+            [mount.core :as mount]
+            [imigresen-api.state.db.mock]
+            [imigresen-api.state.db.core]))
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.db.mock/db)

@@ -1,9 +1,8 @@
 (ns imigresen-api.app.utils-test
-  (:require
-   [imigresen-api.app.utils :refer [caught truthy]]
-   [clojure.test :as t]
-   [clojure.core.match :refer [match]]
-   [clojure.string :as str])
+  (:require [imigresen-api.app.utils :refer [caught truthy]]
+            [clojure.test :as t]
+            [clojure.core.match :refer [match]]
+            [clojure.string :as str])
   (:import
    (java.net URI)))
 

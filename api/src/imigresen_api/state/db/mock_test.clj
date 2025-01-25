@@ -1,10 +1,9 @@
 (ns imigresen-api.state.db.mock-test
-  (:require
-   [imigresen-api.state.db.mock :refer [db]]
-   [clojure.test :as t]
-   [mount.core :as mount]
-   [honey.sql :as sql]
-   [next.jdbc :as jdbc]))
+  (:require [imigresen-api.state.db.mock :refer [db]]
+            [clojure.test :as t]
+            [mount.core :as mount]
+            [honey.sql :as sql]
+            [next.jdbc :as jdbc]))
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.db.mock/db)
