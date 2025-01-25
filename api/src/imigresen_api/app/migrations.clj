@@ -5,18 +5,20 @@
    [clojure.spec.alpha :as s]
    [clojure.string :as str]))
 
-;; TODO
-(def config {:store :database
-             :migration-dir (env :db-migration-dir string?)
-             :init-script (env :db-init-script string?)
-             :init-in-transaction? (env :db-init-in-transaction (s/and
-                                                                 string?
-                                                                 (s/conformer #(boolean (Boolean/valueOf (str/replace % "\"" ""))))
-                                                                 boolean?))
-             :migration-table-name (env :db-migration-table-name string?)})
+(defn- create-config [data-source]
+  {:store :database
+   :db {:datasource data-source}
+   :migration-dir (env :db-migration-dir string?)
+   :init-script (env :db-init-script string?)
+   :init-in-transaction? (env :db-init-in-transaction (s/and
+                                                       string?
+                                                       (s/conformer #(boolean (Boolean/valueOf (str/replace % "\"" ""))))
+                                                       boolean?))
+   :migration-table-name (env :db-migration-table-name string?)})
 
 ;; https://github.com/yogthos/migratus?tab=readme-ov-file#configuration
 ;; https://github.com/yogthos/migratus?tab=readme-ov-file#usage
-(defn migrate [connection]
-  (migratus/init (assoc config :db connection))
-  (migratus/migrate (assoc config :db connection)))
+;; https://github.com/yogthos/migratus?tab=readme-ov-file#alternative-setup
+(defn migrate [data-source]
+  (migratus/init (create-config data-source))
+  (migratus/migrate (create-config data-source)))

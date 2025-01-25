@@ -26,7 +26,7 @@
   (await db-agent)
   ;; initialize pool and validate
   (.close (jdbc/get-connection (:ds @db-agent)))
-  (migrate (jdbc/get-connection (:ds @db-agent))))
+  (migrate (:ds @db-agent)))
 
 (defn stop []
   (println "DB Pool stop" " " (:jdbc-connection-string @db-agent)) ;; TODO: logging
