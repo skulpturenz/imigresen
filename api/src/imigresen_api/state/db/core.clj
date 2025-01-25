@@ -47,9 +47,9 @@
 ;; https://jdbc.postgresql.org/documentation/use/
 (defn- create-jdbc-connection-string [connection-string]
   (let [parsed (parse-connection-string connection-string)]
-    (str "jdbc:postgresql://" (:host parsed) "/" (:database parsed) "?" (form-encode {:user (:user parsed)
-                                                                                      :password (:password parsed)
-                                                                                      :sslmode (:sslmode parsed)}))))
+    (str "jdbc:postgresql://" (:host parsed) ":" (:port parsed) "/" (:database parsed) "?" (form-encode {:user (:user parsed)
+                                                                                                         :password (:password parsed)
+                                                                                                         :sslmode (:sslmode parsed)}))))
 
 (defstate db
   :start (start (create-jdbc-connection-string (env :pg-connection-string (s/and string? (s/conformer #(str/replace % "\"" ""))))))
