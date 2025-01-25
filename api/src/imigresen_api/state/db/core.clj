@@ -25,11 +25,15 @@
   (await db-agent)
   ;; initialize pool and validate
   (.close (jdbc/get-connection (:ds @db-agent)))
-  (migrate (:ds @db-agent)))
+  (migrate (:ds @db-agent))
+  ;; return agent
+  db-agent)
 
 (defn stop []
   (println "DB Pool stop" " " (:jdbc-connection-string @db-agent)) ;; TODO: logging
-  (.close ^HikariDataSource (:ds @db-agent)))
+  (.close ^HikariDataSource (:ds @db-agent))
+  ;; return agent
+  db-agent)
 
 (defn- parse-connection-string [connection-string]
   (let [uri (URI. connection-string)

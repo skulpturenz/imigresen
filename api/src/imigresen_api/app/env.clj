@@ -14,7 +14,9 @@
    Specify a `default-value?` to provide a default value if the variable is `nil`
    
    Environment variables are loaded with `environ`: https://github.com/weavejester/environ"
-  ([key] (replace (environ.core/env key) "\"" ""))
+  ([key] (let [value (environ.core/env key)]
+           (when (not (nil? value))
+             (replace (environ.core/env key) "\"" ""))))
   ([key schema?]
    (let [value (env key)]
      (if (valid? schema? value)
