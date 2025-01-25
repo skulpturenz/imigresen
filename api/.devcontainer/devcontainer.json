@@ -10,11 +10,13 @@
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
 		"JAVA_ENV": "development"
+		//// keycloak
 		// "KC_AUTH_SERVER_URL": "",
 		// "KC_REALM": "",
 		// "KC_OAUTH_CLIENT_ID": "",
 		// "KC_OAUTH_CLIENT_SECRET": "",
-		// "PG_CONNECTION_STRING: "",
+		//// db
+		// "PG_CONNECTION_STRING": "",
 		// "DB_MIGRATION_DIR": "",
 		// "DB_INIT_SCRIPT": "",
 		// "DB_INIT_IN_TRANSACTION": "",

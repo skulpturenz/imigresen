@@ -39,9 +39,11 @@
 
    (routes (create-swagger-ui-handler
             ;; TODO: oauth
+            ;; https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+            ;; unsure how: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md
             {:path "/docs"
              :config {:validatorUrl nil
                       :urls [{:name "swagger" :url "swagger.json"}]
                       :urls.primaryName "swagger"
                       :operationsSorter "alpha"}})
-           (create-default-handler [:not-found :method-not-allowed :not-acceptable]))))
+           (create-default-handler))))
