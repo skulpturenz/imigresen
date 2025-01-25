@@ -13,12 +13,18 @@
    [reitit.ring.middleware.multipart]
    [mount.core :as mount]
    [imigresen-api.api.core :refer [handlers]]
+  ;;  [imigresen-api.state.db.mock]
    [imigresen-api.state.db.core]))
 
 (defn start-states []
   (mount/start #'imigresen-api.state.db.core/db))
 
+;; (defn start-mock-states []
+;;   (mount/start #'imigresen-api.state.db.mock/db))
+
 (start-states)
+
+;; (start-mock-states)
 
 (def app
   (ring-handler
