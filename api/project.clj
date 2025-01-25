@@ -35,7 +35,9 @@
             [lein-ring "0.12.6" :auto-refresh? true]
             [lein-auto "0.1.3"]
             [migratus-lein "0.7.3"]]
-  :ring {:handler imigresen-api.app.core/app}
+  :ring {:init imigresen-api.app.core/init
+         :destroy imigresen-api.app.core/destroy
+         :handler imigresen-api.app.core/app}
   :aliases {"dev" ["ring" "server-headless"]
             "build" ["ring" "uberjar"]
             "build.watch" ["auto" "ring" "uberjar"]
