@@ -8,7 +8,7 @@
   {:no-doc true
    :swagger {:info {:title "imigresen-api"}}})
 
-(defroute health-check "/healthcheck" :get (fn [_req] {:status (:no-content status-codes)
+(defroute health-check "/healthcheck" :get (fn [_req] {:status (:ok status-codes)
                                                        :body "."}))
 
 (def handlers [swagger-config-route
