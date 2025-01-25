@@ -5,7 +5,8 @@
    [clojure.test :as t]
    [mount.core :as mount]
    [imigresen-api.state.db.mock]
-   [imigresen-api.state.db.core]))
+   [imigresen-api.state.db.core]
+   [spec-tools.data-spec :as ds]))
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.db.mock/db)
@@ -15,10 +16,13 @@
 
 (t/use-fixtures :once fixture)
 
-(s/def ::0 number?)
-(s/def ::example-return (s/keys
-                         :req-un [::0]))
+(def example (ds/spec {:name :core/example
+                       :spec {:0 number?}}))
+
+(def example-incorrect (ds/spec {:name :core/example-incorrect
+                                 :spec {:0 string?}}))
 
 (t/deftest get-example
   (t/testing "get-example interface"
-    (t/is (s/valid? (s/fspec :args nil? :ret ::example-return) impl/get-example))))
+    (t/is (s/valid? (s/fspec :args nil? :ret example) impl/get-example))
+    (t/is (not (s/valid? (s/fspec :args nil? :ret example-incorrect) impl/get-example)))))

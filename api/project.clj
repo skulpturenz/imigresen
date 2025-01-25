@@ -22,7 +22,8 @@
                  [buddy/buddy-auth "3.0.1"]
                  [org.clojure/core.match "1.1.0"]
                  [migratus "1.6.3"]
-                 [org.slf4j/slf4j-log4j12 "2.0.16"]]
+                 [org.slf4j/slf4j-log4j12 "2.0.16"]
+                 [metosin/spec-tools "0.10.7"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:test {:dependencies [[nubank/mockfn "0.7.0"]]}
