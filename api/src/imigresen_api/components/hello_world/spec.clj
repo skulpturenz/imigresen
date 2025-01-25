@@ -1,1 +1,20 @@
-(ns imigresen-api.components.hello-world.spec)
+(ns imigresen-api.components.hello-world.spec
+  (:require
+   [clojure.test :as t]
+   [imigresen-api.state.db.mock]
+   [imigresen-api.state.db.core]
+   [imigresen-api.components.hello-world.core :as core]
+   [mount.core :as mount]))
+
+(defn fixture [f]
+  (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
+  (f)
+  (mount/stop))
+
+(t/use-fixtures :once fixture)
+
+;; TODO: initializing mock state correctly but store is trying to query against real `db`
+;; need to modify namespace?
+(t/deftest example-test
+  (t/testing "returns 0"
+    (t/is (= (core/example) 0))))

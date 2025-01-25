@@ -8,7 +8,6 @@
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.db.mock/db)
-  (await db)
   (f)
   (mount/stop #'imigresen-api.state.db.mock/db))
 
