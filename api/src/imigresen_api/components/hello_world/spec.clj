@@ -7,6 +7,7 @@
    [mount.core :as mount]))
 
 (defn fixture [f]
+  (mount/start #'imigresen-api.state.db.mock/db)
   (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
   (f)
   (mount/stop))
@@ -17,4 +18,4 @@
 ;; need to modify namespace?
 (t/deftest example-test
   (t/testing "returns 0"
-    (t/is (= (core/example) 0))))
+    (t/is (= (:0 (core/example)) 0))))
