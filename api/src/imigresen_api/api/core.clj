@@ -3,7 +3,7 @@
    [imigresen-api.app.routes :refer [defroute status-codes]]
    [reitit.swagger :refer [create-swagger-handler]]))
 
-(defroute swagger-config-route "Test!" "/docs/swagger.json" :get
+(defroute swagger-config-route "/docs/swagger.json" :get
   (create-swagger-handler)
   {:no-doc true
    :swagger {:info {:title "imigresen-api"}}})
