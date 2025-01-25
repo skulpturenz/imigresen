@@ -14,8 +14,6 @@
 
 (t/use-fixtures :once fixture)
 
-;; TODO: initializing mock state correctly but store is trying to query against real `db`
-;; need to modify namespace?
 (t/deftest example-test
   (t/testing "returns 0"
     (t/is (= (:0 (core/example)) 0))))
