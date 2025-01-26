@@ -34,7 +34,8 @@
   flipt-agent)
 
 (mount.core/defstate flipt-state
-  :start (start))
+  :start (start)
+  :stop (stop))
 
 (defn boolean-evaluation? [res]
   (= (.getType res) EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE))
