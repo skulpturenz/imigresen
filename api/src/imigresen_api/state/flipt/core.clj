@@ -1,5 +1,5 @@
 (ns imigresen-api.state.flipt.core
-  (:require [mount.core]
+  (:require [mount.core :refer [defstate]]
             [imigresen-api.app.env :refer [env]]
             [taoensso.telemere :as t]
             [clojure.walk :refer [keywordize-keys]])
@@ -12,9 +12,9 @@
                                            EvaluationResponseType)
            (io.flipt.api.authentication ClientTokenAuthenticationStrategy)))
 
-(def flipt-agent (agent {}))
+(def ^:private flipt-agent (agent {}))
 
-(defn start []
+(defn- start []
   (t/log! :debug "flipt state start")
   (let [builder (FliptClient/builder)
         client (-> builder
@@ -26,14 +26,14 @@
     ;; return agent
     flipt-agent))
 
-(defn stop []
+(defn- stop []
   (t/log! :debug "flipt state stop")
   (send flipt-agent dissoc :flipt-client)
   (await flipt-agent)
   ;; return agent
   flipt-agent)
 
-(mount.core/defstate flipt-state
+(defstate flipt-state
   :start (start)
   :stop (stop))
 
