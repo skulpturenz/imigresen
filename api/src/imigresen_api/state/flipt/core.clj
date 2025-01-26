@@ -79,8 +79,8 @@
 (defn evaluation-request
   ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
   ([namespace flag entity context reference] (-> (EvaluationRequest/builder)
-                                                 (.namespaceKey namespace)
-                                                 (.flagKey flag)
+                                                 (.namespaceKey (name namespace))
+                                                 (.flagKey (name flag))
                                                  (.entityId entity)
                                                  (.context context)
                                                  ;; TODO: optional, can set to nil? or do we not invoke reference
