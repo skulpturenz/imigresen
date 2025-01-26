@@ -7,7 +7,8 @@
             [clojure.string :as str]
             [clojure.walk :refer [keywordize-keys]]
             [ring.util.codec :refer [form-decode form-encode]]
-            [imigresen-api.app.utils :refer [caught exception?]])
+            [imigresen-api.app.utils :refer [caught exception?]]
+            [taoensso.telemere :as t])
   (:import (com.zaxxer.hikari HikariDataSource)
            (java.net URI)))
 
@@ -15,7 +16,7 @@
 
 ;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/getting-started.md#connection-pooling
 (defn start [jdbc-connection-string]
-  (println "DB Pool start" " " jdbc-connection-string) ;; TODO: logging
+  (t/log! {:level :debug :data jdbc-connection-string} "db state start")
   ;; supported db types
   ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
   (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
@@ -28,7 +29,7 @@
   db-agent)
 
 (defn stop []
-  (println "DB Pool stop" " " (:jdbc-connection-string @db-agent)) ;; TODO: logging
+  (t/log! {:level :debug :data (:jdbc-connection-string @db-agent)} "db state stop")
   (.close ^HikariDataSource (:ds @db-agent))
   ;; return agent
   db-agent)

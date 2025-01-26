@@ -14,6 +14,7 @@
             [imigresen-api.api.core :refer [handlers]]
             [imigresen-api.state.db.core]))
 
+;; TODO: configure `telemere` and otel
 (defn init []
   (mount/start #'imigresen-api.state.db.core/db))
 

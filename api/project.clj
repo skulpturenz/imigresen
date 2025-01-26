@@ -23,7 +23,8 @@
                  [org.clojure/core.match "1.1.0"]
                  [migratus "1.6.3"]
                  [org.slf4j/slf4j-log4j12 "2.0.16"]
-                 [metosin/spec-tools "0.10.7"]]
+                 [metosin/spec-tools "0.10.7"]
+                 [com.taoensso/telemere "1.0.0-RC1"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:test {:dependencies [[nubank/mockfn "0.7.0"]]}
