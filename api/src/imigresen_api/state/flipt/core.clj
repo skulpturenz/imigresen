@@ -49,10 +49,12 @@
   (cond
     (instance? res BooleanEvaluationResponse) (.isEnabled res)
     (instance? res VariantEvaluationResponse) (.isMatch res)
-    (instance? res BatchEvaluationResponse) (keywordize-keys (into {} (map #((cond
-                                                                               (boolean-evaluation? %) [(.getFlagKey %) (enabled? (.getBooleanResponse %))]
-                                                                               (variant-evaluation? %) [(.getVariantKey %) (enabled? (.getVariantKey %))]))
-                                                                           (seq (.getResponses res)))))))
+    (instance? res BatchEvaluationResponse) (-> (seq (.getResponses res))
+                                                ((partial map #((cond
+                                                                  (boolean-evaluation? %) [(.getFlagKey %) (enabled? (.getBooleanResponse %))]
+                                                                  (variant-evaluation? %) [(.getVariantKey %) (enabled? (.getVariantKey %))]))))
+                                                ((partial into {}))
+                                                (keywordize-keys))))
 
 (defn- normalize [res]
   (let [base {:type (cond
@@ -108,5 +110,5 @@
         ((partial map #((cond
                           (boolean-evaluation? %) [(.getFlagKey %) (normalize (.getBooleanResponse %))]
                           (variant-evaluation? %) [(.getVariantKey %) (normalize (.getVariantResponse %))]))))
-        (into {})
+        ((partial into {}))
         (keywordize-keys))))
