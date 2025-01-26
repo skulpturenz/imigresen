@@ -77,7 +77,7 @@
 
 (defn evaluation-request
   ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
-  ([namespace flag entity context reference] (-> EvaluationRequest/builder
+  ([namespace flag entity context reference] (-> (EvaluationRequest/builder)
                                                  (.namespaceKey namespace)
                                                  (.flagKey flag)
                                                  (.entityId entity)
@@ -99,7 +99,7 @@
       (normalize)))
 
 (defn evaluate-batch [client batch-reqs]
-  (let [batch (-> BatchEvaluationRequest/builder
+  (let [batch (-> (BatchEvaluationRequest/builder)
                   (.requests batch-reqs)
                   (.build))]
     (-> client
