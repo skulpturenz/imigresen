@@ -1,7 +1,8 @@
 (ns imigresen-api.state.flipt.core
   (:require [mount.core]
             [imigresen-api.app.env :refer [env]]
-            [taoensso.telemere :as t])
+            [taoensso.telemere :as t]
+            [clojure.walk :refer [keywordize-keys]])
   (:import (io.flipt.api FliptClient)
            (io.flipt.api.evaluation.models EvaluationRequest
                                            BatchEvaluationRequest
@@ -48,9 +49,10 @@
   (cond
     (instance? res BooleanEvaluationResponse) (.isEnabled res)
     (instance? res VariantEvaluationResponse) (.isMatch res)
-    (instance? res BatchEvaluationResponse) (map #((cond
-                                                     (boolean-evaluation? %) (enabled? (.getBooleanResponse %))
-                                                     (variant-evaluation? %) (enabled? (.getVariantResponse %)))) (seq (.getResponses res)))))
+    (instance? res BatchEvaluationResponse) (keywordize-keys (into {} (map #((cond
+                                                                               (boolean-evaluation? %) [(.getFlagKey %) (enabled? (.getBooleanResponse %))]
+                                                                               (variant-evaluation? %) [(.getVariantKey %) (enabled? (.getVariantKey %))]))
+                                                                           (seq (.getResponses res)))))))
 
 (defn- normalize [res]
   (let [base {:type (cond
@@ -58,16 +60,18 @@
                       (variant-evaluation? res) :variant
                       (error-evaluation? res) :error
                       :else :unknown)
-              :enabled (enabled? res)
               :flag-key (.getFlagKey res)
-              :reason (.getReason res)
-              :timestamp (.getTimestamp res)
-              :duration (.getRequestDurationMillis res)}]
+              :reason (.getReason res)}]
     (if (boolean-evaluation? base)
-      base
-      (merge base {:segment-keys (seq (.getSegmentKeys res))
-                   :variant-attachment (.getVariantAttachment res)
-                   :variant-key (.getVariantKey res)}))))
+      (conj base {:enabled (enabled? res)
+                  :timestamp (.getTimestamp res)
+                  :duration (.getRequestDurationMillis res)})
+      (conj base {:enabled (enabled? res)
+                  :segment-keys (seq (.getSegmentKeys res))
+                  :variant-attachment (.getVariantAttachment res)
+                  :variant-key (.getVariantKey res)
+                  :timestamp (.getTimestamp res)
+                  :duration (.getRequestDurationMillis res)}))))
 
 (defn evaluation-request
   ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
@@ -102,6 +106,7 @@
         (.getResponses batch)
         (seq)
         ((partial map #((cond
-                          (boolean-evaluation? %) (normalize (.getBooleanResponse %))
-                          (variant-evaluation? %) (normalize (.getVariantResponse %))))))
-        ((partial filter #((not (nil? %))))))))
+                          (boolean-evaluation? %) [(.getFlagKey %) (normalize (.getBooleanResponse %))]
+                          (variant-evaluation? %) [(.getVariantKey %) (normalize (.getVariantResponse %))]))))
+        (into {})
+        (keywordize-keys))))
