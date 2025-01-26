@@ -37,7 +37,8 @@
             [migratus-lein "0.7.3"]]
   :ring {:init imigresen-api.app.core/init
          :destroy imigresen-api.app.core/destroy
-         :handler imigresen-api.app.core/app}
+         :handler imigresen-api.app.core/app
+         :nrepl {:start true :port 3001}}
   :aliases {"dev" ["ring" "server-headless"]
             "build" ["ring" "uberjar"]
             "build.watch" ["auto" "ring" "uberjar"]
