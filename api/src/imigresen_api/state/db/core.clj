@@ -31,6 +31,8 @@
 (defn stop []
   (t/log! {:level :debug :data (:jdbc-connection-string @db-agent)} "db state stop")
   (.close ^HikariDataSource (:ds @db-agent))
+  (send db-agent dissoc :ds)
+  (await db-agent)
   ;; return agent
   db-agent)
 
