@@ -64,16 +64,16 @@
                       :else :unknown)
               :flag-key (.getFlagKey res)
               :reason (.getReason res)}]
-    (if (boolean-evaluation? base)
-      (conj base {:enabled (enabled? res)
-                  :timestamp (.getTimestamp res)
-                  :duration (.getRequestDurationMillis res)})
-      (conj base {:enabled (enabled? res)
-                  :segment-keys (seq (.getSegmentKeys res))
-                  :variant-attachment (.getVariantAttachment res)
-                  :variant-key (.getVariantKey res)
-                  :timestamp (.getTimestamp res)
-                  :duration (.getRequestDurationMillis res)}))))
+    (cond
+      (boolean-evaluation? res) (conj base {:enabled (enabled? res)
+                                            :timestamp (.getTimestamp res)
+                                            :duration (.getRequestDurationMillis res)})
+      (variant-evaluation? res) (conj base {:enabled (enabled? res)
+                                            :segment-keys (seq (.getSegmentKeys res))
+                                            :variant-attachment (.getVariantAttachment res)
+                                            :variant-key (.getVariantKey res)
+                                            :timestamp (.getTimestamp res)
+                                            :duration (.getRequestDurationMillis res)}))))
 
 (defn evaluation-request
   ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
