@@ -102,6 +102,6 @@
         (.getResponses batch)
         (seq)
         ((partial map #((cond
-                          (boolean-evaluation? %) (.getBooleanResponse %)
-                          (variant-evaluation? %) (.getVariantResponse %)))))
+                          (boolean-evaluation? %) (normalize (.getBooleanResponse %))
+                          (variant-evaluation? %) (normalize (.getVariantResponse %))))))
         ((partial filter #((not (nil? %))))))))
