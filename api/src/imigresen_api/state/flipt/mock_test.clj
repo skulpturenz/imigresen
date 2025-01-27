@@ -6,7 +6,7 @@
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.flipt.mock/flipt)
-  (let [resolver (fn [] (evaluation-response true "test" (evaluation-reason "testing!!") 100 100))
+  (let [resolver (fn [] (evaluation-response true "test" (evaluation-reason) 100 100))
         client (create-mock-flipt-client {:default {:test resolver}})]
     (@flipt client))
   (f)

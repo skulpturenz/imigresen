@@ -1,7 +1,8 @@
 (ns imigresen-api.state.flipt.mock
   (:require [mount.core :refer [defstate]]
             [taoensso.telemere :as t]
-            [imigresen-api.state.flipt.core :refer [boolean-evaluation? variant-evaluation?]])
+            [imigresen-api.state.flipt.core :refer [boolean-evaluation? variant-evaluation?]]
+            [imigresen-api.app.utils :refer [truthy]])
   (:import (io.flipt.api.evaluation.models EvaluationResponse
                                            BatchEvaluationResponse
                                            BooleanEvaluationResponse
@@ -17,8 +18,8 @@
   (^io.flipt.api.evaluation.models.EvaluationResponse evaluateBatch [^io.flipt.api.evaluation.models.BatchEvaluationRequest req]))
 
 (definterface FliptClientMock
-  ;; TODO: class not found error
-  (^imigresen-api.state.flipt.mock.EvaluationMock evaluation []))
+  ;; TODO: class not found error when using `EvaluationMock`
+  (^Object evaluation []))
 
 ;; {:namespace {:flag-key :resolver}}
 (defn create-mock-flipt-client [config]
@@ -34,7 +35,9 @@
     (reify FliptClientMock
       (evaluation [_this] evaluation))))
 
-(defn evaluation-reason [reason] (EvaluationReason. reason))
+(defn evaluation-reason
+  ([] (evaluation-reason nil))
+  ([reason?] (truthy reason? EvaluationReason/DEFAULT_EVALUATION_REASON)))
 
 (defn evaluation-response
   ([enabled flag-key reason request-duration-millis timestamp]
@@ -44,8 +47,8 @@
   ([responses]
    (BatchEvaluationResponse. (map
                               #((cond
-                                  (boolean-evaluation? %) (EvaluationResponse. EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE %)
-                                  (variant-evaluation? %) (EvaluationResponse. EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE %)))
+                                  (boolean-evaluation? %) (EvaluationResponse. EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE % nil nil)
+                                  (variant-evaluation? %) (EvaluationResponse. EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE % nil nil)))
                               responses))))
 
 (defn- start [client]
