@@ -21,19 +21,19 @@
                    (.authentication (ClientTokenAuthenticationStrategy. (env :rollout-client-token string?)))
                    (.url (env :rollout-url string?))
                    (.build))]
-    (send flipt-agent assoc :flipt-client client)
+    (send flipt-agent assoc :client client)
     (await flipt-agent)
     ;; return agent
     flipt-agent))
 
 (defn- stop []
   (t/log! :debug "flipt state stop")
-  (send flipt-agent dissoc :flipt-client)
+  (send flipt-agent dissoc :client)
   (await flipt-agent)
   ;; return agent
   flipt-agent)
 
-(defstate flipt-state
+(defstate flipt
   :start (start)
   :stop (stop))
 

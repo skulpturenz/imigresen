@@ -2,8 +2,8 @@
   (:require [mount.core :refer [defstate]]
             [taoensso.telemere :as t]
             [imigresen-api.state.flipt.core :refer [boolean-evaluation? variant-evaluation?]])
-  (:import (io.flipt.api FliptClient
-                         Evaluation)
+  (:import (io.flipt.api FliptClient)
+           (io.flipt.api.evaluation Evaluation)
            (io.flipt.api.evaluation.models EvaluationResponse
                                            BatchEvaluationResponse
                                            BooleanEvaluationResponse
@@ -19,9 +19,9 @@
                          resolver ((keyword (.getFlagKey %)) namespace)]
                      (resolver %)))
         evaluation (proxy [Evaluation] []
-                     (evaluateVariant evaluate)
-                     (evaluateBoolean evaluate)
-                     (evaluateBatch evaluate))]
+                     (evaluateVariant [req] (evaluate req))
+                     (evaluateBoolean [req] (evaluate req))
+                     (evaluateBatch [req] (evaluate req)))]
     (proxy [FliptClient] []
       (evaluation [] evaluation))))
 
@@ -41,17 +41,17 @@
 
 (defn- start [client]
   (t/log! :debug "flipt mock state start")
-  (send flipt-agent assoc :flipt-client client)
+  (send flipt-agent assoc :client client)
   (await flipt-agent)
   flipt-agent)
 
 (defn- stop []
   (t/log! :debug "flipt mock state stop")
-  (send flipt-agent dissoc :flipt-client)
+  (send flipt-agent dissoc :client)
   (await flipt-agent)
   ;; return agent
   flipt-agent)
 
-(defstate flipt-state
+(defstate flipt
   :start start
   :stop (stop))
