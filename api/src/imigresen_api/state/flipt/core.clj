@@ -10,7 +10,8 @@
                                            BatchEvaluationResponse
                                            VariantEvaluationResponse
                                            EvaluationResponseType)
-           (io.flipt.api.authentication ClientTokenAuthenticationStrategy)))
+           (io.flipt.api.authentication ClientTokenAuthenticationStrategy)
+           (java.util Map)))
 
 (def ^:private flipt-agent (agent {}))
 
@@ -78,14 +79,15 @@
 
 (defn evaluation-request
   ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
-  ([namespace flag entity context reference] (-> (EvaluationRequest/builder)
-                                                 (.namespaceKey (name namespace))
-                                                 (.flagKey (name flag))
-                                                 (.entityId entity)
-                                                 (.context context)
-                                                 ;; TODO: optional, can set to nil? or do we not invoke reference
-                                                 (.reference reference)
-                                                 (.build))))
+  ([namespace flag entity context _reference] (-> (EvaluationRequest/builder)
+                                                  (.namespaceKey (name namespace))
+                                                  (.flagKey (name flag))
+                                                  (.entityId entity)
+                                                  ;; TODO: need to convert clojure hash map to java map
+                                                  (.context (Map. context))
+                                                  ;; TODO: optional, can set to nil? or do we not invoke reference
+                                                  ;; (.reference reference)
+                                                  (.build))))
 
 (defn evaluate-variant [client req]
   (-> client

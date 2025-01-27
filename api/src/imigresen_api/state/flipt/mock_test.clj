@@ -6,9 +6,6 @@
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.flipt.mock/flipt)
-  (let [resolver (fn [] (evaluation-response true "test" (evaluation-reason) 100 100))
-        client (create-mock-flipt-client {:default {:test resolver}})]
-    (@flipt client))
   (f)
   (mount/stop #'imigresen-api.state.flipt.mock/flipt))
 
@@ -17,4 +14,7 @@
 ;; TODO `Evaluation` has private constructor
 (t/deftest evaluate
   (t/testing "able to evaluate"
-    (t/is (enabled? (evaluate-boolean (:client @flipt) (evaluation-request "default" "test" 1 nil))))))
+    (let [resolver (fn [] (evaluation-response true "test" (evaluation-reason) 100 100))
+          client (create-mock-flipt-client {:default {:test resolver}})
+          agent (flipt client)]
+      (t/is (enabled? (evaluate-boolean (:client @agent) (evaluation-request "default" "test" {"hello" "world"} nil)))))))
