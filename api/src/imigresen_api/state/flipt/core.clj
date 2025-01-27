@@ -11,7 +11,7 @@
                                            VariantEvaluationResponse
                                            EvaluationResponseType)
            (io.flipt.api.authentication ClientTokenAuthenticationStrategy)
-           (java.util Map)))
+           (java.util HashMap)))
 
 (def ^:private flipt-agent (agent {}))
 
@@ -83,8 +83,7 @@
                                                   (.namespaceKey (name namespace))
                                                   (.flagKey (name flag))
                                                   (.entityId entity)
-                                                  ;; TODO: need to convert clojure hash map to java map
-                                                  (.context (Map. context))
+                                                  (.context (HashMap. context))
                                                   ;; TODO: optional, can set to nil? or do we not invoke reference
                                                   ;; (.reference reference)
                                                   (.build))))

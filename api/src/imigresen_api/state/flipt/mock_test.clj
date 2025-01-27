@@ -14,7 +14,8 @@
 ;; TODO `Evaluation` has private constructor
 (t/deftest evaluate
   (t/testing "able to evaluate"
-    (let [resolver (fn [] (evaluation-response true "test" (evaluation-reason) 100 100))
+    (let [resolver (fn [_req] (evaluation-response true "test" (evaluation-reason) 100 "100"))
           client (create-mock-flipt-client {:default {:test resolver}})
           agent (flipt client)]
-      (t/is (enabled? (evaluate-boolean (:client @agent) (evaluation-request "default" "test" {"hello" "world"} nil)))))))
+      ;; TODO: class io.flipt.api.evaluation.models.BooleanEvaluationResponse cannot be cast to class clojure.lang.IFn
+      (t/is (enabled? (evaluate-boolean (:client @agent) (evaluation-request "default" "test" "1234" {"hello" "world"} nil)))))))
