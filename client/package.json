@@ -27,7 +27,7 @@
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"es-toolkit": "^1.29.0",
-		"keycloak-js": "^26.0.7",
+		"keycloak-js": "^26.1.0",
 		"lucide-solid": "^0.468.0",
 		"motion": "^11.17.0",
 		"solid-js": "^1.9.4",
