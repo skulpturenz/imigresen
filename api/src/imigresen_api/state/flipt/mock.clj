@@ -1,8 +1,15 @@
 (ns imigresen-api.state.flipt.mock
   (:require [mount.core :refer [defstate]]
-            [taoensso.telemere :as t])
+            [taoensso.telemere :as t]
+            [imigresen-api.state.flipt.core :refer [boolean-evaluation? variant-evaluation?]])
   (:import (io.flipt.api FliptClient
-                         Evaluation)))
+                         Evaluation)
+           (io.flipt.api.evaluation.models EvaluationResponse
+                                           BatchEvaluationResponse
+                                           BooleanEvaluationResponse
+                                           VariantEvaluationResponse
+                                           EvaluationResponseType
+                                           EvaluationReason)))
 
 (def ^:private flipt-agent (agent {}))
 
@@ -17,6 +24,20 @@
                      (evaluateBatch evaluate))]
     (proxy [FliptClient] []
       (evaluation [] evaluation))))
+
+(defn evaluation-reason [reason] (EvaluationReason. reason))
+
+(defn evaluation-response
+  ([enabled flag-key reason request-duration-millis timestamp]
+   (BooleanEvaluationResponse. enabled flag-key reason request-duration-millis timestamp))
+  ([match segment-keys reason flag-key variant-key variant-attachment request-duration-millis timestamp]
+   (VariantEvaluationResponse. match segment-keys reason flag-key variant-key variant-attachment request-duration-millis timestamp))
+  ([responses]
+   (BatchEvaluationResponse. (map
+                              #((cond
+                                  (boolean-evaluation? %) (EvaluationResponse. EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE %)
+                                  (variant-evaluation? %) (EvaluationResponseType. EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE %)))
+                              responses))))
 
 (defn- start [client]
   (t/log! :debug "flipt mock state start")
