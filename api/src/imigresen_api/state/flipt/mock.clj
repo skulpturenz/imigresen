@@ -2,9 +2,7 @@
   (:require [mount.core :refer [defstate]]
             [taoensso.telemere :as t]
             [imigresen-api.state.flipt.core :refer [boolean-evaluation? variant-evaluation?]])
-  (:import (io.flipt.api FliptClient)
-           (io.flipt.api.evaluation Evaluation)
-           (io.flipt.api.evaluation.models EvaluationResponse
+  (:import (io.flipt.api.evaluation.models EvaluationResponse
                                            BatchEvaluationResponse
                                            BooleanEvaluationResponse
                                            VariantEvaluationResponse
@@ -13,17 +11,28 @@
 
 (def ^:private flipt-agent (agent {}))
 
+(definterface EvaluationMock
+  (^io.flipt.api.evaluation.models.VariantEvaluationResponse evaluateVariant [^io.flipt.api.evaluation.models.EvaluationRequest req])
+  (^io.flipt.api.evaluation.models.BooleanEvaluationResponse evaluateBoolean [^io.flipt.api.evaluation.models.EvaluationRequest req])
+  (^io.flipt.api.evaluation.models.EvaluationResponse evaluateBatch [^io.flipt.api.evaluation.models.BatchEvaluationRequest req]))
+
+(definterface FliptClientMock
+  ;; TODO: class not found error
+  (^imigresen-api.state.flipt.mock.EvaluationMock evaluation []))
+
 ;; {:namespace {:flag-key :resolver}}
 (defn create-mock-flipt-client [config]
   (let [evaluate #((let [namespace ((keyword (.getNamespaceKey %)) config)
                          resolver ((keyword (.getFlagKey %)) namespace)]
                      (resolver %)))
-        evaluation (proxy [Evaluation] []
-                     (evaluateVariant [req] (evaluate req))
-                     (evaluateBoolean [req] (evaluate req))
-                     (evaluateBatch [req] (evaluate req)))]
-    (proxy [FliptClient] []
-      (evaluation [] evaluation))))
+        ;; note: cant use `Evaluation` directly because private ctor
+        evaluation (reify EvaluationMock
+                     (evaluateVariant [_this req] (evaluate req))
+                     (evaluateBoolean [_this req] (evaluate req))
+                     (evaluateBatch [_this req] (evaluate req)))]
+    ;; note: can't use `FliptClient` directly because private ctor
+    (reify FliptClientMock
+      (evaluation [_this] evaluation))))
 
 (defn evaluation-reason [reason] (EvaluationReason. reason))
 
@@ -36,13 +45,14 @@
    (BatchEvaluationResponse. (map
                               #((cond
                                   (boolean-evaluation? %) (EvaluationResponse. EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE %)
-                                  (variant-evaluation? %) (EvaluationResponseType. EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE %)))
+                                  (variant-evaluation? %) (EvaluationResponse. EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE %)))
                               responses))))
 
 (defn- start [client]
   (t/log! :debug "flipt mock state start")
   (send flipt-agent assoc :client client)
   (await flipt-agent)
+  ;; return agent
   flipt-agent)
 
 (defn- stop []
