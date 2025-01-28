@@ -3,5 +3,5 @@
             [imigresen-api.state.flipt.core :refer [start stop enabled? variant]]))
 
 (defstate flipt
-  :start (start)
+  :start (start "https://localhost" "mock")
   :stop (stop))

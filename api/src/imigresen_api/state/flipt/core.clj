@@ -9,10 +9,10 @@
 
 (def ^:private flipt-agent (agent {}))
 
-(defn start []
+(defn start [url client-token]
   (t/log! :debug "flipt state start")
-  (let [options {:url (env :rollout-url string?)
-                 :headers {"Authorization" (str "Bearer" " " (env :rollout-client-token string?))}
+  (let [options {:url url
+                 :headers {"Authorization" (str "Bearer" " " client-token)}
                  :as :auto}
         client #(http/request (conj options %))]
     (send flipt-agent assoc :client client)
@@ -28,7 +28,7 @@
   flipt-agent)
 
 (defstate flipt
-  :start (start)
+  :start (start (env :rollout-url string?) (env :rollout-client-token string?))
   :stop (stop))
 
 (def ^:private counter (atom 0))
@@ -69,4 +69,24 @@
         :request-id (:request-id keywordized)
         :key (:variant-key keywordized)
         :attachment (:variant-attachment keywordized)}
+       nil))))
+
+(defn flags
+  ([client namespace]
+   (flags client namespace nil nil nil nil))
+  ([client namespace limit?]
+   (flags client namespace limit? nil nil nil))
+  ([client namespace limit? offset?]
+   (flags client namespace limit? offset? nil nil))
+  ([client namespace limit? offset? page-token?]
+   (flags client namespace limit? offset? page-token? nil))
+  ([client namespace limit? offset? page-token? reference?]
+   (let [{:keys [status body]} @(client {:method :get
+                                         :query-params {:namespace namespace
+                                                        :limit limit?
+                                                        :offset offset?
+                                                        :pageToken page-token?
+                                                        :reference reference?}})]
+     (if (= status (:ok status-codes))
+       (keywordize-keys body)
        nil))))
