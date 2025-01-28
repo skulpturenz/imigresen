@@ -13,6 +13,9 @@
            (io.flipt.api.authentication ClientTokenAuthenticationStrategy)
            (java.util HashMap)))
 
+;; TODO: query flipt api directly
+;; https://docs.flipt.io/reference/overview
+
 (def ^:private flipt-agent (agent {}))
 
 (defn- start []

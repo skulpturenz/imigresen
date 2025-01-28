@@ -12,7 +12,7 @@
                  [org.postgresql/postgresql "42.7.5"]
                  [com.zaxxer/HikariCP "6.2.1"]
                  [org.duckdb/duckdb_jdbc "1.1.3"]
-                 [io.flipt/flipt-java "1.1.2"]
+                 [io.flipt/flipt-java "1.1.2"] ;; TODO: remove
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
                  [metosin/ring-swagger-ui "5.18.2"]
@@ -24,11 +24,12 @@
                  [migratus "1.6.3"]
                  [org.slf4j/slf4j-log4j12 "2.0.16"]
                  [metosin/spec-tools "0.10.7"]
-                 [com.taoensso/telemere "1.0.0-RC1"]]
+                 [com.taoensso/telemere "1.0.0-RC1"]
+                 [http-kit "2.3.0"]
+                 [http-kit.fake "0.2.1"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:test {:dependencies [[nubank/mockfn "0.7.0"]]}
-             :uberjar {:aot :all
+  :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
