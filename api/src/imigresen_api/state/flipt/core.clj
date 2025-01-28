@@ -32,11 +32,9 @@
   :start (start (env :rollout-url string?) (env :rollout-client-token string?))
   :stop (stop))
 
-(def ^:private counter (atom 0))
-
 (defn enabled?
   ([client flag namespace context]
-   (enabled? client flag namespace (str "anon" "-" (swap! counter inc)) context))
+   (enabled? client flag namespace "" context))
   ([client flag namespace entity context]
    (enabled? client flag namespace entity context nil))
   ([client flag namespace entity context reference?]
@@ -53,7 +51,7 @@
 
 (defn variant
   ([client flag namespace context]
-   (variant client flag namespace (str "anon" "-" (swap! counter inc)) context))
+   (variant client flag namespace "" context))
   ([client flag namespace entity context]
    (variant client flag namespace entity context nil))
   ([client flag namespace entity context reference?]
