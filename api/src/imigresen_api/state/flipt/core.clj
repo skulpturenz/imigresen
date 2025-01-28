@@ -14,7 +14,8 @@
   (let [options {:url url
                  :headers {"Authorization" (str "Bearer" " " client-token)}
                  :as :auto}
-        client #(http/request (conj options %))]
+        ;; TODO: remove duplicate slashes
+        client #(http/request (conj options % {:url (str (:url options) "/" (:path %))}))]
     (send flipt-agent assoc :client client)
     (await flipt-agent)
     ;; return agent
@@ -40,6 +41,7 @@
    (enabled? client flag namespace entity context nil))
   ([client flag namespace entity context reference?]
    (let [{:keys [status body]} @(client {:method :post
+                                         :path "/evaluate/v1/boolean"
                                          :body (json/encode {"context" context
                                                              "entityId" (str entity)
                                                              "flagKey" (name flag)
@@ -57,6 +59,7 @@
   ([client flag namespace entity context reference?]
    (let [request-id (random-uuid)
          {:keys [status body]} @(client {:method :post
+                                         :path "/evaluate/v1/variant"
                                          :body (json/encode {"context" context
                                                              "entityId" (str entity)
                                                              "flagKey" (name flag)
@@ -82,8 +85,8 @@
    (flags client namespace limit? offset? page-token? nil))
   ([client namespace limit? offset? page-token? reference?]
    (let [{:keys [status body]} @(client {:method :get
-                                         :query-params {:namespace namespace
-                                                        :limit limit?
+                                         :path (str "/api/v1/namespace" "/" namespace "/flags")
+                                         :query-params {:limit limit?
                                                         :offset offset?
                                                         :pageToken page-token?
                                                         :reference reference?}})]
