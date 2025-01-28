@@ -2,35 +2,25 @@
   (:require [mount.core :refer [defstate]]
             [imigresen-api.app.env :refer [env]]
             [taoensso.telemere :as t]
-            [clojure.walk :refer [keywordize-keys]])
-  (:import (io.flipt.api FliptClient)
-           (io.flipt.api.evaluation.models EvaluationRequest
-                                           BatchEvaluationRequest
-                                           BooleanEvaluationResponse
-                                           BatchEvaluationResponse
-                                           VariantEvaluationResponse
-                                           EvaluationResponseType)
-           (io.flipt.api.authentication ClientTokenAuthenticationStrategy)
-           (java.util HashMap)))
-
-;; TODO: query flipt api directly
-;; https://docs.flipt.io/reference/overview
+            [clojure.walk :refer [keywordize-keys]]
+            [org.httpkit.client :as http]
+            [clojure.data.json :as json]
+            [imigresen-api.app.routes :refer [status-codes]]))
 
 (def ^:private flipt-agent (agent {}))
 
-(defn- start []
+(defn start []
   (t/log! :debug "flipt state start")
-  (let [builder (FliptClient/builder)
-        client (-> builder
-                   (.authentication (ClientTokenAuthenticationStrategy. (env :rollout-client-token string?)))
-                   (.url (env :rollout-url string?))
-                   (.build))]
+  (let [options {:url (env :rollout-url string?)
+                 :headers {"Authorization" (str "Bearer" " " (env :rollout-client-token string?))}
+                 :as :auto}
+        client #(http/request (conj options %))]
     (send flipt-agent assoc :client client)
     (await flipt-agent)
     ;; return agent
     flipt-agent))
 
-(defn- stop []
+(defn stop []
   (t/log! :debug "flipt state stop")
   (send flipt-agent dissoc :client)
   (await flipt-agent)
@@ -41,79 +31,42 @@
   :start (start)
   :stop (stop))
 
-(defn boolean-evaluation? [res]
-  (= (.getType res) EvaluationResponseType/BOOLEAN_EVALUATION_RESPONSE_TYPE))
+(def ^:private counter (atom 0))
 
-(defn variant-evaluation? [res]
-  (= (.getType res) EvaluationResponseType/VARIANT_EVALUATION_RESPONSE_TYPE))
+(defn enabled?
+  ([client flag namespace context]
+   (enabled? client flag namespace (str "anon" "-" (swap! counter inc)) context))
+  ([client flag namespace entity context]
+   (enabled? client flag namespace entity context nil))
+  ([client flag namespace entity context reference?]
+   (let [{:keys [status body]} @(client {:method :post
+                                         :body (json/encode {"context" context
+                                                             "entityId" (str entity)
+                                                             "flagKey" (name flag)
+                                                             "namespaceKey" (name namespace)
+                                                             "reference" (str reference?)})})]
+     (if (= status (:ok status-codes))
+       (:enabled (keywordize-keys body))
+       nil))))
 
-(defn error-evaluation? [res]
-  (= (.getType res) EvaluationResponseType/ERROR_EVALUATION_RESPONSE_TYPE))
-
-(defn enabled? [res]
-  (cond
-    (instance? res BooleanEvaluationResponse) (.isEnabled res)
-    (instance? res VariantEvaluationResponse) (.isMatch res)
-    (instance? res BatchEvaluationResponse) (-> (seq (.getResponses res))
-                                                ((partial map #((cond
-                                                                  (boolean-evaluation? %) [(.getFlagKey %) (enabled? (.getBooleanResponse %))]
-                                                                  (variant-evaluation? %) [(.getVariantKey %) (enabled? (.getVariantKey %))]))))
-                                                ((partial into {}))
-                                                (keywordize-keys))))
-
-(defn- normalize [res]
-  (let [base {:type (cond
-                      (boolean-evaluation? res) :boolean
-                      (variant-evaluation? res) :variant
-                      (error-evaluation? res) :error
-                      :else :unknown)
-              :flag-key (.getFlagKey res)
-              :reason (.getReason res)}]
-    (cond
-      (boolean-evaluation? res) (conj base {:enabled (enabled? res)
-                                            :timestamp (.getTimestamp res)
-                                            :duration (.getRequestDurationMillis res)})
-      (variant-evaluation? res) (conj base {:enabled (enabled? res)
-                                            :segment-keys (seq (.getSegmentKeys res))
-                                            :variant-attachment (.getVariantAttachment res)
-                                            :variant-key (.getVariantKey res)
-                                            :timestamp (.getTimestamp res)
-                                            :duration (.getRequestDurationMillis res)}))))
-
-(defn evaluation-request
-  ([namespace flag entity context] (evaluation-request namespace flag entity context nil))
-  ([namespace flag entity context _reference] (-> (EvaluationRequest/builder)
-                                                  (.namespaceKey (name namespace))
-                                                  (.flagKey (name flag))
-                                                  (.entityId entity)
-                                                  (.context (HashMap. context))
-                                                  ;; TODO: optional, can set to nil? or do we not invoke reference
-                                                  ;; (.reference reference)
-                                                  (.build))))
-
-(defn evaluate-variant [client req]
-  (-> client
-      (.evaluation)
-      (.evaluateVariant req)
-      (normalize)))
-
-(defn evaluate-boolean [client req]
-  (-> client
-      (.evaluation)
-      (.evaluateBoolean req)
-      (normalize)))
-
-(defn evaluate-batch [client batch-reqs]
-  (let [batch (-> (BatchEvaluationRequest/builder)
-                  (.requests batch-reqs)
-                  (.build))]
-    (-> client
-        (.evaluation)
-        (.evaluateBatch batch)
-        (.getResponses batch)
-        (seq)
-        ((partial map #((cond
-                          (boolean-evaluation? %) [(.getFlagKey %) (normalize (.getBooleanResponse %))]
-                          (variant-evaluation? %) [(.getVariantKey %) (normalize (.getVariantResponse %))]))))
-        ((partial into {}))
-        (keywordize-keys))))
+(defn variant
+  ([client flag namespace context]
+   (variant client flag namespace (str "anon" "-" (swap! counter inc)) context))
+  ([client flag namespace entity context]
+   (variant client flag namespace entity context nil))
+  ([client flag namespace entity context reference?]
+   (let [request-id (random-uuid)
+         {:keys [status body]} @(client {:method :post
+                                         :body (json/encode {"context" context
+                                                             "entityId" (str entity)
+                                                             "flagKey" (name flag)
+                                                             "namespace-key" (name namespace)
+                                                             "reference" (str reference?)
+                                                             "requestId" request-id})})
+         keywordized (keywordize-keys body)]
+     (if (and (= status (:ok status-codes)) (= (:request-id keywordized) request-id))
+       {:match (:match keywordized)
+        :request-id (:request-id keywordized)
+        :key (:variant-key keywordized)
+        :attachment (:variant-attachment keywordized)}
+       nil))))
