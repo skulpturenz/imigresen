@@ -2,7 +2,9 @@
   (:require [imigresen-api.state.flipt.mock :refer [flipt with-mock boolean-evaluation variant-evaluation]]
             [imigresen-api.state.flipt.core :refer [enabled? variant]]
             [clojure.test :as t]
-            [mount.core :as mount]))
+            [mount.core :as mount]
+            [clojure.walk :refer [keywordize-keys]]
+            [cheshire.core :as json]))
 
 (defn fixture [f]
   (mount/start #'imigresen-api.state.flipt.mock/flipt)
@@ -18,5 +20,7 @@
 
 (t/deftest variant-mock
   (t/testing "variant evaluation"
-    (with-mock (variant-evaluation true "test" nil)
-      (t/is (:match (variant (:client @flipt) "test" "default" {}))))))
+    (let [res (fn [_req opts _cb]
+                (variant-evaluation true "test" nil (:requestId (keywordize-keys (json/parse-string (:body opts))))))]
+      (with-mock (variant-evaluation res)
+        (t/is (:match (variant (:client @flipt) "test" "default" {})))))))

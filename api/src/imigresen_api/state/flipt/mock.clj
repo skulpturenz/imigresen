@@ -10,21 +10,19 @@
   :start (start mock-flipt-url "mock")
   :stop (stop))
 
-;; TODO: fn form might be better
-;; need to return a string or a partial of actual response map
-(defn boolean-evaluation [matcher]
-  (if (boolean? matcher)
+(defn boolean-evaluation [res]
+  (if (boolean? res)
     {:status (:ok status-codes)
-     :body {:enabled matcher}}
-    matcher))
+     :body {:enabled res}}
+    res))
 
-;; TODO: request id from original request
 (defn variant-evaluation
-  ([matcher] matcher)
-  ([match variant attachment] {:status (:ok status-codes)
-                               :body {:match match
-                                      :variant-key variant
-                                      :variant-attachment attachment}}))
+  ([res] res)
+  ([match variant attachment request-id] {:status (:ok status-codes)
+                                          :body {:match match
+                                                 :variantKey variant
+                                                 :variantAttachment attachment
+                                                 :requestId request-id}}))
 
 (defmacro with-mock [res & body]
   `(with-fake-http [(re-pattern mock-flipt-url) ~res]

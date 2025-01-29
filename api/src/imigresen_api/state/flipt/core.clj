@@ -65,12 +65,11 @@
                                                              "reference" (str reference?)
                                                              "requestId" request-id})})
          keywordized (keywordize-keys body)]
-     ;; TODO (= (:request-id keywordized) request-id)
-     (if (and (= status (:ok status-codes)))
+     (if (and (= status (:ok status-codes)) (= (:requestId keywordized) (str request-id)))
        {:match (:match keywordized)
-        :request-id (:request-id keywordized)
-        :key (:variant-key keywordized)
-        :attachment (:variant-attachment keywordized)}
+        :request-id (:requestId keywordized)
+        :key (:variantKey keywordized)
+        :attachment (:variantAttachment keywordized)}
        nil))))
 
 (defn flags
