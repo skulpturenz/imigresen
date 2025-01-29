@@ -26,7 +26,8 @@
                  [metosin/spec-tools "0.10.7"]
                  [com.taoensso/telemere "1.0.0-RC1"]
                  [http-kit "2.3.0"]
-                 [http-kit.fake "0.2.1"]]
+                 [http-kit.fake "0.2.1"]
+                 [cheshire "5.13.0"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all

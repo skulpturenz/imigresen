@@ -4,7 +4,7 @@
             [taoensso.telemere :as t]
             [clojure.walk :refer [keywordize-keys]]
             [org.httpkit.client :as http]
-            [clojure.data.json :as json]
+            [cheshire.core :as json]
             [imigresen-api.app.routes :refer [status-codes]]))
 
 (def ^:private flipt-agent (agent {}))
