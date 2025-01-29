@@ -100,8 +100,8 @@ importers:
         specifier: ^8.5.0
         version: 8.5.0(storybook@8.5.0-beta.7(prettier@3.4.2))
       '@storybook/test':
-        specifier: ^8.5.0-alpha.20
-        version: 8.5.0-alpha.20(storybook@8.5.0-beta.7(prettier@3.4.2))
+        specifier: ^8.5.0-beta.7
+        version: 8.5.0-beta.7(storybook@8.5.0-beta.7(prettier@3.4.2))
       '@storybook/theming':
         specifier: ^8.5.0
         version: 8.5.0(storybook@8.5.0-beta.7(prettier@3.4.2))
@@ -287,6 +287,10 @@ packages:
 
   '@babel/runtime@7.26.0':
     resolution: {integrity: sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.26.7':
+    resolution: {integrity: sha512-AOPI3D+a8dXnja+iwsUqGRjr1BbZIe771sXdapOtYI531gSqpi92vXivKcq2asu/DFpdl1ceFAKZyRzK2PCVcQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/standalone@7.26.4':
@@ -1244,11 +1248,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-beta
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-beta
 
-  '@storybook/instrumenter@8.5.0-alpha.20':
-    resolution: {integrity: sha512-IC4RjH3LOr7PfKbgqLSuAKA9qpSqh6PS9+K0wTaG6ZA9w+wLwGTHOKFTdIFsgUZty+nt5NnXqi/tKMI1UQz+8A==}
-    peerDependencies:
-      storybook: ^8.5.0-alpha.20
-
   '@storybook/instrumenter@8.5.0-beta.7':
     resolution: {integrity: sha512-ErNAyDa0FqIrq/CUkorg0H3wRet6PcCTziKHNexiKUD8KzoqsWwFWHxVcyMW9MemP0DpD91cq+hkreuuzC5xDQ==}
     peerDependencies:
@@ -1265,11 +1264,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-beta
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-beta
       storybook: ^8.5.0-beta.8
-
-  '@storybook/test@8.5.0-alpha.20':
-    resolution: {integrity: sha512-THai8GGzCOgzE5jZBveaigskXpbbfOvOpJ3cLaR5HtUm1TvJWMRDPnDTv0xiBoaorPfnM4/hrMG/OM5NGD3FlA==}
-    peerDependencies:
-      storybook: ^8.5.0-alpha.20
 
   '@storybook/test@8.5.0-beta.7':
     resolution: {integrity: sha512-tWyF5aREdpTNPgrJ4W/Euuyxr0xMNWZzvCy6CZNx/ap34hv3pah2NRtVa1GXZ9rkctz8jg1VZ3RygtEIGGzOFQ==}
@@ -3942,6 +3936,10 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
+  '@babel/runtime@7.26.7':
+    dependencies:
+      regenerator-runtime: 0.14.1
+
   '@babel/standalone@7.26.4': {}
 
   '@babel/template@7.25.9':
@@ -4716,12 +4714,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/instrumenter@8.5.0-alpha.20(storybook@8.5.0-beta.7(prettier@3.4.2))':
-    dependencies:
-      '@storybook/global': 5.0.0
-      '@vitest/utils': 2.1.8
-      storybook: 8.5.0-beta.7(prettier@3.4.2)
-
   '@storybook/instrumenter@8.5.0-beta.7(storybook@8.5.0-beta.7(prettier@3.4.2))':
     dependencies:
       '@storybook/global': 5.0.0
@@ -4736,18 +4728,6 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      storybook: 8.5.0-beta.7(prettier@3.4.2)
-
-  '@storybook/test@8.5.0-alpha.20(storybook@8.5.0-beta.7(prettier@3.4.2))':
-    dependencies:
-      '@storybook/csf': 0.1.12
-      '@storybook/global': 5.0.0
-      '@storybook/instrumenter': 8.5.0-alpha.20(storybook@8.5.0-beta.7(prettier@3.4.2))
-      '@testing-library/dom': 10.4.0
-      '@testing-library/jest-dom': 6.5.0
-      '@testing-library/user-event': 14.5.2(@testing-library/dom@10.4.0)
-      '@vitest/expect': 2.0.5
-      '@vitest/spy': 2.0.5
       storybook: 8.5.0-beta.7(prettier@3.4.2)
 
   '@storybook/test@8.5.0-beta.7(storybook@8.5.0-beta.7(prettier@3.4.2))':
@@ -4800,7 +4780,7 @@ snapshots:
   '@testing-library/dom@10.4.0':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.26.7
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       chalk: 4.1.2
