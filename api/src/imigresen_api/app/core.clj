@@ -12,14 +12,17 @@
             [reitit.ring.middleware.multipart]
             [mount.core :as mount]
             [imigresen-api.api.core :refer [handlers]]
-            [imigresen-api.state.db.core]))
+            [imigresen-api.state.db.core]
+            [imigresen-api.state.flipt.core]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
-  (mount/start #'imigresen-api.state.db.core/db))
+  (mount/start #'imigresen-api.state.db.core/db
+               #'imigresen-api.state.flipt.core/flipt))
 
 (defn destroy []
-  (mount/stop #'imigresen-api.state.db.core/db))
+  (mount/stop #'imigresen-api.state.db.core/db
+              #'imigresen-api.state.flipt.core/flipt))
 
 (def app
   (ring-handler
