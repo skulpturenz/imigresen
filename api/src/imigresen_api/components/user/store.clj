@@ -39,19 +39,19 @@
 
 ;; TODO
 (defn create-user-by-email! [{:keys [email first-name last-name password]}]
-  (when (unique-email? email)
-    (jdbc/with-transaction [tx (:ds @db)]
-      (let [kc-user (kcu/create-user! kc-client realm {:username email
-                                                       :first-name first-name
-                                                       :last-name last-name
-                                                       :password password})
-            query {:insert-into :users
-                   :columns [:kc_id :uuid :email :created_at :updated_at]
-                   :values [[]] ;; TODO
-                   :returning [:kc_id :uuid :email :created_at :updated_at]}
-            results (jdbc/execute! tx (sql/format query))]
-        (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
-        kc-user))))
+
+  (jdbc/with-transaction [tx (:ds @db)]
+    (let [kc-user (kcu/create-user! kc-client realm {:username email
+                                                     :first-name first-name
+                                                     :last-name last-name
+                                                     :password password})
+          query {:insert-into :users
+                 :columns [:kc_id :uuid :email :created_at :updated_at]
+                 :values [[]] ;; TODO
+                 :returning [:kc_id :uuid :email :created_at :updated_at]}
+          results (jdbc/execute! tx (sql/format query))]
+      (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
+      kc-user)))
 
 (defn delete-user! [uuid]
   (let [get {:select [:kc_id :email]
