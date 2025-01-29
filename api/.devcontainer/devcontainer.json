@@ -10,6 +10,9 @@
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
 		"JAVA_ENV": "development"
+		//// rollout
+		// "ROLLOUT_URL": "",
+		// "ROLLOUT_TOKEN": "",
 		//// keycloak
 		// "KC_AUTH_SERVER_URL": "",
 		// "KC_REALM": "",
