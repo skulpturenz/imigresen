@@ -12,14 +12,19 @@
 
 ;; TODO: fn form might be better
 ;; need to return a string or a partial of actual response map
-(defn boolean-evaluation [enabled] {:status (:ok status-codes)
-                                    :body {:enabled enabled}})
+(defn boolean-evaluation [matcher]
+  (if (boolean? matcher)
+    {:status (:ok status-codes)
+     :body {:enabled matcher}}
+    matcher))
 
 ;; TODO: request id from original request
-(defn variant-evaluation [match variant attachment] {:status (:ok status-codes)
-                                                     :body {:match match
-                                                            :variant-key variant
-                                                            :variant-attachment attachment}})
+(defn variant-evaluation
+  ([matcher] matcher)
+  ([match variant attachment] {:status (:ok status-codes)
+                               :body {:match match
+                                      :variant-key variant
+                                      :variant-attachment attachment}}))
 
 (defmacro with-mock [res & body]
   `(with-fake-http [mock-flipt-url ~res]
