@@ -11,13 +11,12 @@
 
 (t/use-fixtures :once fixture)
 
-;; TODO: wrong number of args???
 (t/deftest boolean-mock
   (t/testing "boolean evaluation"
     (with-mock (boolean-evaluation true)
       (t/is (enabled? (:client @flipt) "test" "default" {})))))
 
-;; (t/deftest variant-mock
-;;   (t/testing "variant evaluation"
-;;     (with-mock (variant-evaluation true "test" nil)
-;;       (t/is (:match (variant (:client @flipt) "test" "default" {}))))))
+(t/deftest variant-mock
+  (t/testing "variant evaluation"
+    (with-mock (variant-evaluation true "test" nil)
+      (t/is (:match (variant (:client @flipt) "test" "default" {}))))))

@@ -27,5 +27,5 @@
                                       :variant-attachment attachment}}))
 
 (defmacro with-mock [res & body]
-  `(with-fake-http [mock-flipt-url ~res]
+  `(with-fake-http [(re-pattern mock-flipt-url) ~res]
      ~@body))

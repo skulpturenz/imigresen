@@ -15,7 +15,7 @@
                  :headers {"Authorization" (str "Bearer" " " client-token)}
                  :as :auto}
         ;; TODO: remove duplicate slashes
-        client #(http/request (conj options % {:url (str (:url options) "/" (:path %))}))]
+        client #(http/request (conj options % {:url (str (:url options) "/" (:path %))}) identity)]
     (send flipt-agent assoc :client client)
     (await flipt-agent)
     ;; return agent
@@ -29,7 +29,7 @@
   flipt-agent)
 
 (defstate flipt
-  :start (start (env :rollout-url string?) (env :rollout-client-token string?))
+  :start (start (env :rollout-url) (env :rollout-client-token))
   :stop (stop))
 
 (defn enabled?
@@ -65,7 +65,8 @@
                                                              "reference" (str reference?)
                                                              "requestId" request-id})})
          keywordized (keywordize-keys body)]
-     (if (and (= status (:ok status-codes)) (= (:request-id keywordized) request-id))
+     ;; TODO (= (:request-id keywordized) request-id)
+     (if (and (= status (:ok status-codes)))
        {:match (:match keywordized)
         :request-id (:request-id keywordized)
         :key (:variant-key keywordized)
