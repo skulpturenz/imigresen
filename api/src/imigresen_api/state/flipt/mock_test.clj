@@ -3,8 +3,7 @@
             [imigresen-api.state.flipt.core :refer [enabled? variant]]
             [clojure.test :as t]
             [mount.core :as mount]
-            [clojure.walk :refer [keywordize-keys]]
-            [cheshire.core :as json]
+            [muuntaja.core :refer [decode]]
             [imigresen-api.app.routes :refer [status-codes]]))
 
 (defn fixture [f]
@@ -22,7 +21,7 @@
 (t/deftest variant-mock-enabled
   (t/testing "variant evaluation"
     (let [res (fn [_req opts _cb]
-                (variant-evaluation true "test" nil (:requestId (keywordize-keys (json/parse-string (:body opts))))))]
+                (variant-evaluation true "test" nil (:requestId (decode "application/json" (:body opts)))))]
       (with-mock (variant-evaluation res)
         (t/is (:match (variant (:client @flipt) "test" "default" {})))))))
 
@@ -33,5 +32,5 @@
 
 (t/deftest variant-mock-bad-req
   (t/testing "boolean evaluation"
-    (with-mock (boolean-evaluation (fn [_req _opts _cb] {:status ()}))
+    (with-mock (boolean-evaluation (fn [_req _opts _cb] {:status (:bad-request status-codes)}))
       (t/is (nil? (variant (:client @flipt) "test" "default" {}))))))

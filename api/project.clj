@@ -1,10 +1,13 @@
+;; TODO: configure linting
+;; TODO: configure otel (sideload with jvm + logging)
+;; TODO: cleanup deps for envs
+
 (defproject imigresen-api "0.1.0-SNAPSHOT"
   :description "Imigresen API"
   :url "https://skulpture.xyz"
   :license {:name "MIT"
             :url "https://opensource.org/license/mit"}
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [com.github.steffan-westcott/clj-otel-api "0.2.7"]
                  [ring/ring-core "1.13.0"]
                  [keycloak-clojure/keycloak-clojure "1.31.2"]
                  [com.github.seancorfield/honeysql "2.6.1270"]
@@ -12,7 +15,6 @@
                  [org.postgresql/postgresql "42.7.5"]
                  [com.zaxxer/HikariCP "6.2.1"]
                  [org.duckdb/duckdb_jdbc "1.1.3"]
-                 [io.flipt/flipt-java "1.1.2"] ;; TODO: remove
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
                  [metosin/ring-swagger-ui "5.18.2"]
@@ -26,8 +28,7 @@
                  [metosin/spec-tools "0.10.7"]
                  [com.taoensso/telemere "1.0.0-RC1"]
                  [http-kit "2.3.0"]
-                 [http-kit.fake "0.2.1"]
-                 [cheshire "5.13.0"]]
+                 [http-kit.fake "0.2.1"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
