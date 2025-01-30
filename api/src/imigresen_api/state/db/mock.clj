@@ -1,5 +1,5 @@
 (ns imigresen-api.state.db.mock
-  (:require [mount.core :refer [defstate]]
+  (:require [mount.core :refer [defstate] :as mount]
             [imigresen-api.state.db.core :refer [start stop]]))
 
 ;; https://duckdb.org/docs/api/java.html
@@ -7,14 +7,4 @@
   :start (start "jdbc:duckdb:")
   :stop (stop))
 
-(defmacro use-fixture []
-  `(do
-     (require '[mount.core :as mount]
-              '[imigresen-api.state.db.mock]
-              '[imigresen-api.state.db.core])
-     (let [fixture# (fn []
-                      (mount/start #'imigresen-api.state.db.mock/db)
-                      (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
-                      (f#)
-                      (mount/stop))]
-       (t/use-fixtures :once fixture#))))
+(def fixture {#'imigresen-api.state.db.core/db (mount/start #'imigresen-api.state.db.mock/db)})

@@ -3,12 +3,10 @@
             [keycloak.user :as kcu]
             [imigresen-api.components.user.store]
             [mount.core :as mount]
-            [imigresen-api.state.db.mock]
-            [imigresen-api.state.db.core]))
+            [imigresen-api.state.db.mock :as db-mock]))
 
 (defn fixture [f]
-  (mount/start #'imigresen-api.state.db.mock/db)
-  (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
+  (mount/start-with (conj {} db-mock/fixture))
   (f)
   (mount/stop))
 

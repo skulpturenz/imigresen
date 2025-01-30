@@ -1,5 +1,5 @@
 (ns imigresen-api.state.flipt.mock-test
-  (:require [imigresen-api.state.flipt.mock :refer [flipt with-mock boolean-evaluation variant-evaluation]]
+  (:require [imigresen-api.state.flipt.mock :refer [flipt with-mock boolean-evaluation variant-evaluation] :as flipt-mock]
             [imigresen-api.state.flipt.core :refer [enabled? variant]]
             [clojure.test :as t]
             [mount.core :as mount]
@@ -7,9 +7,9 @@
             [imigresen-api.app.routes :refer [status-codes]]))
 
 (defn fixture [f]
-  (mount/start #'imigresen-api.state.flipt.mock/flipt)
+  (mount/start (conj {} flipt-mock/fixture))
   (f)
-  (mount/stop #'imigresen-api.state.flipt.mock/flipt))
+  (mount/stop))
 
 (t/use-fixtures :once fixture)
 

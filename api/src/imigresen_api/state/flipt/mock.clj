@@ -1,5 +1,5 @@
 (ns imigresen-api.state.flipt.mock
-  (:require [mount.core :refer [defstate]]
+  (:require [mount.core :refer [defstate] :as mount]
             [imigresen-api.state.flipt.core :refer [start stop]]
             [org.httpkit.fake :refer [with-fake-http]]
             [imigresen-api.app.routes :refer [status-codes]]))
@@ -27,3 +27,5 @@
 (defmacro with-mock [res & body]
   `(with-fake-http [(re-pattern mock-flipt-url) ~res]
      ~@body))
+
+(def fixture {#'imigresen-api.state.flipt.core/flipt (mount/start #'imigresen-api.state.flipt.mock/flipt)})
