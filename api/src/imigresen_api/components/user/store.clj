@@ -1,5 +1,5 @@
 (ns imigresen-api.components.user.store
-  (:require [imigresen-api.app.kc :refer [create-keycloak-deployment]]
+  (:require [imigresen-api.app.kc :refer [create-kc-client-conf]]
             [keycloak.deployment :refer [keycloak-client]]
             [keycloak.user :as kcu]
             [imigresen-api.app.env :refer [env]]
@@ -9,7 +9,8 @@
             [clj-uuid :as uuid]
             [java-time.api :as jt]))
 
-(def ^:private kc-client (keycloak-client (create-keycloak-deployment) (env :kc-secret string?)))
+;; TODO: remove default value
+(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string? "HELLO WORLD")))
 
 (def ^:private realm (env :kc-realm string?))
 

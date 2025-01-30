@@ -14,7 +14,7 @@
             [buddy.auth.accessrules :refer [wrap-access-rules]]
             [keycloak.backend :refer [buddy-verify-token-fn]]
             [clojure.core.match :refer [match]]
-            [imigresen-api.app.kc :refer [create-keycloak-deployment]]))
+            [imigresen-api.app.kc :refer [create-kc-deployment]]))
 
 ;; upgrade: bump docs reference
 ;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
@@ -30,7 +30,7 @@
   ([name route method handler options?]
    `(def
       ~(symbol name)
-      [~route ~(let [keycloak-deployment (create-keycloak-deployment)]
+      [~route ~(let [keycloak-deployment (create-kc-deployment)]
                  {method
                   (assoc options?
                          :handler (if (not (nil? options?))

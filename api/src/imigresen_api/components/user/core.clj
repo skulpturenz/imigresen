@@ -6,7 +6,7 @@
   (let [find-by-kc-id (:find-by-kc-id deps)
         user (find-by-kc-id kc-id)]
     (if (nil? (:uuid user))
-      (throw (ex-info "user does not exist" {:type ::reitit.ring/response
+      (throw (ex-info "user does not exist" {:type :reitit.ring/response
                                              :response (:status (:not-found status-codes))}))
       user)))
 
@@ -14,7 +14,7 @@
   (let [create-user-by-email! (:create-user-by-email! deps)
         unique-email? (:unique-email? deps)]
     (if (not (unique-email? (:email user)))
-      (throw (ex-info "active user exists" {:type ::reitit.ring/response
+      (throw (ex-info "active user exists" {:type :reitit.ring/response
                                             :response {:status (:bad-request status-codes)}}))
       (create-user-by-email! user))))
 
