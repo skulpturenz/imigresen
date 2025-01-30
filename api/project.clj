@@ -34,7 +34,8 @@
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+             :test {:env {:java-env "test"}}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]

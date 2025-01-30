@@ -3,7 +3,7 @@
             [next.jdbc :as jdbc]
             [next.jdbc.connection :as connection]
             [imigresen-api.app.migrations :refer [migrate]]
-            [imigresen-api.app.env :refer [env]]
+            [imigresen-api.app.env :refer [env current-env]]
             [clojure.string :as str]
             [clojure.walk :refer [keywordize-keys]]
             [ring.util.codec :refer [form-decode form-encode]]
@@ -56,5 +56,5 @@
                                                                                                          :sslmode (:sslmode parsed)}))))
 
 (defstate db
-  :start (start (create-jdbc-connection-string (env :pg-connection-string string?)))
+  :start (start (create-jdbc-connection-string (when (contains? ["production" "development"] (current-env)) (env :pg-connection-string string?))))
   :stop (stop))
