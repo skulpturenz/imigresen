@@ -6,14 +6,14 @@
   (t/testing "returns user"
     (with-redefs [kcu/get-user (constantly 1)]
       (t/is true)))
-  (t/testing "returns nil otherwise"
+  (t/testing "returns empty map otherwise"
     (with-redefs [kcu/get-user (constantly 1)]
       (t/is true))))
 
 (t/deftest ?find-by-email
   (t/testing "returns user"
     (t/is true))
-  (t/testing "returns nil otherwise"
+  (t/testing "returns empty map otherwise"
     (t/is true)))
 
 (t/deftest ?unique-email?
@@ -29,7 +29,7 @@
 (t/deftest ?update-user-by-uuid!
   (t/testing "updates user if exists and returns"
     (t/is true))
-  (t/testing "returns nil otherwise"
+  (t/testing "returns empty map otherwise"
     (t/is true)))
 
 (t/deftest ?delete-user!
