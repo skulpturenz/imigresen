@@ -3,7 +3,8 @@
             [keycloak.user :as kcu]
             [imigresen-api.components.user.store]
             [mount.core :as mount]
-            [imigresen-api.state.db.mock :as db-mock]))
+            [imigresen-api.state.db.mock :as db-mock])
+  (:import [org.keycloak.representations.idm UserRepresentation]))
 
 (defn fixture [f]
   (mount/start-with (conj {} db-mock/fixture))
@@ -14,8 +15,10 @@
 
 (t/deftest ?find-by-kc-id
   (t/testing "returns user"
-    (with-redefs [kcu/get-user (constantly 1)]
-      (println "HERE!!!" ((fn [] (kcu/get-user "1234" 1234 1234)))) ;; "HERE!!! 1"
+    (with-redefs [kcu/get-user (constantly (doto (UserRepresentation.)
+                                             (.setFirstName "Hello")
+                                             (.setLastName "World")
+                                             (.setEmail "hello@world.com")))]
       (t/is true)))
   (t/testing "returns empty map otherwise"
     (with-redefs [kcu/get-user (constantly 1)]
