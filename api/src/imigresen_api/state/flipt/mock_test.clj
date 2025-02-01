@@ -7,9 +7,9 @@
             [imigresen-api.app.routes :refer [status-codes]]))
 
 (defn fixture [f]
-  (mount/start (conj {} flipt-mock/fixture))
+  (mount/start #'imigresen-api.state.flipt.mock/flipt)
   (f)
-  (mount/stop))
+  (mount/stop #'imigresen-api.state.flipt.mock/flipt))
 
 (t/use-fixtures :once fixture)
 

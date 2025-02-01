@@ -29,7 +29,7 @@
   flipt-agent)
 
 (defstate flipt
-  :start (start (env :rollout-url string?) (env :rollout-client-token string?))
+  :start (start (env :rollout-url string?) (env :rollout-token string?))
   :stop (stop))
 
 (defn enabled?

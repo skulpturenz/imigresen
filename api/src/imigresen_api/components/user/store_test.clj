@@ -1,13 +1,16 @@
 (ns imigresen-api.components.user.store-test
   (:require [clojure.test :as t]
             [keycloak.user :as kcu]
-            [imigresen-api.components.user.store]
+            [imigresen-api.components.user.store :as store]
             [mount.core :as mount]
-            [imigresen-api.state.db.mock :as db-mock])
+            [imigresen-api.state.db.mock :as db-mock]
+            [imigresen-api.state.db.core]
+            [java-time.api :as jt])
   (:import [org.keycloak.representations.idm UserRepresentation]))
 
 (defn fixture [f]
-  (mount/start-with (conj {} db-mock/fixture))
+  (mount/start #'imigresen-api.state.db.mock/db)
+  (mount/start-with {#'imigresen-api.state.db.core/db imigresen-api.state.db.mock/db})
   (f)
   (mount/stop))
 
@@ -15,11 +18,20 @@
 
 (t/deftest ?find-by-kc-id
   (t/testing "returns user"
-    (with-redefs [kcu/get-user (constantly (doto (UserRepresentation.)
-                                             (.setFirstName "Hello")
-                                             (.setLastName "World")
-                                             (.setEmail "hello@world.com")))]
-      (t/is true)))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail "hello@world.com"))]
+      (with-redefs [kcu/get-user (constantly user)
+                    kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [_ (store/create-user-by-email! {:email "hello@world.com"
+                                              :first-name "Hello"
+                                              :last-name "World"
+                                              :password "Test1234"})
+              result (store/find-by-kc-id (.getId user))]
+          (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds)))))))
   (t/testing "returns empty map otherwise"
     (with-redefs [kcu/get-user (constantly 1)]
       (t/is true))))

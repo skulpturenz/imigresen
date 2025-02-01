@@ -6,9 +6,9 @@
             [next.jdbc :as jdbc]))
 
 (defn fixture [f]
-  (mount/start (conj {} db-mock/fixture))
+  (mount/start #'imigresen-api.state.db.mock/db)
   (f)
-  (mount/stop))
+  (mount/stop #'imigresen-api.state.db.mock/db))
 
 (t/use-fixtures :once fixture)
 

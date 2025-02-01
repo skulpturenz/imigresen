@@ -25,7 +25,7 @@
 (defn find-by-kc-id [kc-id]
   (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
                :from [:users]
-               :where [:and [:= :deleted false] [:= :kc-id kc-id]]}
+               :where [:and [:is-not true] [:= :kc_id kc-id]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user kc-client realm (:kc_id result))]
     (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result))))
