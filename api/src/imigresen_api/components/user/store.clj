@@ -47,8 +47,6 @@
                :limit 1}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-unique (kcu/username-exists? kc-client realm email)]
-    (println result)
-    (println kc-unique)
     (and (empty? result) kc-unique)))
 
 (defn create-user-by-email! [{:keys [email first-name last-name password]}]
@@ -57,38 +55,40 @@
                                                      :first-name first-name
                                                      :last-name last-name
                                                      :password password})
-          query {:insert-into :users
-                 :columns [:kc_id :uuid :email :created_at :updated_at]
-                 :values [[(.getId kc-user) (uuid/v7) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
-                 :returning [:kc_id :uuid :email :created_at :updated_at]}
-          result (jdbc/execute-one! tx (sql/format query))]
+          query! {:insert-into :users
+                  :columns [:kc_id :uuid :email :created_at :updated_at]
+                  :values [[(.getId kc-user) (uuid/v7) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
+                  :returning [:kc_id :uuid :email :created_at :updated_at]}
+          result (jdbc/execute-one! tx (sql/format query!))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
       (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email result) (:created_at result) (:updated_at result)))))
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [query {:update :users
-                 :set {:email email
-                       :updated_at (jt/offset-date-time)}
-                 :where [:and [:= :deleted false] [:= :uuid uuid]]
-                 :returning [:kc_id :uuid :email :created_at :updated_at]}
-          result (jdbc/execute-one! tx (sql/format query))
+    (let [query! {:update :users
+                  :set {:email email
+                        :updated_at (jt/offset-date-time)}
+                  :where [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+                  :returning [:kc_id :uuid :email :created_at :updated_at]}
+          result (jdbc/execute-one! tx (sql/format query!))
           kc-user (kcu/update-user! kc-client realm (:kc_id result) {:username email
                                                                      :first-name first-name
                                                                      :last-name last-name
                                                                      :password password})]
-      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email user) (:created_at user) (:updated_at user)))))
+      (when (not (nil? result))
+        (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email user) (:created_at user) (:updated_at user))))))
 
 (defn delete-user! [uuid]
   (let [get-user-query {:select [:kc_id :email]
                         :from [:users]
-                        :where [:= :uuid uuid]}
-        user (first (jdbc/execute! (:ds @db) (sql/format get-user-query)))
+                        :where [:= :uuid (str uuid)]}
+        user (jdbc/execute-one! (:ds @db) (sql/format get-user-query))
         soft-delete-user-query! {:update :users
                                  :set {:deleted true}
-                                 :where [:= :uuid uuid]
+                                 :where [:= :uuid (str uuid)]
                                  :returning [:uuid :deleted]}]
-    (jdbc/with-transaction [tx (:ds @db)]
-      (kcu/logout-user! kc-client realm (:kc_id user))
-      (kcu/delete-user! kc-client realm {:email (:email user)})
-      (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!))))))
+    (when user
+      (jdbc/with-transaction [tx (:ds @db)]
+        (kcu/logout-user! kc-client realm (:kc_id user))
+        (kcu/delete-user! kc-client realm {:email (:email user)})
+        (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
