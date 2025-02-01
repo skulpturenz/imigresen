@@ -22,35 +22,98 @@
                  (.setId (str (random-uuid)))
                  (.setFirstName "Hello")
                  (.setLastName "World")
-                 (.setEmail "hello@world.com"))]
+                 (.setEmail (str (random-uuid) "@world.com")))]
       (with-redefs [kcu/get-user (constantly user)
                     kcu/create-user! (constantly user)
                     kcu/add-required-actions! (constantly nil)]
-        (let [_ (store/create-user-by-email! {:email "hello@world.com"
+        (let [_ (store/create-user-by-email! {:email (.getEmail user)
                                               :first-name "Hello"
                                               :last-name "World"
                                               :password "Test1234"})
               result (store/find-by-kc-id (.getId user))]
           (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds)))))))
-  (t/testing "returns empty map otherwise"
-    (with-redefs [kcu/get-user (constantly 1)]
-      (t/is true))))
+  (t/testing "returns nil otherwise"
+    (with-redefs [kcu/get-user (constantly nil)
+                  kcu/create-user! (constantly nil)
+                  kcu/add-required-actions! (constantly nil)]
+      (let [result (store/find-by-kc-id (str (random-uuid)))]
+        (t/is (nil? result))))))
 
 (t/deftest ?find-by-email
   (t/testing "returns user"
-    (t/is true))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/get-user-by-username (constantly user)
+                    kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [_ (store/create-user-by-email! {:email (.getEmail user)
+                                              :first-name "Hello"
+                                              :last-name "World"
+                                              :password "Test1234"})
+              result (store/find-by-email (.getEmail user))]
+          (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds)))))))
   (t/testing "returns empty map otherwise"
-    (t/is true)))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/get-user-by-username (constantly user)
+                    kcu/create-user! (constantly nil)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [result (store/find-by-email (str (random-uuid) "@world.com"))]
+          (t/is (nil? result)))))))
 
 (t/deftest ?unique-email?
   (t/testing "true if no active user"
-    (t/is true))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/username-exists? (constantly true)
+                    kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [_ (store/create-user-by-email! {:email (.getEmail user)
+                                              :first-name "Hello"
+                                              :last-name "World"
+                                              :password "Test1234"})
+              result (store/unique-email? (str (random-uuid) "@world.com"))]
+          (t/is (true? result))))))
   (t/testing "false if active user"
-    (t/is true)))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/username-exists? (constantly true)
+                    kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [_ (store/create-user-by-email! {:email (.getEmail user)
+                                              :first-name "Hello"
+                                              :last-name "World"
+                                              :password "Test1234"})
+              result (store/unique-email? (.getEmail user))]
+          (t/is (false? result)))))))
 
 (t/deftest ?create-user-by-email!
   (t/testing "creates user"
-    (t/is true)))
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/get-user (constantly user)
+                    kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [result (store/create-user-by-email! {:email (.getEmail user)
+                                                   :first-name "Hello"
+                                                   :last-name "World"
+                                                   :password "Test1234"})]
+          (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds))))))))
 
 (t/deftest ?update-user-by-uuid!
   (t/testing "updates user if exists and returns"

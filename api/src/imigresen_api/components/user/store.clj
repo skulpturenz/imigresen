@@ -25,27 +25,31 @@
 (defn find-by-kc-id [kc-id]
   (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
                :from [:users]
-               :where [:and [:is-not true] [:= :kc_id kc-id]]}
+               :where [:and [:is-not :deleted true] [:= :kc_id kc-id]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user kc-client realm (:kc_id result))]
-    (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result))))
+    (when (not (nil? result))
+      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result)))))
 
 (defn find-by-email [email]
-  (let [query {:select [:kc_uuid :uuid :email :updated_at :created_at :deleted]
+  (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
                :from [:users]
-               :where [:and [:= :deleted false] [:= :email email]]}
+               :where [:and [:is-not :deleted true] [:= :email email]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user-by-username kc-client realm (:email result))]
-    (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result))))
+    (when (not (nil? result))
+      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result)))))
 
 (defn unique-email? [email]
   (let [query {:select [:uuid]
                :from [:users]
-               :where [:and [:= :deleted false] [:= :email email]]
+               :where [:and [:is-not :deleted true] [:= :email email]]
                :limit 1}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-unique (kcu/username-exists? kc-client realm email)]
-    (and (not-empty result) (not (nil? kc-unique)))))
+    (println result)
+    (println kc-unique)
+    (and (empty? result) kc-unique)))
 
 (defn create-user-by-email! [{:keys [email first-name last-name password]}]
   (jdbc/with-transaction [tx (:ds @db)]
