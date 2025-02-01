@@ -116,23 +116,22 @@
           (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds))))))))
 
 (t/deftest ?update-user-by-uuid!
-  ;; TODO duck db index on kc_id causing issues: https://duckdb.org/docs/sql/indexes#over-eager-unique-constraint-checking
-  ;; (t/testing "updates user if exists and returns"
-  ;;   (let [user (doto (UserRepresentation.)
-  ;;                (.setId (str (random-uuid)))
-  ;;                (.setFirstName "Hello")
-  ;;                (.setLastName "World")
-  ;;                (.setEmail (str (random-uuid) "@world.com")))]
-  ;;     (with-redefs [kcu/get-user (constantly user)
-  ;;                   kcu/create-user! (constantly user)
-  ;;                   kcu/update-user! (constantly user)
-  ;;                   kcu/add-required-actions! (constantly nil)]
-  ;;       (let [created-user (store/create-user-by-email! {:email (.getEmail user)
-  ;;                                                        :first-name "Hello"
-  ;;                                                        :last-name "World"
-  ;;                                                        :password "Test1234"})
-  ;;             result (store/update-user-by-uuid! {:uuid (str (:uuid created-user)) :email (str (random-uuid) "@world.com")})]
-  ;;         (t/is (= 0 (jt/time-between (:updated-at result) (jt/offset-date-time) :millis)))))))
+  (t/testing "updates user if exists and returns"
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/get-user (constantly user)
+                    kcu/create-user! (constantly user)
+                    kcu/update-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)]
+        (let [created-user (store/create-user-by-email! {:email (.getEmail user)
+                                                         :first-name "Hello"
+                                                         :last-name "World"
+                                                         :password "Test1234"})
+              result (store/update-user-by-uuid! {:uuid (:uuid created-user) :email (str (random-uuid) "@world.com")})]
+          (t/is (<= (jt/time-between (:updated-at result) (jt/offset-date-time) :millis) 10))))))
   (t/testing "returns empty map otherwise"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -145,26 +144,25 @@
           (t/is (nil? result)))))))
 
 (t/deftest ?delete-user!
-  ;; TODO duck db index on kc_id causing issues: https://duckdb.org/docs/sql/indexes#over-eager-unique-constraint-checking
-  ;; (t/testing "user exists"
-  ;;   (let [user (doto (UserRepresentation.)
-  ;;                (.setId (str (random-uuid)))
-  ;;                (.setFirstName "Hello")
-  ;;                (.setLastName "World")
-  ;;                (.setEmail (str (random-uuid) "@world.com")))]
-  ;;     (with-redefs [kcu/create-user! (constantly user)
-  ;;                   kcu/add-required-actions! (constantly nil)
-  ;;                   kcu/logout-user! (constantly nil)
-  ;;                   kcu/delete-user! (constantly nil)]
-  ;;       (let [created-user (store/create-user-by-email! {:email (.getEmail user)
-  ;;                                                        :first-name "Hello"
-  ;;                                                        :last-name "World"
-  ;;                                                        :password "Test1234"})
-  ;;             result (store/delete-user! (str (:uuid created-user)))]
-  ;;         (t/is result)))))
+  (t/testing "user exists"
+    (let [user (doto (UserRepresentation.)
+                 (.setId (str (random-uuid)))
+                 (.setFirstName "Hello")
+                 (.setLastName "World")
+                 (.setEmail (str (random-uuid) "@world.com")))]
+      (with-redefs [kcu/create-user! (constantly user)
+                    kcu/add-required-actions! (constantly nil)
+                    kcu/logout-user! (constantly nil)
+                    kcu/delete-user! (constantly nil)]
+        (let [created-user (store/create-user-by-email! {:email (.getEmail user)
+                                                         :first-name "Hello"
+                                                         :last-name "World"
+                                                         :password "Test1234"})
+              result (store/delete-user! (:uuid created-user))]
+          (t/is (not (nil? result)))))))
   (t/testing "user does not exist"
     (t/testing "user exists"
       (with-redefs [kcu/logout-user! (constantly nil)
                     kcu/delete-user! (constantly nil)]
-        (let [result (store/delete-user! (str (random-uuid)))]
+        (let [result (store/delete-user! (random-uuid))]
           (t/is (nil? result)))))))

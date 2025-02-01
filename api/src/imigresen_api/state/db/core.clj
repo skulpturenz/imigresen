@@ -15,18 +15,19 @@
 (def ^:private db-agent (agent {}))
 
 ;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/getting-started.md#connection-pooling
-(defn start [jdbc-connection-string]
-  (t/log! {:level :debug :data jdbc-connection-string} "db state start")
-  ;; supported db types
-  ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
-  (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-  (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
-  (await db-agent)
-  ;; initialize pool and validate
-  (.close (jdbc/get-connection (:ds @db-agent)))
-  (migrate (:ds @db-agent))
-  ;; return agent
-  db-agent)
+(defn start
+  ([jdbc-connection-string] (start jdbc-connection-string (env :db-migration-dir string?)))
+  ([jdbc-connection-string migrations-dir] (t/log! {:level :debug :data jdbc-connection-string} "db state start")
+                                           ;; supported db types
+                                           ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
+                                           (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
+                                           (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
+                                           (await db-agent)
+                                           ;; initialize pool and validate
+                                           (.close (jdbc/get-connection (:ds @db-agent)))
+                                           (migrate (:ds @db-agent) migrations-dir)
+                                           ;; return agent
+                                           db-agent))
 
 (defn stop []
   (t/log! {:level :debug :data (:jdbc-connection-string @db-agent)} "db state stop")

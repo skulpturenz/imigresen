@@ -4,7 +4,7 @@
 
 ;; https://duckdb.org/docs/api/java.html
 (defstate db
-  :start (start "jdbc:duckdb:")
+  :start (start "jdbc:duckdb:" "migrations_mock/")
   :stop (stop))
 
 (def fixture {#'imigresen-api.state.db.core/db (mount/start #'imigresen-api.state.db.mock/db)})

@@ -57,15 +57,15 @@
                                                      :password password})
           query! {:insert-into :users
                   :columns [:kc_id :uuid :email :created_at :updated_at]
-                  :values [[(.getId kc-user) (uuid/v7) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
-                  :returning [:kc_id :uuid :email :created_at :updated_at]}
+                  :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
+                  :returning [:uuid :created_at :updated_at]}
           result (jdbc/execute-one! tx (sql/format query!))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
-      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email result) (:created_at result) (:updated_at result)))))
+      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:created_at result) (:updated_at result)))))
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [columns [:kc_id :uuid :email]
+    (let [columns [:kc_id :uuid :email :created_at :updated_at]
           filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
           query! (if (not (nil? email))
                    {:update :users
@@ -82,20 +82,20 @@
                                                                      :last-name last-name
                                                                      :password password})]
       (when (not (nil? result))
-        (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email user) (:created_at user) (:updated_at user))))))
+        (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:created_at result) (:updated_at result))))))
 
 (defn delete-user! [uuid]
   (let [filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
         get-user-query {:select [:kc_id :email]
                         :from [:users]
                         :where filters}
-        user (jdbc/execute-one! (:ds @db) (sql/format get-user-query))
+        result (jdbc/execute-one! (:ds @db) (sql/format get-user-query))
         soft-delete-user-query! {:update :users
                                  :set {:deleted true}
                                  :where filters
-                                 :returning [:uuid :deleted]}]
-    (when user
+                                 :returning [:deleted]}]
+    (when result
       (jdbc/with-transaction [tx (:ds @db)]
-        (kcu/logout-user! kc-client realm (:kc_id user))
-        (kcu/delete-user! kc-client realm {:email (:email user)})
+        (kcu/logout-user! kc-client realm (:kc_id result))
+        (kcu/delete-user! kc-client realm {:email (:email result)})
         (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))

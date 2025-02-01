@@ -3,10 +3,10 @@
             [imigresen-api.app.env :refer [env]]
             [clojure.spec.alpha :as s]))
 
-(defn- create-config [data-source]
+(defn- create-config [data-source migrations-dir]
   {:store :database
    :db {:datasource data-source}
-   :migration-dir (env :db-migration-dir string?)
+   :migration-dir migrations-dir
    :init-script (env :db-init-script string?)
    :init-in-transaction? (env :db-init-in-transaction (s/and
                                                        string?
@@ -17,6 +17,6 @@
 ;; https://github.com/yogthos/migratus?tab=readme-ov-file#configuration
 ;; https://github.com/yogthos/migratus?tab=readme-ov-file#usage
 ;; https://github.com/yogthos/migratus?tab=readme-ov-file#alternative-setup
-(defn migrate [data-source]
-  (migratus/init (create-config data-source))
-  (migratus/migrate (create-config data-source)))
+(defn migrate [data-source migrations-dir]
+  (migratus/init (create-config data-source migrations-dir))
+  (migratus/migrate (create-config data-source migrations-dir)))
