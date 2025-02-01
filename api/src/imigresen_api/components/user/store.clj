@@ -65,11 +65,17 @@
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [query! {:update :users
-                  :set {:email email
-                        :updated_at (jt/offset-date-time)}
-                  :where [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
-                  :returning [:kc_id :uuid :email :created_at :updated_at]}
+    (let [columns [:kc_id :uuid :email]
+          filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+          query! (if (not (nil? email))
+                   {:update :users
+                    :set {:email email
+                          :updated_at (jt/offset-date-time)}
+                    :where filters
+                    :returning columns}
+                   {:select columns
+                    :from [:users]
+                    :where filters})
           result (jdbc/execute-one! tx (sql/format query!))
           kc-user (kcu/update-user! kc-client realm (:kc_id result) {:username email
                                                                      :first-name first-name
@@ -79,13 +85,14 @@
         (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (:email user) (:created_at user) (:updated_at user))))))
 
 (defn delete-user! [uuid]
-  (let [get-user-query {:select [:kc_id :email]
+  (let [filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+        get-user-query {:select [:kc_id :email]
                         :from [:users]
-                        :where [:= :uuid (str uuid)]}
+                        :where filters}
         user (jdbc/execute-one! (:ds @db) (sql/format get-user-query))
         soft-delete-user-query! {:update :users
                                  :set {:deleted true}
-                                 :where [:= :uuid (str uuid)]
+                                 :where filters
                                  :returning [:uuid :deleted]}]
     (when user
       (jdbc/with-transaction [tx (:ds @db)]
