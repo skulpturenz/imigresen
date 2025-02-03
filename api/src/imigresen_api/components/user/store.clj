@@ -7,20 +7,12 @@
             [next.jdbc :as jdbc]
             [imigresen-api.state.db.core :refer [db]]
             [clj-uuid :as uuid]
-            [java-time.api :as jt]))
+            [java-time.api :as jt]
+            [imigresen-api.components.user.spec :as s]))
 
-;; TODO: remove default value
-(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string? "HELLO WORLD")))
+(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string?)))
 
 (def ^:private realm (env :kc-realm string?))
-
-(defn- user [uuid first-name last-name email updated-at created-at]
-  {:uuid uuid
-   :first-name first-name
-   :last-name last-name
-   :email email
-   :updated-at updated-at
-   :created-at created-at})
 
 (defn find-by-kc-id [kc-id]
   (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
@@ -29,7 +21,13 @@
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user kc-client realm (:kc_id result))]
     (when (not (nil? result))
-      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result)))))
+      (s/user
+       (:uuid result)
+       (.getFirstName kc-user)
+       (.getLastName kc-user)
+       (.getEmail kc-user)
+       (:updated_at result)
+       (:created_at result)))))
 
 (defn find-by-email [email]
   (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
@@ -38,7 +36,13 @@
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user-by-username kc-client realm (:email result))]
     (when (not (nil? result))
-      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:updated_at result) (:created_at result)))))
+      (s/user
+       (:uuid result)
+       (.getFirstName kc-user)
+       (.getLastName kc-user)
+       (.getEmail kc-user)
+       (:updated_at result)
+       (:created_at result)))))
 
 (defn unique-email? [email]
   (let [query {:select [:uuid]
@@ -61,7 +65,13 @@
                   :returning [:uuid :created_at :updated_at]}
           result (jdbc/execute-one! tx (sql/format query!))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
-      (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:created_at result) (:updated_at result)))))
+      (s/user
+       (:uuid result)
+       (.getFirstName kc-user)
+       (.getLastName kc-user)
+       (.getEmail kc-user)
+       (:created_at result)
+       (:updated_at result)))))
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
   (jdbc/with-transaction [tx (:ds @db)]
@@ -82,7 +92,13 @@
                                                                      :last-name last-name
                                                                      :password password})]
       (when (not (nil? result))
-        (user (:uuid result) (.getFirstName kc-user) (.getLastName kc-user) (.getEmail kc-user) (:created_at result) (:updated_at result))))))
+        (s/user
+         (:uuid result)
+         (.getFirstName kc-user)
+         (.getLastName kc-user)
+         (.getEmail kc-user)
+         (:created_at result)
+         (:updated_at result))))))
 
 (defn delete-user! [uuid]
   (let [filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
