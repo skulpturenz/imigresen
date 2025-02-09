@@ -7,25 +7,25 @@
 (defroute GET "/:kc-id" :get
   (fn [req]
     (-> (req/->GET req)
-        (user/login)
+        (user/find-by-kc-id)
         (res/GET)))
   {:summary "Find user by Keycloak ID"})
 
-(defroute POST "/" :post
+(defroute POST! "/" :post
   (fn [req]
     (-> (req/->POST req)
         (user/register!)
         (res/POST)))
   {:summary "Register a user"})
 
-(defroute PATCH "/" :patch
+(defroute PATCH! "/" :patch
   (fn [req]
     (-> (req/->PATCH req)
         (user/update!)
         (res/PATCH)))
   {:summary "Update a user"})
 
-(defroute DELETE "/:uuid" :delete
+(defroute DELETE! "/:uuid" :delete
   (fn [req]
     (-> (req/->DELETE req)
         (user/delete!)
@@ -34,6 +34,6 @@
 
 (defroutes user-routes "/user"
   GET
-  POST
-  PATCH
-  DELETE)
+  POST!
+  PATCH!
+  DELETE!)
