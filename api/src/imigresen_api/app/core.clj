@@ -1,5 +1,5 @@
 (ns imigresen-api.app.core
-  (:require [reitit.ring :refer [ring-handler router routes create-default-handler]]
+  (:require [reitit.ring :refer [redirect-trailing-slash-handler ring-handler router routes create-default-handler]]
             [reitit.swagger]
             [reitit.swagger-ui :refer [create-swagger-ui-handler]]
             [reitit.dev.pretty]
@@ -40,7 +40,8 @@
                                          ;; multipart
                                          reitit.ring.middleware.multipart/multipart-middleware]}})
 
-   (routes (create-swagger-ui-handler
+   (routes (redirect-trailing-slash-handler)
+           (create-swagger-ui-handler
             ;; TODO: oauth
             ;; https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
             ;; unsure how: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md
