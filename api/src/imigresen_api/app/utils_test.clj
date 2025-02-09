@@ -6,7 +6,7 @@
   (:import
    (java.net URI)))
 
-(t/deftest caught-match
+(t/deftest ?caught
   (t/testing "caught"
     (t/is (= (match (caught (first (str/split (.getUserInfo (URI. "")) #":")))
                "hello" :success
@@ -17,6 +17,6 @@
                :else :failure)
              :success))))
 
-(t/deftest truthy-first
+(t/deftest ?truthy
   (t/testing "returns first truthy value"
     (t/is (= (truthy nil 1 nil 2 nil 3) 1))))
