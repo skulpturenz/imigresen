@@ -13,56 +13,21 @@
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [buddy.auth.accessrules :refer [wrap-access-rules]]
             [keycloak.backend :refer [buddy-verify-token-fn]]
-            [clojure.core.match :refer [match]]
             [imigresen-api.app.kc :refer [create-kc-deployment]]))
 
-;; upgrade: bump docs reference
-;; reitit-ring docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/introduction
-(defmacro defroute
-  "Creates a route definition, if Swagger options are not specified then the route is hidden in Swagger
-   
-   Specify `:protected` to require authenticated for a route and `:policies` to configure access rules for the route
-   
-   Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
-  {:clj-kondo/lint-as 'clojure.core/def}
-  ([name route method handler]
-   `(defroute ~name ~route ~method ~handler nil))
-  ([name route method handler options?]
-   `(def
-      ~(symbol name)
-      [~route ~(let [keycloak-deployment (create-kc-deployment)]
-                 {method
-                  (assoc options?
-                         :handler (if (not (nil? options?))
-                                    (match [options?]
-                                      [{:protected true}] (-> handler (wrap-authentication
-                                                                       (token {:authfn (buddy-verify-token-fn keycloak-deployment)})))
-                                      [{:protected true :policies _}] (-> handler
-                                                                          (wrap-authentication
-                                                                           (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
-                                                                          (wrap-authorization
-                                                                           (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
-                                                                          (wrap-access-rules (:policies options?)))
-                                      :else handler)
-                                    handler)
-                         :no-doc (or (nil? options?) (:no-doc options?)))})]))
-  ([name docstring? route method handler options?]
-   `(def ~(with-meta name {:doc docstring?}) (var-get (defroute ~name ~route ~method ~handler ~options?)))))
-
-(defmacro defroutes
-  "Creates a route definition with child routes
-   
-   Docs: https://cljdoc.org/d/metosin/reitit-ring/0.7.2/doc/basics/route-data"
-  {:clj-kondo/lint-as 'clojure.core/def
-   :arglists '([name context & children]
-               [name context docstring? options? & children]
-               [name context options? & children])}
-  ([name context & args]
-   (if (string? (first args))
-     ;; [name context docstring? tags? & children]
-     `(def ~(with-meta name {:doc (first args)}) (var-get (defroutes ~name ~context ~@(rest args))))
-     ;; [name context tags? & children]
-     `(def ~(symbol name) ~(apply vector (if (= context "/") "" context) args)))))
+(defn with-authnz
+  "Returns a middleware which authenticates and/or authorizes the route"
+  ([handler]
+   (fn [{:keys [policies] :as request}]
+     (let [keycloak-deployment (create-kc-deployment)
+           handler (if (nil? policies)
+                     (-> handler
+                         (wrap-authentication (token {:authfn (buddy-verify-token-fn keycloak-deployment)})))
+                     (-> handler
+                         (wrap-authentication (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
+                         (wrap-authorization (token {:authfn (buddy-verify-token-fn keycloak-deployment)}))
+                         (wrap-access-rules (:policies policies))))]
+       (handler request)))))
 
 ;; https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 (def status-codes {:continue 100

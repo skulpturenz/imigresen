@@ -30,7 +30,8 @@
                  [http-kit.fake "0.2.1"]
                  [danlentz/clj-uuid "0.2.0"]
                  [clojure.java-time "1.4.3"]
-                 [org.threeten/threeten-extra "1.2"]]
+                 [org.threeten/threeten-extra "1.2"]
+                 [camel-snake-kebab "0.4.3"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
