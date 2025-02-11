@@ -14,7 +14,8 @@
             [imigresen-api.api.core :refer [handlers]]
             [imigresen-api.state.db.core]
             [imigresen-api.state.flipt.core]
-            [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]))
+            [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
+            [imigresen-api.app.routes :refer [content-types]]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
@@ -28,8 +29,8 @@
 (def serialize
   (m/create
    (-> m/default-options
-       (assoc-in [:formats "application/json" :encoder-opts] {:encode-key-fn (comp ->camelCase name) :strip-nils true}) ;; clojure -> json
-       (assoc-in [:formats "application/json" :decoder-opts] {:decode-key-fn (comp keyword ->kebab-case)})))) ;; json -> clojure
+       (assoc-in [:formats (:json content-types) :encoder-opts] {:encode-key-fn (comp ->camelCase name) :strip-nils true}) ;; clojure -> json
+       (assoc-in [:formats (:json content-types) :decoder-opts] {:decode-key-fn (comp keyword ->kebab-case)})))) ;; json -> clojure
 
 (def app
   (ring-handler

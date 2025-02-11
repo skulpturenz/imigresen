@@ -91,3 +91,5 @@
                    :loop-detected 508
                    :not-extended 510
                    :network-authentication-required 511})
+
+(def content-types {:json "application/json"})
