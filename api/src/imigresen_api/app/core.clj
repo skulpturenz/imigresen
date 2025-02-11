@@ -15,7 +15,9 @@
             [imigresen-api.state.db.core]
             [imigresen-api.state.flipt.core]
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
-            [imigresen-api.app.routes :refer [content-types]]))
+            [imigresen-api.app.routes :refer [content-types]]
+            [imigresen-api.app.middleware.cors :refer [cors-middleware]]
+            [imigresen-api.app.middleware.query-string :refer [query-string-middleware]]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
@@ -45,8 +47,10 @@
                                            reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
                                            reitit.ring.coercion/coerce-response-middleware ;; coercing response body
                                            reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
-                                           ;; multipart
-                                           reitit.ring.middleware.multipart/multipart-middleware]}})
+                                           reitit.ring.middleware.multipart/multipart-middleware ;; multipart
+                                           cors-middleware ;; cors
+                                           ;; query string
+                                           query-string-middleware]}})
 
    (routes (redirect-trailing-slash-handler)
            (create-swagger-ui-handler
