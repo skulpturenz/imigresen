@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS genders (
+    uuid UUID NOT NULL UNIQUE,
+    gender TEXT NOT NULL UNIQUE,
+    code TEXT NOT NULL UNIQUE,
+    CONSTRAINT pk_genders PRIMARY_KEY(uuid, code)
+);
