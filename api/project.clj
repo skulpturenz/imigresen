@@ -47,6 +47,8 @@
          :destroy imigresen-api.app.core/destroy
          :handler imigresen-api.app.core/app
          :nrepl {:start true :port 3001}}
+  ;; uncomment to seed database
+  ;; :migratus {:migration-dir "seeds"}
   :aliases {"dev" ["ring" "server-headless"]
             "build" ["ring" "uberjar"]
             "build.watch" ["auto" "ring" "uberjar"]

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     postcode TEXT,
     city TEXT,
     state TEXT,
-    country REFERENCES countries(uuid),
+    country TEXT REFERENCES countries(code),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_addresses PRIMARY_KEY(user, uuid)
