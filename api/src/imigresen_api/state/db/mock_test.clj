@@ -1,5 +1,5 @@
 (ns imigresen-api.state.db.mock-test
-  (:require [imigresen-api.state.db.mock :refer [db]]
+  (:require [imigresen-api.state.db.mock :refer [db] :as db-mock]
             [clojure.test :as t]
             [mount.core :as mount]
             [honey.sql :as sql]

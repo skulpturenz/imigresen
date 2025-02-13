@@ -1,5 +1,5 @@
 (ns imigresen-api.app.core
-  (:require [reitit.ring :refer [ring-handler router routes create-default-handler]]
+  (:require [reitit.ring :refer [redirect-trailing-slash-handler ring-handler router routes create-default-handler]]
             [reitit.swagger]
             [reitit.swagger-ui :refer [create-swagger-ui-handler]]
             [reitit.dev.pretty]
@@ -8,12 +8,16 @@
             [reitit.ring.middleware.muuntaja]
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception]
-            [muuntaja.core]
+            [muuntaja.core :as m]
             [reitit.ring.middleware.multipart]
             [mount.core :as mount]
             [imigresen-api.api.core :refer [handlers]]
             [imigresen-api.state.db.core]
-            [imigresen-api.state.flipt.core]))
+            [imigresen-api.state.flipt.core]
+            [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
+            [imigresen-api.app.routes :refer [content-types]]
+            [imigresen-api.app.middleware.cors :refer [cors-middleware]]
+            [imigresen-api.app.middleware.query-string :refer [query-string-middleware]]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
@@ -24,23 +28,32 @@
   (mount/stop #'imigresen-api.state.db.core/db
               #'imigresen-api.state.flipt.core/flipt))
 
+(def serialize
+  (m/create
+   (-> m/default-options
+       (assoc-in [:formats (:json content-types) :encoder-opts] {:encode-key-fn (comp ->camelCase name) :strip-nils true}) ;; clojure -> json
+       (assoc-in [:formats (:json content-types) :decoder-opts] {:decode-key-fn (comp keyword ->kebab-case)})))) ;; json -> clojure
+
 (def app
   (ring-handler
-   (router handlers {:exception reitit.dev.pretty/exception
-                     :data {:coercion reitit.coercion.spec/coercion
-                            :muuntaja muuntaja.core/instance
-                            :middleware [reitit.swagger/swagger-feature ;; swagger feature 
-                                         reitit.ring.middleware.parameters/parameters-middleware ;; query-params & form-params
-                                         reitit.ring.middleware.muuntaja/format-negotiate-middleware ;; content-negotiation
-                                         reitit.ring.middleware.muuntaja/format-response-middleware ;; encoding response body
-                                         reitit.ring.middleware.exception/exception-middleware ;; exception handling
-                                         reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
-                                         reitit.ring.coercion/coerce-response-middleware ;; coercing response bodys
-                                         reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
-                                         ;; multipart
-                                         reitit.ring.middleware.multipart/multipart-middleware]}})
+   (router (handlers) {:exception reitit.dev.pretty/exception
+                       :data {:coercion reitit.coercion.spec/coercion
+                              :muuntaja serialize
+                              :middleware [reitit.swagger/swagger-feature ;; swagger feature 
+                                           reitit.ring.middleware.parameters/parameters-middleware ;; query-params & form-params
+                                           reitit.ring.middleware.muuntaja/format-negotiate-middleware ;; content-negotiation
+                                           reitit.ring.middleware.muuntaja/format-response-middleware ;; encoding response body
+                                           reitit.ring.middleware.exception/exception-middleware ;; exception handling
+                                           reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
+                                           reitit.ring.coercion/coerce-response-middleware ;; coercing response body
+                                           reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
+                                           reitit.ring.middleware.multipart/multipart-middleware ;; multipart
+                                           cors-middleware ;; cors
+                                           ;; query string
+                                           query-string-middleware]}})
 
-   (routes (create-swagger-ui-handler
+   (routes (redirect-trailing-slash-handler)
+           (create-swagger-ui-handler
             ;; TODO: oauth
             ;; https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
             ;; unsure how: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md

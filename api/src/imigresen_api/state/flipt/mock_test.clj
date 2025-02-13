@@ -1,5 +1,5 @@
 (ns imigresen-api.state.flipt.mock-test
-  (:require [imigresen-api.state.flipt.mock :refer [flipt with-mock boolean-evaluation variant-evaluation]]
+  (:require [imigresen-api.state.flipt.mock :refer [flipt with-mock boolean-evaluation variant-evaluation] :as flipt-mock]
             [imigresen-api.state.flipt.core :refer [enabled? variant]]
             [clojure.test :as t]
             [mount.core :as mount]
@@ -27,10 +27,10 @@
 
 (t/deftest boolean-mock-bad-req
   (t/testing "boolean evaluation"
-    (with-mock (boolean-evaluation (fn [_req _opts _cb] {:status (:bad-request status-codes)}))
+    (with-mock (boolean-evaluation (constantly {:status (:bad-request status-codes)}))
       (t/is (nil? (enabled? (:client @flipt) "test" "default" {}))))))
 
 (t/deftest variant-mock-bad-req
   (t/testing "boolean evaluation"
-    (with-mock (boolean-evaluation (fn [_req _opts _cb] {:status (:bad-request status-codes)}))
+    (with-mock (boolean-evaluation (constantly {:status (:bad-request status-codes)}))
       (t/is (nil? (variant (:client @flipt) "test" "default" {}))))))
