@@ -8,5 +8,7 @@ CREATE TABLE IF NOT EXISTS personal_details (
     height SMALLINT,
     phone_number TEXT,
     relationship_status UUID REFERENCES relationship_statuses(uuid),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_personal_details PRIMARY_KEY(user, uuid)
 );
