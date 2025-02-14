@@ -7,7 +7,13 @@ CREATE TABLE IF NOT EXISTS addresses (
     state TEXT,
     country TEXT REFERENCES countries(code),
     deleted BOOLEAN,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_addresses PRIMARY_KEY(user, uuid)
 );
+
+CREATE OR REPLACE TRIGGER addresses_modtimestamp
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    WHEN (OLD IS DISTINCT FROM NEW)
+        EXECUTE PROCEDURE moddatetime (updated_at)

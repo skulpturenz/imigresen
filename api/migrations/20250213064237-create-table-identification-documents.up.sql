@@ -4,7 +4,13 @@ CREATE TABLE IF NOT EXISTS identification_documents (
     country TEXT NOT NULL UNIQUE REFERENCES countries(code),
     identity_card_number TEXT,
     birth_certificate_number TEXT, -- birth certificate / adoption number / overseas birth cert (borang w)
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_identification_documents PRIMARY_KEY(user, uuid, country)
 );
+
+CREATE OR REPLACE TRIGGER identification_documents_modtimestamp
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    WHEN (OLD IS DISTINCT FROM NEW)
+        EXECUTE PROCEDURE moddatetime (updated_at)

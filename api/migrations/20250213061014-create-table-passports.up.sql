@@ -4,7 +4,13 @@ CREATE TABLE IF NOT EXISTS passports (
     country TEXT NOT NULL UNIQUE REFERENCES countries(code),
     number TEXT NOT NULL UNIQUE,
     deleted BOOLEAN,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_passports PRIMARY_KEY(user, uuid)
 );
+
+CREATE OR REPLACE TRIGGER passports_modtimestamp
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    WHEN (OLD IS DISTINCT FROM NEW)
+        EXECUTE PROCEDURE moddatetime (updated_at)
