@@ -1,3 +1,2 @@
-DELETE FROM genders
-WHERE code
-IN ();
+DELETE FROM genders WHERE code IN 
+    ("M", "F");
