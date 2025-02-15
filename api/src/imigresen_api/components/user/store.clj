@@ -7,7 +7,6 @@
             [next.jdbc :as jdbc]
             [imigresen-api.state.db.core :refer [db]]
             [clj-uuid :as uuid]
-            [java-time.api :as jt]
             [imigresen-api.components.user.spec :as s]))
 
 (def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string?)))
@@ -60,8 +59,8 @@
                                                      :last-name last-name
                                                      :password password})
           query! {:insert-into :users
-                  :columns [:kc_id :uuid :email :created_at :updated_at]
-                  :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
+                  :columns [:kc_id :uuid :email]
+                  :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user)]]
                   :returning [:uuid :created_at :updated_at]}
           result (jdbc/execute-one! tx (sql/format query!))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
@@ -79,8 +78,7 @@
           filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
           query! (if (not (nil? email))
                    {:update :users
-                    :set {:email email
-                          :updated_at (jt/offset-date-time)}
+                    :set {:email email}
                     :where filters
                     :returning columns}
                    {:select columns

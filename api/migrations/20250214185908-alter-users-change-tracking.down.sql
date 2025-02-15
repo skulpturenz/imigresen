@@ -1,4 +1,7 @@
 ALTER TABLE IF EXISTS users
     ALTER COLUMN created_at DROP DEFAULT;
 
+ALTER TABLE IF EXISTS users
+    ALTER COLUMN updated_at DROP DEFAULT;
+
 DROP TRIGGER IF EXISTS users_modtimestamp;

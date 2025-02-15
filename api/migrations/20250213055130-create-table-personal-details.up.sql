@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS personal_details (
     phone_number TEXT,
     relationship_status TEXT REFERENCES relationship_statuses(code),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_personal_details PRIMARY_KEY(user, uuid)
 );
 
