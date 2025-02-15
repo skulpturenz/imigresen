@@ -28,7 +28,9 @@
   (let [query (query-im42 [:= :im42.uuid uuid])]))
 
 (defn find-by-user [user]
-  (let [query (query-im42 [:= :im42.user user])]))
+  (let [query {:select [:uuid :primary_caregiver :status :created_at :updated_at]
+               :from [:im42]
+               :where [:and [:is-not :deleted true] [:user user]]}]))
 
 (defn get-reference-data []
   (let [genders-query {:select [:code :gender]
