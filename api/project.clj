@@ -32,7 +32,8 @@
                  [clojure.java-time "1.4.3"]
                  [org.threeten/threeten-extra "1.2"]
                  [camel-snake-kebab "0.4.3"]
-                 [jumblerg/ring-cors "3.0.0"]]
+                 [jumblerg/ring-cors "3.0.0"]
+                 [clj-test-containers/clj-test-containers "0.7.4"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all

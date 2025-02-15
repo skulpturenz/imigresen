@@ -41,7 +41,7 @@
   ;; return agent
   db-agent)
 
-(defn- parse-connection-string [connection-string]
+(defn parse-connection-string [connection-string]
   (let [uri (URI. connection-string)
         query-params (caught (keywordize-keys (form-decode (.getQuery uri))))]
     {:host (.getHost uri)
