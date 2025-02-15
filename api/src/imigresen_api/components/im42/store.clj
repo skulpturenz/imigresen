@@ -1,12 +1,14 @@
 (ns imigresen-api.components.im42.store)
 
+;; TODO: need to get primary caregiver name
 (defn- query-im42 [& filters]
   {:select [:im42.user :im42.uuid :im42.created_at :im42.updated_at
             :personal_details.date_of_birth :personal_details.height :personal_details.phone_number
             :pd_country_of_birth.code :pd_gender.code :pd_relationship_status.code
             :pd_addr.street_address :pd_addr.postcode :pd_addr.city :pd_adr.state :pd_addr_country.code
             :identification_documents.identity_card_number :identification_documents.birth_certificate_number :iddoc_country.code
-            :passports.number :passp_country.code]
+            :passports.number :passp_country.code
+            :primary_caregiver_user.uuid :pc_iddoc.identity_card_number]
    :from [:im42]
    :join [:personal_details [:= :im42.user :personal_details.user]
           :country :pd_country_of_birth [:= :personal_details.country_of_birth :country.code]
@@ -17,7 +19,9 @@
           :identification_documents [:= :identification_documents.user :personal_details.user]
           :country :iddoc_country [:= :identification_documents.country :country.code]
           :passports [:= :passports.user :im42.user]
-          :country :passp_country [:= :passports.country :country.code]]
+          :country :passp_country [:= :passports.country :country.code]
+          :user :primary_caregiver_user [:= :im42.primary_caregiver :user.uuid]
+          :identification_documents :pc_iddoc [:= :im42.primary_caregiver :identification_documents.user]]
    :where [:and
            [:is-not :addresses.deleted true]
            [:is-not :passports.deleted true]
