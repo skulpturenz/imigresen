@@ -52,29 +52,40 @@
         kc-unique (kcu/username-exists? kc-client realm email)]
     (and (empty? result) kc-unique)))
 
-(defn create-user-by-email! [{:keys [email first-name last-name password]}]
+(defn create-user-by-email! [{:keys [email first-name last-name password]} :as user]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [kc-user (kcu/create-user! kc-client realm {:username email
+    (let [personal-details (apply dissoc user [:email :first-name :last-name :password])
+          kc-user (kcu/create-user! kc-client realm {:username email
                                                      :first-name first-name
                                                      :last-name last-name
                                                      :password password})
-          query! {:insert-into :users
-                  :columns [:kc_id :uuid :email]
-                  :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user)]]
-                  :returning [:uuid :created_at :updated_at]}
-          result (jdbc/execute-one! tx (sql/format query!))]
+          create-user-query! {:insert-into :users
+                              :columns [:kc_id :uuid :email]
+                              :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user)]]
+                              :returning [:uuid :created_at :updated_at]}
+          created-user (jdbc/execute-one! tx (sql/format create-user-query!))
+          create-personal-details-query! {:insert-into :personal_details
+                                          :columns [:user :date_of_birth :country_of_birth :gender
+                                                    :address :height :phone_number :relationship_status]
+                                          :values [(:uuid created-user) (:date-of-birth personal-details) (:country-of-birth personal-details)
+                                                   (:gender personal-details) (:address personal-details) (:height personal-details)
+                                                   (:phone-number personal-details) (:relationship-status personal-details)]
+                                          :returning [:uuid]}
+          _created-personal-details (when (seq personal-details) (jdbc/execute-one! tx (sql/format create-personal-details-query!)))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
       (s/user
-       (:uuid result)
+       (:uuid created-user)
        (.getFirstName kc-user)
        (.getLastName kc-user)
        (.getEmail kc-user)
-       (:created_at result)
-       (:updated_at result)))))
+       (:created_at created-user)
+       (:updated_at created-user)))))
 
-(defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
+;; TODO: update personal details
+(defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]} :as user]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [columns [:kc_id :uuid :email :created_at :updated_at]
+    (let [personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
+          columns [:kc_id :uuid :email :created_at :updated_at]
           filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
           query! (if (not (nil? email))
                    {:update :users
