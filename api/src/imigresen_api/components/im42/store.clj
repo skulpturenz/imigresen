@@ -43,3 +43,16 @@
                          :from [:countries]}
         relationship-statuses-query {:select [:code :relationship_status]
                                      :from [:relationship_statuses]}]))
+
+(defn upsert-form [form]
+  (let [im42-changes (map form [:user :uuid :identification_documents.uuid :primary_caregiver.uuid])
+        ;; TODO: find user and update linked personal details
+        personal-details-changes (map form [:user :personal-details.date-of-birth :personal-details.country-of-birth
+                                            :personal-details.gender :address.uuid :personal-details.height
+                                            :personal-details.phone-number :personal-details.relationship-status])
+        address-changes (map form [:user :address.uuid :address.street-address :address.postcode
+                                   :address.city :address.state :address.country])
+        ;; TODO: find user and update linked identification documents
+        identification-documents-changes (map form [:user :identification-documents.country
+                                                    :identification-documents.identity-card-number
+                                                    :identification-documents.birth-certificate-number])]))
