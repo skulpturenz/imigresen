@@ -1,4 +1,7 @@
-(ns imigresen-api.components.im42.store)
+(ns imigresen-api.components.im42.store
+  (:require [honey.sql :as sql]
+            [next.jdbc :as jdbc]
+            [imigresen-api.state.db.core :refer [db]]))
 
 ;; TODO: need to get primary caregiver name
 (defn- query-im42 [& filters]
@@ -45,14 +48,43 @@
                                      :from [:relationship_statuses]}]))
 
 (defn upsert-form [form]
-  (let [im42-changes (map form [:user :uuid :identification_documents.uuid :primary_caregiver.uuid])
-        ;; TODO: find user and update linked personal details
-        personal-details-changes (map form [:user :personal-details.date-of-birth :personal-details.country-of-birth
-                                            :personal-details.gender :address.uuid :personal-details.height
-                                            :personal-details.phone-number :personal-details.relationship-status])
-        address-changes (map form [:user :address.uuid :address.street-address :address.postcode
-                                   :address.city :address.state :address.country])
-        ;; TODO: find user and update linked identification documents
-        identification-documents-changes (map form [:user :identification-documents.country
-                                                    :identification-documents.identity-card-number
-                                                    :identification-documents.birth-certificate-number])]))
+  (jdbc/with-transaction [tx (:ds @db)]
+    (let [;; TODO: find user and update linked identification documents
+          identification-documents-changes (map form [:user :identification-documents.country
+                                                      :identification-documents.identity-card-number
+                                                      :identification-documents.birth-certificate-number]) ;; TODO: map to db keys
+          identification-documents-query! {:insert-into :identification_documents
+                                           :columns (keys identification-documents-changes)
+                                           :values (vals identification-documents-changes)
+                                           :on-conflict {:user {:where [:and [:= :user (:user identification-documents-changes)] [:= :country (:country identification-documents-changes)]]}}
+                                           :do-update-set {:fields (keys identification-documents-changes)}}
+          upserted-identification-documents (jdbc/execute-one! tx (sql/format identification-documents-query!))
+          ;; TODO: map to db keys
+          personal-details-changes (map form [:user :personal-details.date-of-birth :personal-details.country-of-birth
+                                              :personal-details.gender :address.uuid :personal-details.height
+                                              :personal-details.phone-number :personal-details.relationship-status])
+          personal-details-query! {:insert-into :personal_details
+                                   :columns (keys personal-details-changes)
+                                   :values (vals personal-details-changes)
+                                   :on-conflict {:user {:where [:= :user (:user personal-details-changes)]}}
+                                   :do-update-set {:fields (keys personal-details-changes)}}
+          upserted-personal-details (jdbc/execute-one! tx (sql/format personal-details-query!))
+          ;; TODO: map to db keys
+          address-changes (map form [:user :address.uuid :address.street-address :address.postcode
+                                     :address.city :address.state :address.country])
+          address-query! {:insert-into :addresses
+                          :columns (keys address-changes)
+                          :values (vals address-changes)
+                          :on-conflict {:user {:where [:and [:= :user (:user address-changes)] [:= :uuid (:uuid address-changes)]]}}}
+          upserted-address (jdbc/execute-one! tx (sql/format address-query!))
+          ;; TODO: map to db keys
+          ;; TODO: if `identification_documents.uuid` is nil then replace with one above
+          im42-changes (merge {:identification_documents (:uuid upserted-identification-documents)}
+                              (map form [:user :uuid :identification_documents.uuid :primary_caregiver.uuid]))
+          im42-query! {:insert-into :im42
+                       :columns (keys im42-changes)
+                       :values (vals im42-changes)
+                       :on-conflict [:uuid {:where [:= :uuid (:uuid im42-changes)]}]
+                       :do-update-set {:fields (keys im42-changes)}
+                       :returning [:user :uuid]} ;; TODO: only create, need to handle update
+          upserted-im42 (jdbc/execute-one! tx (sql/format im42-query!))])))
