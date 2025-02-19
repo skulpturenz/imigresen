@@ -65,11 +65,8 @@
                               :returning [:uuid :created_at :updated_at]}
           created-user (jdbc/execute-one! tx (sql/format create-user-query!))
           create-personal-details-query! {:insert-into :personal_details
-                                          :columns [:user :date_of_birth :country_of_birth :gender
-                                                    :address :height :phone_number :relationship_status]
-                                          :values [(:uuid created-user) (:date-of-birth personal-details) (:country-of-birth personal-details)
-                                                   (:gender personal-details) (:address personal-details) (:height personal-details)
-                                                   (:phone-number personal-details) (:relationship-status personal-details)]
+                                          :columns (keys personal-details)
+                                          :values (vals personal-details)
                                           :returning [:uuid]}
           _created-personal-details (when (seq personal-details) (jdbc/execute-one! tx (sql/format create-personal-details-query!)))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
@@ -81,21 +78,25 @@
        (:created_at created-user)
        (:updated_at created-user)))))
 
-;; TODO: update personal details
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]} :as user]
   (jdbc/with-transaction [tx (:ds @db)]
     (let [personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
           columns [:kc_id :uuid :email :created_at :updated_at]
           filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
-          query! (if (not (nil? email))
-                   {:update :users
-                    :set {:email email}
-                    :where filters
-                    :returning columns}
-                   {:select columns
-                    :from [:users]
-                    :where filters})
-          result (jdbc/execute-one! tx (sql/format query!))
+          update-user-query! (if (not (nil? email))
+                               {:update :users
+                                :set {:email email}
+                                :where filters
+                                :returning columns}
+                               {:select columns
+                                :from [:users]
+                                :where filters})
+          update-personal-details-query! {:update :users
+                                          :set personal-details
+                                          :where [:= :user uuid]
+                                          :returning [:uuid]}
+          result (jdbc/execute-one! tx (sql/format update-user-query!))
+          _updated-personal-details (jdbc/execute-one! tx (sql/format update-personal-details-query!))
           kc-user (kcu/update-user! kc-client realm (:kc_id result) {:username email
                                                                      :first-name first-name
                                                                      :last-name last-name
