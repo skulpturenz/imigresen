@@ -56,7 +56,9 @@
           identification-documents-query! {:insert-into :identification_documents
                                            :columns (keys identification-documents-changes)
                                            :values (vals identification-documents-changes)
-                                           :on-conflict {:user {:where [:and [:= :user (:user identification-documents-changes)] [:= :country (:country identification-documents-changes)]]}}
+                                           :on-conflict {:user {:where [:and
+                                                                        [:= :user (:user identification-documents-changes)]
+                                                                        [:= :country (:country identification-documents-changes)]]}}
                                            :do-update-set {:fields (keys identification-documents-changes)}}
           upserted-identification-documents (jdbc/execute-one! tx (sql/format identification-documents-query!))
           ;; TODO: map to db keys
@@ -75,7 +77,9 @@
           address-query! {:insert-into :addresses
                           :columns (keys address-changes)
                           :values (vals address-changes)
-                          :on-conflict {:user {:where [:and [:= :user (:user address-changes)] [:= :uuid (:uuid address-changes)]]}}}
+                          :on-conflict {:user {:where [:and
+                                                       [:= :user (:user address-changes)]
+                                                       [:= :uuid (:uuid address-changes)]]}}}
           upserted-address (jdbc/execute-one! tx (sql/format address-query!))
           ;; TODO: map to db keys
           ;; TODO: if `identification_documents.uuid` is nil then replace with one above
