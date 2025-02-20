@@ -1,7 +1,8 @@
 (ns imigresen-api.components.im42.store
   (:require [honey.sql :as sql]
             [next.jdbc :as jdbc]
-            [imigresen-api.state.db.core :refer [db]]))
+            [imigresen-api.state.db.core :refer [db]]
+            [pdfboxing.form :as form]))
 
 ;; TODO: need to get primary caregiver name
 (defn- query-im42 [& filters]
@@ -92,3 +93,8 @@
                        :do-update-set {:fields (keys im42-changes)}
                        :returning [:user :uuid]} ;; TODO: only create, need to handle update
           upserted-im42 (jdbc/execute-one! tx (sql/format im42-query!))])))
+
+;; TODO: in memory?
+(defn generate-pdf-document [input output im42]
+  ;; TODO: fill in text fields, draw checkmarks
+  (form/set-fields input output {}))
