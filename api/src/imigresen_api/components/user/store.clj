@@ -9,7 +9,7 @@
             [clj-uuid :as uuid]
             [imigresen-api.components.user.spec :as s]))
 
-(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string?)))
+(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-oauth-client-secret string?)))
 
 (def ^:private realm (env :kc-realm string?))
 
@@ -52,7 +52,7 @@
         kc-unique (kcu/username-exists? kc-client realm email)]
     (and (empty? result) kc-unique)))
 
-(defn create-user-by-email! [{:keys [email first-name last-name password]} :as user]
+(defn create-user-by-email! [{:keys [email first-name last-name password] :as user}]
   (jdbc/with-transaction [tx (:ds @db)]
     (let [personal-details (apply dissoc user [:email :first-name :last-name :password])
           kc-user (kcu/create-user! kc-client realm {:username email
@@ -78,7 +78,7 @@
        (:created_at created-user)
        (:updated_at created-user)))))
 
-(defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]} :as user]
+(defn update-user-by-uuid! [{:keys [uuid first-name last-name email password] :as user}]
   (jdbc/with-transaction [tx (:ds @db)]
     (let [personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
           columns [:kc_id :uuid :email :created_at :updated_at]

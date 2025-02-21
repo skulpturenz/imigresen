@@ -61,5 +61,5 @@
                                                                                                          :sslmode (:sslmode parsed)}))))
 
 (defstate db
-  :start (start (create-jdbc-connection-string (when (contains? ["production" "development"] (current-env)) (env :pg-connection-string string?))))
+  :start (start (create-jdbc-connection-string (when (contains? #{"production" "development"} current-env) (env :pg-connection-string string?))))
   :stop (stop))

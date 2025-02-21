@@ -1,18 +1,15 @@
-CREATE TABLE IF NOT EXISTS addresses (
-    user UUID NOT NULL REFERENCES users(uuid),
+CREATE TABLE IF NOT EXISTS passports (
+    user_uuid UUID NOT NULL UNIQUE REFERENCES users(uuid),
     uuid UUID NOT NULL UNIQUE,
-    street_address TEXT,
-    postcode TEXT,
-    city TEXT,
-    state TEXT,
-    country TEXT REFERENCES countries(code),
+    country_code TEXT NOT NULL UNIQUE REFERENCES countries(code),
+    passport_number TEXT NOT NULL UNIQUE,
     deleted BOOLEAN,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_addresses PRIMARY_KEY(user, uuid)
+    CONSTRAINT pk_passports PRIMARY KEY(user, uuid)
 );
-
-CREATE OR REPLACE TRIGGER addresses_modtimestamp
+--;;
+CREATE OR REPLACE TRIGGER passports_modtimestamp
     BEFORE UPDATE ON users
     FOR EACH ROW
     WHEN (OLD IS DISTINCT FROM NEW)
