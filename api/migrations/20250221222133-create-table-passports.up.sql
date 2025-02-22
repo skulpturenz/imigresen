@@ -3,10 +3,10 @@ CREATE TABLE IF NOT EXISTS passports (
     uuid UUID NOT NULL UNIQUE,
     country_code TEXT NOT NULL UNIQUE REFERENCES countries(code),
     passport_number TEXT NOT NULL UNIQUE,
-    deleted BOOLEAN,
+    deleted_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_passports PRIMARY KEY(user, uuid)
+    CONSTRAINT pk_passports PRIMARY KEY(user_uuid, uuid)
 );
 --;;
 CREATE OR REPLACE TRIGGER passports_modtimestamp

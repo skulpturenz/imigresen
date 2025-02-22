@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS im42 (
     uuid UUID NOT NULL UNIQUE,
     identification_documents_uuid UUID NOT NULL REFERENCES identification_documents(uuid),
     primary_caregiver_uuid UUID REFERENCES users(uuid),
-    deleted BOOLEAN,
+    deleted_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status TEXT NOT NULL,

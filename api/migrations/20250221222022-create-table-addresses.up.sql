@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     city TEXT,
     state TEXT,
     country_code TEXT REFERENCES countries(code),
-    deleted BOOLEAN,
+    deleted_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_addresses PRIMARY KEY(user_uuid, uuid)
