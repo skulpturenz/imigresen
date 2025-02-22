@@ -1,2 +1,2 @@
 DELETE FROM genders WHERE code IN 
-    ("M", "F");
+    ('M', 'F');
