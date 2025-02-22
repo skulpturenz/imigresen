@@ -2,7 +2,8 @@
   (:require [honey.sql :as sql]
             [next.jdbc :as jdbc]
             [imigresen-api.state.db.core :refer [db]]
-            [pdfboxing.form :as form]))
+            [pdfboxing.form :as form])
+  (:import (java.io ByteArrayOutputStream)))
 
 ;; TODO: need to get primary caregiver name
 (defn- query-im42 [& filters]
@@ -94,7 +95,23 @@
                        :returning [:user :uuid]} ;; TODO: only create, need to handle update
           upserted-im42 (jdbc/execute-one! tx (sql/format im42-query!))])))
 
-;; TODO: in memory?
-(defn generate-pdf-document [input output im42]
+(defn generate-pdf-document [input im42]
   ;; TODO: fill in text fields, draw checkmarks
-  (form/set-fields input output {}))
+  ;; Checkbox - Off/On
+  ;; TODO: text fields where box around we need one text field per char
+  (with-open [out (ByteArrayOutputStream.)]
+    (form/set-fields input out {})))
+
+(def ^:private form-fields {:doc-type-64 ""
+                            :doc-type-32 ""
+                            :doc-type-limited-sg ""
+                            :doc-type-limited-bn ""
+                            :doc-type-emergency ""
+                            :doc-type-limited-id ""
+                            :doc-type-limited-ph ""
+                            :doc-type-travel-limited ""
+                            :req-type-first ""
+                            :req-type-full-expired ""
+                            :req-type-destroyed ""
+                            :req-type-child-picture ""
+                            :req-type-lost ""})
