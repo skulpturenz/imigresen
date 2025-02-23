@@ -36,12 +36,12 @@
 (defn find-by-uuid [uuid]
   (let [query (query-im42 [:= :im42.uuid uuid])]))
 
-(defn find-by-user [user]
+(defn find-many-by-user [user]
   (let [query {:select [:uuid :primary-caregiver :status :created-at :updated-at]
                :from [:im42]
-               :where [:and [:= :deleted nil] [:user [:select [:uuid]
-                                                      :from [:users]
-                                                      :where [:and [:= :deleted-at nil] [:= :uuid user]]]]]}]))
+               :where [:and [:= :deleted-at nil] [:user [:select [:uuid]
+                                                         :from [:users]
+                                                         :where [:and [:= :deleted-at nil] [:= :uuid user]]]]]}]))
 
 (defn get-reference-data []
   (let [genders-query {:select [:code :gender]
