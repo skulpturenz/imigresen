@@ -27,7 +27,7 @@
    ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
    (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
    (let [ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string})
-         opts {:builder-fn rs/as-kebab-maps}]
+         opts jdbc/snake-kebab-opts]
      (send db-agent assoc :ds ds)
      (send db-agent assoc :ds-opts (jdbc/with-options ds opts))
      (send db-agent assoc :opts opts))
