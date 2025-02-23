@@ -54,9 +54,13 @@
 (defn upsert-form [form]
   (jdbc/with-transaction [tx (:ds @db)]
     (let [;; TODO: find user and update linked identification documents
-          identification-documents-changes (map form [:user :identification-documents.country
-                                                      :identification-documents.identity-card-number
-                                                      :identification-documents.birth-certificate-number]) ;; TODO: map to db keys
+          user {:select [:uuid]
+                :from [:users]
+                :where [:and [:= :deleted-at nil] [:user_uuid (:user form)]]}
+          form-with-user (assoc form :user (:users/uuid user))
+          identification-documents-changes (map form-with-user [:user :identification-documents.country
+                                                                :identification-documents.identity-card-number
+                                                                :identification-documents.birth-certificate-number]) ;; TODO: map to db keys
           identification-documents-query! {:insert-into :identification-documents
                                            :columns (keys identification-documents-changes)
                                            :values (vals identification-documents-changes)
@@ -66,9 +70,9 @@
                                            :do-update-set {:fields (keys identification-documents-changes)}}
           upserted-identification-documents (jdbc/execute-one! tx (sql/format identification-documents-query!))
           ;; TODO: map to db keys
-          personal-details-changes (map form [:user :personal-details.date-of-birth :personal-details.country-of-birth
-                                              :personal-details.gender :address.uuid :personal-details.height
-                                              :personal-details.phone-number :personal-details.relationship-status])
+          personal-details-changes (map form-with-user [:user :personal-details.date-of-birth :personal-details.country-of-birth
+                                                        :personal-details.gender :address.uuid :personal-details.height
+                                                        :personal-details.phone-number :personal-details.relationship-status])
           personal-details-query! {:insert-into :personal-details
                                    :columns (keys personal-details-changes)
                                    :values (vals personal-details-changes)
@@ -76,8 +80,8 @@
                                    :do-update-set {:fields (keys personal-details-changes)}}
           upserted-personal-details (jdbc/execute-one! tx (sql/format personal-details-query!))
           ;; TODO: map to db keys
-          address-changes (map form [:user :address.uuid :address.street-address :address.postcode
-                                     :address.city :address.state :address.country])
+          address-changes (map form-with-user [:user :address.uuid :address.street-address :address.postcode
+                                               :address.city :address.state :address.country])
           address-query! {:insert-into :addresses
                           :columns (keys address-changes)
                           :values (vals address-changes)
@@ -88,7 +92,7 @@
           ;; TODO: map to db keys
           ;; TODO: if `identification-documents.uuid` is nil then replace with one above
           im42-changes (merge {:identification-documents (:uuid upserted-identification-documents)}
-                              (map form [:user :uuid :identification-documents.uuid :primary-caregiver.uuid]))
+                              (map form-with-user [:user :uuid :identification-documents.uuid :primary-caregiver.uuid]))
           im42-query! {:insert-into :im42
                        :columns (keys im42-changes)
                        :values (vals im42-changes)
