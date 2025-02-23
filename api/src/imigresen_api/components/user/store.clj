@@ -7,16 +7,17 @@
             [next.jdbc :as jdbc]
             [imigresen-api.state.db.core :refer [db]]
             [clj-uuid :as uuid]
-            [imigresen-api.components.user.spec :as s]))
+            [imigresen-api.components.user.spec :as s]
+            [java-time.api :as jt]))
 
 (def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-oauth-client-secret string?)))
 
 (def ^:private realm (env :kc-realm string?))
 
 (defn find-by-kc-id [kc-id]
-  (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
+  (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted_at]
                :from [:users]
-               :where [:and [:is-not :deleted true] [:= :kc_id kc-id]]}
+               :where [:and [:= :deleted_at nil] [:= :kc_id kc-id]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user kc-client realm (:kc_id result))]
     (when (not (nil? result))
@@ -29,9 +30,9 @@
        (:created_at result)))))
 
 (defn find-by-email [email]
-  (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
+  (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted_at]
                :from [:users]
-               :where [:and [:is-not :deleted true] [:= :email email]]}
+               :where [:and [:= :deleted_at nil] [:= :email email]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-user (kcu/get-user-by-username kc-client realm (:email result))]
     (when (not (nil? result))
@@ -46,7 +47,7 @@
 (defn unique-email? [email]
   (let [query {:select [:uuid]
                :from [:users]
-               :where [:and [:is-not :deleted true] [:= :email email]]
+               :where [:and [:= :deleted_at nil] [:= :email email]]
                :limit 1}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
         kc-unique (kcu/username-exists? kc-client realm email)]
@@ -82,7 +83,7 @@
   (jdbc/with-transaction [tx (:ds @db)]
     (let [personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
           columns [:kc_id :uuid :email :created_at :updated_at]
-          filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+          filters [:and [:= :deleted_at nil] [:= :uuid (str uuid)]]
           update-user-query! (if (not (nil? email))
                                {:update :users
                                 :set {:email email}
@@ -111,17 +112,17 @@
          (:updated_at result))))))
 
 (defn delete-user! [uuid]
-  (let [filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+  (let [filters [:and [:= :deleted_at nil] [:= :uuid (str uuid)]]
         get-user-query {:select [:kc_id :email]
                         :from [:users]
                         :where filters}
         result (jdbc/execute-one! (:ds @db) (sql/format get-user-query))
         soft-delete-user-query! {:update :users
-                                 :set {:deleted true}
+                                 :set {:deleted_at_at ((jt/offset-date-time))}
                                  :where filters
-                                 :returning [:deleted]}]
+                                 :returning [:deleted_at]}]
     (when result
       (jdbc/with-transaction [tx (:ds @db)]
         (kcu/logout-user! kc-client realm (:kc_id result))
         (kcu/delete-user! kc-client realm {:email (:email result)})
-        (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
+        (:deleted_at (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
