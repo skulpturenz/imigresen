@@ -54,7 +54,7 @@
     (and (empty? result) kc-unique)))
 
 (defn create-user-by-email! [{:keys [email first-name last-name password] :as user}]
-  (jdbc/with-transaction [tx (:ds-opts @db)]
+  (jdbc/with-transaction+options [tx (:ds-opts @db)]
     (let [personal-details (apply dissoc user [:email :first-name :last-name :password])
           kc-user (kcu/create-user! kc-client realm {:username email
                                                      :first-name first-name
@@ -76,12 +76,11 @@
        (.getFirstName kc-user)
        (.getLastName kc-user)
        (.getEmail kc-user)
-       ;; TODO: kebab case
-       (:users/created_at created-user)
-       (:users/updated_at created-user)))))
+       (:users/created-at created-user)
+       (:users/updated-at created-user)))))
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password] :as user}]
-  (jdbc/with-transaction [tx (:ds-opts @db)]
+  (jdbc/with-transaction+options [tx (:ds-opts @db)]
     (let [;; personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
           columns [:kc_id :uuid :email :created_at :updated_at]
           filters [:and [:= :deleted_at nil] [:= :uuid uuid]]
@@ -111,9 +110,8 @@
          (.getFirstName kc-user)
          (.getLastName kc-user)
          (.getEmail kc-user)
-         ;; TODO: kebab case
-         (:users/created_at result)
-         (:users/updated_at result))))))
+         (:users/created-at result)
+         (:users/updated-at result))))))
 
 (defn delete-user! [uuid]
   (let [filters [:and [:= :deleted_at nil] [:= :uuid uuid]]
@@ -126,8 +124,7 @@
                                  :where filters
                                  :returning [:deleted_at]}]
     (when result
-      (jdbc/with-transaction [tx (:ds-opts @db)]
+      (jdbc/with-transaction+options [tx (:ds-opts @db)]
         (kcu/logout-user! kc-client realm (:users/kc_id result))
         (kcu/delete-user! kc-client realm {:users/email (:email result)})
-        ;; TODO: kebab case
-        (:users/deleted_at (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
+        (:users/deleted-at (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
