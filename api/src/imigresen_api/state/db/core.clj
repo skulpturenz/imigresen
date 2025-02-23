@@ -41,7 +41,7 @@
   ;; return agent
   db-agent)
 
-(defn parse-connection-string [connection-string]
+(defn- parse-connection-string [connection-string]
   (let [uri (URI. connection-string)
         query-params (caught (keywordize-keys (form-decode (.getQuery uri))))]
     {:host (.getHost uri)
@@ -54,7 +54,7 @@
                 "prefer")}))
 
 ;; https://jdbc.postgresql.org/documentation/use/
-(defn- create-jdbc-connection-string [connection-string]
+(defn create-jdbc-connection-string [connection-string]
   (let [parsed (parse-connection-string connection-string)]
     (str "jdbc:postgresql://" (:host parsed) ":" (:port parsed) "/" (:database parsed) "?" (form-encode {:user (:user parsed)
                                                                                                          :password (:password parsed)

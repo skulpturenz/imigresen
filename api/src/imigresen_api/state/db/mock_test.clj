@@ -14,4 +14,4 @@
 
 (t/deftest select
   (t/testing "able to query"
-    (t/is (= (:0 (jdbc/execute-one! (:ds @db) (sql/format {:select :0}))) 0))))
+    (t/is (= (:test (jdbc/execute-one! (:ds @db) (sql/format {:select [[:0 "test"]]}))) 0))))
