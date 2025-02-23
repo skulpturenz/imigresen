@@ -7,47 +7,49 @@
 
 ;; TODO: need to get primary caregiver name
 (defn- query-im42 [& filters]
-  {:select [:im42.user :im42.uuid :im42.created_at :im42.updated_at
-            :personal_details.date_of_birth :personal_details.height :personal_details.phone_number
-            :pd_country_of_birth.code :pd_gender.code :pd_relationship_status.code
-            :pd_addr.street_address :pd_addr.postcode :pd_addr.city :pd_adr.state :pd_addr_country.code
-            :identification_documents.identity_card_number :identification_documents.birth_certificate_number :iddoc_country.code
-            :passports.number :passp_country.code
-            :primary_caregiver_user.uuid :pc_iddoc.identity_card_number]
+  {:select [:im42.user :im42.uuid :im42.created-at :im42.updated-at
+            :personal-details.date-of-birth :personal-details.height :personal-details.phone-number
+            :pd-country-of-birth.code :pd-gender.code :pd-relationship-status.code
+            :pd-addr.street-address :pd-addr.postcode :pd-addr.city :pd-adr.state :pd-addr-country.code
+            :identification-documents.identity-card-number :identification-documents.birth-certificate-number :iddoc-country.code
+            :passports.number :passp-country.code
+            :primary-caregiver-user.uuid :pc-iddoc.identity-card-number]
    :from [:im42]
-   :join [:personal_details [:= :im42.user :personal_details.user]
-          :country :pd_country_of_birth [:= :personal_details.country_of_birth :country.code]
-          :gender :pd_gender [:= :personal_details.gender :gender.code]
-          :relationship_status :pd_relationship_status [:= :personal_details.relationship_status :relationship_status.code]
-          :addresses :pd_addr [:= :addresses.user :personal_details.address]
-          :country :pd_addr_country [:= :addresses.country :country.code]
-          :identification_documents [:= :identification_documents.user :personal_details.user]
-          :country :iddoc_country [:= :identification_documents.country :country.code]
+   :join [:personal-details [:= :im42.user :personal-details.user]
+          :country :pd-country-of-birth [:= :personal-details.country-of-birth :country.code]
+          :gender :pd-gender [:= :personal-details.gender :gender.code]
+          :relationship-status :pd-relationship-status [:= :personal-details.relationship-status :relationship-status.code]
+          :addresses :pd-addr [:= :addresses.user :personal-details.address]
+          :country :pd-addr-country [:= :addresses.country :country.code]
+          :identification-documents [:= :identification-documents.user :personal-details.user]
+          :country :iddoc-country [:= :identification-documents.country :country.code]
           :passports [:= :passports.user :im42.user]
-          :country :passp_country [:= :passports.country :country.code]
-          :user :primary_caregiver_user [:= :im42.primary_caregiver :user.uuid]
-          :identification_documents :pc_iddoc [:= :im42.primary_caregiver :identification_documents.user]]
+          :country :passp-country [:= :passports.country :country.code]
+          :user :primary-caregiver-user [:= :im42.primary-caregiver :user.uuid]
+          :identification-documents :pc-iddoc [:= :im42.primary-caregiver :identification-documents.user]]
    :where [:and
-           [:is-not :addresses.deleted true]
-           [:is-not :passports.deleted true]
-           [:is-not :im42.deleted true]
+           [:= :addresses.deleted-at nil]
+           [:is-not :passports.deleted-at nil]
+           [:is-not :im42.deleted-at nil]
            filters]})
 
 (defn find-by-uuid [uuid]
   (let [query (query-im42 [:= :im42.uuid uuid])]))
 
 (defn find-by-user [user]
-  (let [query {:select [:uuid :primary_caregiver :status :created_at :updated_at]
+  (let [query {:select [:uuid :primary-caregiver :status :created-at :updated-at]
                :from [:im42]
-               :where [:and [:is-not :deleted true] [:user user]]}]))
+               :where [:and [:= :deleted nil] [:user [:select [:uuid]
+                                                      :from [:users]
+                                                      :where [:and [:= :deleted-at nil] [:= :uuid user]]]]]}]))
 
 (defn get-reference-data []
   (let [genders-query {:select [:code :gender]
                        :from [:genders]}
         countries-query {:select [:code :country]
                          :from [:countries]}
-        relationship-statuses-query {:select [:code :relationship_status]
-                                     :from [:relationship_statuses]}]))
+        relationship-statuses-query {:select [:code :relationship-status]
+                                     :from [:relationship-statuses]}]))
 
 (defn upsert-form [form]
   (jdbc/with-transaction [tx (:ds @db)]
@@ -55,7 +57,7 @@
           identification-documents-changes (map form [:user :identification-documents.country
                                                       :identification-documents.identity-card-number
                                                       :identification-documents.birth-certificate-number]) ;; TODO: map to db keys
-          identification-documents-query! {:insert-into :identification_documents
+          identification-documents-query! {:insert-into :identification-documents
                                            :columns (keys identification-documents-changes)
                                            :values (vals identification-documents-changes)
                                            :on-conflict {:user {:where [:and
@@ -67,7 +69,7 @@
           personal-details-changes (map form [:user :personal-details.date-of-birth :personal-details.country-of-birth
                                               :personal-details.gender :address.uuid :personal-details.height
                                               :personal-details.phone-number :personal-details.relationship-status])
-          personal-details-query! {:insert-into :personal_details
+          personal-details-query! {:insert-into :personal-details
                                    :columns (keys personal-details-changes)
                                    :values (vals personal-details-changes)
                                    :on-conflict {:user {:where [:= :user (:user personal-details-changes)]}}
@@ -84,9 +86,9 @@
                                                        [:= :uuid (:uuid address-changes)]]}}}
           upserted-address (jdbc/execute-one! tx (sql/format address-query!))
           ;; TODO: map to db keys
-          ;; TODO: if `identification_documents.uuid` is nil then replace with one above
-          im42-changes (merge {:identification_documents (:uuid upserted-identification-documents)}
-                              (map form [:user :uuid :identification_documents.uuid :primary_caregiver.uuid]))
+          ;; TODO: if `identification-documents.uuid` is nil then replace with one above
+          im42-changes (merge {:identification-documents (:uuid upserted-identification-documents)}
+                              (map form [:user :uuid :identification-documents.uuid :primary-caregiver.uuid]))
           im42-query! {:insert-into :im42
                        :columns (keys im42-changes)
                        :values (vals im42-changes)
