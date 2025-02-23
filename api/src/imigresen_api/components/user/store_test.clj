@@ -140,7 +140,7 @@
                  (.setEmail (str (random-uuid) "@world.com")))]
       (with-redefs [kcu/get-user (constantly user)
                     kcu/update-user! (constantly user)]
-        (let [result (store/update-user-by-uuid! {:uuid (str (random-uuid)) :email (str (random-uuid) "@world.com")})]
+        (let [result (store/update-user-by-uuid! {:uuid (random-uuid) :email (str (random-uuid) "@world.com")})]
           (t/is (nil? result)))))))
 
 (t/deftest ?delete-user!

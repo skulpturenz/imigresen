@@ -1,6 +1,8 @@
 (ns imigresen-api.state.db.core
   (:require [mount.core :refer [defstate]]
             [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]
+            [next.jdbc.date-time :as dt]
             [next.jdbc.connection :as connection]
             [imigresen-api.app.migrations :refer [migrate]]
             [imigresen-api.app.env :refer [env current-env]]
@@ -14,6 +16,8 @@
 
 (def ^:private db-agent (agent {}))
 
+(dt/read-as-local)
+
 ;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/getting-started.md#connection-pooling
 (defn start
   ([jdbc-connection-string] (start jdbc-connection-string (env :db-migration-dir string?) (env :db-seed-dir string? "")))
@@ -22,7 +26,11 @@
    ;; supported db types
    ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
    (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-   (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
+   (let [ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string})
+         opts {:builder-fn rs/as-kebab-maps}]
+     (send db-agent assoc :ds ds)
+     (send db-agent assoc :ds-opts (jdbc/with-options ds opts))
+     (send db-agent assoc :opts opts))
    (await db-agent)
    ;; initialize pool and validate
    (.close (jdbc/get-connection (:ds @db-agent)))
