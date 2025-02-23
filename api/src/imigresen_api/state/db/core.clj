@@ -1,7 +1,6 @@
 (ns imigresen-api.state.db.core
   (:require [mount.core :refer [defstate]]
             [next.jdbc :as jdbc]
-            [next.jdbc.result-set :as rs]
             [next.jdbc.date-time :as dt]
             [next.jdbc.connection :as connection]
             [imigresen-api.app.migrations :refer [migrate]]
