@@ -2,6 +2,7 @@
 ;; TODO: configure otel (sideload with jvm + logging)
 ;; TODO: cleanup deps for envs
 
+
 (defproject imigresen-api "0.1.0-SNAPSHOT"
   :description "Imigresen API"
   :url "https://skulpture.xyz"
@@ -56,4 +57,21 @@
             "build.watch" ["auto" "ring" "uberjar"]
             "test" ["test"]
             "test.watch" ["auto" "test"]
-            "repl" ["repl"]})
+            "repl" ["repl"]}
+  :test-selectors {:default (complement :integration)
+                   :unit (fn
+                           ([m] (:unit m))
+                           ([m s] 
+                            (and 
+                             (:unit m) 
+                             (or 
+                              (clojure.string/includes? (str (:ns m)) (name s)) 
+                              (clojure.string/includes? (str (:name m)) (name s))))))
+                   :integration (fn
+                                  ([m] (:integration m))
+                                  ([m s]
+                                   (and
+                                    (:integration m)
+                                    (or 
+                                     (clojure.string/includes? (str (:ns m)) (name s)) 
+                                     (clojure.string/includes? (str (:name m)) (name s))))))})

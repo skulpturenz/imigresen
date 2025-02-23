@@ -12,6 +12,6 @@
 
 (t/use-fixtures :once fixture)
 
-(t/deftest select
+(t/deftest ^:unit select
   (t/testing "able to query"
     (t/is (= (:test (jdbc/execute-one! (:ds @db) (sql/format {:select [[:0 "test"]]}))) 0))))

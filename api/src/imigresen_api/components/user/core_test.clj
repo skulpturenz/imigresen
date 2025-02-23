@@ -14,7 +14,7 @@
 
 (t/use-fixtures :once fixture)
 
-(t/deftest ?login
+(t/deftest ^:unit ?login
   (t/testing "invalid user"
     (let [deps {:find-by-kc-id (constantly nil)}]
       (t/is (thrown? Exception (core/login deps "123")))))
@@ -22,7 +22,7 @@
     (let [deps {:find-by-kc-id (constantly {:uuid (uuid/v7)})}]
       (t/is (not (nil? (core/login deps "123")))))))
 
-(t/deftest ?register!
+(t/deftest ^:unit ?register!
   (t/testing "email not unique"
     (let [deps {:create-user-by-email! (constantly nil)
                 :unique-email? (constantly false)}]
@@ -32,12 +32,12 @@
                 :unique-email? (constantly true)}]
       (t/is (= 1 (core/register! deps {:email "test@test.com"}))))))
 
-(t/deftest ?update-user!
+(t/deftest ^:unit ?update-user!
   (t/testing "returns result"
     (let [deps {:update-user-by-uuid! (constantly 1)}]
       (t/is (= 1 (core/update-user! deps {:uuid (uuid/v7) :email "test@test.com"}))))))
 
-(t/deftest ?delete!
+(t/deftest ^:unit ?delete!
   (t/testing "returns result"
     (let [deps {:delete-user! (constantly 1)}]
       (t/is (= 1 (core/delete! deps {:uuid (uuid/v7)}))))))

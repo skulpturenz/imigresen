@@ -27,14 +27,14 @@
 (defn clear-env [& env]
   (doseq [k env] (System/clearProperty (name k))))
 
-(t/deftest ?get-env-value
+(t/deftest ^:unit ?get-env-value
   (t/testing "gets env value"
     (set-env {:get-env-value "world"})
     (let [env (refresh-env)]
       (t/is (= (env :get-env-value) "world")))
     (clear-env :get-env-value)))
 
-(t/deftest ?spec
+(t/deftest ^:unit ?spec
   (t/testing "validates against spec"
     (set-env {:spec 1})
     (let [env (refresh-env)]
@@ -42,7 +42,7 @@
       (t/is (= (env :spec (s/and string? (s/conformer #(read-string %)) number?)) 1)))
     (clear-env :spec)))
 
-(t/deftest ?default-value
+(t/deftest ^:unit ?default-value
   (t/testing "provide default value"
     (let [env (refresh-env)]
       (t/is (= (env :default-value string? "hello world") "hello world"))
