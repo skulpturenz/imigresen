@@ -69,7 +69,7 @@
                                           :columns (keys personal-details)
                                           :values (vals personal-details)
                                           :returning [:uuid]}
-          -created-personal-details (when (seq personal-details) (jdbc/execute-one! tx (sql/format create-personal-details-query!)))]
+          _created-personal-details (when (seq personal-details) (jdbc/execute-one! tx (sql/format create-personal-details-query!)))]
       (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY-EMAIL" "CONFIGURE-TOTP" "UPDATE-PASSWORD"])
       (s/user
        (:users/uuid created-user)
@@ -81,7 +81,7 @@
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password] :as user}]
   (jdbc/with-transaction+options [tx (:ds-opts @db)]
-    (let [;; personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
+    (let [personal-details (apply dissoc user [:uuid :first-name :last-name :email :password])
           columns [:kc-id :uuid :email :created-at :updated-at]
           filters [:and [:= :deleted-at nil] [:= :uuid uuid]]
           update-user-query! (if (not (nil? email))
@@ -92,14 +92,12 @@
                                {:select columns
                                 :from [:users]
                                 :where filters})
-          ;; TODO
-          ;; update-personal-details-query! {:update :users
-          ;;                                 :set personal-details
-          ;;                                 :where [:= :user uuid]
-          ;;                                 :returning [:uuid]}
+          update-personal-details-query! {:update :users
+                                          :set personal-details
+                                          :where [:= :user_uuid uuid]
+                                          :returning [:uuid]}
           result (jdbc/execute-one! tx (sql/format update-user-query!))
-          ;; TODO
-          ;; -updated-personal-details (jdbc/execute-one! tx (sql/format update-personal-details-query!))
+          _updated-personal-details (when (seq personal-details) (jdbc/execute-one! tx (sql/format update-personal-details-query!)))
           kc-user (kcu/update-user! kc-client realm (:kc-id result) {:username email
                                                                      :first-name first-name
                                                                      :last-name last-name
