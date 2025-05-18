@@ -45,6 +45,16 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 						"Missing `hrefPath` - route configured incorrectly",
 					);
 
+					if (
+						!import.meta.env.PROD &&
+						get().routes[route.info?.hrefPath]
+					) {
+						console.warn(
+							`Route with path ${route.info?.hrefPath} exists`,
+						);
+						console.debug(get().routes[route.info?.hrefPath]);
+					}
+
 					set({
 						routes: {
 							...get().routes,

@@ -11,7 +11,7 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 
 	const routes = [
 		{
-			path: ["/", toPath(MyPassportForm.New)],
+			path: toPath(MyPassportForm.New),
 			title: t("metaTitle"),
 			component: lazy(() =>
 				import("./my-passport-form").then(exports => ({
