@@ -28,21 +28,21 @@ export const MyPassportForm = () => {
 											href={step.href}
 											class={cn(
 												"group flex flex-col border-l-4 transition-colors",
-												"py-2 pl-4 border-accent hover:border-foreground",
+												"py-2 pl-4 border-muted-foreground hover:border-foreground",
 												"md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
 											)}>
-											<span
-												class={cn(
-													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
-												)}>
+											<Typography
+												variant="small"
+												as="span"
+												class="leading-normal text-muted-foreground group-hover:text-foreground">
 												{step.id}
-											</span>
-											<span
-												class={cn(
-													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
-												)}>
+											</Typography>
+											<Typography
+												variant="small"
+												as="span"
+												class="text-muted-foreground group-hover:text-foreground">
 												{step.name}
-											</span>
+											</Typography>
 										</a>
 									</Show>
 									<Show when={step.status === "current"}>
@@ -53,18 +53,17 @@ export const MyPassportForm = () => {
 												"flex flex-col border-l-4 border-accent py-2 transition-colors",
 												"pl-4 border-foreground md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
 											)}>
-											<span
-												class={cn(
-													"text-sm font-medium",
-												)}>
+											<Typography
+												variant="small"
+												as="span"
+												class="leading-normal">
 												{step.id}
-											</span>
-											<span
-												class={cn(
-													"text-sm font-medium",
-												)}>
+											</Typography>
+											<Typography
+												variant="small"
+												as="span">
 												{step.name}
-											</span>
+											</Typography>
 										</a>
 									</Show>
 									<Show
@@ -79,15 +78,18 @@ export const MyPassportForm = () => {
 												"py-2 pl-4 border-accent hover:border-foreground md:border-l-0",
 												"md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
 											)}>
-											<span
-												class={cn(
-													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
-												)}>
+											<Typography
+												variant="small"
+												as="span"
+												class="leading-normal text-muted-foreground group-hover:text-foreground">
 												{step.id}
-											</span>
-											<span class="text-sm font-medium">
+											</Typography>
+											<Typography
+												variant="small"
+												as="span"
+												class="text-muted-foreground group-hover:text-foreground">
 												{step.name}
-											</span>
+											</Typography>
 										</a>
 									</Show>
 								</li>
