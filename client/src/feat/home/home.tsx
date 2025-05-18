@@ -7,6 +7,9 @@ import {
 	getPaginationRowModel,
 	type ColumnDef,
 } from "@tanstack/solid-table";
+import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
+import { useI18n } from "core/context/i18n";
+import { toPath } from "core/router/route";
 import { For, Show } from "solid-js";
 import { Button } from "ui/button";
 import {
@@ -18,10 +21,12 @@ import {
 	TableRow,
 } from "ui/table";
 import { usePassportApplications } from "./hooks/usePassportApplications";
+import type { resources } from "./resources/i18n/en-US";
 import type { PassportApplication } from "./types";
 
 export const Home = () => {
 	const { queries } = usePassportApplications();
+	const t = useI18n<typeof resources>();
 
 	const columns: ColumnDef<PassportApplication>[] = [
 		{
@@ -48,14 +53,22 @@ export const Home = () => {
 	];
 
 	return (
-		<Show when={!queries.passportApplications.isLoading}>
-			<div class="bg-background">
-				<DataTable
-					columns={columns}
-					data={queries.passportApplications.data}
-				/>
+		<div>
+			<div class="flex justify-end my-8">
+				<Button as="a" href={toPath(MyPassportForm.New)}>
+					{t("doApply")}
+				</Button>
 			</div>
-		</Show>
+
+			<Show when={!queries.passportApplications.isLoading}>
+				<div class="bg-background">
+					<DataTable
+						columns={columns}
+						data={queries.passportApplications.data}
+					/>
+				</div>
+			</Show>
+		</div>
 	);
 };
 
