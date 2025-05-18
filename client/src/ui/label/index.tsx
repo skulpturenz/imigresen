@@ -38,6 +38,7 @@ export const Label = <T extends ValidComponent = "label">(
 				error: props.error,
 				description: props.description,
 			}),
+			props.class,
 		)}
 	/>
 );
