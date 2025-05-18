@@ -1,5 +1,6 @@
 import { useI18n } from "core/context/i18n";
-import { For, Index, Show } from "solid-js";
+import { For, Index, Show, type Component, type ParentProps } from "solid-js";
+import type { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
 import {
 	DatePicker,
@@ -51,7 +52,7 @@ const steps = [
 	{ id: "Step 3", name: "Address details", href: "#", status: "upcoming" },
 	{ id: "Step 4", name: "Previous documents", href: "#", status: "upcoming" },
 	{ id: "Step 5", name: "Declaration", href: "#", status: "upcoming" },
-];
+] as const;
 
 export const MyPassportForm = () => {
 	const t = useI18n<typeof resources>();
@@ -547,89 +548,18 @@ export const MyPassportForm = () => {
 	return (
 		<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8">
 			<div class="col-span-1 md:col-span-1">
-				<nav
-					aria-label="Progress"
-					class="top-[40%] sticky md:static md:bottom-auto">
-					<ol
-						role="list"
-						class="space-y-4 md:flex md:space-x-8 md:space-y-0">
-						<For each={steps}>
-							{step => (
-								<li class="md:flex-1">
-									<Show when={step.status === "complete"}>
-										<a
-											href={step.href}
-											class={cn(
-												"group flex flex-col border-l-4 transition-colors",
-												"py-2 pl-4 border-muted-foreground hover:border-foreground",
-												"md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
-											)}>
-											<Typography
-												variant="small"
-												as="span"
-												class="leading-normal text-muted-foreground group-hover:text-foreground">
-												{step.id}
-											</Typography>
-											<Typography
-												variant="small"
-												as="span"
-												class="text-muted-foreground group-hover:text-foreground">
-												{step.name}
-											</Typography>
-										</a>
-									</Show>
-									<Show when={step.status === "current"}>
-										<a
-											href={step.href}
-											aria-current="step"
-											class={cn(
-												"flex flex-col border-l-4 border-accent py-2 transition-colors",
-												"pl-4 border-foreground md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
-											)}>
-											<Typography
-												variant="small"
-												as="span"
-												class="leading-normal">
-												{step.id}
-											</Typography>
-											<Typography
-												variant="small"
-												as="span">
-												{step.name}
-											</Typography>
-										</a>
-									</Show>
-									<Show
-										when={
-											step.status !== "complete" &&
-											step.status !== "current"
-										}>
-										<a
-											href={step.href}
-											class={cn(
-												"group flex flex-col border-l-4 transition-colors",
-												"py-2 pl-4 border-accent hover:border-foreground md:border-l-0",
-												"md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
-											)}>
-											<Typography
-												variant="small"
-												as="span"
-												class="leading-normal text-muted-foreground group-hover:text-foreground">
-												{step.id}
-											</Typography>
-											<Typography
-												variant="small"
-												as="span"
-												class="text-muted-foreground group-hover:text-foreground">
-												{step.name}
-											</Typography>
-										</a>
-									</Show>
-								</li>
-							)}
-						</For>
-					</ol>
-				</nav>
+				<Stepper class="top-[40%] sticky md:static md:bottom-auto">
+					<For each={steps}>
+						{step => (
+							<Step
+								status={step.status}
+								label={step.id}
+								description={step.name}
+								href={step.href}
+							/>
+						)}
+					</For>
+				</Stepper>
 			</div>
 			<div class="col-span-2 md:col-span-1 w-full">
 				<form>
@@ -641,5 +571,111 @@ export const MyPassportForm = () => {
 				</form>
 			</div>
 		</div>
+	);
+};
+
+const Stepper: Component<JSX.HTMLAttributes<HTMLElement>> = props => {
+	return (
+		<nav aria-label="Progress" class={cn(props.class)}>
+			<ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
+				{props.children}
+			</ol>
+		</nav>
+	);
+};
+
+export interface StepProps {
+	status: "complete" | "current" | "upcoming";
+	label?: string;
+	description?: string;
+	href?: string;
+	onClick?: () => void;
+}
+
+export const Step: Component<ParentProps<StepProps>> = props => {
+	return (
+		<li class="md:flex-1">
+			<Show when={props.status === "complete"}>
+				<a
+					href={props.href}
+					onClick={props.onClick}
+					class={cn(
+						"group flex flex-col border-l-4 transition-colors",
+						"py-2 pl-4 border-muted-foreground hover:border-foreground",
+						"md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+					)}>
+					<Show when={props.label}>
+						<Typography
+							variant="small"
+							as="span"
+							class="leading-normal text-muted-foreground group-hover:text-foreground">
+							{props.label}
+						</Typography>
+					</Show>
+					<Show when={props.description}>
+						<Typography
+							variant="small"
+							as="span"
+							class="text-muted-foreground group-hover:text-foreground">
+							{props.description}
+						</Typography>
+					</Show>
+				</a>
+			</Show>
+			<Show when={props.status === "current"}>
+				<a
+					href={props.href}
+					onClick={props.onClick}
+					aria-current="step"
+					class={cn(
+						"flex flex-col border-l-4 border-accent py-2 transition-colors",
+						"pl-4 border-foreground md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+					)}>
+					<Show when={props.label}>
+						<Typography
+							variant="small"
+							as="span"
+							class="leading-normal">
+							{props.label}
+						</Typography>
+					</Show>
+					<Show when={props.description}>
+						<Typography variant="small" as="span">
+							{props.description}
+						</Typography>
+					</Show>
+				</a>
+			</Show>
+			<Show
+				when={
+					props.status !== "complete" && props.status !== "current"
+				}>
+				<a
+					href={props.href}
+					onClick={props.onClick}
+					class={cn(
+						"group flex flex-col border-l-4 transition-colors",
+						"py-2 pl-4 border-accent hover:border-foreground md:border-l-0",
+						"md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+					)}>
+					<Show when={props.label}>
+						<Typography
+							variant="small"
+							as="span"
+							class="leading-normal text-muted-foreground group-hover:text-foreground">
+							{props.label}
+						</Typography>
+					</Show>
+					<Show when={props.description}>
+						<Typography
+							variant="small"
+							as="span"
+							class="text-muted-foreground group-hover:text-foreground">
+							{props.description}
+						</Typography>
+					</Show>
+				</a>
+			</Show>
+		</li>
 	);
 };
