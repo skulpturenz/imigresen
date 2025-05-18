@@ -1,5 +1,5 @@
-// import { ProvidersMock as Providers } from "core/context/provider-mock";
-import { Providers } from "core/context";
+import { ProvidersMock as Providers } from "core/context/provider-mock";
+// import { Providers } from "core/context";
 import { Router } from "core/router";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
 import { Fallback } from "./fallback";

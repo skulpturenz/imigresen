@@ -1,7 +1,7 @@
 import {
-	FliptEvaluationClient,
+	FliptClient,
 	type Flag,
-} from "@flipt-io/flipt-client-browser";
+} from "@flipt-io/flipt-client-js";
 import { secondsToMilliseconds } from "date-fns";
 import { invariant, once } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
@@ -9,7 +9,7 @@ import { createWithSignal } from "solid-zustand";
 export interface FliptSvc {
 	isInitialLoading: boolean;
 	flags: Flag[];
-	flipt?: FliptEvaluationClient | null;
+	flipt?: FliptClient | null;
 	actions: {
 		init: () => void;
 		close: () => void;
@@ -40,9 +40,9 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 				init: once(async () => {
 					set({ isInitialLoading: true });
 
-					const flipt = await FliptEvaluationClient.init(
-						fliptNamespace,
+					const flipt = await FliptClient.init(
 						{
+							namespace: fliptNamespace,
 							url: fliptUrl,
 							authentication: {
 								clientToken: fliptClientToken,

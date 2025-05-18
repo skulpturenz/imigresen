@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
 import { default as solid } from "vite-plugin-solid";
 import { default as webfontDownload } from "vite-plugin-webfont-dl";
+import { default as tailwindcss } from "@tailwindcss/vite";
 
 export default defineConfig({
 	plugins: [
@@ -12,6 +13,7 @@ export default defineConfig({
 			verbose: true,
 			algorithm: "brotliCompress",
 		}),
+		tailwindcss()
 	],
 	resolve: {
 		alias: {
