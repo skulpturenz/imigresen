@@ -20,7 +20,7 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 			isHidden: true,
 		},
 		{
-			path: ["/", toPath(CoreRoute.Home)],
+			path: toPath(CoreRoute.Home),
 			title: t("metaTitle"),
 			component: lazy(async () => {
 				const { HomeProvider } = await import("./context");
