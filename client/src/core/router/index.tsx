@@ -1,6 +1,7 @@
 import { Router as SolidRouter } from "@solidjs/router";
 import { Router as AuthRouter } from "feat/auth";
 import { Router as HomeRouter } from "feat/home";
+import { Router as MyPassportForm } from "feat/my-passport-form";
 import { Router as NotFoundRouter } from "feat/not-found";
 import { Router as UnauthorizedRouter } from "feat/unauthorized";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
@@ -14,6 +15,7 @@ export const Router = () => {
 			<SolidRouter>
 				<AuthRouter />
 				<HomeRouter />
+				<MyPassportForm />
 				<UnauthorizedRouter />
 				<NotFoundRouter />
 			</SolidRouter>

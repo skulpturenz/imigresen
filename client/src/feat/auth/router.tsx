@@ -2,7 +2,6 @@ import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
-import { delay } from "es-toolkit";
 import { lazy, type Component } from "solid-js";
 
 export const Router: Component<RouterProps> = _props => {
@@ -17,11 +16,6 @@ export const Router: Component<RouterProps> = _props => {
 							default: exports.LoginCallback,
 						})),
 					),
-					isAllowed: async () => {
-						await delay(2000);
-
-						return true;
-					},
 					isHidden: true,
 				},
 				{
@@ -31,11 +25,6 @@ export const Router: Component<RouterProps> = _props => {
 							default: exports.LogoutCallback,
 						})),
 					),
-					isAllowed: async () => {
-						await delay(2000);
-
-						return true;
-					},
 					isHidden: true,
 				},
 			],
