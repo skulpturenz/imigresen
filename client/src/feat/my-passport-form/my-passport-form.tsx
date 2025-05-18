@@ -549,7 +549,7 @@ export const MyPassportForm = () => {
 			<div class="col-span-1 md:col-span-1">
 				<nav
 					aria-label="Progress"
-					class="top-[50%] sticky md:static md:bottom-auto">
+					class="top-[40%] sticky md:static md:bottom-auto">
 					<ol
 						role="list"
 						class="space-y-4 md:flex md:space-x-8 md:space-y-0">
