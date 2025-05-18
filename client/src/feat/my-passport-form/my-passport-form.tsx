@@ -5,16 +5,16 @@ import { cn } from "ui/utils";
 import type { resources } from "./resources/i18n/en-US";
 
 const steps = [
-	{ id: "Step 1", name: "Job details", href: "#", status: "complete" },
-	{ id: "Step 2", name: "Application form", href: "#", status: "current" },
-	{ id: "Step 3", name: "Preview", href: "#", status: "upcoming" },
+	{ id: "Step 1", name: "Personal details", href: "#", status: "current" },
+	{ id: "Step 2", name: "Previous documents", href: "#", status: "upcoming" },
+	{ id: "Step 3", name: "Declaration", href: "#", status: "upcoming" },
 ];
 
 export const MyPassportForm = () => {
 	const t = useI18n<typeof resources>();
 
 	return (
-		<div class="flex md:flex-col gap-4 border border-accent p-4">
+		<div class="flex md:flex-col gap-4 md:gap-12 border border-accent py-8 px-4 md:px-8">
 			<div>
 				<nav aria-label="Progress">
 					<ol
