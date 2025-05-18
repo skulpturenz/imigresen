@@ -103,12 +103,12 @@ function* routeMaskGenerator() {
 	}
 }
 
-const getChildren = (route: RouteProps & RouteInternalProps) => {
-	if (Array.isArray(route.children)) {
+const getChildren = (route?: RouteProps & RouteInternalProps) => {
+	if (Array.isArray(route?.children)) {
 		return route.children;
 	}
 
-	if (route.children) {
+	if (route?.children) {
 		return [route.children];
 	}
 
