@@ -1,9 +1,104 @@
 import { useI18n } from "core/context/i18n";
+import { For, Show } from "solid-js";
 import { Typography } from "ui/typography";
+import { cn } from "ui/utils";
 import type { resources } from "./resources/i18n/en-US";
+
+const steps = [
+	{ id: "Step 1", name: "Job details", href: "#", status: "complete" },
+	{ id: "Step 2", name: "Application form", href: "#", status: "current" },
+	{ id: "Step 3", name: "Preview", href: "#", status: "upcoming" },
+];
 
 export const MyPassportForm = () => {
 	const t = useI18n<typeof resources>();
 
-	return <Typography>{t("helloWorld")}</Typography>;
+	return (
+		<div class="flex md:flex-col gap-4 border border-accent p-4">
+			<div>
+				<nav aria-label="Progress">
+					<ol
+						role="list"
+						class="space-y-4 md:flex md:space-x-8 md:space-y-0">
+						<For each={steps}>
+							{step => (
+								<li class="md:flex-1">
+									<Show when={step.status === "complete"}>
+										<a
+											href={step.href}
+											class={cn(
+												"group flex flex-col border-l-4 transition-colors",
+												"py-2 pl-4 border-accent hover:border-foreground",
+												"md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+											)}>
+											<span
+												class={cn(
+													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
+												)}>
+												{step.id}
+											</span>
+											<span
+												class={cn(
+													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
+												)}>
+												{step.name}
+											</span>
+										</a>
+									</Show>
+									<Show when={step.status === "current"}>
+										<a
+											href={step.href}
+											aria-current="step"
+											class={cn(
+												"flex flex-col border-l-4 border-accent py-2 transition-colors",
+												"pl-4 border-foreground md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+											)}>
+											<span
+												class={cn(
+													"text-sm font-medium",
+												)}>
+												{step.id}
+											</span>
+											<span
+												class={cn(
+													"text-sm font-medium",
+												)}>
+												{step.name}
+											</span>
+										</a>
+									</Show>
+									<Show
+										when={
+											step.status !== "complete" &&
+											step.status !== "current"
+										}>
+										<a
+											href={step.href}
+											class={cn(
+												"group flex flex-col border-l-4 transition-colors",
+												"py-2 pl-4 border-accent hover:border-foreground md:border-l-0",
+												"md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+											)}>
+											<span
+												class={cn(
+													"text-sm font-medium text-accent-foreground group-hover:text-foreground",
+												)}>
+												{step.id}
+											</span>
+											<span class="text-sm font-medium">
+												{step.name}
+											</span>
+										</a>
+									</Show>
+								</li>
+							)}
+						</For>
+					</ol>
+				</nav>
+			</div>
+			<div>
+				<Typography>{t("helloWorld")}</Typography>
+			</div>
+		</div>
+	);
 };
