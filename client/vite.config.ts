@@ -1,3 +1,4 @@
+import { default as tailwindcss } from "@tailwindcss/vite";
 import { join } from "node:path";
 import { defineConfig } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
@@ -12,6 +13,7 @@ export default defineConfig({
 			verbose: true,
 			algorithm: "brotliCompress",
 		}),
+		tailwindcss(),
 	],
 	resolve: {
 		alias: {
