@@ -6,7 +6,16 @@ import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
 import { flatMapDeep } from "es-toolkit";
-import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
+import {
+	Earth,
+	LogOut,
+	Menu,
+	Moon,
+	Settings,
+	Sun,
+	User,
+	X,
+} from "lucide-solid";
 import {
 	createMemo,
 	createSignal,
@@ -235,6 +244,7 @@ export const Navbar: Component<ParentProps> = () => {
 						<Show when={!navbarItem.children.length}>
 							<NavigationMenuTrigger
 								as="a"
+								class="border border-accent"
 								href={navbarItem.trigger.info?.hrefPath}>
 								{navbarItem.trigger.meta?.navigationConfig
 									?.title || navbarItem.trigger.title}
@@ -245,6 +255,7 @@ export const Navbar: Component<ParentProps> = () => {
 							<NavigationMenuItem>
 								<NavigationMenuTrigger
 									as="a"
+									class="border border-accent"
 									href={navbarItem.trigger.info?.hrefPath}>
 									{navbarItem.trigger.meta?.navigationConfig
 										?.title || navbarItem.trigger.title}
@@ -294,7 +305,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 	return (
 		<>
-			<nav class="bg-muted py-4">
+			<nav class="shadow shadow-accent py-4">
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer, "space-y-4")}>
 						<div class="relative flex h-16 items-center justify-between">
@@ -304,7 +315,9 @@ export const Navbar: Component<ParentProps> = () => {
 								<div class="flex shrink-0 items-center">
 									<a
 										href="/"
-										class="font-bold uppercase text-xl sm:text-3xl">
+										class="flex items-center gap-3 sm:gap-4 font-bold uppercase text-2xl sm:text-3xl">
+										<Earth class="h-10 sm:h-12 w-auto" />
+
 										{resources.logoAlt}
 									</a>
 								</div>
