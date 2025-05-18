@@ -29,6 +29,7 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 					default: withI18n(withParents(HomeProvider)(exports.Home)),
 				}));
 			}),
+			isHidden: true,
 		},
 	] as RouteProps[];
 
