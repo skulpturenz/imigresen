@@ -81,5 +81,10 @@
 		"extends": [
 			"plugin:storybook/recommended"
 		]
+	},
+	"pnpm": {
+		"overrides": {
+			"@storybook/builder-vite": "~8.4.6"
+		}
 	}
 }
