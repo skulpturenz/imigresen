@@ -549,44 +549,46 @@ export const MyPassportForm = () => {
 
 	const MobileProgress = () => {
 		return (
-			<div class="sm:hidden flex justify-center">
-				<div
-					class={cn(
-						"fixed bottom-[env(safe-area-inset-bottom)] bg-popover w-full p-4",
-						"max-w-sm border-accent border",
-					)}>
-					<div>
-						<Drawer>
-							<DrawerTrigger
-								as={Button}
-								variant="ghost"
-								class="w-full">
-								{t("doShowProgressMobile")}
-							</DrawerTrigger>
-							<DrawerContent class="flex items-center">
-								<Stepper class="my-10">
-									<For each={steps}>
-										{step => (
-											<Step
-												status={step.status}
-												label={step.id}
-												description={step.name}
-												href={step.href}
-											/>
-										)}
-									</For>
-								</Stepper>
-							</DrawerContent>
-						</Drawer>
+			<Portal>
+				<div class="sm:hidden flex justify-center">
+					<div
+						class={cn(
+							"fixed bottom-[env(safe-area-inset-bottom)] bg-popover/50 backdrop-blur-sm",
+							"text-secondary-foreground w-full p-4 border-accent border-t",
+						)}>
+						<div>
+							<Drawer>
+								<DrawerTrigger
+									as={Button}
+									variant="ghost"
+									class="w-full">
+									{t("doShowProgressMobile")}
+								</DrawerTrigger>
+								<DrawerContent class="flex items-center">
+									<Stepper class="my-10">
+										<For each={steps}>
+											{step => (
+												<Step
+													status={step.status}
+													label={step.id}
+													description={step.name}
+													href={step.href}
+												/>
+											)}
+										</For>
+									</Stepper>
+								</DrawerContent>
+							</Drawer>
+						</div>
 					</div>
 				</div>
-			</div>
+			</Portal>
 		);
 	};
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8">
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32">
 				<div class="sm:col-span-1 md:col-span-1">
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
