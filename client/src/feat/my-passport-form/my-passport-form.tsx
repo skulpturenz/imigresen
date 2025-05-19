@@ -552,14 +552,14 @@ export const MyPassportForm = () => {
 			<div class="sm:hidden flex justify-center">
 				<div
 					class={cn(
-						"group fixed bottom-20 bg-popover opacity-50 hover:opacity-100 w-full p-4",
-						"max-w-sm border-primary/25 hover:border-transparent transition border",
+						"fixed bottom-20 bg-popover w-full p-4",
+						"max-w-sm border-accent transition border",
 					)}>
-					<div class="opacity-0 group-hover:opacity-100 transition">
+					<div>
 						<Drawer>
 							<DrawerTrigger
 								as={Button}
-								variant="outline"
+								variant="ghost"
 								class="w-full">
 								{t("doShowProgressMobile")}
 							</DrawerTrigger>
