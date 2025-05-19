@@ -68,7 +68,7 @@ export const MyPassportForm = () => {
 	const [isProgressOnRight, setIsProgressOnRight] = createSignal(true);
 
 	const adjustProgressPosition = () => {
-		if (styles.breakpoints.isMd() || styles.breakpoints.isVerySmall()) {
+		if (styles.breakpoints.isMedium() || styles.breakpoints.isVerySmall()) {
 			setIsProgressOnRight(false);
 
 			return;
