@@ -592,7 +592,7 @@ export const MyPassportForm = () => {
 					<div class="flex justify-between mt-8 sm:mt-4">
 						<div class="flex gap-2">
 							<Button variant="destructive">
-								{t("doCancel")}
+								{t("doDelete")}
 							</Button>
 							<Button variant="secondary">{t("doBack")}</Button>
 						</div>
