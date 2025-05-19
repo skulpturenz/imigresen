@@ -552,8 +552,8 @@ export const MyPassportForm = () => {
 			<div class="sm:hidden flex justify-center">
 				<div
 					class={cn(
-						"fixed bottom-20 bg-popover w-full p-4",
-						"max-w-sm border-accent transition border",
+						"fixed bottom-[env(safe-area-inset-bottom)] bg-popover w-full p-4",
+						"max-w-sm border-accent border",
 					)}>
 					<div>
 						<Drawer>
