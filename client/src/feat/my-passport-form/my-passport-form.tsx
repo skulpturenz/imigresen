@@ -65,30 +65,6 @@ const steps = [
 ] as const;
 
 export const MyPassportForm = () => {
-	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
-		createSignal(true);
-
-	const adjustProgressPosition = () => {
-		if (styles.breakpoints.isMedium() || styles.breakpoints.isVerySmall()) {
-			setIsProgressFirstItemOnGrid(true);
-
-			return;
-		}
-
-		const totalWidth = screen.width;
-		const spaceOnLeftSide = window.screenLeft;
-		const percentageOfSpaceOnLeftSide =
-			(spaceOnLeftSide / totalWidth) * 100;
-
-		// first item on grid means progress shows at the top or to the left
-		setIsProgressFirstItemOnGrid(percentageOfSpaceOnLeftSide <= 45);
-	};
-
-	const resizeObserver = new ResizeObserver(adjustProgressPosition);
-	resizeObserver.observe(document.body);
-
-	window.addEventListener("mouseout", adjustProgressPosition);
-
 	const t = useI18n<typeof resources>();
 
 	const ApplicationDetails = () => {
@@ -579,6 +555,52 @@ export const MyPassportForm = () => {
 		);
 	};
 
+	return (
+		<>
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
+				<Progress>
+					<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
+						<form>
+							<ApplicationDetails />
+
+							<PersonalDetails />
+
+							<AddressDetails />
+						</form>
+					</div>
+				</Progress>
+			</div>
+		</>
+	);
+};
+
+const Progress: Component<ParentProps> = props => {
+	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
+		createSignal(true);
+
+	const t = useI18n<typeof resources>();
+
+	const adjustProgressPosition = () => {
+		if (styles.breakpoints.isMedium() || styles.breakpoints.isVerySmall()) {
+			setIsProgressFirstItemOnGrid(true);
+
+			return;
+		}
+
+		const totalWidth = screen.width;
+		const spaceOnLeftSide = window.screenLeft;
+		const percentageOfSpaceOnLeftSide =
+			(spaceOnLeftSide / totalWidth) * 100;
+
+		// first item on grid means progress shows at the top or to the left
+		setIsProgressFirstItemOnGrid(percentageOfSpaceOnLeftSide <= 45);
+	};
+
+	const resizeObserver = new ResizeObserver(adjustProgressPosition);
+	resizeObserver.observe(document.body);
+
+	window.addEventListener("mouseout", adjustProgressPosition);
+
 	const MobileProgress = () => {
 		return (
 			<Portal>
@@ -618,55 +640,45 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
-				<div
-					class={cn(
-						"sm:col-span-1 md:col-span-1",
-						isProgressFirstItemOnGrid() ? "block" : "hidden",
-					)}>
-					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-						<For each={steps}>
-							{step => (
-								<Step
-									status={step.status}
-									label={step.id}
-									description={step.name}
-									href={step.href}
-								/>
-							)}
-						</For>
-					</Stepper>
-				</div>
+			<div
+				class={cn(
+					"sm:col-span-1 md:col-span-1",
+					isProgressFirstItemOnGrid() ? "block" : "hidden",
+				)}>
+				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+					<For each={steps}>
+						{step => (
+							<Step
+								status={step.status}
+								label={step.id}
+								description={step.name}
+								href={step.href}
+							/>
+						)}
+					</For>
+				</Stepper>
+			</div>
 
-				<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
-					<form>
-						<ApplicationDetails />
+			{props.children}
 
-						<PersonalDetails />
-
-						<AddressDetails />
-					</form>
-				</div>
-
-				<div
-					class={cn(
-						"sm:col-span-1 md:col-span-1",
-						!isProgressFirstItemOnGrid() ? "block" : "hidden",
-					)}>
-					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-						<For each={steps}>
-							{step => (
-								<Step
-									status={step.status}
-									label={step.id}
-									description={step.name}
-									href={step.href}
-									invertIndicator
-								/>
-							)}
-						</For>
-					</Stepper>
-				</div>
+			<div
+				class={cn(
+					"sm:col-span-1 md:col-span-1",
+					!isProgressFirstItemOnGrid() ? "block" : "hidden",
+				)}>
+				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+					<For each={steps}>
+						{step => (
+							<Step
+								status={step.status}
+								label={step.id}
+								description={step.name}
+								href={step.href}
+								invertIndicator
+							/>
+						)}
+					</For>
+				</Stepper>
 			</div>
 
 			<MobileProgress />
