@@ -65,11 +65,12 @@ const steps = [
 ] as const;
 
 export const MyPassportForm = () => {
-	const [isProgressOnRight, setIsProgressOnRight] = createSignal(true);
+	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
+		createSignal(true);
 
 	const adjustProgressPosition = () => {
 		if (styles.breakpoints.isMedium() || styles.breakpoints.isVerySmall()) {
-			setIsProgressOnRight(false);
+			setIsProgressFirstItemOnGrid(true);
 
 			return;
 		}
@@ -79,7 +80,8 @@ export const MyPassportForm = () => {
 		const percentageOfSpaceOnLeftSide =
 			(spaceOnLeftSide / totalWidth) * 100;
 
-		setIsProgressOnRight(percentageOfSpaceOnLeftSide <= 45);
+		// first item on grid means progress shows at the top or to the left
+		setIsProgressFirstItemOnGrid(percentageOfSpaceOnLeftSide <= 45);
 	};
 
 	const resizeObserver = new ResizeObserver(adjustProgressPosition);
@@ -620,9 +622,7 @@ export const MyPassportForm = () => {
 				<div
 					class={cn(
 						"sm:col-span-1 md:col-span-1",
-						isProgressOnRight() || styles.breakpoints.isMedium()
-							? "block"
-							: "hidden",
+						isProgressFirstItemOnGrid() ? "block" : "hidden",
 					)}>
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
@@ -651,9 +651,7 @@ export const MyPassportForm = () => {
 				<div
 					class={cn(
 						"sm:col-span-1 md:col-span-1",
-						!isProgressOnRight() && !styles.breakpoints.isMedium()
-							? "block"
-							: "hidden",
+						!isProgressFirstItemOnGrid() ? "block" : "hidden",
 					)}>
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
