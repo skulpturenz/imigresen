@@ -1,3 +1,4 @@
+import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
 import {
 	createSignal,
@@ -67,13 +68,9 @@ export const MyPassportForm = () => {
 	const [isProgressOnRight, setIsProgressOnRight] = createSignal(true);
 
 	const adjustProgressPosition = () => {
-		const viewportWidth = window.innerWidth;
-
-		if (
-			viewportWidth >= 768 || // md breakpoint
-			viewportWidth < 640 // smaller than sm breakpoint
-		) {
+		if (styles.breakpoints.isMd() || styles.breakpoints.isVerySmall()) {
 			setIsProgressOnRight(false);
+
 			return;
 		}
 
