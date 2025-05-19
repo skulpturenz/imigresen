@@ -619,22 +619,24 @@ export const MyPassportForm = () => {
 	return (
 		<>
 			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32">
-				<Show when={!isProgressOnRight()}>
-					<div class="sm:col-span-1 md:col-span-1">
-						<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-							<For each={steps}>
-								{step => (
-									<Step
-										status={step.status}
-										label={step.id}
-										description={step.name}
-										href={step.href}
-									/>
-								)}
-							</For>
-						</Stepper>
-					</div>
-				</Show>
+				<div
+					class={cn(
+						"sm:col-span-1 md:col-span-1",
+						!isProgressOnRight() ? "block" : "hidden",
+					)}>
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+						<For each={steps}>
+							{step => (
+								<Step
+									status={step.status}
+									label={step.id}
+									description={step.name}
+									href={step.href}
+								/>
+							)}
+						</For>
+					</Stepper>
+				</div>
 
 				<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
 					<form>
@@ -646,23 +648,25 @@ export const MyPassportForm = () => {
 					</form>
 				</div>
 
-				<Show when={isProgressOnRight()}>
-					<div class="sm:col-span-1 md:col-span-1">
-						<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-							<For each={steps}>
-								{step => (
-									<Step
-										status={step.status}
-										label={step.id}
-										description={step.name}
-										href={step.href}
-										invertIndicator
-									/>
-								)}
-							</For>
-						</Stepper>
-					</div>
-				</Show>
+				<div
+					class={cn(
+						"sm:col-span-1 md:col-span-1",
+						isProgressOnRight() ? "block" : "hidden",
+					)}>
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+						<For each={steps}>
+							{step => (
+								<Step
+									status={step.status}
+									label={step.id}
+									description={step.name}
+									href={step.href}
+									invertIndicator
+								/>
+							)}
+						</For>
+					</Stepper>
+				</div>
 			</div>
 
 			<MobileProgress />
