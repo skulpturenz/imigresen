@@ -618,7 +618,7 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32">
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
 				<div
 					class={cn(
 						"sm:col-span-1 md:col-span-1",
