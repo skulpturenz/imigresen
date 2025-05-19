@@ -69,8 +69,10 @@ export const MyPassportForm = () => {
 	const adjustProgressPosition = () => {
 		const viewportWidth = window.innerWidth;
 
-		// tw md breakpoint
-		if (viewportWidth >= 768) {
+		if (
+			viewportWidth >= 768 || // md breakpoint
+			viewportWidth < 640 // smaller than sm breakpoint
+		) {
 			setIsProgressOnRight(false);
 			return;
 		}
