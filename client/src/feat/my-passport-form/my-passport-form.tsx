@@ -620,7 +620,9 @@ export const MyPassportForm = () => {
 				<div
 					class={cn(
 						"sm:col-span-1 md:col-span-1",
-						isProgressOnRight() ? "block" : "hidden",
+						isProgressOnRight() || styles.breakpoints.isMedium()
+							? "block"
+							: "hidden",
 					)}>
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
@@ -649,7 +651,9 @@ export const MyPassportForm = () => {
 				<div
 					class={cn(
 						"sm:col-span-1 md:col-span-1",
-						!isProgressOnRight() ? "block" : "hidden",
+						!isProgressOnRight() && !styles.breakpoints.isMedium()
+							? "block"
+							: "hidden",
 					)}>
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
