@@ -583,8 +583,8 @@ export const MyPassportForm = () => {
 				<div class="sm:hidden flex justify-center">
 					<div
 						class={cn(
-							"fixed bottom-[env(safe-area-inset-bottom)] bg-popover/50 backdrop-blur-sm",
-							"text-secondary-foreground w-full p-4 border-accent border-t",
+							"fixed bottom-[env(safe-area-inset-bottom)] bg-secondary/50 backdrop-blur-sm",
+							"text-secondary-foreground w-full p-4 shadow",
 						)}>
 						<div>
 							<Drawer>
