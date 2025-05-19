@@ -559,7 +559,7 @@ export const MyPassportForm = () => {
 		<>
 			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
 				<Progress>
-					<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
+					<div class="col-span-3 sm:col-span-2 w-full">
 						<form>
 							<ApplicationDetails />
 
@@ -642,7 +642,7 @@ const Progress: Component<ParentProps> = props => {
 		<>
 			<div
 				class={cn(
-					"sm:col-span-1 md:col-span-1",
+					"col-span-1",
 					isProgressFirstItemOnGrid() ? "block" : "hidden",
 				)}>
 				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
@@ -663,7 +663,7 @@ const Progress: Component<ParentProps> = props => {
 
 			<div
 				class={cn(
-					"sm:col-span-1 md:col-span-1",
+					"col-span-1",
 					!isProgressFirstItemOnGrid() ? "block" : "hidden",
 				)}>
 				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
