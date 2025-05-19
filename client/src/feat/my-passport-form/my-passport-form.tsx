@@ -714,7 +714,7 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 					onClick={props.onClick}
 					class={cn(
 						"group flex flex-col transition-colors",
-						"py-2 border-muted-foreground hover:border-foreground",
+						"py-2 border-muted-foreground hover:border-emerald-500 dark:hover:border-emerald-600",
 						props.invertIndicator
 							? "border-r-4 md:border-r-0 md:border-t-4 pr-4 md:pt-4 md:pb-0 md:pr-0 text-right md:text-left"
 							: "border-l-4 md:border-l-0 md:border-t-4 md:pb-0 md:pt-4 pl-4 md:pl-0 text-left",
@@ -771,7 +771,7 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 					href={props.href}
 					onClick={props.onClick}
 					class={cn(
-						"group flex flex-col transition-colors py-2 border-accent hover:border-foreground",
+						"group flex flex-col transition-colors py-2 border-accent hover:border-yellow-500 dark:hover:border-yellow-600",
 						props.invertIndicator
 							? "border-r-4 md:border-r-0 md:border-t-4 pr-4 md:pt-4 md:pb-0 md:pr-0 text-right md:text-left"
 							: "border-l-4 md:border-l-0 md:border-t-4 md:pb-0 md:pt-4 pl-4 md:pl-0 text-left",
