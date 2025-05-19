@@ -44,10 +44,11 @@ const persistLocalStorage: (
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
 	merge: (persistedState, currentState) => {
-		// take out state which is not serializable
+		// take out state which is not serializable & internal fields
 		const {
 			queryClient: _queryClient,
 			actions: _actions,
+			hasHydrated: _hasHydrated,
 			...rest
 		} = persistedState as UiSvc & UiSvcInternal;
 
@@ -61,7 +62,11 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 			isInitialLoading: () =>
 				Boolean(!get()?.hasHydrated || !get().queryClient),
 			locale: "en-US", // https://www.ietf.org/rfc/bcp/bcp47.txt
-			hasHydrated: false,
+			// TODO: There is a state update issue here
+			// if there is no persisted storage then `onRehydrateStorage`
+			// calls `setHasHydrated` but it doesn't update for some reason
+			// `get()` in `isInitialLoading` still has `hasHydrated` as `false`
+			hasHydrated: true,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,
 			queryClient: null,
