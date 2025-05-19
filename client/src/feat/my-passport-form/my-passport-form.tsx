@@ -588,7 +588,7 @@ export const MyPassportForm = () => {
 		<>
 			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8">
 				<div class="sm:col-span-1 md:col-span-1">
-					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:bottom-auto">
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
 							{step => (
 								<Step
