@@ -1,5 +1,12 @@
 import { useI18n } from "core/context/i18n";
-import { For, Index, Show, type Component, type ParentProps } from "solid-js";
+import {
+	createSignal,
+	For,
+	Index,
+	Show,
+	type Component,
+	type ParentProps,
+} from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
 import { Button } from "ui/button";
@@ -57,6 +64,30 @@ const steps = [
 ] as const;
 
 export const MyPassportForm = () => {
+	const [isProgressOnRight, setIsProgressOnRight] = createSignal(true);
+
+	const adjustProgressPosition = () => {
+		const viewportWidth = window.innerWidth;
+
+		// tw md breakpoint
+		if (viewportWidth >= 768) {
+			setIsProgressOnRight(false);
+			return;
+		}
+
+		const totalWidth = screen.width;
+		const spaceOnLeftSide = window.screenLeft;
+		const percentageOfSpaceOnLeftSide =
+			(spaceOnLeftSide / totalWidth) * 100;
+
+		setIsProgressOnRight(percentageOfSpaceOnLeftSide <= 45);
+	};
+
+	const resizeObserver = new ResizeObserver(adjustProgressPosition);
+	resizeObserver.observe(document.body);
+
+	window.addEventListener("mouseout", adjustProgressPosition);
+
 	const t = useI18n<typeof resources>();
 
 	const ApplicationDetails = () => {
@@ -589,20 +620,23 @@ export const MyPassportForm = () => {
 	return (
 		<>
 			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32">
-				<div class="sm:col-span-1 md:col-span-1">
-					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-						<For each={steps}>
-							{step => (
-								<Step
-									status={step.status}
-									label={step.id}
-									description={step.name}
-									href={step.href}
-								/>
-							)}
-						</For>
-					</Stepper>
-				</div>
+				<Show when={!isProgressOnRight()}>
+					<div class="sm:col-span-1 md:col-span-1">
+						<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+							<For each={steps}>
+								{step => (
+									<Step
+										status={step.status}
+										label={step.id}
+										description={step.name}
+										href={step.href}
+									/>
+								)}
+							</For>
+						</Stepper>
+					</div>
+				</Show>
+
 				<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
 					<form>
 						<ApplicationDetails />
@@ -612,6 +646,24 @@ export const MyPassportForm = () => {
 						<AddressDetails />
 					</form>
 				</div>
+
+				<Show when={isProgressOnRight()}>
+					<div class="sm:col-span-1 md:col-span-1">
+						<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+							<For each={steps}>
+								{step => (
+									<Step
+										status={step.status}
+										label={step.id}
+										description={step.name}
+										href={step.href}
+										invertIndicator
+									/>
+								)}
+							</For>
+						</Stepper>
+					</div>
+				</Show>
 			</div>
 
 			<MobileProgress />
@@ -635,6 +687,7 @@ export interface StepProps {
 	description?: string;
 	href?: string;
 	onClick?: () => void;
+	invertIndicator?: boolean;
 }
 
 export const Step: Component<ParentProps<StepProps>> = props => {
@@ -645,9 +698,11 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 					href={props.href}
 					onClick={props.onClick}
 					class={cn(
-						"group flex flex-col border-l-4 transition-colors",
-						"py-2 pl-4 border-muted-foreground hover:border-foreground",
-						"md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+						"group flex flex-col transition-colors",
+						"py-2 border-muted-foreground hover:border-foreground",
+						props.invertIndicator
+							? "border-r-4 md:border-r-0 md:border-t-4 pr-4 md:pt-4 md:pb-0 md:pr-0 text-right md:text-left"
+							: "border-l-4 md:border-l-0 md:border-t-4 md:pb-0 md:pt-4 pl-4 md:pl-0 text-left",
 					)}>
 					<Show when={props.label}>
 						<Typography
@@ -673,8 +728,10 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 					onClick={props.onClick}
 					aria-current="step"
 					class={cn(
-						"flex flex-col border-l-4 border-accent py-2 transition-colors",
-						"pl-4 border-foreground md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+						"flex flex-col py-2 transition-colors border-foreground",
+						props.invertIndicator
+							? "border-r-4 md:border-r-0 md:border-t-4 pr-4 md:pt-4 md:pb-0 md:pr-0 text-right md:text-left"
+							: "border-l-4 md:border-l-0 md:border-t-4 md:pb-0 md:pt-4 pl-4 md:pl-0 text-left",
 					)}>
 					<Show when={props.label}>
 						<Typography
@@ -699,9 +756,10 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 					href={props.href}
 					onClick={props.onClick}
 					class={cn(
-						"group flex flex-col border-l-4 transition-colors",
-						"py-2 pl-4 border-accent hover:border-foreground md:border-l-0",
-						"md:border-t-4 md:pb-0 md:pl-0 md:pt-4",
+						"group flex flex-col transition-colors py-2 border-accent hover:border-foreground",
+						props.invertIndicator
+							? "border-r-4 md:border-r-0 md:border-t-4 pr-4 md:pt-4 md:pb-0 md:pr-0 text-right md:text-left"
+							: "border-l-4 md:border-l-0 md:border-t-4 md:pb-0 md:pt-4 pl-4 md:pl-0 text-left",
 					)}>
 					<Show when={props.label}>
 						<Typography
