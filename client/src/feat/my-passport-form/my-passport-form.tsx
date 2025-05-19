@@ -733,7 +733,13 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 
 			<Show when={props.Footer}>
 				<div class="hidden sm:grid grid-cols-3 md:block">
-					<div class="col-span-3 sm:col-span-2 md:col-auto">
+					<div
+						class={cn(
+							"col-span-3 sm:col-span-2 sm:col-start-2 md:col-auto",
+							isProgressFirstItemOnGrid()
+								? "sm:col-start-2"
+								: "sm:col-start-auto",
+						)}>
 						{props.Footer}
 					</div>
 				</div>
