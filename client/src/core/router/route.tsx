@@ -159,12 +159,10 @@ export const Route: Component<
 							typeof isHidden() !== "undefined"
 						}>
 						<Show when={isAllowed()}>
-							<div class="my-14 md:my-20">
-								<Dynamic
-									{...spreadProps(routeSectionProps)}
-									component={props.component}
-								/>
-							</div>
+							<Dynamic
+								{...spreadProps(routeSectionProps)}
+								component={props.component}
+							/>
 						</Show>
 						<Show when={!isAllowed()}>
 							<UnauthorizedRedirect />

@@ -2,6 +2,7 @@ import { useI18n } from "core/context/i18n";
 import { For, Index, Show, type Component, type ParentProps } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
+import { Button } from "ui/button";
 import {
 	DatePicker,
 	DatePickerContent,
@@ -22,6 +23,7 @@ import {
 	DatePickerViewControl,
 	DatePickerViewTrigger,
 } from "ui/date-picker";
+import { Drawer, DrawerContent, DrawerTrigger } from "ui/drawer";
 import { Label } from "ui/label";
 import {
 	Select,
@@ -545,32 +547,73 @@ export const MyPassportForm = () => {
 		);
 	};
 
+	const MobileProgress = () => {
+		return (
+			<div class="sm:hidden flex justify-center">
+				<div
+					class={cn(
+						"group fixed bottom-20 bg-popover opacity-50 hover:opacity-100 w-full p-4",
+						"max-w-sm border-primary/25 hover:border-transparent transition border",
+					)}>
+					<div class="opacity-0 group-hover:opacity-100 transition">
+						<Drawer>
+							<DrawerTrigger
+								as={Button}
+								variant="outline"
+								class="w-full">
+								{t("doShowProgressMobile")}
+							</DrawerTrigger>
+							<DrawerContent class="flex items-center">
+								<Stepper class="my-10">
+									<For each={steps}>
+										{step => (
+											<Step
+												status={step.status}
+												label={step.id}
+												description={step.name}
+												href={step.href}
+											/>
+										)}
+									</For>
+								</Stepper>
+							</DrawerContent>
+						</Drawer>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
 	return (
-		<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8">
-			<div class="sm:col-span-1 md:col-span-1">
-				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:bottom-auto">
-					<For each={steps}>
-						{step => (
-							<Step
-								status={step.status}
-								label={step.id}
-								description={step.name}
-								href={step.href}
-							/>
-						)}
-					</For>
-				</Stepper>
-			</div>
-			<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
-				<form>
-					<ApplicationDetails />
+		<>
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8">
+				<div class="sm:col-span-1 md:col-span-1">
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:bottom-auto">
+						<For each={steps}>
+							{step => (
+								<Step
+									status={step.status}
+									label={step.id}
+									description={step.name}
+									href={step.href}
+								/>
+							)}
+						</For>
+					</Stepper>
+				</div>
+				<div class="col-span-3 sm:col-span-2 md:col-span-1 w-full">
+					<form>
+						<ApplicationDetails />
 
-					<PersonalDetails />
+						<PersonalDetails />
 
-					<AddressDetails />
-				</form>
+						<AddressDetails />
+					</form>
+				</div>
 			</div>
-		</div>
+
+			<MobileProgress />
+		</>
 	);
 };
 
