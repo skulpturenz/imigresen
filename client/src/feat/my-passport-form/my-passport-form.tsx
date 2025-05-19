@@ -586,30 +586,28 @@ export const MyPassportForm = () => {
 							"fixed bottom-[env(safe-area-inset-bottom)] bg-secondary/50 backdrop-blur-sm",
 							"text-secondary-foreground w-full p-4 shadow",
 						)}>
-						<div>
-							<Drawer>
-								<DrawerTrigger
-									as={Button}
-									variant="ghost"
-									class="w-full">
-									{t("doShowProgressMobile")}
-								</DrawerTrigger>
-								<DrawerContent class="flex items-center">
-									<Stepper class="my-10">
-										<For each={steps}>
-											{step => (
-												<Step
-													status={step.status}
-													label={step.id}
-													description={step.name}
-													href={step.href}
-												/>
-											)}
-										</For>
-									</Stepper>
-								</DrawerContent>
-							</Drawer>
-						</div>
+						<Drawer>
+							<DrawerTrigger
+								as={Button}
+								variant="ghost"
+								class="w-full">
+								{t("doShowProgressMobile")}
+							</DrawerTrigger>
+							<DrawerContent class="flex items-center">
+								<Stepper class="my-10">
+									<For each={steps}>
+										{step => (
+											<Step
+												status={step.status}
+												label={step.id}
+												description={step.name}
+												href={step.href}
+											/>
+										)}
+									</For>
+								</Stepper>
+							</DrawerContent>
+						</Drawer>
 					</div>
 				</div>
 			</Portal>
