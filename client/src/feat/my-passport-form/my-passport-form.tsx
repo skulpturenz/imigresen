@@ -557,24 +557,20 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
-				<Progress>
-					<div class="col-span-3 sm:col-span-2 w-full">
-						<form>
-							<ApplicationDetails />
+			<Wizard>
+				<form>
+					<ApplicationDetails />
 
-							<PersonalDetails />
+					<PersonalDetails />
 
-							<AddressDetails />
-						</form>
-					</div>
-				</Progress>
-			</div>
+					<AddressDetails />
+				</form>
+			</Wizard>
 		</>
 	);
 };
 
-const Progress: Component<ParentProps> = props => {
+const Wizard: Component<ParentProps> = props => {
 	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
 		createSignal(true);
 
@@ -640,45 +636,49 @@ const Progress: Component<ParentProps> = props => {
 
 	return (
 		<>
-			<div
-				class={cn(
-					"col-span-1",
-					isProgressFirstItemOnGrid() ? "block" : "hidden",
-				)}>
-				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-					<For each={steps}>
-						{step => (
-							<Step
-								status={step.status}
-								label={step.id}
-								description={step.name}
-								href={step.href}
-							/>
-						)}
-					</For>
-				</Stepper>
-			</div>
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
+				<div
+					class={cn(
+						"col-span-1",
+						isProgressFirstItemOnGrid() ? "block" : "hidden",
+					)}>
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+						<For each={steps}>
+							{step => (
+								<Step
+									status={step.status}
+									label={step.id}
+									description={step.name}
+									href={step.href}
+								/>
+							)}
+						</For>
+					</Stepper>
+				</div>
 
-			{props.children}
+				<div class="col-span-3 sm:col-span-2 w-full">
+					{props.children}
+				</div>
 
-			<div
-				class={cn(
-					"col-span-1",
-					!isProgressFirstItemOnGrid() ? "block" : "hidden",
-				)}>
-				<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
-					<For each={steps}>
-						{step => (
-							<Step
-								status={step.status}
-								label={step.id}
-								description={step.name}
-								href={step.href}
-								invertIndicator
-							/>
-						)}
-					</For>
-				</Stepper>
+				<div
+					class={cn(
+						"col-span-1",
+						!isProgressFirstItemOnGrid() ? "block" : "hidden",
+					)}>
+					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
+						<For each={steps}>
+							{step => (
+								<Step
+									status={step.status}
+									label={step.id}
+									description={step.name}
+									href={step.href}
+									invertIndicator
+								/>
+							)}
+						</For>
+					</Stepper>
+				</div>
 			</div>
 
 			<MobileProgress />
