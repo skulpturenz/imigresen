@@ -3,6 +3,9 @@ export const resources = {
 	doShowProgressMobile: "Show progress",
 	isPersisted: "Saved",
 	isPersisting: "Saving",
+	doCancel: "Cancel",
+	doBack: "Back",
+	doNext: "Next",
 	form: {
 		documentType: {
 			label: "Document type",

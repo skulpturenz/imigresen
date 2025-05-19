@@ -587,7 +587,19 @@ export const MyPassportForm = () => {
 				</div>
 			</Show>
 
-			<Wizard>
+			<Wizard
+				Footer={
+					<div class="flex justify-between mt-8 sm:mt-4">
+						<div class="flex gap-2">
+							<Button variant="destructive">
+								{t("doCancel")}
+							</Button>
+							<Button variant="secondary">{t("doBack")}</Button>
+						</div>
+
+						<Button variant="default">{t("doNext")}</Button>
+					</div>
+				}>
 				<form>
 					<ApplicationDetails />
 
@@ -600,7 +612,11 @@ export const MyPassportForm = () => {
 	);
 };
 
-const Wizard: Component<ParentProps> = props => {
+interface WizardProps {
+	Footer?: any;
+}
+
+const Wizard: Component<ParentProps<WizardProps>> = props => {
 	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
 		createSignal(true);
 
@@ -666,7 +682,7 @@ const Wizard: Component<ParentProps> = props => {
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-32 sm:mb-0">
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-24 sm:mb-0">
 				<div
 					class={cn(
 						"col-span-1",
@@ -686,8 +702,12 @@ const Wizard: Component<ParentProps> = props => {
 					</Stepper>
 				</div>
 
-				<div class="col-span-3 sm:col-span-2 w-full">
+				<div class="sm:col-span-2 col-span-3 w-full">
 					{props.children}
+
+					<Show when={props.Footer}>
+						<div class="sm:hidden">{props.Footer}</div>
+					</Show>
 				</div>
 
 				<div
@@ -710,6 +730,14 @@ const Wizard: Component<ParentProps> = props => {
 					</Stepper>
 				</div>
 			</div>
+
+			<Show when={props.Footer}>
+				<div class="hidden sm:grid grid-cols-3 md:block">
+					<div class="col-span-3 sm:col-span-2 md:col-auto">
+						{props.Footer}
+					</div>
+				</div>
+			</Show>
 
 			<MobileProgress />
 		</>
