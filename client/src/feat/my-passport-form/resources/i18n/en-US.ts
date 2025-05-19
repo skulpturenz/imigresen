@@ -1,6 +1,8 @@
 export const resources = {
 	metaTitle: "Create a new application",
 	doShowProgressMobile: "Show progress",
+	isPersisted: "Saved",
+	isPersisting: "Saving",
 	form: {
 		documentType: {
 			label: "Document type",

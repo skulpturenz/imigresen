@@ -1,5 +1,6 @@
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
+import { Check, LoaderCircle } from "lucide-solid";
 import {
 	createSignal,
 	For,
@@ -10,6 +11,7 @@ import {
 } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
+import { Badge } from "ui/badge";
 import { Button } from "ui/button";
 import {
 	DatePicker,
@@ -65,6 +67,11 @@ const steps = [
 ] as const;
 
 export const MyPassportForm = () => {
+	// TODO
+	const [peristStatus, _setPersistStatus] = createSignal<
+		"persisted" | "persisting" | null
+	>("persisting");
+
 	const t = useI18n<typeof resources>();
 
 	const ApplicationDetails = () => {
@@ -557,6 +564,29 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
+			<Show when={peristStatus()}>
+				<div class="flex flex-col mb-4">
+					<Show when={peristStatus() === "persisted"}>
+						<Badge
+							variant="outline"
+							class="self-end items-center flex gap-2">
+							<Check class="size-4" />
+							{t("isPersisted")}
+						</Badge>
+					</Show>
+
+					<Show when={peristStatus() === "persisting"}>
+						<Badge class="self-end flex gap-2 items-center">
+							<LoaderCircle
+								// TODO: the icon is not centred
+								class="size-4 animate-spin"
+							/>
+							{t("isPersisting")}
+						</Badge>
+					</Show>
+				</div>
+			</Show>
+
 			<Wizard>
 				<form>
 					<ApplicationDetails />
