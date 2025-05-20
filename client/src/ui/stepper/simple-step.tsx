@@ -1,9 +1,10 @@
 import { Show, type Component, type ParentProps } from "solid-js";
 import { Typography } from "ui/typography";
 import { cn } from "ui/utils";
+import type { StepStatus } from "./types";
 
 export interface SimpleStepProps {
-	status: "complete" | "current" | "upcoming";
+	status: StepStatus;
 	label?: string;
 	description?: string;
 	href?: string;

@@ -1,6 +1,4 @@
 import { styles } from "core/constants/styles";
-import { useI18n } from "core/context/i18n";
-import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
 	createSignal,
 	For,
@@ -24,8 +22,6 @@ export interface WizardProps {
 export const Wizard: Component<ParentProps<WizardProps>> = props => {
 	const [isProgressFirstItemOnGrid, setIsProgressFirstItemOnGrid] =
 		createSignal(true);
-
-	const t = useI18n<typeof resources>();
 
 	const adjustProgressPosition = () => {
 		if (styles.breakpoints.isMedium() || styles.breakpoints.isVerySmall()) {

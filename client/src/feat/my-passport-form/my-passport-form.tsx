@@ -31,6 +31,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "ui/select";
+import { StepStatus } from "ui/stepper/types.ts";
 import {
 	TextField,
 	TextFieldDescription,
@@ -41,6 +42,7 @@ import {
 import type { resources } from "./resources/i18n/en-US";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
+import type { WizardStep } from "./ui/wizard/types.ts";
 
 export const MyPassportForm = () => {
 	// TODO
@@ -538,6 +540,39 @@ export const MyPassportForm = () => {
 		);
 	};
 
+	const steps: WizardStep[] = [
+		{
+			hash: "applicationDetails",
+			status: StepStatus.Complete,
+			label: "Step 1",
+			description: "Application details",
+		},
+		{
+			hash: "personalDetails",
+			status: StepStatus.Current,
+			label: "Step 2",
+			description: "Personal details",
+		},
+		{
+			hash: "addressDetails",
+			status: StepStatus.Upcoming,
+			label: "Step 3",
+			description: "Address details",
+		},
+		{
+			hash: "previousDocuments",
+			status: StepStatus.Upcoming,
+			label: "Step 4",
+			description: "Previous document",
+		},
+		{
+			hash: "declaration",
+			status: StepStatus.Upcoming,
+			label: "Step 5",
+			description: "Declaration",
+		},
+	];
+
 	return (
 		<>
 			<Show when={peristStatus()}>
@@ -564,7 +599,7 @@ export const MyPassportForm = () => {
 			</Show>
 
 			<Wizard
-				steps={[]}
+				steps={steps}
 				Footer={
 					<>
 						<DefaultFooter />
@@ -584,31 +619,31 @@ export const MyPassportForm = () => {
 	);
 };
 
-const AddressDetails = lazy(() =>
+const _AddressDetails = lazy(() =>
 	import("./steps/address-details").then(({ AddressDetails }) => ({
 		default: AddressDetails,
 	})),
 );
 
-const ApplicationDetails = lazy(() =>
+const _ApplicationDetails = lazy(() =>
 	import("./steps/application-details").then(({ ApplicationDetails }) => ({
 		default: ApplicationDetails,
 	})),
 );
 
-const Declaration = lazy(() =>
+const _Declaration = lazy(() =>
 	import("./steps/declaration").then(({ Declaration }) => ({
 		default: Declaration,
 	})),
 );
 
-const PersonalDetails = lazy(() =>
+const _PersonalDetails = lazy(() =>
 	import("./steps/personal-details").then(({ PersonalDetails }) => ({
 		default: PersonalDetails,
 	})),
 );
 
-const PreviousDocuments = lazy(() =>
+const _PreviousDocuments = lazy(() =>
 	import("./steps/previous-documents").then(({ PreviousDocuments }) => ({
 		default: PreviousDocuments,
 	})),

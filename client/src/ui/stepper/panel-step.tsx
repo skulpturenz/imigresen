@@ -1,9 +1,10 @@
 import { CheckIcon } from "lucide-solid";
 import { Show, type Component, type ParentProps } from "solid-js";
 import { cn } from "ui/utils";
+import type { StepStatus } from "./types";
 
 export interface PanelStepProps {
-	status: "complete" | "current" | "upcoming";
+	status: StepStatus;
 	step: number;
 	label: string;
 	href?: string;
