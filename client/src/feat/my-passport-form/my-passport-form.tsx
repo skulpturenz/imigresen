@@ -699,7 +699,9 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 									</For>
 								</Stepper>
 
-								<div class="w-full">{props.Footer}</div>
+								<Show when={props.Footer}>
+									<div class="w-full">{props.Footer}</div>
+								</Show>
 							</DrawerContent>
 						</Drawer>
 					</div>
@@ -919,7 +921,9 @@ const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 	return (
 		<li class="relative md:flex md:flex-1">
 			<Show when={props.status === "complete"}>
-				<a href={props.href} class="group flex w-full items-center">
+				<a
+					href={props.href}
+					class="group flex w-full items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground group-hover:bg-emerald-500 dark:group-hover:bg-emerald-600">
 							<CheckIcon
@@ -938,7 +942,7 @@ const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 				<a
 					href={props.href}
 					aria-current="step"
-					class="flex items-center px-6 py-4 text-sm font-medium">
+					class="flex items-center px-6 py-4 text-sm font-medium transition-colors">
 					<span class="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground">
 						<span class="text-foreground">{props.step}</span>
 					</span>
@@ -952,7 +956,9 @@ const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 				when={
 					props.status !== "complete" && props.status !== "current"
 				}>
-				<a href={props.href} class="group flex items-center">
+				<a
+					href={props.href}
+					class="group flex items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span
 							class={cn(
