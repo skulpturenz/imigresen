@@ -1,6 +1,7 @@
+import { cva } from "class-variance-authority";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
-import { Check, LoaderCircle } from "lucide-solid";
+import { Check, CheckIcon, LoaderCircle } from "lucide-solid";
 import {
 	createSignal,
 	For,
@@ -589,16 +590,36 @@ export const MyPassportForm = () => {
 
 			<Wizard
 				Footer={
-					<div class="flex justify-between mt-8 sm:mt-4">
-						<div class="flex gap-2">
-							<Button variant="destructive">
-								{t("doDelete")}
+					<>
+						<div class="hidden sm:flex justify-between mt-4">
+							<div class="flex space-x-2">
+								<Button variant="destructive" class="w-full">
+									{t("doDelete")}
+								</Button>
+								<Button variant="secondary" class="w-full">
+									{t("doBack")}
+								</Button>
+							</div>
+
+							<Button variant="default" class="w-full">
+								{t("doNext")}
 							</Button>
-							<Button variant="secondary">{t("doBack")}</Button>
 						</div>
 
-						<Button variant="default">{t("doNext")}</Button>
-					</div>
+						<div class="flex-col sm:hidden space-y-4 mb-4">
+							<Button variant="secondary" class="w-full">
+								{t("doBack")}
+							</Button>
+
+							<Button variant="default" class="w-full">
+								{t("doNext")}
+							</Button>
+
+							<Button variant="destructive" class="w-full">
+								{t("doDelete")}
+							</Button>
+						</div>
+					</>
 				}>
 				<form>
 					<ApplicationDetails />
@@ -659,19 +680,24 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 								class="w-full">
 								{t("doShowProgressMobile")}
 							</DrawerTrigger>
-							<DrawerContent class="flex items-center">
-								<Stepper class="my-10">
+							<DrawerContent class="flex flex-col items-center px-8 my-10 space-y-8">
+								<Stepper variant="panel" class="w-full">
 									<For each={steps}>
-										{step => (
-											<Step
+										{(step, idx) => (
+											<PanelStep
 												status={step.status}
 												label={step.id}
-												description={step.name}
+												step={idx()}
 												href={step.href}
+												isLastStep={
+													idx() === steps.length - 1
+												}
 											/>
 										)}
 									</For>
 								</Stepper>
+
+								<div class="w-full">{props.Footer}</div>
 							</DrawerContent>
 						</Drawer>
 					</div>
@@ -691,7 +717,7 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
 							{step => (
-								<Step
+								<SimpleStep
 									status={step.status}
 									label={step.id}
 									description={step.name}
@@ -704,10 +730,6 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 
 				<div class="sm:col-span-2 col-span-3 w-full">
 					{props.children}
-
-					<Show when={props.Footer}>
-						<div class="sm:hidden">{props.Footer}</div>
-					</Show>
 				</div>
 
 				<div
@@ -718,7 +740,7 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={steps}>
 							{step => (
-								<Step
+								<SimpleStep
 									status={step.status}
 									label={step.id}
 									description={step.name}
@@ -750,10 +772,30 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 	);
 };
 
-const Stepper: Component<JSX.HTMLAttributes<HTMLElement>> = props => {
+const stepperVariants = cva("", {
+	variants: {
+		variant: {
+			default: "space-y-4 md:flex md:space-x-8 md:space-y-0",
+			panel: "divide-y divide-accent rounded-md border border-accent md:flex md:divide-y-0",
+		},
+	},
+	defaultVariants: {
+		variant: "default",
+	},
+});
+
+export interface StepperProps {
+	variant?: "default" | "panel";
+}
+
+const Stepper: Component<
+	JSX.HTMLAttributes<HTMLElement> & StepperProps
+> = props => {
 	return (
 		<nav aria-label="Progress" class={cn(props.class)}>
-			<ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
+			<ol
+				role="list"
+				class={cn(stepperVariants({ variant: props.variant }))}>
 				{props.children}
 			</ol>
 		</nav>
@@ -769,7 +811,7 @@ export interface StepProps {
 	invertIndicator?: boolean;
 }
 
-export const Step: Component<ParentProps<StepProps>> = props => {
+export const SimpleStep: Component<ParentProps<StepProps>> = props => {
 	return (
 		<li class="md:flex-1">
 			<Show when={props.status === "complete"}>
@@ -857,6 +899,87 @@ export const Step: Component<ParentProps<StepProps>> = props => {
 						</Typography>
 					</Show>
 				</a>
+			</Show>
+		</li>
+	);
+};
+
+export interface PanelStepProps {
+	status: "complete" | "current" | "upcoming";
+	step: number;
+	label: string;
+	href?: string;
+	onClick?: () => void;
+	isLastStep?: boolean;
+}
+
+const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
+	return (
+		<li class="relative md:flex md:flex-1">
+			<Show when={props.status === "complete"}>
+				<a href={props.href} class="group flex w-full items-center">
+					<span class="flex items-center px-6 py-4 text-sm font-medium">
+						<span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground group-hover:bg-emerald-500 dark:group-hover:bg-emerald-600">
+							<CheckIcon
+								aria-hidden="true"
+								class="size-6 text-background"
+							/>
+						</span>
+						<span class="ml-4 text-sm font-medium text-foreground">
+							{props.label}
+						</span>
+					</span>
+				</a>
+			</Show>
+
+			<Show when={props.status === "current"}>
+				<a
+					href={props.href}
+					aria-current="step"
+					class="flex items-center px-6 py-4 text-sm font-medium">
+					<span class="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground">
+						<span class="text-foreground">{props.step}</span>
+					</span>
+					<span class="ml-4 text-sm font-medium text-foreground">
+						{props.label}
+					</span>
+				</a>
+			</Show>
+
+			<Show
+				when={
+					props.status !== "complete" && props.status !== "current"
+				}>
+				<a href={props.href} class="group flex items-center">
+					<span class="flex items-center px-6 py-4 text-sm font-medium">
+						<span
+							class={cn(
+								"flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-accent",
+								"group-hover:border-yellow-500 dark:group-hover:border-yellow-600",
+							)}>
+							<span class="text-muted-foreground group-hover:text-foreground">
+								{props.step}
+							</span>
+						</span>
+						<span class="ml-4 text-sm font-medium text-muted-foreground group-hover:text-foreground">
+							{props.label}
+						</span>
+					</span>
+				</a>
+			</Show>
+
+			<Show when={!props.isLastStep}>
+				<div
+					aria-hidden="true"
+					class="absolute right-0 top-0 hidden h-full w-5 md:block">
+					<svg
+						fill="none"
+						viewBox="0 0 22 80"
+						preserveAspectRatio="none"
+						class="size-full text-accent">
+						<path d="M0 -2L20 40L0 82" stroke="currentcolor" />
+					</svg>
+				</div>
 			</Show>
 		</li>
 	);
