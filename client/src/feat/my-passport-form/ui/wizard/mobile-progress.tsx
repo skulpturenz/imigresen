@@ -40,7 +40,7 @@ export const MobileProgress: Component<
 									{(step, idx) => (
 										<PanelStep
 											status={step.status}
-											label={step.label}
+											label={step.description}
 											step={idx()}
 											href={step.hash}
 											isLastStep={

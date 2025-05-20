@@ -1,4 +1,5 @@
 import { useI18n } from "core/context/i18n";
+import { kebabCase } from "es-toolkit";
 import { Check, LoaderCircle } from "lucide-solid";
 import { createSignal, lazy, Show } from "solid-js";
 import { Badge } from "ui/badge";
@@ -6,7 +7,7 @@ import { StepStatus } from "ui/stepper/types.ts";
 import type { resources } from "./resources/i18n/en-US";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
-import type { WizardStep } from "./ui/wizard/types.ts";
+import { Step, type WizardStep } from "./ui/wizard/types.ts";
 
 export const MyPassportForm = () => {
 	// TODO
@@ -16,33 +17,35 @@ export const MyPassportForm = () => {
 
 	const t = useI18n<typeof resources>();
 
+	const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
+
 	const steps: WizardStep[] = [
 		{
-			hash: "applicationDetails",
+			hash: toHash(Step.ApplicationDetails),
 			status: StepStatus.Complete,
 			label: "Step 1",
 			description: "Application details",
 		},
 		{
-			hash: "personalDetails",
+			hash: toHash(Step.PersonalDetails),
 			status: StepStatus.Current,
 			label: "Step 2",
 			description: "Personal details",
 		},
 		{
-			hash: "addressDetails",
+			hash: toHash(Step.AddressDetails),
 			status: StepStatus.Upcoming,
 			label: "Step 3",
 			description: "Address details",
 		},
 		{
-			hash: "previousDocuments",
+			hash: toHash(Step.PreviousDocuments),
 			status: StepStatus.Upcoming,
 			label: "Step 4",
 			description: "Previous document",
 		},
 		{
-			hash: "declaration",
+			hash: toHash(Step.Declaration),
 			status: StepStatus.Upcoming,
 			label: "Step 5",
 			description: "Declaration",
