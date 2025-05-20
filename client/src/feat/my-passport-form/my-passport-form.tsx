@@ -6,6 +6,7 @@ import {
 	createSignal,
 	For,
 	Index,
+	lazy,
 	Show,
 	type Component,
 	type JSXElement,
@@ -643,6 +644,36 @@ export const MyPassportForm = () => {
 		</>
 	);
 };
+
+const AddressDetails = lazy(() =>
+	import("./steps/address-details").then(({ AddressDetails }) => ({
+		default: AddressDetails,
+	})),
+);
+
+const ApplicationDetails = lazy(() =>
+	import("./steps/application-details").then(({ ApplicationDetails }) => ({
+		default: ApplicationDetails,
+	})),
+);
+
+const Declaration = lazy(() =>
+	import("./steps/declaration").then(({ Declaration }) => ({
+		default: Declaration,
+	})),
+);
+
+const PersonalDetails = lazy(() =>
+	import("./steps/personal-details").then(({ PersonalDetails }) => ({
+		default: PersonalDetails,
+	})),
+);
+
+const PreviousDocuments = lazy(() =>
+	import("./steps/previous-documents").then(({ PreviousDocuments }) => ({
+		default: PreviousDocuments,
+	})),
+);
 
 interface WizardProps {
 	Footer?: JSXElement;
