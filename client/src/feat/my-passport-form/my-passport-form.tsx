@@ -591,22 +591,24 @@ export const MyPassportForm = () => {
 			<Wizard
 				Footer={
 					<>
-						<div class="hidden sm:flex justify-between mt-4">
+						<div
+							// `isSmall` and up
+							class="hidden sm:flex justify-between mt-4">
 							<div class="flex space-x-2">
-								<Button variant="destructive" class="w-full">
+								<Button variant="destructive">
 									{t("doDelete")}
 								</Button>
-								<Button variant="secondary" class="w-full">
+								<Button variant="secondary">
 									{t("doBack")}
 								</Button>
 							</div>
 
-							<Button variant="default" class="w-full">
-								{t("doNext")}
-							</Button>
+							<Button variant="default">{t("doNext")}</Button>
 						</div>
 
-						<div class="flex-col sm:hidden space-y-4 mb-4">
+						<div
+							// `isVerySmall`
+							class="flex-col sm:hidden space-y-4 mb-4">
 							<Button variant="secondary" class="w-full">
 								{t("doBack")}
 							</Button>
