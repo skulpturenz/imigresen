@@ -670,7 +670,7 @@ const Wizard: Component<ParentProps<WizardProps>> = props => {
 				<div class="sm:hidden flex justify-center">
 					<div
 						class={cn(
-							"fixed bottom-[env(safe-area-inset-bottom)] bg-secondary/50 backdrop-blur-sm",
+							"fixed bottom-[env(safe-area-inset-bottom)] bg-background/70 backdrop-blur-sm",
 							"text-secondary-foreground w-full p-4 shadow",
 						)}>
 						<Drawer>
