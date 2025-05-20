@@ -8,6 +8,7 @@ import {
 	Index,
 	Show,
 	type Component,
+	type JSXElement,
 	type ParentProps,
 } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
@@ -563,6 +564,41 @@ export const MyPassportForm = () => {
 		);
 	};
 
+	const MobileFooter = () => {
+		return (
+			<div
+				// `isVerySmall`
+				class="flex-col sm:hidden space-y-4 mb-4">
+				<Button variant="secondary" class="w-full">
+					{t("doBack")}
+				</Button>
+
+				<Button variant="default" class="w-full">
+					{t("doNext")}
+				</Button>
+
+				<Button variant="destructive" class="w-full">
+					{t("doDelete")}
+				</Button>
+			</div>
+		);
+	};
+
+	const DefaultFooter = () => {
+		return (
+			<div
+				// `isSmall` and up
+				class="hidden sm:flex justify-between mt-4">
+				<div class="flex space-x-2">
+					<Button variant="destructive">{t("doDelete")}</Button>
+					<Button variant="secondary">{t("doBack")}</Button>
+				</div>
+
+				<Button variant="default">{t("doNext")}</Button>
+			</div>
+		);
+	};
+
 	return (
 		<>
 			<Show when={peristStatus()}>
@@ -591,36 +627,9 @@ export const MyPassportForm = () => {
 			<Wizard
 				Footer={
 					<>
-						<div
-							// `isSmall` and up
-							class="hidden sm:flex justify-between mt-4">
-							<div class="flex space-x-2">
-								<Button variant="destructive">
-									{t("doDelete")}
-								</Button>
-								<Button variant="secondary">
-									{t("doBack")}
-								</Button>
-							</div>
+						<DefaultFooter />
 
-							<Button variant="default">{t("doNext")}</Button>
-						</div>
-
-						<div
-							// `isVerySmall`
-							class="flex-col sm:hidden space-y-4 mb-4">
-							<Button variant="secondary" class="w-full">
-								{t("doBack")}
-							</Button>
-
-							<Button variant="default" class="w-full">
-								{t("doNext")}
-							</Button>
-
-							<Button variant="destructive" class="w-full">
-								{t("doDelete")}
-							</Button>
-						</div>
+						<MobileFooter />
 					</>
 				}>
 				<form>
@@ -636,7 +645,7 @@ export const MyPassportForm = () => {
 };
 
 interface WizardProps {
-	Footer?: any;
+	Footer?: JSXElement;
 }
 
 const Wizard: Component<ParentProps<WizardProps>> = props => {
