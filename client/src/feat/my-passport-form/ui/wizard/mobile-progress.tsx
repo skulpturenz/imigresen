@@ -49,6 +49,12 @@ export const MobileProgress: Component<
 		toggleIsDrawerOpen();
 	};
 
+	const onClickFooter = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+
+		toggleIsDrawerOpen();
+	};
+
 	onMount(() => {
 		document.addEventListener("click", hideDrawerOnClickAway);
 	});
@@ -96,7 +102,9 @@ export const MobileProgress: Component<
 							</Stepper>
 
 							<Show when={props.Footer}>
-								<div class="w-full">{props.Footer}</div>
+								<div class="w-full" onClick={onClickFooter}>
+									{props.Footer}
+								</div>
 							</Show>
 						</DrawerContent>
 					</Drawer>

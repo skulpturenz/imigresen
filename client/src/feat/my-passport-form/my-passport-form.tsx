@@ -20,6 +20,9 @@ export const MyPassportForm = () => {
 
 	const onClickNext = nextStep;
 	const onClickBack = previousStep;
+	const onClickDelete = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+	};
 
 	return (
 		<>
@@ -53,11 +56,13 @@ export const MyPassportForm = () => {
 						<DefaultFooter
 							onClickNext={onClickNext}
 							onClickBack={onClickBack}
+							onClickDelete={onClickDelete}
 						/>
 
 						<MobileFooter
 							onClickNext={onClickNext}
 							onClickBack={onClickBack}
+							onClickDelete={onClickDelete}
 						/>
 					</>
 				}>

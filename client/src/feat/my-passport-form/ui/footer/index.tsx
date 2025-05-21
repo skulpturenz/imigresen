@@ -4,9 +4,9 @@ import type { Component } from "solid-js";
 import { Button } from "ui/button";
 
 export interface FooterProps {
-	onClickBack?: () => void;
-	onClickNext?: () => void;
-	onClickDelete?: () => void;
+	onClickBack?: (event: MouseEvent) => void;
+	onClickNext?: (event: MouseEvent) => void;
+	onClickDelete?: (event: MouseEvent) => void;
 }
 
 export const MobileFooter: Component<FooterProps> = props => {
