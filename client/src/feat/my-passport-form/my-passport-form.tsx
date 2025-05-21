@@ -16,7 +16,10 @@ export const MyPassportForm = () => {
 
 	const t = useI18n<typeof resources>();
 
-	const { stepStatus, steps } = useWizardSteps();
+	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
+
+	const onClickNext = nextStep;
+	const onClickBack = previousStep;
 
 	return (
 		<>
@@ -47,9 +50,15 @@ export const MyPassportForm = () => {
 				steps={steps()}
 				Footer={
 					<>
-						<DefaultFooter />
+						<DefaultFooter
+							onClickNext={onClickNext}
+							onClickBack={onClickBack}
+						/>
 
-						<MobileFooter />
+						<MobileFooter
+							onClickNext={onClickNext}
+							onClickBack={onClickBack}
+						/>
 					</>
 				}>
 				<form>
