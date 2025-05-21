@@ -19,6 +19,7 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 			<Show when={props.status === "complete"}>
 				<A
 					href={props.href ?? ""}
+					onClick={props.onClick}
 					class="group flex w-full items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground group-hover:bg-emerald-500 dark:group-hover:bg-emerald-600">
@@ -37,6 +38,7 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 			<Show when={props.status === "current"}>
 				<A
 					href={props.href ?? ""}
+					onClick={props.onClick}
 					aria-current="step"
 					class="flex items-center px-6 py-4 text-sm font-medium transition-colors">
 					<span class="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground">
@@ -54,6 +56,7 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 				}>
 				<A
 					href={props.href ?? ""}
+					onClick={props.onClick}
 					class="group flex items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span

@@ -1,6 +1,13 @@
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
-import type { Component, JSXElement, ParentProps } from "solid-js";
+import {
+	createSignal,
+	onCleanup,
+	onMount,
+	type Component,
+	type JSXElement,
+	type ParentProps,
+} from "solid-js";
 import { For, Portal, Show } from "solid-js/web";
 import { Button } from "ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "ui/drawer";
@@ -17,19 +24,43 @@ export interface MobileProgressProps {
 export const MobileProgress: Component<
 	ParentProps<MobileProgressProps>
 > = props => {
+	let mobileProgressRef: HTMLDivElement | undefined;
+
 	const t = useI18n<typeof resources>();
+
+	const [isDrawerOpen, setIsDrawerOpen] = createSignal(false);
+	const toggleIsDrawerOpen = () =>
+		setIsDrawerOpen(isDrawerOpen => !isDrawerOpen);
+
+	const hideDrawerOnClickAway = (event: MouseEvent) => {
+		if (
+			!mobileProgressRef?.contains(event.target as Node) &&
+			isDrawerOpen()
+		) {
+			toggleIsDrawerOpen();
+		}
+	};
+
+	onMount(() => {
+		document.addEventListener("click", hideDrawerOnClickAway);
+	});
+
+	onCleanup(() => {
+		document.removeEventListener("click", hideDrawerOnClickAway);
+	});
 
 	return (
 		<Portal>
-			<div class="sm:hidden flex justify-center">
+			<div ref={mobileProgressRef} class="sm:hidden flex justify-center">
 				<div
 					class={cn(
 						"fixed bottom-[env(safe-area-inset-bottom)] bg-background/70 backdrop-blur-sm",
 						"text-secondary-foreground w-full p-4 shadow",
 					)}>
-					<Drawer>
+					<Drawer open={isDrawerOpen()}>
 						<DrawerTrigger
 							as={Button}
+							onClick={toggleIsDrawerOpen}
 							variant="ghost"
 							class="w-full">
 							{t("doShowProgressMobile")}
@@ -41,8 +72,9 @@ export const MobileProgress: Component<
 										<PanelStep
 											status={step.status}
 											label={step.description}
-											step={idx()}
+											step={idx() + 1}
 											href={step.hash}
+											onClick={toggleIsDrawerOpen}
 											isLastStep={
 												idx() === props.steps.length - 1
 											}
