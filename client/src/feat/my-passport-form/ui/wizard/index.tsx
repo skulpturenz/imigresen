@@ -16,7 +16,6 @@ import type { WizardStep } from "./types.ts.ts";
 export interface WizardProps {
 	steps: WizardStep[];
 	Footer?: JSXElement;
-	onClickStep?: (step: number) => void;
 }
 
 export const Wizard: Component<ParentProps<WizardProps>> = props => {

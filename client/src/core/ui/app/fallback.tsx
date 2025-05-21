@@ -29,6 +29,10 @@ export const Fallback: Component<ParentProps<FallbackProps>> = withI18n(
 			location.pathname = "/";
 		};
 
+		if (import.meta.env.DEV) {
+			console.error(props.err);
+		}
+
 		return (
 			<AlertDialog defaultOpen>
 				<AlertDialogContent>

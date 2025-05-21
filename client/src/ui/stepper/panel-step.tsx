@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { CheckIcon } from "lucide-solid";
 import { Show, type Component, type ParentProps } from "solid-js";
 import { cn } from "ui/utils";
@@ -16,8 +17,8 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 	return (
 		<li class="relative md:flex md:flex-1">
 			<Show when={props.status === "complete"}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					class="group flex w-full items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground group-hover:bg-emerald-500 dark:group-hover:bg-emerald-600">
@@ -30,12 +31,12 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 							{props.label}
 						</span>
 					</span>
-				</a>
+				</A>
 			</Show>
 
 			<Show when={props.status === "current"}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					aria-current="step"
 					class="flex items-center px-6 py-4 text-sm font-medium transition-colors">
 					<span class="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground">
@@ -44,15 +45,15 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 					<span class="ml-4 text-sm font-medium text-foreground">
 						{props.label}
 					</span>
-				</a>
+				</A>
 			</Show>
 
 			<Show
 				when={
 					props.status !== "complete" && props.status !== "current"
 				}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					class="group flex items-center transition-colors">
 					<span class="flex items-center px-6 py-4 text-sm font-medium">
 						<span
@@ -68,7 +69,7 @@ export const PanelStep: Component<ParentProps<PanelStepProps>> = props => {
 							{props.label}
 						</span>
 					</span>
-				</a>
+				</A>
 			</Show>
 
 			<Show when={!props.isLastStep}>

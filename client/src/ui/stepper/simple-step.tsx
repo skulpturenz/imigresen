@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { Show, type Component, type ParentProps } from "solid-js";
 import { Typography } from "ui/typography";
 import { cn } from "ui/utils";
@@ -16,8 +17,8 @@ export const SimpleStep: Component<ParentProps<SimpleStepProps>> = props => {
 	return (
 		<li class="md:flex-1">
 			<Show when={props.status === "complete"}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					onClick={props.onClick}
 					class={cn(
 						"group flex flex-col transition-colors",
@@ -42,11 +43,11 @@ export const SimpleStep: Component<ParentProps<SimpleStepProps>> = props => {
 							{props.description}
 						</Typography>
 					</Show>
-				</a>
+				</A>
 			</Show>
 			<Show when={props.status === "current"}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					onClick={props.onClick}
 					aria-current="step"
 					class={cn(
@@ -68,14 +69,14 @@ export const SimpleStep: Component<ParentProps<SimpleStepProps>> = props => {
 							{props.description}
 						</Typography>
 					</Show>
-				</a>
+				</A>
 			</Show>
 			<Show
 				when={
 					props.status !== "complete" && props.status !== "current"
 				}>
-				<a
-					href={props.href}
+				<A
+					href={props.href ?? ""}
 					onClick={props.onClick}
 					class={cn(
 						"group flex flex-col transition-colors py-2 border-accent hover:border-yellow-500 dark:hover:border-yellow-600",
@@ -99,7 +100,7 @@ export const SimpleStep: Component<ParentProps<SimpleStepProps>> = props => {
 							{props.description}
 						</Typography>
 					</Show>
-				</a>
+				</A>
 			</Show>
 		</li>
 	);

@@ -1,3 +1,5 @@
+import { Step } from "feat/my-passport-form/types";
+
 export const resources = {
 	metaTitle: "Create a new application",
 	doShowProgressMobile: "Show progress",
@@ -6,6 +8,28 @@ export const resources = {
 	doDelete: "Delete",
 	doBack: "Back",
 	doNext: "Next",
+	steps: {
+		[Step.PersonalDetails]: {
+			label: `Step ${Step.PersonalDetails}`,
+			description: "Personal details",
+		},
+		[Step.AddressDetails]: {
+			label: `Step ${Step.AddressDetails}`,
+			description: "Address details",
+		},
+		[Step.ApplicationDetails]: {
+			label: `Step ${Step.ApplicationDetails}`,
+			description: "Application details",
+		},
+		[Step.PreviousDocuments]: {
+			label: `Step ${Step.PreviousDocuments}`,
+			description: "Previous documents",
+		},
+		[Step.Declaration]: {
+			label: `Step ${Step.Declaration}`,
+			description: "Declaration",
+		},
+	},
 	form: {
 		documentType: {
 			label: "Document type",
