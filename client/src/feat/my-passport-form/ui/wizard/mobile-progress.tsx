@@ -34,11 +34,19 @@ export const MobileProgress: Component<
 
 	const hideDrawerOnClickAway = (event: MouseEvent) => {
 		if (
-			!mobileProgressRef?.contains(event.target as Node) &&
-			isDrawerOpen()
+			mobileProgressRef?.contains(event.target as Node) ||
+			!isDrawerOpen()
 		) {
-			toggleIsDrawerOpen();
+			return;
 		}
+
+		toggleIsDrawerOpen();
+	};
+
+	const onClickTrigger = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+
+		toggleIsDrawerOpen();
 	};
 
 	onMount(() => {
@@ -49,9 +57,11 @@ export const MobileProgress: Component<
 		document.removeEventListener("click", hideDrawerOnClickAway);
 	});
 
+	// TODO: swiping down doesn't close the drawer entirely unlike without specifying `open`
+
 	return (
 		<Portal>
-			<div ref={mobileProgressRef} class="sm:hidden flex justify-center">
+			<div class="sm:hidden flex justify-center">
 				<div
 					class={cn(
 						"fixed bottom-[env(safe-area-inset-bottom)] bg-background/70 backdrop-blur-sm",
@@ -60,12 +70,14 @@ export const MobileProgress: Component<
 					<Drawer open={isDrawerOpen()}>
 						<DrawerTrigger
 							as={Button}
-							onClick={toggleIsDrawerOpen}
+							onClick={onClickTrigger}
 							variant="ghost"
 							class="w-full">
 							{t("doShowProgressMobile")}
 						</DrawerTrigger>
-						<DrawerContent class="flex flex-col items-center px-8 my-10 space-y-8">
+						<DrawerContent
+							ref={mobileProgressRef}
+							class="flex flex-col items-center px-8 my-10 space-y-8">
 							<Stepper variant="panel" class="w-full">
 								<For each={props.steps}>
 									{(step, idx) => (
