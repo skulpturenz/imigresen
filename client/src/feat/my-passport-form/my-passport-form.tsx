@@ -1,6 +1,6 @@
 import { useI18n } from "core/context/i18n";
 import { Check, LoaderCircle } from "lucide-solid";
-import { createSignal, lazy, Show } from "solid-js";
+import { createSignal, lazy, Show, Suspense } from "solid-js";
 import { Badge } from "ui/badge";
 import { useWizardSteps } from "./hooks/useWizardSteps.ts";
 import type { resources } from "./resources/i18n/en-US";
@@ -53,35 +53,47 @@ export const MyPassportForm = () => {
 					</>
 				}>
 				<form>
-					<Show
-						when={
-							stepStatus().currentStep === Step.PersonalDetails
-						}>
-						<PersonalDetails />
-					</Show>
+					<Suspense
+						// TODO
+						fallback={<div>Loading...</div>}>
+						<Show
+							when={
+								stepStatus().currentStep ===
+								Step.PersonalDetails
+							}>
+							<PersonalDetails />
+						</Show>
 
-					<Show
-						when={stepStatus().currentStep === Step.AddressDetails}>
-						<AddressDetails />
-					</Show>
+						<Show
+							when={
+								stepStatus().currentStep === Step.AddressDetails
+							}>
+							<AddressDetails />
+						</Show>
 
-					<Show
-						when={
-							stepStatus().currentStep === Step.ApplicationDetails
-						}>
-						<ApplicationDetails />
-					</Show>
+						<Show
+							when={
+								stepStatus().currentStep ===
+								Step.ApplicationDetails
+							}>
+							<ApplicationDetails />
+						</Show>
 
-					<Show
-						when={
-							stepStatus().currentStep === Step.PreviousDocuments
-						}>
-						<PreviousDocuments />
-					</Show>
+						<Show
+							when={
+								stepStatus().currentStep ===
+								Step.PreviousDocuments
+							}>
+							<PreviousDocuments />
+						</Show>
 
-					<Show when={stepStatus().currentStep === Step.Declaration}>
-						<Declaration />
-					</Show>
+						<Show
+							when={
+								stepStatus().currentStep === Step.Declaration
+							}>
+							<Declaration />
+						</Show>
+					</Suspense>
 				</form>
 			</Wizard>
 		</>
