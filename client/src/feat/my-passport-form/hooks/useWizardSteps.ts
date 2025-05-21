@@ -94,9 +94,10 @@ export const useWizardSteps = () => {
 	};
 
 	const setStep = (step: Step) =>
-		setStepStatus({
+		setStepStatus(stepStatus => ({
+			...stepStatus,
 			currentStep: Math.max(Math.min(step, LAST_STEP), FIRST_STEP),
-		});
+		}));
 
 	const nextStep = () =>
 		navigate(toHash(Math.min(stepStatus().currentStep + 1, LAST_STEP)));
@@ -107,7 +108,6 @@ export const useWizardSteps = () => {
 	return {
 		steps,
 		stepStatus,
-		setStep,
 		nextStep,
 		previousStep,
 	};
