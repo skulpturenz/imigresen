@@ -15,9 +15,8 @@ export const myPassportFormAutomergeRepoMock = (_token?: string) => {
 	);
 
 	const network: NetworkAdapterInterface[] = [
-		new BrowserWebSocketClientAdapter(
-			import.meta.env.VITE_API_AUTOMERGE_WSS,
-		),
+		// TODO
+		new BrowserWebSocketClientAdapter("ws://localhost:5173"),
 	];
 
 	return new Repo({

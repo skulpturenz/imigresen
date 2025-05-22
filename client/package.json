@@ -15,7 +15,6 @@
 	"dependencies": {
 		"@ark-ui/solid": "^5.9.1",
 		"@automerge/automerge-repo": "^2.0.0",
-		"@automerge/automerge-repo-network-websocket": "^2.0.0",
 		"@automerge/automerge-repo-storage-indexeddb": "^2.0.0",
 		"@corvu/drawer": "^0.2.2",
 		"@flipt-io/flipt-client-js": "^0.0.4",
@@ -42,6 +41,8 @@
 		"zustand": "^5.0.3"
 	},
 	"devDependencies": {
+		"@automerge/automerge-repo-network-websocket": "^2.0.0",
+		"@automerge/automerge-repo-storage-nodefs": "^2.0.0",
 		"@chromatic-com/storybook": "^3.2.3",
 		"@ngneat/falso": "^7.2.0",
 		"@solidjs/testing-library": "^0.8.10",
@@ -57,6 +58,7 @@
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/user-event": "^14.5.2",
 		"@types/node": "^22.13.1",
+		"@types/ws": "^8.18.1",
 		"eslint": "^9.19.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-import": "^2.31.0",
@@ -80,7 +82,8 @@
 		"vite-plugin-top-level-await": "^1.5.0",
 		"vite-plugin-wasm": "^3.4.1",
 		"vite-plugin-webfont-dl": "^3.10.3",
-		"vitest": "^3.0.4"
+		"vitest": "^3.0.4",
+		"ws": "^8.18.2"
 	},
 	"packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977",
 	"eslintConfig": {
