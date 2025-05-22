@@ -1,4 +1,4 @@
-import { Step } from "feat/my-passport-form/types";
+import { Step } from "feat/my-passport-form/types/ui";
 
 export const resources = {
 	metaTitle: "Create a new application",

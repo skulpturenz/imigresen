@@ -1,4 +1,4 @@
-import type { Step } from "feat/my-passport-form/types";
+import type { Step } from "feat/my-passport-form/types/ui";
 import type { StepStatus } from "ui/stepper/types";
 
 export interface WizardStep {

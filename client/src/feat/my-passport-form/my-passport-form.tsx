@@ -1,18 +1,16 @@
 import { useI18n } from "core/context/i18n";
 import { Check, LoaderCircle } from "lucide-solid";
-import { createSignal, lazy, Show, Suspense } from "solid-js";
+import { lazy, Show, Suspense } from "solid-js";
 import { Badge } from "ui/badge";
+import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
 import { useWizardSteps } from "./hooks/useWizardSteps.ts";
 import type { resources } from "./resources/i18n/en-US";
-import { Step } from "./types.ts";
+import { Step } from "./types";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
-	// TODO
-	const [peristStatus, _setPersistStatus] = createSignal<
-		"persisted" | "persisting" | null
-	>("persisting");
+	const { handle } = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
 
@@ -26,28 +24,26 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<Show when={peristStatus()}>
-				<div class="flex flex-col mb-4">
-					<Show when={peristStatus() === "persisted"}>
-						<Badge
-							variant="outline"
-							class="self-end items-center flex gap-2">
-							<Check class="size-4" />
-							{t("isPersisted")}
-						</Badge>
-					</Show>
+			<div class="flex flex-col mb-4">
+				<Show when={!handle()?.inState(["loading"])}>
+					<Badge
+						variant="outline"
+						class="self-end items-center flex gap-2">
+						<Check class="size-4" />
+						{t("isPersisted")}
+					</Badge>
+				</Show>
 
-					<Show when={peristStatus() === "persisting"}>
-						<Badge class="self-end flex gap-2 items-center">
-							<LoaderCircle
-								// TODO: the icon is not centred
-								class="size-4 animate-spin"
-							/>
-							{t("isPersisting")}
-						</Badge>
-					</Show>
-				</div>
-			</Show>
+				<Show when={handle()?.inState(["loading"])}>
+					<Badge class="self-end flex gap-2 items-center">
+						<LoaderCircle
+							// TODO: the icon is not centred
+							class="size-4 animate-spin"
+						/>
+						{t("isPersisting")}
+					</Badge>
+				</Show>
+			</div>
 
 			<Wizard
 				steps={steps()}

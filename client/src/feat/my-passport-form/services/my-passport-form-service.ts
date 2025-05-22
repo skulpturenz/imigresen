@@ -1,13 +1,12 @@
 import { Repo, type NetworkAdapterInterface } from "@automerge/automerge-repo";
 import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 import { IndexedDBStorageAdapter } from "@automerge/automerge-repo-storage-indexeddb";
-import { invariant } from "es-toolkit";
 
 export const myPassportFormAutomergeRepo = (_token?: string) => {
-	invariant(
-		import.meta.env.VITE_API_AUTOMERGE_WSS,
-		"Automerge WSS endpoint not specified",
-	);
+	// invariant(
+	// 	import.meta.env.VITE_API_AUTOMERGE_WSS,
+	// 	"Automerge WSS endpoint not specified",
+	// );
 
 	const storage = new IndexedDBStorageAdapter(
 		`imigresen-${import.meta.env.MODE}`,
