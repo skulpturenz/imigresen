@@ -17,6 +17,12 @@ importers:
       '@automerge/automerge-repo':
         specifier: ^2.0.0
         version: 2.0.0
+      '@automerge/automerge-repo-network-websocket':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@automerge/automerge-repo-storage-indexeddb':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@corvu/drawer':
         specifier: ^0.2.2
         version: 0.2.4(solid-js@1.9.7)
@@ -215,6 +221,12 @@ packages:
 
   '@asamuzakjp/css-color@3.1.7':
     resolution: {integrity: sha512-Ok5fYhtwdyJQmU1PpEv6Si7Y+A4cYb8yNM9oiIJC9TzXPMuN9fvdonKJqcnz9TbFqV6bQ8z0giRq0iaOpGZV2g==}
+
+  '@automerge/automerge-repo-network-websocket@2.0.0':
+    resolution: {integrity: sha512-Hd1FMMxezhlywzika5dgBsNN0ETZ4xjxVSCHuX2yI3vtdmDCOICBHKiY/t2ymnDPw+TKyBm0jXMQai2UVuSIMQ==}
+
+  '@automerge/automerge-repo-storage-indexeddb@2.0.0':
+    resolution: {integrity: sha512-Dka8WnVWWgK7+kSxwizrXGoUtvOPvFVJlGMpXAkvWC9z/9NEHKazkdjFkaMO+uiTGwp+w51xEeZ2gIqB3wgWoA==}
 
   '@automerge/automerge-repo@2.0.0':
     resolution: {integrity: sha512-c1VDrR6s8BE36m6xDcSC8f4ECccPcaK1E6q3vIlBHOEyyLvLQbFmlmFIZulaV//S0B0HW2lLSrK/2cFwQblQ+A==}
@@ -2401,6 +2413,11 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  isomorphic-ws@5.0.0:
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
@@ -3614,6 +3631,25 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.4(@csstools/css-tokenizer@3.0.3)
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
+
+  '@automerge/automerge-repo-network-websocket@2.0.0':
+    dependencies:
+      '@automerge/automerge-repo': 2.0.0
+      cbor-x: 1.6.0
+      debug: 4.4.1
+      eventemitter3: 5.0.1
+      isomorphic-ws: 5.0.0(ws@8.18.2)
+      ws: 8.18.2
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  '@automerge/automerge-repo-storage-indexeddb@2.0.0':
+    dependencies:
+      '@automerge/automerge-repo': 2.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@automerge/automerge-repo@2.0.0':
     dependencies:
@@ -6204,6 +6240,10 @@ snapshots:
   isarray@2.0.5: {}
 
   isexe@2.0.0: {}
+
+  isomorphic-ws@5.0.0(ws@8.18.2):
+    dependencies:
+      ws: 8.18.2
 
   jiti@2.4.2: {}
 
