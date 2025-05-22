@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { defineConfig } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
 import { default as solid } from "vite-plugin-solid";
+import topLevelAwait from "vite-plugin-top-level-await";
+import wasm from "vite-plugin-wasm";
 import { default as webfontDownload } from "vite-plugin-webfont-dl";
 
 export default defineConfig({
@@ -14,6 +16,8 @@ export default defineConfig({
 			algorithm: "brotliCompress",
 		}),
 		tailwindcss(),
+		wasm(),
+		topLevelAwait(),
 	],
 	resolve: {
 		alias: {
