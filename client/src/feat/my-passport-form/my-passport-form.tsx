@@ -25,7 +25,9 @@ export const MyPassportForm = () => {
 	return (
 		<>
 			<div class="flex flex-col mb-4">
-				<Show when={!handle()?.inState(["loading"])}>
+				<Show
+					// https://automerge.org/docs/repositories/dochandles/#dochandle-states
+					when={!handle()?.inState(["requesting"])}>
 					<Badge
 						variant="outline"
 						class="self-end items-center flex gap-2">
@@ -34,7 +36,9 @@ export const MyPassportForm = () => {
 					</Badge>
 				</Show>
 
-				<Show when={handle()?.inState(["loading"])}>
+				<Show
+					// https://automerge.org/docs/repositories/dochandles/#dochandle-states
+					when={handle()?.inState(["requesting"])}>
 					<Badge class="self-end flex gap-2 items-center">
 						<LoaderCircle
 							// TODO: the icon is not centred
