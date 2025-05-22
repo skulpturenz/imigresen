@@ -3,6 +3,7 @@ import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network
 import { IndexedDBStorageAdapter } from "@automerge/automerge-repo-storage-indexeddb";
 import { invariant } from "es-toolkit";
 
+// TODO: use a global context
 export const myPassportFormAutomergeRepoMock = (_token?: string) => {
 	invariant(
 		import.meta.env.VITE_API_AUTOMERGE_WSS,
