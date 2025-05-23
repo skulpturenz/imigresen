@@ -57,7 +57,7 @@ export const useWizardSteps = () => {
 			return;
 		}
 
-		navigate([toHash(stepStatus().currentStep), location.search].join(""));
+		navigate([location.search, toHash(stepStatus().currentStep)].join(""));
 	});
 
 	createEffect(() => {
@@ -100,10 +100,20 @@ export const useWizardSteps = () => {
 		}));
 
 	const nextStep = () =>
-		navigate(toHash(Math.min(stepStatus().currentStep + 1, LAST_STEP)));
+		navigate(
+			[
+				location.search,
+				toHash(Math.min(stepStatus().currentStep + 1, LAST_STEP)),
+			].join(""),
+		);
 
 	const previousStep = () =>
-		navigate(toHash(Math.max(stepStatus().currentStep - 1, FIRST_STEP)));
+		navigate(
+			[
+				location.search,
+				toHash(Math.max(stepStatus().currentStep - 1, FIRST_STEP)),
+			].join(""),
+		);
 
 	return {
 		steps,
