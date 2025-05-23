@@ -51,9 +51,7 @@ export const UiProvider: Component<ParentProps> = props => {
 	});
 
 	return (
-		<RepoContext.Provider
-			// TODO: this throws for some reason and the repo value is not available
-			value={repo}>
+		<RepoContext.Provider value={repo}>
 			<UiContext.Provider value={value}>
 				<Show when={!value().isInitialLoading()}>
 					<QueryClientProvider

@@ -1,14 +1,14 @@
 import type { DocHandle } from "@automerge/automerge-repo";
 import { useParams, useSearchParams } from "@solidjs/router";
-// TODO
-import { repo } from "core/context/ui/automerge";
 import type { MyPassportForm } from "feat/my-passport-form/types";
-import { useDocHandle } from "solid-automerge";
+import { useDocHandle, useRepo } from "solid-automerge";
 import { onCleanup, type Resource } from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
 export const useMyPassportForm = () => {
+	const repo = useRepo();
+
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
