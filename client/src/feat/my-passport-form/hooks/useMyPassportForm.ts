@@ -65,6 +65,10 @@ export const useMyPassportForm = () => {
 			shouldDirty: true,
 		});
 
+		if (!import.meta.env.PROD) {
+			console.debug("form dirty fields", dirtyFields);
+		}
+
 		const currentDocFields = flattenObject(
 			access(handle)?.doc() ?? Object.create(null),
 		);
@@ -72,6 +76,10 @@ export const useMyPassportForm = () => {
 		const changedFields = Object.entries(currentDocFields).filter(
 			([path, value]) => get(dirtyFields, path) !== value,
 		);
+
+		if (!import.meta.env.PROD) {
+			console.debug("automerge dirty fields", changedFields);
+		}
 
 		access(handle)?.change(doc => {
 			changedFields.forEach(([path, value]) => {
