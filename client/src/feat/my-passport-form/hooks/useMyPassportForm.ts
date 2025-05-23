@@ -94,6 +94,7 @@ export const useMyPassportForm = () => {
 		handle: () => access(handle),
 		form,
 		onSubmit,
+		isMutating: () => form.submitting || submit.isPending,
 		Components: {
 			Form,
 			Field,

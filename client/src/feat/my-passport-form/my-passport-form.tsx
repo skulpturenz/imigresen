@@ -9,7 +9,7 @@ import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
-	const { handle: _handle, form, onSubmit } = useMyPassportForm();
+	const { handle: _handle, form, isMutating, onSubmit } = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
 
@@ -31,12 +31,14 @@ export const MyPassportForm = () => {
 							onClickNext={onClickNext}
 							onClickBack={onClickBack}
 							onClickDelete={onClickDelete}
+							isMutating={isMutating}
 						/>
 
 						<MobileFooter
 							onClickNext={onClickNext}
 							onClickBack={onClickBack}
 							onClickDelete={onClickDelete}
+							isMutating={isMutating}
 						/>
 					</>
 				}>

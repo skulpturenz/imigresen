@@ -1,12 +1,13 @@
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
-import type { Component } from "solid-js";
+import type { Accessor, Component } from "solid-js";
 import { Button } from "ui/button";
 
 export interface FooterProps {
 	onClickBack?: (event: MouseEvent) => void;
 	onClickNext?: (event: MouseEvent) => void;
 	onClickDelete?: (event: MouseEvent) => void;
+	isMutating?: Accessor<boolean>;
 }
 
 export const MobileFooter: Component<FooterProps> = props => {
@@ -19,21 +20,24 @@ export const MobileFooter: Component<FooterProps> = props => {
 			<Button
 				variant="secondary"
 				class="w-full"
-				onClick={props.onClickBack}>
+				onClick={props.onClickBack}
+				disabled={props.isMutating?.()}>
 				{t("doBack")}
 			</Button>
 
 			<Button
 				variant="default"
 				class="w-full"
-				onClick={props.onClickNext}>
+				onClick={props.onClickNext}
+				disabled={props.isMutating?.()}>
 				{t("doNext")}
 			</Button>
 
 			<Button
 				variant="destructive"
 				class="w-full"
-				onClick={props.onClickDelete}>
+				onClick={props.onClickDelete}
+				disabled={props.isMutating?.()}>
 				{t("doDelete")}
 			</Button>
 		</div>
@@ -48,15 +52,24 @@ export const DefaultFooter: Component<FooterProps> = props => {
 			// `isSmall` and up
 			class="hidden sm:flex justify-between mt-4">
 			<div class="flex space-x-2">
-				<Button variant="destructive" onClick={props.onClickDelete}>
+				<Button
+					variant="destructive"
+					onClick={props.onClickDelete}
+					disabled={props.isMutating?.()}>
 					{t("doDelete")}
 				</Button>
-				<Button variant="secondary" onClick={props.onClickBack}>
+				<Button
+					variant="secondary"
+					onClick={props.onClickBack}
+					disabled={props.isMutating?.()}>
 					{t("doBack")}
 				</Button>
 			</div>
 
-			<Button variant="default" onClick={props.onClickNext}>
+			<Button
+				variant="default"
+				onClick={props.onClickNext}
+				disabled={props.isMutating?.()}>
 				{t("doNext")}
 			</Button>
 		</div>
