@@ -1,16 +1,16 @@
-import { useI18n } from "core/context/i18n";
+// import { useI18n } from "core/context/i18n";
 import { lazy, Show, Suspense } from "solid-js";
 import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
 import { useWizardSteps } from "./hooks/useWizardSteps.ts";
-import type { resources } from "./resources/i18n/en-US";
+// import type { resources } from "./resources/i18n/en-US";
 import { Step } from "./types";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
-	const { handle } = useMyPassportForm();
+	const { handle: _handle } = useMyPassportForm();
 
-	const t = useI18n<typeof resources>();
+	// const t = useI18n<typeof resources>();
 
 	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
 
