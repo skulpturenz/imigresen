@@ -40,12 +40,16 @@ export const useMyPassportForm = () => {
 			Promise.resolve(access(handle)?.url),
 	}));
 
-	const onSubmit: SubmitHandler<MyPassportForm> = (formValues, _event) => {
+	const onSubmit: SubmitHandler<MyPassportForm> = async (
+		formValues,
+		_event,
+	) => {
 		if (form.submitting || submit.isPending) {
 			return;
 		}
 
-		submit.mutateAsync(formValues);
+		await submit.mutateAsync(formValues);
+		reset(form);
 	};
 
 	createEffect(() => {
