@@ -27,6 +27,22 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 			}),
 			isHidden: true,
 		},
+		{
+			path: toPath(MyPassportForm.Edit),
+			title: t("metaTitle"),
+			component: lazy(async () => {
+				const { MyPassportFormProvider } = await import("./context");
+
+				return import("./my-passport-form").then(exports => ({
+					default: withI18n(
+						withParents(MyPassportFormProvider)(
+							exports.MyPassportForm,
+						),
+					),
+				}));
+			}),
+			isHidden: true,
+		},
 	] as RouteProps[];
 
 	return addRoutes(...routes);

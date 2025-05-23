@@ -9,6 +9,8 @@ import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
 import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys } from "core/constants/query-keys";
+import { AuthnContext } from "core/context/authn";
+import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
 import { flattenObject } from "es-toolkit";
 import { set } from "es-toolkit/compat";
@@ -21,6 +23,7 @@ export type MaybeResource<T> = Resource<T> | T;
 export const useMyPassportForm = () => {
 	const repo = useRepo();
 	const queryClient = useQueryClient();
+	const authnContext = useContext(AuthnContext);
 
 	const navigate = useNavigate();
 
@@ -71,7 +74,7 @@ export const useMyPassportForm = () => {
 		{
 			automergeUrl: string;
 			token?: string;
-		}) => Promise.resolve("uuid"), // TODO
+		}) => Promise.resolve(crypto.randomUUID()), // TODO
 	}));
 
 	const submit = useMutation(() => ({
@@ -142,25 +145,28 @@ export const useMyPassportForm = () => {
 	onCleanup(() => {
 		const updateExistingFormEntry = () => {
 			const existingApplications = (queryClient.getQueryData(
-				queryKeys.getPassportApplications(""),
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 			) ?? []) as any[];
 
-			const filteredApplications = existingApplications.filter(
-				application =>
-					application.automergeUrl === searchParams.automergeUrl,
+			const updatedApplications = existingApplications.map(
+				application => {
+					if (application.uuid === routeParams.uuid) {
+						return {
+							...application,
+							...getValues(form),
+						};
+					}
+
+					return application;
+				},
 			);
 
-			// TODO: data model
-			const updatedApplications = [
-				...filteredApplications,
-				{
-					hello: getValues(form).hello,
-					automergeUrl: access(handle)?.url,
-				},
-			];
-
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(""),
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 				updatedApplications,
 			);
 		};
@@ -168,30 +174,28 @@ export const useMyPassportForm = () => {
 		const registerNewForm = async () => {
 			const uuid = await register.mutateAsync({
 				automergeUrl: access(handle)?.url as string,
-				token: "", // TODO
+				token: authnContext().keycloak?.token,
 			});
 
 			const existingApplications = (queryClient.getQueryData(
-				queryKeys.getPassportApplications(""),
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 			) ?? []) as any[];
 
-			const filteredApplications = existingApplications.filter(
-				application =>
-					application.automergeUrl === searchParams.automergeUrl,
-			);
-
-			// TODO: data model
 			const updatedApplications = [
-				...filteredApplications,
+				...existingApplications,
 				{
-					hello: getValues(form).hello,
 					uuid,
 					automergeUrl: access(handle)?.url,
+					...getValues(form),
 				},
 			];
 
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(""), // TODO
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 				updatedApplications,
 			);
 

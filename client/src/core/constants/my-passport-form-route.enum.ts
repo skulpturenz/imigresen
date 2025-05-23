@@ -1,3 +1,4 @@
 export enum MyPassportForm {
-	New = "passports/my",
+	New = "passport/my",
+	Edit = "passport/my/:uuid",
 }

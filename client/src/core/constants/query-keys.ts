@@ -1,4 +1,8 @@
 export const queryKeys = {
-	// TODO
-	getPassportApplications: (_token: string) => [],
+	getPassportApplications: (token?: string) => [
+		"feat",
+		"home",
+		"passportApplications",
+		token,
+	],
 };

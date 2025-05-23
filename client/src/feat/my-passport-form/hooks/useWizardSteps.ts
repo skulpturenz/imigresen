@@ -57,7 +57,7 @@ export const useWizardSteps = () => {
 			return;
 		}
 
-		navigate(toHash(stepStatus().currentStep));
+		navigate([toHash(stepStatus().currentStep), location.search].join(""));
 	});
 
 	createEffect(() => {
