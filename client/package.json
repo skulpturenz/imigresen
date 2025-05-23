@@ -98,6 +98,10 @@
 		"onlyBuiltDependencies": [
 			"@tailwindcss/oxide",
 			"esbuild"
+		],
+		"ignoredBuiltDependencies": [
+			"sharp",
+			"workerd"
 		]
 	}
 }

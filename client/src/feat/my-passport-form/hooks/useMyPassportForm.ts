@@ -1,9 +1,12 @@
+import type { DocHandle } from "@automerge/automerge-repo";
 import { useParams, useSearchParams } from "@solidjs/router";
 import { AuthnContext } from "core/context/authn";
 import { myPassportFormAutomergeRepoMock } from "feat/my-passport-form/services/my-passport-form-service-mock";
 import type { MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle } from "solid-automerge";
-import { createResource, onCleanup, useContext } from "solid-js";
+import { onCleanup, useContext, type Resource } from "solid-js";
+
+export type MaybeResource<T> = Resource<T> | T;
 
 export const useMyPassportForm = () => {
 	// TODO
@@ -15,21 +18,18 @@ export const useMyPassportForm = () => {
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
-	const getDocHandle = () => {
+	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
 		if (routeParams.uuid && searchParams.automergeUrl) {
-			return useDocHandle(undefined, {
+			const handle = useDocHandle(undefined, {
 				repo: automergeRepo,
-			});
+			}) as Resource<DocHandle<MyPassportForm>>;
+
+			return handle;
 		}
 
-		// TODO: ideally don't do this
-		const [handle] = createResource("", () =>
-			automergeRepo.create<MyPassportForm>({
-				hello: "world",
-			}),
-		);
-
-		return handle;
+		return automergeRepo.create<MyPassportForm>({
+			hello: "world",
+		});
 	};
 	const handle = getDocHandle();
 
@@ -37,10 +37,13 @@ export const useMyPassportForm = () => {
 		// TODO: should free memory up by itself when component is unmounted
 		// but need to check if `unload` will attempt a sync if network
 		// connection is available
-		handle()?.unload();
+		access(handle)?.unload();
 	});
 
 	return {
 		handle,
 	};
 };
+
+const access = <T>(resource: MaybeResource<T>) =>
+	typeof resource === "function" ? (resource as Resource<T>)() : resource;

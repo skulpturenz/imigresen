@@ -1,7 +1,5 @@
 import { useI18n } from "core/context/i18n";
-import { Check, LoaderCircle } from "lucide-solid";
 import { lazy, Show, Suspense } from "solid-js";
-import { Badge } from "ui/badge";
 import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
 import { useWizardSteps } from "./hooks/useWizardSteps.ts";
 import type { resources } from "./resources/i18n/en-US";
@@ -24,31 +22,6 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<div class="flex flex-col mb-4">
-				<Show
-					// https://automerge.org/docs/repositories/dochandles/#dochandle-states
-					when={!handle()?.inState(["requesting"])}>
-					<Badge
-						variant="outline"
-						class="self-end items-center flex gap-2">
-						<Check class="size-4" />
-						{t("isPersisted")}
-					</Badge>
-				</Show>
-
-				<Show
-					// https://automerge.org/docs/repositories/dochandles/#dochandle-states
-					when={handle()?.inState(["requesting"])}>
-					<Badge class="self-end flex gap-2 items-center">
-						<LoaderCircle
-							// TODO: the icon is not centred
-							class="size-4 animate-spin"
-						/>
-						{t("isPersisting")}
-					</Badge>
-				</Show>
-			</div>
-
 			<Wizard
 				steps={steps()}
 				Footer={
