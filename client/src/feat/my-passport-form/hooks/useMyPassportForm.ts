@@ -43,9 +43,6 @@ export const useMyPassportForm = () => {
 		if (searchParams.automergeUrl) {
 			const handle = useDocHandle(
 				searchParams.automergeUrl as AutomergeUrl,
-				{
-					repo,
-				},
 			) as Resource<DocHandle<MyPassportForm>>;
 
 			return handle;
