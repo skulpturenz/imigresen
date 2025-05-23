@@ -1,1 +1,5 @@
-export const Declaration = () => <></>;
+export const Declaration = () => (
+	<>
+		<div>Declaration!!!</div>
+	</>
+);

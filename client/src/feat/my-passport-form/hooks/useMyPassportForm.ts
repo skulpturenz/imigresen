@@ -92,6 +92,8 @@ export const useMyPassportForm = () => {
 
 		await submit.mutateAsync(formValues);
 		reset(form);
+
+		navigate(toPath(CoreRoute.Home));
 	};
 
 	createEffect(() => {
@@ -120,8 +122,11 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
+		// TODO: resetting but initial values only show if you navigate away and back??
 		reset(form, {
 			initialValues,
+			keepDirtyValues: true,
+			keepDirty: true,
 		});
 	});
 

@@ -15,6 +15,7 @@ export const MyPassportForm = () => {
 		isMutating,
 		onSubmit,
 		onDelete,
+		Components,
 	} = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
@@ -56,7 +57,11 @@ export const MyPassportForm = () => {
 								stepStatus().currentStep ===
 								Step.PersonalDetails
 							}>
-							<PersonalDetails />
+							<PersonalDetails
+								form={form}
+								Field={Components.Field}
+								FieldArray={Components.FieldArray}
+							/>
 						</Show>
 
 						<Show
