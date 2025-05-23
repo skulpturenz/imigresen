@@ -1,7 +1,14 @@
 import type { DocHandle } from "@automerge/automerge-repo";
-import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
+import {
+	createForm,
+	getValues,
+	reset,
+	type SubmitHandler,
+} from "@modular-forms/solid";
 import { useParams, useSearchParams } from "@solidjs/router";
 import { useMutation } from "@tanstack/solid-query";
+import { flattenObject } from "es-toolkit";
+import { get, set } from "es-toolkit/compat";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
 import { createEffect, type Resource } from "solid-js";
@@ -51,6 +58,27 @@ export const useMyPassportForm = () => {
 		await submit.mutateAsync(formValues);
 		reset(form);
 	};
+
+	createEffect(() => {
+		// TODO: think this would just retrieve all dirty fields
+		const dirtyFields = getValues(form, {
+			shouldDirty: true,
+		});
+
+		const currentDocFields = flattenObject(
+			access(handle)?.doc() ?? Object.create(null),
+		);
+
+		const changedFields = Object.entries(currentDocFields).filter(
+			([path, value]) => get(dirtyFields, path) !== value,
+		);
+
+		access(handle)?.change(doc => {
+			changedFields.forEach(([path, value]) => {
+				set(doc, path, value);
+			});
+		});
+	});
 
 	createEffect(() => {
 		const initialValues = access(handle)?.doc();
