@@ -1,3 +1,3 @@
-export interface MyPassportForm {
+export type MyPassportForm = {
 	hello?: "world";
-}
+};

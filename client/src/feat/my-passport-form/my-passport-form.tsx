@@ -1,3 +1,4 @@
+import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { lazy, Show, Suspense } from "solid-js";
 import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
@@ -8,7 +9,7 @@ import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
-	const { handle: _handle } = useMyPassportForm();
+	const { handle: _handle, form, onSubmit } = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
 
@@ -39,7 +40,10 @@ export const MyPassportForm = () => {
 						/>
 					</>
 				}>
-				<form class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+				<Form
+					of={form}
+					onSubmit={onSubmit}
+					class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 					<Suspense fallback={<div>{t("loading")}</div>}>
 						<Show
 							when={
@@ -79,7 +83,7 @@ export const MyPassportForm = () => {
 							<Declaration />
 						</Show>
 					</Suspense>
-				</form>
+				</Form>
 			</Wizard>
 		</>
 	);
