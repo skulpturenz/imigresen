@@ -8,7 +8,7 @@ import {
 import { useParams, useSearchParams } from "@solidjs/router";
 import { useMutation } from "@tanstack/solid-query";
 import { flattenObject } from "es-toolkit";
-import { get, set } from "es-toolkit/compat";
+import { set } from "es-toolkit/compat";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
 import { createEffect, type Resource } from "solid-js";
@@ -61,28 +61,18 @@ export const useMyPassportForm = () => {
 
 	createEffect(() => {
 		// TODO: think this would just retrieve all dirty fields
-		const dirtyFields = getValues(form, {
-			shouldDirty: true,
-		});
+		const dirtyFields = flattenObject(
+			getValues(form, {
+				shouldDirty: true,
+			}),
+		);
 
 		if (!import.meta.env.PROD) {
 			console.debug("form dirty fields", dirtyFields);
 		}
 
-		const currentDocFields = flattenObject(
-			access(handle)?.doc() ?? Object.create(null),
-		);
-
-		const changedFields = Object.entries(currentDocFields).filter(
-			([path, value]) => get(dirtyFields, path) !== value,
-		);
-
-		if (!import.meta.env.PROD) {
-			console.debug("automerge dirty fields", changedFields);
-		}
-
 		access(handle)?.change(doc => {
-			changedFields.forEach(([path, value]) => {
+			Object.entries(dirtyFields).forEach(([path, value]) => {
 				set(doc, path, value);
 			});
 		});
