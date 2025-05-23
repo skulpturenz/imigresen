@@ -1,33 +1,27 @@
 import type { DocHandle } from "@automerge/automerge-repo";
 import { useParams, useSearchParams } from "@solidjs/router";
-import { AuthnContext } from "core/context/authn";
-import { myPassportFormAutomergeRepoMock } from "feat/my-passport-form/services/my-passport-form-service-mock";
+// TODO
+import { repo } from "core/context/ui/automerge";
 import type { MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle } from "solid-automerge";
-import { onCleanup, useContext, type Resource } from "solid-js";
+import { onCleanup, type Resource } from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
 export const useMyPassportForm = () => {
-	// TODO
-	const authnContext = useContext(AuthnContext);
-	const automergeRepo = myPassportFormAutomergeRepoMock(
-		authnContext().keycloak?.token,
-	);
-
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
 	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
 		if (routeParams.uuid && searchParams.automergeUrl) {
 			const handle = useDocHandle(undefined, {
-				repo: automergeRepo,
+				repo,
 			}) as Resource<DocHandle<MyPassportForm>>;
 
 			return handle;
 		}
 
-		return automergeRepo.create<MyPassportForm>({
+		return repo.create<MyPassportForm>({
 			hello: "world",
 		});
 	};
@@ -41,7 +35,7 @@ export const useMyPassportForm = () => {
 	});
 
 	return {
-		handle,
+		handle: () => access(handle),
 	};
 };
 
