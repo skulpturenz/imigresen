@@ -1,6 +1,7 @@
 import type { DocHandle } from "@automerge/automerge-repo";
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
 import { useParams, useSearchParams } from "@solidjs/router";
+import { useMutation } from "@tanstack/solid-query";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
 import { createEffect, type Resource } from "solid-js";
@@ -33,7 +34,19 @@ export const useMyPassportForm = () => {
 		revalidateOn: "change",
 	});
 
-	const onSubmit: SubmitHandler<MyPassportForm> = (_values, _event) => {};
+	const submit = useMutation(() => ({
+		mutationKey: [],
+		mutationFn: (_formValues: MyPassportForm) =>
+			Promise.resolve(access(handle)?.url),
+	}));
+
+	const onSubmit: SubmitHandler<MyPassportForm> = (formValues, _event) => {
+		if (form.submitting || submit.isPending) {
+			return;
+		}
+
+		submit.mutateAsync(formValues);
+	};
 
 	createEffect(() => {
 		const initialValues = access(handle)?.doc();
