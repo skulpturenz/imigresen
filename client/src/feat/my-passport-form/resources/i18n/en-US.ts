@@ -3,11 +3,10 @@ import { Step } from "feat/my-passport-form/types/ui";
 export const resources = {
 	metaTitle: "Create a new application",
 	doShowProgressMobile: "Show progress",
-	isPersisted: "Saved",
-	isPersisting: "Saving",
 	doDelete: "Delete",
 	doBack: "Back",
 	doNext: "Next",
+	loading: "Loading...",
 	steps: {
 		[Step.PersonalDetails]: {
 			label: `Step ${Step.PersonalDetails}`,
