@@ -1,5 +1,5 @@
 import type { StepProps } from "feat/my-passport-form/types";
-import type { Component } from "solid-js";
+import { type Component } from "solid-js";
 import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
 
 export const PersonalDetails: Component<StepProps> = props => {

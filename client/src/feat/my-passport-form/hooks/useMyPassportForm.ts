@@ -122,12 +122,16 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		// TODO: resetting but initial values only show if you navigate away and back??
-		reset(form, {
-			initialValues,
-			keepDirtyValues: true,
-			keepDirty: true,
-		});
+		// note: unsure why but resetting immediately causes the form not to reset correctly
+		// but with a bit of timeout its fine
+		// can't set using `initialValues` during creation because we also depend on a resource
+		setTimeout(() => {
+			reset(form, {
+				initialValues,
+				keepDirtyValues: true,
+				keepDirty: true,
+			});
+		}, 100);
 	});
 
 	onCleanup(() => {
