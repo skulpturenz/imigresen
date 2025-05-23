@@ -36,14 +36,14 @@ export const useMyPassportForm = () => {
 	const onSubmit: SubmitHandler<MyPassportForm> = (_values, _event) => {};
 
 	createEffect(() => {
-		const defaultValues = access(handle)?.doc();
+		const initialValues = access(handle)?.doc();
 
-		if (!defaultValues) {
+		if (!initialValues) {
 			return;
 		}
 
 		reset(form, {
-			initialValues: defaultValues,
+			initialValues,
 		});
 	});
 
