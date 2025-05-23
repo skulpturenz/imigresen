@@ -16,7 +16,7 @@ import {
 
 export const AddressDetails = () => {
 	return (
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+		<>
 			<div class="col-span-full">
 				<TextFieldRoot>
 					<TextFieldLabel>Street address</TextFieldLabel>
@@ -93,6 +93,6 @@ export const AddressDetails = () => {
 					<SelectContent />
 				</Select>
 			</div>
-		</div>
+		</>
 	);
 };

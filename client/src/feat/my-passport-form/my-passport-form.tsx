@@ -39,7 +39,7 @@ export const MyPassportForm = () => {
 						/>
 					</>
 				}>
-				<form>
+				<form class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 					<Suspense
 						// TODO
 						fallback={<div>Loading...</div>}>

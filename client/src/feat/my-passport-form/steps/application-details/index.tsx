@@ -20,7 +20,7 @@ export const ApplicationDetails = () => {
 	const t = useI18n<typeof resources>();
 
 	return (
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+		<>
 			<div>
 				<Label>{t("form.documentType.label")}</Label>
 
@@ -99,6 +99,6 @@ export const ApplicationDetails = () => {
 					</TextFieldErrorMessage>
 				</TextFieldRoot>
 			</div>
-		</div>
+		</>
 	);
 };
