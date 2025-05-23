@@ -1,6 +1,8 @@
-import { useParams } from "@solidjs/router";
+import { useLocation, useParams } from "@solidjs/router";
 import { useI18n } from "core/context/i18n";
+import { isCurrentStep } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
+import { Step } from "feat/my-passport-form/types";
 import type { Accessor, Component } from "solid-js";
 import { Button } from "ui/button";
 
@@ -11,9 +13,13 @@ export interface FooterProps {
 	isMutating?: Accessor<boolean>;
 }
 
+const LAST_STEP = Step.Declaration;
+
 export const MobileFooter: Component<FooterProps> = props => {
 	const t = useI18n<typeof resources>();
 	const routeParams = useParams<{ uuid?: string }>();
+
+	const location = useLocation();
 
 	return (
 		<div
@@ -31,7 +37,9 @@ export const MobileFooter: Component<FooterProps> = props => {
 				variant="default"
 				class="w-full"
 				onClick={props.onClickNext}
-				disabled={props.isMutating?.()}>
+				disabled={
+					props.isMutating?.() || isCurrentStep(location, LAST_STEP)
+				}>
 				{t("doNext")}
 			</Button>
 
@@ -49,6 +57,8 @@ export const MobileFooter: Component<FooterProps> = props => {
 export const DefaultFooter: Component<FooterProps> = props => {
 	const t = useI18n<typeof resources>();
 	const routeParams = useParams<{ uuid?: string }>();
+
+	const location = useLocation();
 
 	return (
 		<div
@@ -72,7 +82,9 @@ export const DefaultFooter: Component<FooterProps> = props => {
 			<Button
 				variant="default"
 				onClick={props.onClickNext}
-				disabled={props.isMutating?.()}>
+				disabled={
+					props.isMutating?.() || isCurrentStep(location, LAST_STEP)
+				}>
 				{t("doNext")}
 			</Button>
 		</div>

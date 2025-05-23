@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate, type Location } from "@solidjs/router";
 import { useI18n } from "core/context/i18n/provider.tsx";
 import { kebabCase, pascalCase } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
@@ -134,3 +134,6 @@ const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
 
 const toStep = (key: string) =>
 	Step[pascalCase(key) as keyof typeof Step] || null;
+
+export const isCurrentStep = (location: Location, step: Step) =>
+	toStep(location.hash.replace("#", "")) === step;

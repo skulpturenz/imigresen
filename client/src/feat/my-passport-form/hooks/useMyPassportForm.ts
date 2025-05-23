@@ -162,6 +162,12 @@ export const useMyPassportForm = () => {
 	});
 
 	onCleanup(() => {
+		if (!form.dirty && !routeParams.uuid) {
+			access(handle)?.delete();
+
+			return;
+		}
+
 		const updateExistingFormEntry = () => {
 			const existingApplications = (queryClient.getQueryData(
 				queryKeys.getPassportApplications(
