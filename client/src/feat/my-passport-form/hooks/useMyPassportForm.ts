@@ -1,4 +1,4 @@
-import type { DocHandle } from "@automerge/automerge-repo";
+import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
 import {
 	createForm,
 	getValues,
@@ -29,9 +29,12 @@ export const useMyPassportForm = () => {
 
 	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
 		if (searchParams.automergeUrl) {
-			const handle = useDocHandle(undefined, {
-				repo,
-			}) as Resource<DocHandle<MyPassportForm>>;
+			const handle = useDocHandle(
+				() => searchParams.automergeUrl as AutomergeUrl,
+				{
+					repo,
+				},
+			) as Resource<DocHandle<MyPassportForm>>;
 
 			return handle;
 		}
@@ -41,8 +44,16 @@ export const useMyPassportForm = () => {
 		});
 	};
 	const handle = getDocHandle();
+	const getInitialValues = () => {
+		if (isResource(handle)) {
+			return;
+		}
+
+		return handle.doc();
+	};
 
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		initialValues: getInitialValues(),
 		validateOn: "change",
 		revalidateOn: "change",
 	});
@@ -116,22 +127,17 @@ export const useMyPassportForm = () => {
 	});
 
 	createEffect(() => {
-		const initialValues = access(handle)?.doc();
-
-		if (!initialValues) {
+		if (!isResource(handle)) {
 			return;
 		}
 
-		// note: unsure why but resetting immediately causes the form not to reset correctly
-		// but with a bit of timeout its fine
-		// can't set using `initialValues` during creation because we also depend on a resource
-		setTimeout(() => {
-			reset(form, {
-				initialValues,
-				keepDirtyValues: true,
-				keepDirty: true,
-			});
-		}, 100);
+		const initialValues = access(handle)?.doc();
+
+		reset(form, {
+			initialValues,
+			keepDirtyValues: true,
+			keepDirty: true,
+		});
 	});
 
 	onCleanup(() => {
@@ -222,3 +228,7 @@ export const useMyPassportForm = () => {
 
 const access = <T>(resource: MaybeResource<T>) =>
 	typeof resource === "function" ? (resource as Resource<T>)() : resource;
+
+const isResource = (x: unknown): x is Resource<any> =>
+	typeof (x as Resource<any>).state !== "undefined" &&
+	typeof (x as Resource<any>).loading !== "undefined";
