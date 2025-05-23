@@ -107,13 +107,20 @@ export const useWizardSteps = () => {
 			].join(""),
 		);
 
-	const previousStep = () =>
+	const previousStep = () => {
+		if (stepStatus().currentStep === FIRST_STEP) {
+			navigate("/");
+
+			return;
+		}
+
 		navigate(
 			[
 				location.search,
 				toHash(Math.max(stepStatus().currentStep - 1, FIRST_STEP)),
 			].join(""),
 		);
+	};
 
 	return {
 		steps,
