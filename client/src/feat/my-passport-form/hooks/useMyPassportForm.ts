@@ -12,7 +12,7 @@ import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
-import { flattenObject } from "es-toolkit";
+import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
@@ -42,7 +42,7 @@ export const useMyPassportForm = () => {
 	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
 		if (searchParams.automergeUrl) {
 			const handle = useDocHandle(
-				() => searchParams.automergeUrl as AutomergeUrl,
+				searchParams.automergeUrl as AutomergeUrl,
 				{
 					repo,
 				},
@@ -171,6 +171,11 @@ export const useMyPassportForm = () => {
 					authnContext().keycloak?.token,
 				),
 			) ?? []) as any[];
+
+			invariant(
+				access(handle)?.url,
+				"Automerge URL for existing document is not defined, check `handle`",
+			);
 
 			const updatedApplications = existingApplications.map(
 				application => {
