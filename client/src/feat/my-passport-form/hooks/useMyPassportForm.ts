@@ -44,16 +44,15 @@ export const useMyPassportForm = () => {
 		});
 	};
 	const handle = getDocHandle();
-	const getInitialValues = () => {
-		if (isResource(handle)) {
-			return;
-		}
-
-		return handle.doc();
-	};
 
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
-		initialValues: getInitialValues(),
+		get initialValues() {
+			if (isResource(handle)) {
+				return;
+			}
+
+			return handle.doc();
+		},
 		validateOn: "change",
 		revalidateOn: "change",
 	});
