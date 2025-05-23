@@ -2,7 +2,7 @@ import type { DocHandle } from "@automerge/automerge-repo";
 import { useParams, useSearchParams } from "@solidjs/router";
 import type { MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
-import { onCleanup, type Resource } from "solid-js";
+import { type Resource } from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
@@ -26,13 +26,6 @@ export const useMyPassportForm = () => {
 		});
 	};
 	const handle = getDocHandle();
-
-	onCleanup(() => {
-		// TODO: should free memory up by itself when component is unmounted
-		// but need to check if `unload` will attempt a sync if network
-		// connection is available
-		access(handle)?.unload();
-	});
 
 	return {
 		handle: () => access(handle),
