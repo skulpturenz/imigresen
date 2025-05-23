@@ -1,3 +1,4 @@
+import { useParams } from "@solidjs/router";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import type { Accessor, Component } from "solid-js";
@@ -12,6 +13,7 @@ export interface FooterProps {
 
 export const MobileFooter: Component<FooterProps> = props => {
 	const t = useI18n<typeof resources>();
+	const routeParams = useParams<{ uuid?: string }>();
 
 	return (
 		<div
@@ -37,7 +39,7 @@ export const MobileFooter: Component<FooterProps> = props => {
 				variant="destructive"
 				class="w-full"
 				onClick={props.onClickDelete}
-				disabled={props.isMutating?.()}>
+				disabled={props.isMutating?.() || !routeParams.uuid}>
 				{t("doDelete")}
 			</Button>
 		</div>
@@ -46,6 +48,7 @@ export const MobileFooter: Component<FooterProps> = props => {
 
 export const DefaultFooter: Component<FooterProps> = props => {
 	const t = useI18n<typeof resources>();
+	const routeParams = useParams<{ uuid?: string }>();
 
 	return (
 		<div
@@ -55,7 +58,7 @@ export const DefaultFooter: Component<FooterProps> = props => {
 				<Button
 					variant="destructive"
 					onClick={props.onClickDelete}
-					disabled={props.isMutating?.()}>
+					disabled={props.isMutating?.() || !routeParams.uuid}>
 					{t("doDelete")}
 				</Button>
 				<Button
