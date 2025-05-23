@@ -16,7 +16,7 @@ import { flattenObject } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
-import { createEffect, onCleanup, type Resource } from "solid-js";
+import { createEffect, createSignal, onCleanup, type Resource } from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
@@ -26,6 +26,15 @@ export const useMyPassportForm = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const navigate = useNavigate();
+
+	const [show, setShow] = createSignal({
+		deleteFrictionDialog: false,
+	});
+	const toggleDeleteFrictionDialog = () =>
+		setShow(show => ({
+			...show,
+			deleteFrictionDialog: !show.deleteFrictionDialog,
+		}));
 
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
@@ -91,6 +100,19 @@ export const useMyPassportForm = () => {
 		access(handle)?.delete();
 		await deleteForm.mutateAsync(routeParams.uuid);
 		reset(form);
+
+		const existingApplications = (queryClient.getQueryData(
+			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+		) ?? []) as any[];
+
+		const filteredApplications = existingApplications.filter(
+			application => application.uuid !== routeParams.uuid,
+		);
+
+		queryClient.setQueryData(
+			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+			filteredApplications,
+		);
 
 		navigate(toPath(CoreRoute.Home));
 	};
@@ -216,6 +238,8 @@ export const useMyPassportForm = () => {
 	});
 
 	return {
+		show,
+		toggleDeleteFrictionDialog,
 		handle: () => access(handle),
 		form,
 		onSubmit,

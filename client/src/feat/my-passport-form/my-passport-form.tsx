@@ -1,6 +1,16 @@
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { lazy, Show, Suspense } from "solid-js";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogClose,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "ui/alert-dialog";
 import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
 import { useWizardSteps } from "./hooks/useWizardSteps.ts";
 import type { resources } from "./resources/i18n/en-US";
@@ -10,12 +20,14 @@ import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
 	const {
+		show,
 		handle: _handle,
 		form,
 		isMutating,
 		onSubmit,
 		onDelete,
 		Components,
+		toggleDeleteFrictionDialog,
 	} = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
@@ -24,7 +36,7 @@ export const MyPassportForm = () => {
 
 	const onClickNext = nextStep;
 	const onClickBack = previousStep;
-	const onClickDelete = onDelete;
+	const onClickDelete = toggleDeleteFrictionDialog;
 
 	return (
 		<>
@@ -96,6 +108,29 @@ export const MyPassportForm = () => {
 					</Suspense>
 				</Form>
 			</Wizard>
+
+			<AlertDialog open={show().deleteFrictionDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Are you absolutely sure?
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will permanently
+							delete your account and remove your data from our
+							servers.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogClose onClick={toggleDeleteFrictionDialog}>
+							Cancel
+						</AlertDialogClose>
+						<AlertDialogAction onClick={onDelete}>
+							Continue
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 };
