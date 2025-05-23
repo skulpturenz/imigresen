@@ -1,8 +1,9 @@
 import type { DocHandle } from "@automerge/automerge-repo";
+import { createForm, reset } from "@modular-forms/solid";
 import { useParams, useSearchParams } from "@solidjs/router";
-import type { MyPassportForm } from "feat/my-passport-form/types";
+import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
-import { type Resource } from "solid-js";
+import { createEffect, type Resource } from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
@@ -27,8 +28,33 @@ export const useMyPassportForm = () => {
 	};
 	const handle = getDocHandle();
 
+	const [myPassportForm, { Form, Field, FieldArray }] =
+		/// @ts-expect-error: interfaces cause a type error
+		// but type declarations are fine for some reason
+		createForm<MyPassportForm>({
+			validate: "change",
+			revalidateOn: "change",
+		});
+
+	createEffect(() => {
+		const defaultValues = access(handle)?.doc();
+
+		if (!defaultValues) {
+			return;
+		}
+
+		/// @ts-expect-error: TODO unsure whats causing the type error
+		reset(myPassportForm, defaultValues);
+	});
+
 	return {
 		handle: () => access(handle),
+		myPassportForm,
+		Components: {
+			Form,
+			Field,
+			FieldArray,
+		},
 	};
 };
 
