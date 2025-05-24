@@ -95,13 +95,13 @@ export const Home = () => {
 								Your latest travel document has the number{" "}
 								<span
 									// TODO: decoration color depending on time to expiry
-									class="underline underline-offset-4 decoration-green-600">
+									class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
 									A1234123
 								</span>{" "}
 								and is due to expire in{" "}
 								<span
 									// TODO: decoration color depending on time to expiry
-									class="underline underline-offset-4 decoration-green-600">
+									class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
 									{getDifference(new Date("12/12/2030"))}{" "}
 									{getDifferenceUnit(new Date("12/12/2030"))}
 								</span>
@@ -196,20 +196,26 @@ export const Home = () => {
 													<For each={details}>
 														{item => (
 															<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-																<span class="flex size-2 translate-y-[0.23rem] bg-cyan-500 dark:bg-cyan-600" />
-
 																<div class="space-y-2">
-																	<Typography
-																		variant="small"
-																		as="p">
-																		{
-																			item.label
-																		}
-																	</Typography>
+																	<div class="grid grid-cols-3 gap-4 items-center">
+																		<div class="col-span-1">
+																			<span class="flex col-span-1 size-2 bg-sky-500 dark:bg-sky-900" />
+																		</div>
+
+																		<Typography
+																			variant="small"
+																			as="p"
+																			class="w-full col-span-2 text-nowrap">
+																			{
+																				item.label
+																			}
+																		</Typography>
+																	</div>
 
 																	<Typography
 																		variant="small"
-																		as="p">
+																		as="p"
+																		class="text-nowrap mx-4">
 																		{
 																			item.description
 																		}
