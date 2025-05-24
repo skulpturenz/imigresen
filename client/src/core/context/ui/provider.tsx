@@ -1,6 +1,7 @@
 import { I18nProvider } from "@kobalte/core/i18n";
 import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
 import { createUiContext } from "core/context/initializers";
+import { RepoContext } from "solid-automerge";
 import {
 	createContext,
 	createEffect,
@@ -11,6 +12,7 @@ import {
 	type ParentProps,
 } from "solid-js";
 import { ToastList, ToastRegion } from "ui/toast";
+import { repo } from "./automerge";
 import { useStore, type UiSvc } from "./store";
 
 export const UiContext = createContext<Accessor<UiSvc>>(createUiContext);
@@ -49,19 +51,21 @@ export const UiProvider: Component<ParentProps> = props => {
 	});
 
 	return (
-		<UiContext.Provider value={value}>
-			<Show when={!value().isInitialLoading()}>
-				<QueryClientProvider
-					client={value().queryClient as QueryClient}>
-					<I18nProvider locale={value().locale}>
-						{props.children}
+		<RepoContext.Provider value={repo}>
+			<UiContext.Provider value={value}>
+				<Show when={!value().isInitialLoading()}>
+					<QueryClientProvider
+						client={value().queryClient as QueryClient}>
+						<I18nProvider locale={value().locale}>
+							{props.children}
 
-						<ToastRegion>
-							<ToastList />
-						</ToastRegion>
-					</I18nProvider>
-				</QueryClientProvider>
-			</Show>
-		</UiContext.Provider>
+							<ToastRegion>
+								<ToastList />
+							</ToastRegion>
+						</I18nProvider>
+					</QueryClientProvider>
+				</Show>
+			</UiContext.Provider>
+		</RepoContext.Provider>
 	);
 };

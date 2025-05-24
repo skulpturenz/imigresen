@@ -11,7 +11,7 @@ export const Shell: Component<ParentProps> = props => {
 		<div lang={locale()} dir={direction()}>
 			<Navbar />
 
-			<div class="mt-8">
+			<div class="my-14 md:my-20">
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer)}>
 						{props.children}

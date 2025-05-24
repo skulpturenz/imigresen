@@ -1,5 +1,5 @@
 import { useI18n } from "core/context/i18n";
-import type { Component, ParentProps } from "solid-js";
+import { createEffect, type Component, type ParentProps } from "solid-js";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -28,6 +28,14 @@ export const Fallback: Component<ParentProps<FallbackProps>> = withI18n(
 
 			location.pathname = "/";
 		};
+
+		createEffect(() => {
+			if (import.meta.env.PROD || !props.err) {
+				return;
+			}
+
+			console.error(props.err);
+		});
 
 		return (
 			<AlertDialog defaultOpen>

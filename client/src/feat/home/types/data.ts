@@ -1,7 +1,8 @@
 export interface PassportApplication {
-	principalApplicant: string;
-	applicationType: string;
-	applicationUuid: string;
-	submittedOn: Date;
-	status: string;
+	personalDetails: {
+		firstName: string;
+		lastName: string;
+	};
+	uuid: string;
+	automergeUrl: string;
 }

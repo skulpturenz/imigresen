@@ -1,0 +1,266 @@
+import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
+import {
+	createForm,
+	getValues,
+	reset,
+	type SubmitHandler,
+} from "@modular-forms/solid";
+import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { CoreRoute } from "core/constants/core-route.enum";
+import { queryKeys } from "core/constants/query-keys";
+import { AuthnContext } from "core/context/authn";
+import { useContext } from "core/context/utils";
+import { toPath } from "core/router/route";
+import { flattenObject, invariant } from "es-toolkit";
+import { set } from "es-toolkit/compat";
+import { type MyPassportForm } from "feat/my-passport-form/types";
+import { useDocHandle, useRepo } from "solid-automerge";
+import { createEffect, createSignal, onCleanup, type Resource } from "solid-js";
+
+export type MaybeResource<T> = Resource<T> | T;
+
+export const useMyPassportForm = () => {
+	const repo = useRepo();
+	const queryClient = useQueryClient();
+	const authnContext = useContext(AuthnContext);
+
+	const navigate = useNavigate();
+
+	const [show, setShow] = createSignal({
+		deleteFrictionDialog: false,
+	});
+	const toggleDeleteFrictionDialog = () =>
+		setShow(show => ({
+			...show,
+			deleteFrictionDialog: !show.deleteFrictionDialog,
+		}));
+
+	const routeParams = useParams<{ uuid?: string }>();
+	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
+
+	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
+		if (searchParams.automergeUrl) {
+			const handle = useDocHandle(
+				searchParams.automergeUrl as AutomergeUrl,
+			) as Resource<DocHandle<MyPassportForm>>;
+
+			return handle;
+		}
+
+		return repo.create<MyPassportForm>();
+	};
+	const handle = getDocHandle();
+
+	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		get initialValues() {
+			if (isResource(handle)) {
+				return;
+			}
+
+			return handle.doc();
+		},
+		validateOn: "change",
+		revalidateOn: "change",
+	});
+
+	const deleteForm = useMutation(() => ({
+		mutationKey: [],
+		mutationFn: (_uuid: string) => Promise.resolve(true),
+	}));
+
+	const register = useMutation(() => ({
+		mutationKey: [],
+		mutationFn: ({
+			automergeUrl: _automergeUrl,
+			token: _token,
+		}: // TODO
+		{
+			automergeUrl: string;
+			token?: string;
+		}) => Promise.resolve(crypto.randomUUID()), // TODO
+	}));
+
+	const submit = useMutation(() => ({
+		mutationKey: [],
+		mutationFn: (_formValues: MyPassportForm) =>
+			Promise.resolve(access(handle)?.url),
+	}));
+
+	const onDelete = async () => {
+		if (!routeParams.uuid) {
+			return;
+		}
+
+		access(handle)?.delete();
+		await deleteForm.mutateAsync(routeParams.uuid);
+		reset(form);
+
+		const existingApplications = (queryClient.getQueryData(
+			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+		) ?? []) as any[];
+
+		const filteredApplications = existingApplications.filter(
+			application => application.uuid !== routeParams.uuid,
+		);
+
+		queryClient.setQueryData(
+			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+			filteredApplications,
+		);
+
+		navigate(toPath(CoreRoute.Home));
+	};
+
+	const onSubmit: SubmitHandler<MyPassportForm> = async (
+		formValues,
+		_event,
+	) => {
+		if (form.submitting || submit.isPending) {
+			return;
+		}
+
+		await submit.mutateAsync(formValues);
+		reset(form);
+
+		navigate(toPath(CoreRoute.Home));
+	};
+
+	createEffect(() => {
+		const dirtyFields = flattenObject(
+			getValues(form, {
+				shouldDirty: true,
+			}),
+		);
+
+		if (!import.meta.env.PROD) {
+			console.debug("form dirty fields", dirtyFields);
+		}
+
+		access(handle)?.change(doc => {
+			Object.entries(dirtyFields).forEach(([path, value]) => {
+				set(doc, path, value);
+			});
+		});
+	});
+
+	createEffect(() => {
+		if (!isResource(handle)) {
+			return;
+		}
+
+		const initialValues = access(handle)?.doc();
+
+		reset(form, {
+			initialValues,
+			keepDirtyValues: true,
+			keepDirty: true,
+		});
+	});
+
+	onCleanup(() => {
+		if (!form.dirty && !routeParams.uuid) {
+			access(handle)?.delete();
+
+			return;
+		}
+
+		const updateExistingFormEntry = () => {
+			const existingApplications = (queryClient.getQueryData(
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			) ?? []) as any[];
+
+			invariant(
+				access(handle)?.url,
+				"Automerge URL for existing document is not defined, check `handle`",
+			);
+
+			const updatedApplications = existingApplications.map(
+				application => {
+					if (application.uuid === routeParams.uuid) {
+						return {
+							...application,
+							...getValues(form),
+						};
+					}
+
+					return application;
+				},
+			);
+
+			queryClient.setQueryData(
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+				updatedApplications,
+			);
+		};
+
+		const registerNewForm = async () => {
+			const uuid = await register.mutateAsync({
+				automergeUrl: access(handle)?.url as string,
+				token: authnContext().keycloak?.token,
+			});
+
+			const existingApplications = (queryClient.getQueryData(
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			) ?? []) as any[];
+
+			const updatedApplications = [
+				...existingApplications,
+				{
+					uuid,
+					automergeUrl: access(handle)?.url,
+					...getValues(form),
+				},
+			];
+
+			queryClient.setQueryData(
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+				updatedApplications,
+			);
+
+			// TODO: when creating a new application, a new entry is created api side
+			// just to have a uuid for each automerge url, on the home page we retrieve this list
+			// of uuids to automerge urls for each user
+			// when its all finalized and submitted then the data is normalized and stored away
+		};
+
+		if (routeParams.uuid) {
+			updateExistingFormEntry();
+		} else {
+			// TODO: ideally we want to be able to create a form unauthenticated,
+			// all stored locally and synced up when authenticated
+			// maybe when it syncs up all the local uuids become remote uuids?
+			registerNewForm();
+		}
+	});
+
+	return {
+		show,
+		toggleDeleteFrictionDialog,
+		handle: () => access(handle),
+		form,
+		onSubmit,
+		onDelete,
+		isMutating: () => form.submitting || submit.isPending,
+		Components: {
+			Form,
+			Field,
+			FieldArray,
+		},
+	};
+};
+
+const access = <T>(resource: MaybeResource<T>) =>
+	typeof resource === "function" ? (resource as Resource<T>)() : resource;
+
+const isResource = (x: unknown): x is Resource<any> =>
+	typeof (x as Resource<any>).state !== "undefined" &&
+	typeof (x as Resource<any>).loading !== "undefined";
