@@ -24,8 +24,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.4(solid-js@1.9.7)
       '@flipt-io/flipt-client-js':
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.6
+        version: 0.0.6
       '@kobalte/core':
         specifier: ^0.13.7
         version: 0.13.9(solid-js@1.9.7)
@@ -612,8 +612,8 @@ packages:
     resolution: {integrity: sha512-0J+zgWxHN+xXONWIyPWKFMgVuJoZuGiIFu8yxk7RJjxkzpGmyja5wRFqZIVtjDVOQpV+Rw0iOAjYPE2eQyjr0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@flipt-io/flipt-client-js@0.0.4':
-    resolution: {integrity: sha512-xW0Pn4P2pvz7gzlx2NQbwnkhBxiR3+a3sBEXMO/rytmeIEln0DcQI2H682UUWU5RmR80IXHkAU/pz+GDyNgYww==}
+  '@flipt-io/flipt-client-js@0.0.6':
+    resolution: {integrity: sha512-oTdmjjHS0VJ3xOdh+x8A8Cjbt9jZEJrbsnOZ/KkL0v4cvYZiVDAMA/hbAZw0cYI4Hn0aSa+4plYfua65eb0jcw==}
     engines: {node: '>=14'}
 
   '@floating-ui/core@1.7.0':
@@ -4191,7 +4191,7 @@ snapshots:
       '@eslint/core': 0.14.0
       levn: 0.4.1
 
-  '@flipt-io/flipt-client-js@0.0.4':
+  '@flipt-io/flipt-client-js@0.0.6':
     dependencies:
       node-fetch: 3.3.2
 
