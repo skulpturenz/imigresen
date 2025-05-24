@@ -1,4 +1,4 @@
-import type { AnyDocumentId } from "@automerge/automerge-repo";
+import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
 import { useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
@@ -19,15 +19,34 @@ export const usePassportApplications = () => {
 	}));
 
 	const getPassportApplications = async () => {
-		const handles = await Promise.all(
-			automergeUrls.data?.map(async ({ key, value }) => ({
-				uuid: key,
-				automergeUrl: value,
-				handle: await repo.find(value as AnyDocumentId),
-			})) ?? [],
+		const documents = await Promise.all(
+			automergeUrls.data?.map(async ({ key, value }) => {
+				const handle = await repo.find(value as AnyDocumentId);
+				await handle.whenReady();
+
+				const doc = handle.doc() as Doc<
+					Omit<PassportApplication, "uuid" | "automergeUrl">
+				>;
+
+				return {
+					uuid: key,
+					automergeUrl: value,
+					doc,
+				};
+			}) ?? [],
 		);
 
-		return handles;
+		return documents
+			.sort((a, b) =>
+				desc(UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid))),
+			)
+			.map<PassportApplication>(application => {
+				return {
+					uuid: application.uuid,
+					automergeUrl: application.automergeUrl,
+					...application.doc,
+				};
+			});
 	};
 
 	const passportApplications = useQuery(() => ({
@@ -35,16 +54,6 @@ export const usePassportApplications = () => {
 			authnContext().keycloak?.token,
 		),
 		queryFn: getPassportApplications,
-		select: data =>
-			data
-				.sort((a, b) =>
-					desc(UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid))),
-				)
-				.map(application => ({
-					uuid: application.uuid,
-					automergeUrl: application.automergeUrl,
-					...application.handle.doc(),
-				})) as unknown as PassportApplication[],
 		get enabled() {
 			return Boolean(automergeUrls.data);
 		},
