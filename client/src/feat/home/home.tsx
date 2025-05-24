@@ -43,7 +43,12 @@ export const Home = () => {
 
 								return (
 									<li class="text-foreground">
-										<A href={getHref()}>{item.uuid}</A>
+										<A href={getHref()}>
+											{item.uuid} (First name:{" "}
+											{item.personalDetails.firstName},
+											Last name:{" "}
+											{item.personalDetails.lastName})
+										</A>
 									</li>
 								);
 							}}

@@ -14,6 +14,7 @@ import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
 import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
+import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { type MyPassportForm } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
 import { createEffect, createSignal, onCleanup, type Resource } from "solid-js";
@@ -24,6 +25,7 @@ export const useMyPassportForm = () => {
 	const repo = useRepo();
 	const queryClient = useQueryClient();
 	const authnContext = useContext(AuthnContext);
+	const myPassportFormContext = useContext(MyPassportFormContext);
 
 	const navigate = useNavigate();
 
@@ -65,24 +67,14 @@ export const useMyPassportForm = () => {
 	});
 
 	const deleteForm = useMutation(() => ({
-		mutationKey: [],
-		mutationFn: (_uuid: string) => Promise.resolve(true),
+		mutationFn: myPassportFormContext.deleteApplication,
 	}));
 
 	const register = useMutation(() => ({
-		mutationKey: [],
-		mutationFn: ({
-			automergeUrl: _automergeUrl,
-			token: _token,
-		}: // TODO
-		{
-			automergeUrl: string;
-			token?: string;
-		}) => Promise.resolve(crypto.randomUUID()), // TODO
+		mutationFn: myPassportFormContext.registerApplication,
 	}));
 
 	const submit = useMutation(() => ({
-		mutationKey: [],
 		mutationFn: (_formValues: MyPassportForm) =>
 			Promise.resolve(access(handle)?.url),
 	}));
@@ -97,7 +89,7 @@ export const useMyPassportForm = () => {
 		reset(form);
 
 		const existingApplications = (queryClient.getQueryData(
-			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+			queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 		) ?? []) as any[];
 
 		const filteredApplications = existingApplications.filter(
@@ -105,7 +97,7 @@ export const useMyPassportForm = () => {
 		);
 
 		queryClient.setQueryData(
-			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+			queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 			filteredApplications,
 		);
 
@@ -151,11 +143,16 @@ export const useMyPassportForm = () => {
 
 		const initialValues = access(handle)?.doc();
 
-		reset(form, {
-			initialValues,
-			keepDirtyValues: true,
-			keepDirty: true,
-		});
+		// note: without the timeout does not reset correctly
+		setTimeout(
+			() =>
+				reset(form, {
+					initialValues,
+					keepDirtyValues: true,
+					keepDirty: true,
+				}),
+			50,
+		);
 	});
 
 	onCleanup(() => {
@@ -167,9 +164,7 @@ export const useMyPassportForm = () => {
 
 		const updateExistingFormEntry = () => {
 			const existingApplications = (queryClient.getQueryData(
-				queryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
+				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 			) ?? []) as any[];
 
 			invariant(
@@ -191,23 +186,20 @@ export const useMyPassportForm = () => {
 			);
 
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
+				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 				updatedApplications,
 			);
 		};
 
 		const registerNewForm = async () => {
-			const uuid = await register.mutateAsync({
-				automergeUrl: access(handle)?.url as string,
-				token: authnContext().keycloak?.token,
-			});
+			const automergeUrl = access(handle)?.url;
+
+			invariant(automergeUrl, "Automerge URL is not defined");
+
+			const uuid = await register.mutateAsync(automergeUrl);
 
 			const existingApplications = (queryClient.getQueryData(
-				queryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
+				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 			) ?? []) as any[];
 
 			const updatedApplications = [
@@ -220,26 +212,18 @@ export const useMyPassportForm = () => {
 			];
 
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
+				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 				updatedApplications,
 			);
-
-			// TODO: when creating a new application, a new entry is created api side
-			// just to have a uuid for each automerge url, on the home page we retrieve this list
-			// of uuids to automerge urls for each user
-			// when its all finalized and submitted then the data is normalized and stored away
 		};
 
 		if (routeParams.uuid) {
 			updateExistingFormEntry();
-		} else {
-			// TODO: ideally we want to be able to create a form unauthenticated,
-			// all stored locally and synced up when authenticated
-			// maybe when it syncs up all the local uuids become remote uuids?
-			registerNewForm();
+
+			return;
 		}
+
+		registerNewForm();
 	});
 
 	return {
