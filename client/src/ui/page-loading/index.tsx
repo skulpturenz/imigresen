@@ -4,6 +4,7 @@ import {
 	createSignal,
 	mergeProps,
 	onCleanup,
+	onMount,
 	type Component,
 	type ParentProps,
 } from "solid-js";
@@ -19,6 +20,8 @@ const resources = {
 };
 
 export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
+	const [hasDelayElapsed, setHasDelayElapsed] = createSignal(false);
+
 	const [loaderRef, setLoaderRef] = createSignal<HTMLSpanElement | null>(
 		null,
 	);
@@ -61,8 +64,16 @@ export const PageLoading: Component<ParentProps<PageLoadingProps>> = props => {
 		});
 	});
 
+	onMount(() => {
+		const DELAY_MS = 250;
+
+		setTimeout(() => {
+			setHasDelayElapsed(true);
+		}, DELAY_MS);
+	});
+
 	return (
-		<Dialog open={withDefaultProps.isLoading} modal>
+		<Dialog open={withDefaultProps.isLoading && hasDelayElapsed()} modal>
 			<DialogPortal>
 				<DialogOverlay
 					class={cn(
