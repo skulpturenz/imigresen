@@ -82,7 +82,7 @@ export const Home = () => {
 								];
 
 								return (
-									<A href={getHref()} class="group max-w-md">
+									<A href={getHref()} class="group">
 										<Card class="h-full">
 											<CardHeader>
 												<Tooltip>
