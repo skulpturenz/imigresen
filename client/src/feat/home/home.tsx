@@ -30,121 +30,129 @@ export const Home = () => {
 			</div>
 
 			<Show when={!passportApplications.isLoading}>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-					<For each={passportApplications.data}>
-						{item => {
-							const getHref = () => {
-								const url = new URL(location.origin);
-								url.hash = location.hash;
+				<Show when={!passportApplications.data?.length}>
+					<Typography variant="h3" class="text-center">
+						No applications yet!
+					</Typography>
+				</Show>
 
-								const searchParams = new URLSearchParams({
-									automergeUrl: item.automergeUrl,
-								});
+				<Show when={passportApplications.data?.length}>
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+						<For each={passportApplications.data}>
+							{item => {
+								const getHref = () => {
+									const url = new URL(location.origin);
+									url.hash = location.hash;
 
-								url.pathname = MyPassportForm.Edit.replace(
-									":uuid",
-									item.uuid,
-								);
-								url.search = searchParams.toString();
+									const searchParams = new URLSearchParams({
+										automergeUrl: item.automergeUrl,
+									});
 
-								return url.href;
-							};
+									url.pathname = MyPassportForm.Edit.replace(
+										":uuid",
+										item.uuid,
+									);
+									url.search = searchParams.toString();
 
-							const details = [
-								{
-									label: "Email",
-									description: "test@test.com",
-								},
-								{
-									label: "Mobile number",
-									description: "0234567890",
-								},
-								{
-									label: "Document type",
-									description:
-										"Malaysian passport (64 pages)",
-								},
-								{
-									label: "Current document number",
-									description: "A1234124",
-								},
-								{
-									label: "Status",
-									description: "In progress",
-								},
-							];
+									return url.href;
+								};
 
-							return (
-								<A href={getHref()} class="group max-w-md">
-									<Card class="h-full">
-										<CardHeader>
-											<Tooltip>
-												<TooltipTrigger
-													as={CardTitle}
-													class="truncate">
-													{
-														item.personalDetails
-															.firstName
-													}
-													&nbsp;
-													{
-														item.personalDetails
-															.lastName
-													}
-												</TooltipTrigger>
-												<TooltipContent>
-													{
-														item.personalDetails
-															.firstName
-													}
-													&nbsp;
-													{
-														item.personalDetails
-															.lastName
-													}
-												</TooltipContent>
-											</Tooltip>
-											<CardDescription>
-												Malaysian passport
-											</CardDescription>
-										</CardHeader>
-										<CardContent>
-											<For each={details}>
-												{item => (
-													<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-														<span class="flex size-2 translate-y-1 bg-teal-500 dark:bg-teal-400" />
+								const details = [
+									{
+										label: "Email",
+										description: "test@test.com",
+									},
+									{
+										label: "Mobile number",
+										description: "0234567890",
+									},
+									{
+										label: "Document type",
+										description:
+											"Malaysian passport (64 pages)",
+									},
+									{
+										label: "Current document number",
+										description: "A1234124",
+									},
+									{
+										label: "Status",
+										description: "In progress",
+									},
+								];
 
-														<div class="space-y-2">
-															<Typography
-																variant="small"
-																as="p">
-																{item.label}
-															</Typography>
+								return (
+									<A href={getHref()} class="group max-w-md">
+										<Card class="h-full">
+											<CardHeader>
+												<Tooltip>
+													<TooltipTrigger
+														as={CardTitle}
+														class="truncate">
+														{
+															item.personalDetails
+																.firstName
+														}
+														&nbsp;
+														{
+															item.personalDetails
+																.lastName
+														}
+													</TooltipTrigger>
+													<TooltipContent>
+														{
+															item.personalDetails
+																.firstName
+														}
+														&nbsp;
+														{
+															item.personalDetails
+																.lastName
+														}
+													</TooltipContent>
+												</Tooltip>
+												<CardDescription>
+													Malaysian passport
+												</CardDescription>
+											</CardHeader>
+											<CardContent>
+												<For each={details}>
+													{item => (
+														<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
+															<span class="flex size-2 translate-y-1 bg-teal-500 dark:bg-teal-400" />
 
-															<Typography
-																variant="small"
-																as="p">
-																{
-																	item.description
-																}
-															</Typography>
+															<div class="space-y-2">
+																<Typography
+																	variant="small"
+																	as="p">
+																	{item.label}
+																</Typography>
+
+																<Typography
+																	variant="small"
+																	as="p">
+																	{
+																		item.description
+																	}
+																</Typography>
+															</div>
 														</div>
-													</div>
-												)}
-											</For>
-										</CardContent>
+													)}
+												</For>
+											</CardContent>
 
-										<CardFooter>
-											<Button class="w-full group-hover:bg-primary/80">
-												Edit
-											</Button>
-										</CardFooter>
-									</Card>
-								</A>
-							);
-						}}
-					</For>
-				</div>
+											<CardFooter>
+												<Button class="w-full group-hover:bg-primary/80">
+													Edit
+												</Button>
+											</CardFooter>
+										</Card>
+									</A>
+								);
+							}}
+						</For>
+					</div>
+				</Show>
 			</Show>
 		</div>
 	);
