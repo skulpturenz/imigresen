@@ -61,9 +61,9 @@ export const UiProviderMock: Component<
 	});
 
 	return (
-		<RepoContext.Provider value={repo}>
-			<UiContext.Provider value={withDefaultProps.svc}>
-				<Show when={!withDefaultProps.svc().isInitialLoading()}>
+		<UiContext.Provider value={withDefaultProps.svc}>
+			<Show when={!withDefaultProps.svc().isInitialLoading()}>
+				<RepoContext.Provider value={repo}>
 					<QueryClientProvider
 						client={
 							withDefaultProps.svc().queryClient as QueryClient
@@ -76,8 +76,8 @@ export const UiProviderMock: Component<
 							</ToastRegion>
 						</I18nProvider>
 					</QueryClientProvider>
-				</Show>
-			</UiContext.Provider>
-		</RepoContext.Provider>
+				</RepoContext.Provider>
+			</Show>
+		</UiContext.Provider>
 	);
 };

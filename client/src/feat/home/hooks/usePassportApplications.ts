@@ -19,26 +19,34 @@ export const usePassportApplications = () => {
 	}));
 
 	const getPassportApplications = async () => {
-		const handles = await Promise.all(
-			automergeUrls.data?.map(async ({ key, value }) => ({
-				uuid: key,
-				automergeUrl: value,
-				handle: await repo.find(value as AnyDocumentId),
-			})) ?? [],
+		const documents = await Promise.all(
+			automergeUrls.data?.map(async ({ key, value }) => {
+				const handle = await repo.find<
+					Omit<PassportApplication, "uuid" | "automergeUrl">
+				>(value as AnyDocumentId);
+				await handle.whenReady();
+
+				const doc = handle.doc();
+
+				return {
+					uuid: key,
+					automergeUrl: value,
+					doc,
+				};
+			}) ?? [],
 		);
 
-		const passportApplications = handles
-			.sort(
-				// descending
-				(a, b) => -1 * UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid)),
+		return documents
+			.sort((a, b) =>
+				desc(UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid))),
 			)
-			.map(application => ({
-				uuid: application.uuid,
-				automergeUrl: application.automergeUrl,
-				...application.handle.doc(),
-			})) as unknown as PassportApplication[];
-
-		return passportApplications;
+			.map<PassportApplication>(application => {
+				return {
+					uuid: application.uuid,
+					automergeUrl: application.automergeUrl,
+					...application.doc,
+				};
+			});
 	};
 
 	const passportApplications = useQuery(() => ({
@@ -55,3 +63,5 @@ export const usePassportApplications = () => {
 		passportApplications,
 	};
 };
+
+const desc = (sortOrder: number) => -1 * sortOrder;

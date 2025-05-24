@@ -3,8 +3,8 @@ import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network
 import { IndexedDBStorageAdapter } from "@automerge/automerge-repo-storage-indexeddb";
 
 const storage = new IndexedDBStorageAdapter(
-	`imigresen-${import.meta.env.MODE}`,
-	`imigresen-my-passport-${import.meta.env.MODE}`,
+	`imigresen-automerge-${import.meta.env.MODE}`,
+	`imigresen-documents-${import.meta.env.MODE}`,
 );
 
 const network: NetworkAdapterInterface[] = [
