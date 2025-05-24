@@ -97,10 +97,10 @@
 			"@storybook/builder-vite": "~8.6.14"
 		},
 		"onlyBuiltDependencies": [
+			"@swc/core",
 			"@tailwindcss/oxide",
-			"esbuild"
-		],
-		"ignoredBuiltDependencies": [
+			"cbor-extract",
+			"esbuild",
 			"sharp",
 			"workerd"
 		],
