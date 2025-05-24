@@ -1,6 +1,6 @@
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
-import { lazy, Show, Suspense } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,6 +14,13 @@ import {
 import { useMyPassportForm } from "./hooks/useMyPassportForm";
 import { useWizardSteps } from "./hooks/useWizardSteps";
 import type { resources } from "./resources/i18n/en-US";
+import {
+	AddressDetails,
+	ApplicationDetails,
+	Declaration,
+	PersonalDetails,
+	PreviousDocuments,
+} from "./steps";
 import { Step } from "./types";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
@@ -134,33 +141,3 @@ export const MyPassportForm = () => {
 		</>
 	);
 };
-
-const AddressDetails = lazy(() =>
-	import("./steps/address-details").then(({ AddressDetails }) => ({
-		default: AddressDetails,
-	})),
-);
-
-const ApplicationDetails = lazy(() =>
-	import("./steps/application-details").then(({ ApplicationDetails }) => ({
-		default: ApplicationDetails,
-	})),
-);
-
-const Declaration = lazy(() =>
-	import("./steps/declaration").then(({ Declaration }) => ({
-		default: Declaration,
-	})),
-);
-
-const PersonalDetails = lazy(() =>
-	import("./steps/personal-details").then(({ PersonalDetails }) => ({
-		default: PersonalDetails,
-	})),
-);
-
-const PreviousDocuments = lazy(() =>
-	import("./steps/previous-documents").then(({ PreviousDocuments }) => ({
-		default: PreviousDocuments,
-	})),
-);
