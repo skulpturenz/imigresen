@@ -152,7 +152,7 @@ export const Route: Component<
 					}
 				/>
 
-				<Suspense>
+				<Suspense fallback={<div>Loading...</div>}>
 					<Show
 						when={
 							typeof isAllowed() !== "undefined" &&
