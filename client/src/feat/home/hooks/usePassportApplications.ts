@@ -1,4 +1,4 @@
-import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
+import type { AnyDocumentId } from "@automerge/automerge-repo";
 import { useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
@@ -21,12 +21,12 @@ export const usePassportApplications = () => {
 	const getPassportApplications = async () => {
 		const documents = await Promise.all(
 			automergeUrls.data?.map(async ({ key, value }) => {
-				const handle = await repo.find(value as AnyDocumentId);
+				const handle = await repo.find<
+					Omit<PassportApplication, "uuid" | "automergeUrl">
+				>(value as AnyDocumentId);
 				await handle.whenReady();
 
-				const doc = handle.doc() as Doc<
-					Omit<PassportApplication, "uuid" | "automergeUrl">
-				>;
+				const doc = handle.doc();
 
 				return {
 					uuid: key,
