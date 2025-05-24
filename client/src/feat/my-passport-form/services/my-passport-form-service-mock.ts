@@ -18,7 +18,7 @@ export const myPassportFormService = (_token?: string) => {
 	};
 
 	const deleteApplication = async (uuid: string) => {
-		storage.del(uuid);
+		await storage.del(uuid);
 	};
 
 	return {

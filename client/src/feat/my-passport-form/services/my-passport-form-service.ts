@@ -22,7 +22,13 @@ export const myPassportFormService = (token?: string) => {
 	};
 
 	const deleteApplication = async (uuid: string) => {
-		storage.del(uuid);
+		if (!token) {
+			await storage.del(uuid);
+
+			return;
+		}
+
+		throw new Error("TODO");
 	};
 
 	return {
