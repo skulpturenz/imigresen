@@ -1,26 +1,28 @@
-import { Repo, type NetworkAdapterInterface } from "@automerge/automerge-repo";
-import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
-import { IndexedDBStorageAdapter } from "@automerge/automerge-repo-storage-indexeddb";
+import { storageKeys } from "core/constants/storage-keys";
+import { createStorage } from "unstorage";
+import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 
-// TODO: use a global context
-export const myPassportFormAutomergeRepoMock = (_token?: string) => {
-	// invariant(
-	// 	import.meta.env.VITE_API_AUTOMERGE_WSS,
-	// 	"Automerge WSS endpoint not specified",
-	// );
+const storage = createStorage({
+	driver: localStorageDriver({
+		base: storageKeys.myPassportFormBase,
+	}),
+});
 
-	const storage = new IndexedDBStorageAdapter(
-		`imigresen-${import.meta.env.MODE}`,
-		`imigresen-my-passport-${import.meta.env.MODE}`,
-	);
+export const myPassportFormService = (_token?: string) => {
+	const registerApplication = async (automergeUrl: string) => {
+		const uuid = crypto.randomUUID();
 
-	const network: NetworkAdapterInterface[] = [
-		// TODO
-		new BrowserWebSocketClientAdapter("ws://localhost:5173"),
-	];
+		storage.setItem(uuid, automergeUrl);
 
-	return new Repo({
-		storage,
-		network,
-	});
+		return uuid;
+	};
+
+	const deleteApplication = async (uuid: string) => {
+		await storage.del(uuid);
+	};
+
+	return {
+		registerApplication,
+		deleteApplication,
+	};
 };
