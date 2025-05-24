@@ -14,7 +14,7 @@ export const usePassportApplications = () => {
 
 	const automergeUrls = useQuery(() => ({
 		queryKey: queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
-		queryFn: homeContext.getPassportApplications,
+		queryFn: homeContext.getAutomergeUrls,
 	}));
 
 	const getPassportApplications = async () => {
@@ -46,8 +46,6 @@ export const usePassportApplications = () => {
 	}));
 
 	return {
-		queries: {
-			passportApplications,
-		},
+		passportApplications,
 	};
 };

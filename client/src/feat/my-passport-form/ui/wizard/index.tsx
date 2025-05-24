@@ -10,8 +10,8 @@ import {
 import { Stepper } from "ui/stepper";
 import { SimpleStep } from "ui/stepper/simple-step";
 import { cn } from "ui/utils";
-import { MobileProgress } from "./mobile-progress.tsx";
-import type { WizardStep } from "./types.ts.ts";
+import { MobileProgress } from "./mobile-progress";
+import type { WizardStep } from "./types";
 
 export interface WizardProps {
 	steps: WizardStep[];

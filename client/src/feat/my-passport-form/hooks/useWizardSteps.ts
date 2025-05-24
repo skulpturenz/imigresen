@@ -1,11 +1,11 @@
 import { useLocation, useNavigate, type Location } from "@solidjs/router";
-import { useI18n } from "core/context/i18n/provider.tsx";
+import { useI18n } from "core/context/i18n/provider";
 import { kebabCase, pascalCase } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
-import { Step } from "feat/my-passport-form/types/ui.ts";
+import { Step } from "feat/my-passport-form/types/ui";
+import type { WizardStep } from "feat/my-passport-form/ui/wizard/types";
 import { createEffect, createSignal, onMount } from "solid-js";
-import { StepStatus } from "ui/stepper/types.ts";
-import type { WizardStep } from "../ui/wizard/types.ts";
+import { StepStatus } from "ui/stepper/types";
 
 export const useWizardSteps = () => {
 	const t = useI18n<typeof resources>();

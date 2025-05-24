@@ -11,8 +11,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
-import { useMyPassportForm } from "./hooks/useMyPassportForm.ts";
-import { useWizardSteps } from "./hooks/useWizardSteps.ts";
+import { useMyPassportForm } from "./hooks/useMyPassportForm";
+import { useWizardSteps } from "./hooks/useWizardSteps";
 import type { resources } from "./resources/i18n/en-US";
 import { Step } from "./types";
 import { DefaultFooter, MobileFooter } from "./ui/footer";

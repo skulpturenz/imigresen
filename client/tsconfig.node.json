@@ -21,10 +21,11 @@
 		"noUncheckedSideEffectImports": true,
 		"verbatimModuleSyntax": true,
 
+		"baseUrl": "./src",
 		"paths": {
-			"feat/*": ["./src/feat/*"],
-			"core/*": ["./src/core/*"],
-			"ui/*": ["./src/ui/*"]
+			"feat/*": ["./feat/*"],
+			"core/*": ["./core/*"],
+			"ui/*": ["./ui/*"]
 		}
 	},
 	"include": ["vite.config.ts"]

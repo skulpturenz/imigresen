@@ -9,7 +9,7 @@ const storage = createStorage({
 });
 
 export const homeService = (_token?: string) => {
-	const getPassportApplications = async () => {
+	const getAutomergeUrls = async () => {
 		const localKeys = await storage.getKeys();
 		const localItems = await storage.getItems<string>(localKeys);
 
@@ -17,6 +17,6 @@ export const homeService = (_token?: string) => {
 	};
 
 	return {
-		getPassportApplications,
+		getAutomergeUrls,
 	};
 };

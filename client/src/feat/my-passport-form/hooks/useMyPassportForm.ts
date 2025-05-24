@@ -15,9 +15,18 @@ import { toPath } from "core/router/route";
 import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
-import { type MyPassportForm } from "feat/my-passport-form/types";
+import type {
+	MyPassportForm,
+	PassportApplication,
+} from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
-import { createEffect, createSignal, onCleanup, type Resource } from "solid-js";
+import {
+	createEffect,
+	createRenderEffect,
+	createSignal,
+	onCleanup,
+	type Resource,
+} from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
@@ -84,22 +93,27 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		access(handle)?.delete();
 		await deleteForm.mutateAsync(routeParams.uuid);
 		reset(form);
 
-		const existingApplications = (queryClient.getQueryData(
-			queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
-		) ?? []) as any[];
+		const existingApplications =
+			queryClient.getQueryData<PassportApplication[]>(
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			) ?? [];
 
 		const filteredApplications = existingApplications.filter(
 			application => application.uuid !== routeParams.uuid,
 		);
 
 		queryClient.setQueryData(
-			queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+			queryKeys.getPassportApplications(authnContext().keycloak?.token),
 			filteredApplications,
 		);
+
+		await access(handle)?.whenReady();
+		access(handle)?.delete();
 
 		navigate(toPath(CoreRoute.Home));
 	};
@@ -136,7 +150,7 @@ export const useMyPassportForm = () => {
 		});
 	});
 
-	createEffect(() => {
+	createRenderEffect(() => {
 		if (!isResource(handle)) {
 			return;
 		}
@@ -151,26 +165,40 @@ export const useMyPassportForm = () => {
 					keepDirtyValues: true,
 					keepDirty: true,
 				}),
-			50,
+			15,
 		);
 	});
 
 	onCleanup(() => {
-		if (!form.dirty && !routeParams.uuid) {
-			access(handle)?.delete();
+		const deleteBlankDocument = async () => {
+			if (form.dirty || routeParams.uuid) {
+				return;
+			}
 
+			await access(handle)?.whenReady();
+			access(handle)?.delete();
+		};
+
+		deleteBlankDocument();
+	});
+
+	onCleanup(() => {
+		if (!form.dirty) {
 			return;
 		}
 
 		const updateExistingFormEntry = () => {
-			const existingApplications = (queryClient.getQueryData(
-				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
-			) ?? []) as any[];
-
 			invariant(
 				access(handle)?.url,
 				"Automerge URL for existing document is not defined, check `handle`",
 			);
+
+			const existingApplications =
+				queryClient.getQueryData<PassportApplication[]>(
+					queryKeys.getPassportApplications(
+						authnContext().keycloak?.token,
+					),
+				) ?? [];
 
 			const updatedApplications = existingApplications.map(
 				application => {
@@ -186,7 +214,9 @@ export const useMyPassportForm = () => {
 			);
 
 			queryClient.setQueryData(
-				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 				updatedApplications,
 			);
 		};
@@ -194,13 +224,34 @@ export const useMyPassportForm = () => {
 		const registerNewForm = async () => {
 			const automergeUrl = access(handle)?.url;
 
-			invariant(automergeUrl, "Automerge URL is not defined");
+			invariant(
+				automergeUrl,
+				"Automerge URL is not defined, check `handle`",
+			);
 
 			const uuid = await register.mutateAsync(automergeUrl);
 
-			const existingApplications = (queryClient.getQueryData(
+			const existingAutomergeUrls =
+				queryClient.getQueryData<string[]>(
+					queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+				) ?? [];
+
+			const updatedAutomergeUrls = [
+				...existingAutomergeUrls,
+				automergeUrl,
+			];
+
+			queryClient.setQueryData(
 				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
-			) ?? []) as any[];
+				updatedAutomergeUrls,
+			);
+
+			const existingApplications =
+				queryClient.getQueryData<PassportApplication[]>(
+					queryKeys.getPassportApplications(
+						authnContext().keycloak?.token,
+					),
+				) ?? [];
 
 			const updatedApplications = [
 				...existingApplications,
@@ -212,7 +263,9 @@ export const useMyPassportForm = () => {
 			];
 
 			queryClient.setQueryData(
-				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+				queryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 				updatedApplications,
 			);
 		};
