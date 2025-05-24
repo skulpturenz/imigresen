@@ -100,6 +100,9 @@ importers:
       unstorage:
         specifier: ^1.16.0
         version: 1.16.0(idb-keyval@6.2.2)
+      uuidv7:
+        specifier: ^1.0.2
+        version: 1.0.2
       zustand:
         specifier: ^5.0.3
         version: 5.0.5(@types/react@19.1.4)(react@19.1.0)
@@ -3641,6 +3644,10 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
+
+  uuidv7@1.0.2:
+    resolution: {integrity: sha512-8JQkH4ooXnm1JCIhqTMbtmdnYEn6oKukBxHn1Ic9878jMkL7daTI7anTExfY18VRCX7tcdn5quzvCb6EWrR8PA==}
     hasBin: true
 
   valibot@1.1.0:
@@ -7674,6 +7681,8 @@ snapshots:
   uuid@8.3.2: {}
 
   uuid@9.0.1: {}
+
+  uuidv7@1.0.2: {}
 
   valibot@1.1.0(typescript@5.8.3):
     optionalDependencies:

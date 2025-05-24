@@ -40,6 +40,7 @@
 		"solid-zustand": "^1.8.1",
 		"tailwind-merge": "^3.3.0",
 		"unstorage": "^1.16.0",
+		"uuidv7": "^1.0.2",
 		"zustand": "^5.0.3"
 	},
 	"devDependencies": {

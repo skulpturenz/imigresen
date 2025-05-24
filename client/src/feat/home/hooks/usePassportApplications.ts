@@ -6,6 +6,7 @@ import { useContext } from "core/context/utils";
 import { HomeContext } from "feat/home/context";
 import type { PassportApplication } from "feat/home/types";
 import { useRepo } from "solid-automerge";
+import { UUID } from "uuidv7";
 
 export const usePassportApplications = () => {
 	const authnContext = useContext(AuthnContext);
@@ -26,11 +27,16 @@ export const usePassportApplications = () => {
 			})) ?? [],
 		);
 
-		const passportApplications = handles.map(application => ({
-			uuid: application.uuid,
-			automergeUrl: application.automergeUrl,
-			...application.handle.doc(),
-		})) as unknown as PassportApplication[];
+		const passportApplications = handles
+			.sort(
+				// descending
+				(a, b) => -1 * UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid)),
+			)
+			.map(application => ({
+				uuid: application.uuid,
+				automergeUrl: application.automergeUrl,
+				...application.handle.doc(),
+			})) as unknown as PassportApplication[];
 
 		return passportApplications;
 	};
