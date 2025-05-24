@@ -7,6 +7,14 @@ settings:
 overrides:
   '@storybook/builder-vite': ~8.6.14
 
+patchedDependencies:
+  storybook-solidjs:
+    hash: 1a24f521585a56a5c632884580f7b540f7324d6dce4e58ff931efb150acc0485
+    path: patches/storybook-solidjs.patch
+  storybook-solidjs-vite:
+    hash: 3860d01e3a5441bb51eca26a573a3fdb8b71e1213376e89f0c82784a812e403c
+    path: patches/storybook-solidjs-vite.patch
+
 importers:
 
   .:
@@ -182,10 +190,10 @@ importers:
         version: 8.6.14(prettier@3.5.3)
       storybook-solidjs:
         specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))
+        version: 1.0.0-beta.7(patch_hash=1a24f521585a56a5c632884580f7b540f7324d6dce4e58ff931efb150acc0485)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))
       storybook-solidjs-vite:
         specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))(vite-plugin-solid@2.11.6(@testing-library/jest-dom@6.6.3)(solid-js@1.9.7)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)))(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
+        version: 1.0.0-beta.7(patch_hash=3860d01e3a5441bb51eca26a573a3fdb8b71e1213376e89f0c82784a812e403c)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))(vite-plugin-solid@2.11.6(@testing-library/jest-dom@6.6.3)(solid-js@1.9.7)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)))(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
       tailwindcss:
         specifier: ^4.1.7
         version: 4.1.7
@@ -7211,20 +7219,20 @@ snapshots:
 
   std-env@3.9.0: {}
 
-  storybook-solidjs-vite@1.0.0-beta.7(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))(vite-plugin-solid@2.11.6(@testing-library/jest-dom@6.6.3)(solid-js@1.9.7)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)))(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)):
+  storybook-solidjs-vite@1.0.0-beta.7(patch_hash=3860d01e3a5441bb51eca26a573a3fdb8b71e1213376e89f0c82784a812e403c)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))(vite-plugin-solid@2.11.6(@testing-library/jest-dom@6.6.3)(solid-js@1.9.7)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)))(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)):
     dependencies:
       '@storybook/builder-vite': 8.6.14(storybook@8.6.14(prettier@3.5.3))(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
       '@storybook/types': 9.0.0-alpha.1(storybook@8.6.14(prettier@3.5.3))
       magic-string: 0.30.17
       solid-js: 1.9.7
       storybook: 8.6.14(prettier@3.5.3)
-      storybook-solidjs: 1.0.0-beta.7(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))
+      storybook-solidjs: 1.0.0-beta.7(patch_hash=1a24f521585a56a5c632884580f7b540f7324d6dce4e58ff931efb150acc0485)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3))
       vite: 6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)
       vite-plugin-solid: 2.11.6(@testing-library/jest-dom@6.6.3)(solid-js@1.9.7)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
     transitivePeerDependencies:
       - '@storybook/test'
 
-  storybook-solidjs@1.0.0-beta.7(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3)):
+  storybook-solidjs@1.0.0-beta.7(patch_hash=1a24f521585a56a5c632884580f7b540f7324d6dce4e58ff931efb150acc0485)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.5.3)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.5.3)):
     dependencies:
       '@babel/standalone': 7.27.2
       '@storybook/docs-tools': 9.0.0-alpha.1(storybook@8.6.14(prettier@3.5.3))

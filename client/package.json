@@ -103,6 +103,10 @@
 		"ignoredBuiltDependencies": [
 			"sharp",
 			"workerd"
-		]
+		],
+		"patchedDependencies": {
+			"storybook-solidjs": "patches/storybook-solidjs.patch",
+			"storybook-solidjs-vite": "patches/storybook-solidjs-vite.patch"
+		}
 	}
 }
