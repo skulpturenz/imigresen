@@ -1,4 +1,4 @@
-import type { AutomergeUrl, DocHandle } from "@automerge/automerge-repo";
+import type { AnyDocumentId } from "@automerge/automerge-repo";
 import {
 	createForm,
 	getValues,
@@ -19,10 +19,10 @@ import type {
 	MyPassportForm,
 	PassportApplication,
 } from "feat/my-passport-form/types";
-import { useDocHandle, useRepo } from "solid-automerge";
+import { useRepo } from "solid-automerge";
 import {
 	createEffect,
-	createRenderEffect,
+	createResource,
 	createSignal,
 	onCleanup,
 	type Resource,
@@ -50,29 +50,27 @@ export const useMyPassportForm = () => {
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
-	const getDocHandle = (): MaybeResource<DocHandle<MyPassportForm>> => {
+	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		validateOn: "change",
+		revalidateOn: "change",
+	});
+
+	const [handle] = createResource(async () => {
 		if (searchParams.automergeUrl) {
-			const handle = useDocHandle(
-				searchParams.automergeUrl as AutomergeUrl,
-			) as Resource<DocHandle<MyPassportForm>>;
+			const handle = await repo.find<MyPassportForm>(
+				searchParams.automergeUrl as AnyDocumentId,
+			);
+
+			await handle.whenReady();
 
 			return handle;
 		}
 
-		return repo.create<MyPassportForm>();
-	};
-	const handle = getDocHandle();
+		const handle = repo.create<MyPassportForm>();
 
-	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
-		get initialValues() {
-			if (isResource(handle)) {
-				return;
-			}
+		await handle.whenReady();
 
-			return handle.doc();
-		},
-		validateOn: "change",
-		revalidateOn: "change",
+		return handle;
 	});
 
 	const deleteForm = useMutation(() => ({
@@ -85,7 +83,7 @@ export const useMyPassportForm = () => {
 
 	const submit = useMutation(() => ({
 		mutationFn: (_formValues: MyPassportForm) =>
-			Promise.resolve(access(handle)?.url),
+			Promise.resolve(handle()?.url),
 	}));
 
 	const onDelete = async () => {
@@ -112,8 +110,8 @@ export const useMyPassportForm = () => {
 			filteredApplications,
 		);
 
-		await access(handle)?.whenReady();
-		access(handle)?.delete();
+		await handle()?.whenReady();
+		handle()?.delete();
 
 		navigate(toPath(CoreRoute.Home));
 	};
@@ -143,30 +141,21 @@ export const useMyPassportForm = () => {
 			console.debug("form dirty fields", dirtyFields);
 		}
 
-		access(handle)?.change(doc => {
+		handle()?.change(doc => {
 			Object.entries(dirtyFields).forEach(([path, value]) => {
 				set(doc, path, value);
 			});
 		});
 	});
 
-	createRenderEffect(() => {
-		if (!isResource(handle)) {
+	createEffect(() => {
+		if (handle.loading) {
 			return;
 		}
 
-		const initialValues = access(handle)?.doc();
-
-		// note: without the timeout does not reset correctly
-		setTimeout(
-			() =>
-				reset(form, {
-					initialValues,
-					keepDirtyValues: true,
-					keepDirty: true,
-				}),
-			25,
-		);
+		reset(form, {
+			initialValues: handle()?.doc(),
+		});
 	});
 
 	onCleanup(() => {
@@ -175,8 +164,8 @@ export const useMyPassportForm = () => {
 				return;
 			}
 
-			await access(handle)?.whenReady();
-			access(handle)?.delete();
+			await handle()?.whenReady();
+			handle()?.delete();
 		};
 
 		deleteBlankDocument();
@@ -189,7 +178,7 @@ export const useMyPassportForm = () => {
 
 		const updateExistingFormEntry = () => {
 			invariant(
-				access(handle)?.url,
+				handle()?.url,
 				"Automerge URL for existing document is not defined, check `handle`",
 			);
 
@@ -222,7 +211,7 @@ export const useMyPassportForm = () => {
 		};
 
 		const registerNewForm = async () => {
-			const automergeUrl = access(handle)?.url;
+			const automergeUrl = handle()?.url;
 
 			invariant(
 				automergeUrl,
@@ -257,7 +246,7 @@ export const useMyPassportForm = () => {
 				...existingApplications,
 				{
 					uuid,
-					automergeUrl: access(handle)?.url,
+					automergeUrl: handle()?.url,
 					...getValues(form),
 				},
 			];
@@ -282,7 +271,7 @@ export const useMyPassportForm = () => {
 	return {
 		show,
 		toggleDeleteFrictionDialog,
-		handle: () => access(handle),
+		handle,
 		form,
 		onSubmit,
 		onDelete,
@@ -294,10 +283,3 @@ export const useMyPassportForm = () => {
 		},
 	};
 };
-
-const access = <T>(resource: MaybeResource<T>) =>
-	typeof resource === "function" ? (resource as Resource<T>)() : resource;
-
-const isResource = (x: unknown): x is Resource<any> =>
-	typeof (x as Resource<any>).state !== "undefined" &&
-	typeof (x as Resource<any>).loading !== "undefined";
