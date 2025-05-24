@@ -1,6 +1,7 @@
 import { storageKeys } from "core/constants/storage-keys";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
+import { uuidv7 } from "uuidv7";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -11,7 +12,7 @@ const storage = createStorage({
 export const myPassportFormService = (token?: string) => {
 	const registerApplication = async (automergeUrl: string) => {
 		if (!token) {
-			const uuid = crypto.randomUUID();
+			const uuid = uuidv7();
 
 			storage.setItem(uuid, automergeUrl);
 

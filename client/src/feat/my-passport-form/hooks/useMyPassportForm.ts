@@ -226,8 +226,8 @@ export const useMyPassportForm = () => {
 				) ?? [];
 
 			const updatedAutomergeUrls = [
-				...existingAutomergeUrls,
 				automergeUrl,
+				...existingAutomergeUrls,
 			];
 
 			queryClient.setQueryData(
@@ -243,12 +243,12 @@ export const useMyPassportForm = () => {
 				) ?? [];
 
 			const updatedApplications = [
-				...existingApplications,
 				{
 					uuid,
 					automergeUrl: handle()?.url,
 					...getValues(form),
 				},
+				...existingApplications,
 			];
 
 			queryClient.setQueryData(
@@ -260,12 +260,12 @@ export const useMyPassportForm = () => {
 		};
 
 		if (routeParams.uuid) {
-			updateExistingFormEntry();
+			queueMicrotask(() => updateExistingFormEntry());
 
 			return;
 		}
 
-		registerNewForm();
+		queueMicrotask(() => registerNewForm());
 	});
 
 	return {
