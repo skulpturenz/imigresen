@@ -45,7 +45,7 @@ export const Wizard: Component<ParentProps<WizardProps>> = props => {
 
 	return (
 		<>
-			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-24 sm:mb-0">
+			<div class="grid grid-cols-3 md:flex md:gap-12 md:flex-col border border-accent py-8 px-4 md:px-8 mb-24 sm:mb-0 shadow-sm">
 				<div
 					class={cn(
 						"col-span-1",
