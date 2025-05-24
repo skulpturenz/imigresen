@@ -1,3 +1,4 @@
+import { randFirstName, randLastName } from "@ngneat/falso";
 import { A } from "@solidjs/router";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { useI18n } from "core/context/i18n";
@@ -158,36 +159,64 @@ export const Home = () => {
 										<A href={getHref()} class="group">
 											<Card class="h-full">
 												<CardHeader>
-													<Tooltip>
-														<TooltipTrigger
-															as={CardTitle}
-															class="truncate">
-															{
-																item
-																	.personalDetails
-																	.firstName
-															}
-															&nbsp;
-															{
-																item
-																	.personalDetails
-																	.lastName
-															}
-														</TooltipTrigger>
-														<TooltipContent>
-															{
-																item
-																	.personalDetails
-																	.firstName
-															}
-															&nbsp;
-															{
-																item
-																	.personalDetails
-																	.lastName
-															}
-														</TooltipContent>
-													</Tooltip>
+													<Show
+														when={
+															item.personalDetails
+																.firstName ||
+															item.personalDetails
+																.lastName
+														}>
+														<Tooltip>
+															<TooltipTrigger
+																as={CardTitle}
+																class="truncate">
+																{[
+																	item
+																		.personalDetails
+																		.firstName,
+																	item
+																		.personalDetails
+																		.lastName,
+																]
+																	.filter(
+																		Boolean,
+																	)
+																	.join(" ")}
+															</TooltipTrigger>
+															<TooltipContent>
+																{[
+																	item
+																		.personalDetails
+																		.firstName,
+																	item
+																		.personalDetails
+																		.lastName,
+																]
+																	.filter(
+																		Boolean,
+																	)
+																	.join(" ")}
+															</TooltipContent>
+														</Tooltip>
+													</Show>
+
+													<Show
+														when={
+															!item
+																.personalDetails
+																.firstName &&
+															!item
+																.personalDetails
+																.lastName
+														}>
+														<CardTitle class="text-muted-foreground">
+															{[
+																randFirstName(),
+																randLastName(),
+															].join(" ")}
+														</CardTitle>
+													</Show>
+
 													<CardDescription>
 														Malaysian passport
 													</CardDescription>
