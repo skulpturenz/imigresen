@@ -20,7 +20,13 @@ import type {
 	PassportApplication,
 } from "feat/my-passport-form/types";
 import { useDocHandle, useRepo } from "solid-automerge";
-import { createEffect, createSignal, onCleanup, type Resource } from "solid-js";
+import {
+	createEffect,
+	createRenderEffect,
+	createSignal,
+	onCleanup,
+	type Resource,
+} from "solid-js";
 
 export type MaybeResource<T> = Resource<T> | T;
 
@@ -144,7 +150,7 @@ export const useMyPassportForm = () => {
 		});
 	});
 
-	createEffect(() => {
+	createRenderEffect(() => {
 		if (!isResource(handle)) {
 			return;
 		}
@@ -159,7 +165,7 @@ export const useMyPassportForm = () => {
 					keepDirtyValues: true,
 					keepDirty: true,
 				}),
-			50,
+			15,
 		);
 	});
 
@@ -177,6 +183,10 @@ export const useMyPassportForm = () => {
 	});
 
 	onCleanup(() => {
+		if (!form.dirty) {
+			return;
+		}
+
 		const updateExistingFormEntry = () => {
 			invariant(
 				access(handle)?.url,
