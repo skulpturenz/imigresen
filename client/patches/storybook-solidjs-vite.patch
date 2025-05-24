@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 5531ca00aa0b21bab24bd3919c3f3f8350456983..663f87a027c25b7cc3c206234174edd1f1f78f76 100644
+--- a/package.json
++++ b/package.json
+@@ -52,7 +52,7 @@
+     "@storybook/builder-vite": "next",
+     "@storybook/types": "next",
+     "magic-string": "^0.30.11",
+-    "storybook-solidjs": "1.0.0-beta.7"
++    "storybook-solidjs": "workspace:*"
+   },
+   "devDependencies": {
+     "solid-js": "~1.9.0",

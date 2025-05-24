@@ -1,0 +1,75 @@
+diff --git a/dist/chunk-BR5HNRIH.mjs b/dist/chunk-BR5HNRIH.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..d7eec5d01575780f854ea9681b8cc64ba15401b9
+--- /dev/null
++++ b/dist/chunk-BR5HNRIH.mjs
+@@ -0,0 +1,9 @@
++import { __export } from './chunk-CEH6MNVV.mjs';
++import { createComponent, mergeProps, render as render$1 } from 'solid-js/web';
++import { onMount, ErrorBoundary } from 'solid-js';
++import { createStore } from 'solid-js/store';
++import { Semaphore } from 'async-mutex';
++
++var entry_preview_exports={};__export(entry_preview_exports,{decorators:()=>decorators,parameters:()=>parameters,render:()=>render,renderToCanvas:()=>renderToCanvas});var[store,setStore]=createStore({}),solidReactivityDecorator=(Story,context)=>{let storyId=context.canvasElement.id;return context.args=store[storyId].args,createComponent(Story,mergeProps(()=>context.args))},cleanStoryStore=storeId=>{setStore({[storeId]:{args:{},rendered:false,disposeFn:()=>{}}});},disposeStory=storeId=>{store[storeId]?.disposeFn?.();},remountStory=storyId=>{disposeStory(storyId),cleanStoryStore(storyId);},storyIsRendered=storyId=>!!store[storyId]?.rendered,renderSolidApp=(storyId,renderContext,canvasElement)=>{let{storyContext,storyFn,showMain,showException}=renderContext;setStore(storyId,"rendered",true);let App=()=>{let Story=storyFn;return onMount(()=>{showMain();}),createComponent(ErrorBoundary,{fallback:err=>(showException(err),err),get children(){return createComponent(Story,storyContext)}})};return render$1(()=>createComponent(App,{}),canvasElement)},semaphore=new Semaphore(1);async function renderToCanvas(renderContext,canvasElement){let{storyContext,forceRemount}=renderContext,storyId=storyContext.canvasElement.id;forceRemount&&remountStory(storyId),setStore(storyId,"args",storyContext.args),storyIsRendered(storyId)===false&&await semaphore.runExclusive(async()=>{let disposeFn=renderSolidApp(storyId,renderContext,canvasElement);setStore(storyId,prev=>({...prev,disposeFn}));});}var render=(_,context)=>{let{id,component:Component}=context;if(!Component)throw new Error(`Unable to render story ${id} as the component annotation is missing from the default export`);return createComponent(Component,mergeProps(()=>context.args))};var parameters={renderer:"solid"},decorators=[solidReactivityDecorator];
++
++export { decorators, entry_preview_exports, parameters, render, renderToCanvas };
+diff --git a/dist/chunk-R24FBBRX.mjs b/dist/chunk-R24FBBRX.mjs
+deleted file mode 100644
+index 23f27bdaec15365e47959ab95c50b9e2c5d375ec..0000000000000000000000000000000000000000
+diff --git a/dist/entry-preview.js b/dist/entry-preview.js
+index 0519493bbc1f4eece73a9c9f876e141723b2a22a..bd4d312db877682d45260c0ae7c29638d9c6f002 100644
+--- a/dist/entry-preview.js
++++ b/dist/entry-preview.js
+@@ -1,11 +1,11 @@
+ 'use strict';
+ 
++var web = require('solid-js/web');
+ var solidJs = require('solid-js');
+ var store$1 = require('solid-js/store');
+-var web = require('solid-js/web');
+ var asyncMutex = require('async-mutex');
+ 
+-var[store,setStore]=store$1.createStore({}),solidReactivityDecorator=(Story,context)=>{let storyId=context.canvasElement.id;return context.args=store[storyId].args,React.createElement(Story,{...context.args})},cleanStoryStore=storeId=>{setStore({[storeId]:{args:{},rendered:false,disposeFn:()=>{}}});},disposeStory=storeId=>{store[storeId]?.disposeFn?.();},remountStory=storyId=>{disposeStory(storyId),cleanStoryStore(storyId);},storyIsRendered=storyId=>!!store[storyId]?.rendered,renderSolidApp=(storyId,renderContext,canvasElement)=>{let{storyContext,storyFn,showMain,showException}=renderContext;setStore(storyId,"rendered",true);let App=()=>{let Story=storyFn;return solidJs.onMount(()=>{showMain();}),React.createElement(solidJs.ErrorBoundary,{fallback:err=>(showException(err),err)},React.createElement(Story,{...storyContext}))};return web.render(()=>React.createElement(App,null),canvasElement)},semaphore=new asyncMutex.Semaphore(1);async function renderToCanvas(renderContext,canvasElement){let{storyContext,forceRemount}=renderContext,storyId=storyContext.canvasElement.id;forceRemount&&remountStory(storyId),setStore(storyId,"args",storyContext.args),storyIsRendered(storyId)===false&&await semaphore.runExclusive(async()=>{let disposeFn=renderSolidApp(storyId,renderContext,canvasElement);setStore(storyId,prev=>({...prev,disposeFn}));});}var render=(_,context)=>{let{id,component:Component}=context;if(!Component)throw new Error(`Unable to render story ${id} as the component annotation is missing from the default export`);return React.createElement(Component,{...context.args})};var parameters={renderer:"solid"},decorators=[solidReactivityDecorator];
++var[store,setStore]=store$1.createStore({}),solidReactivityDecorator=(Story,context)=>{let storyId=context.canvasElement.id;return context.args=store[storyId].args,web.createComponent(Story,web.mergeProps(()=>context.args))},cleanStoryStore=storeId=>{setStore({[storeId]:{args:{},rendered:false,disposeFn:()=>{}}});},disposeStory=storeId=>{store[storeId]?.disposeFn?.();},remountStory=storyId=>{disposeStory(storyId),cleanStoryStore(storyId);},storyIsRendered=storyId=>!!store[storyId]?.rendered,renderSolidApp=(storyId,renderContext,canvasElement)=>{let{storyContext,storyFn,showMain,showException}=renderContext;setStore(storyId,"rendered",true);let App=()=>{let Story=storyFn;return solidJs.onMount(()=>{showMain();}),web.createComponent(solidJs.ErrorBoundary,{fallback:err=>(showException(err),err),get children(){return web.createComponent(Story,storyContext)}})};return web.render(()=>web.createComponent(App,{}),canvasElement)},semaphore=new asyncMutex.Semaphore(1);async function renderToCanvas(renderContext,canvasElement){let{storyContext,forceRemount}=renderContext,storyId=storyContext.canvasElement.id;forceRemount&&remountStory(storyId),setStore(storyId,"args",storyContext.args),storyIsRendered(storyId)===false&&await semaphore.runExclusive(async()=>{let disposeFn=renderSolidApp(storyId,renderContext,canvasElement);setStore(storyId,prev=>({...prev,disposeFn}));});}var render=(_,context)=>{let{id,component:Component}=context;if(!Component)throw new Error(`Unable to render story ${id} as the component annotation is missing from the default export`);return web.createComponent(Component,web.mergeProps(()=>context.args))};var parameters={renderer:"solid"},decorators=[solidReactivityDecorator];
+ 
+ exports.decorators = decorators;
+ exports.parameters = parameters;
+diff --git a/dist/entry-preview.mjs b/dist/entry-preview.mjs
+index b61dec01038555c261556755104930055f5ebb44..e364e07dcae7c5018b993568e4f9081c31652e8e 100644
+--- a/dist/entry-preview.mjs
++++ b/dist/entry-preview.mjs
+@@ -1,2 +1,2 @@
+-export { decorators, parameters, render, renderToCanvas } from './chunk-R24FBBRX.mjs';
++export { decorators, parameters, render, renderToCanvas } from './chunk-BR5HNRIH.mjs';
+ import './chunk-CEH6MNVV.mjs';
+diff --git a/dist/index.js b/dist/index.js
+index 5ce8a3a6a789e43160618e59d6ce2503ca3df8f7..d4783c38acbe718d5cee3410680d518a412e3404 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -2,11 +2,11 @@
+ 
+ var global = require('@storybook/global');
+ var previewApi = require('@storybook/preview-api');
++var web = require('solid-js/web');
+ var solidJs = require('solid-js');
+ var store$1 = require('solid-js/store');
+-var web = require('solid-js/web');
+ var asyncMutex = require('async-mutex');
+ 
+-var __defProp=Object.defineProperty;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:true});};var{window:globalWindow}=global.global;globalWindow.STORYBOOK_ENV="solid";var entry_preview_exports={};__export(entry_preview_exports,{decorators:()=>decorators,parameters:()=>parameters,render:()=>render,renderToCanvas:()=>renderToCanvas});var[store,setStore]=store$1.createStore({}),solidReactivityDecorator=(Story,context)=>{let storyId=context.canvasElement.id;return context.args=store[storyId].args,React.createElement(Story,{...context.args})},cleanStoryStore=storeId=>{setStore({[storeId]:{args:{},rendered:false,disposeFn:()=>{}}});},disposeStory=storeId=>{store[storeId]?.disposeFn?.();},remountStory=storyId=>{disposeStory(storyId),cleanStoryStore(storyId);},storyIsRendered=storyId=>!!store[storyId]?.rendered,renderSolidApp=(storyId,renderContext,canvasElement)=>{let{storyContext,storyFn,showMain,showException}=renderContext;setStore(storyId,"rendered",true);let App=()=>{let Story=storyFn;return solidJs.onMount(()=>{showMain();}),React.createElement(solidJs.ErrorBoundary,{fallback:err=>(showException(err),err)},React.createElement(Story,{...storyContext}))};return web.render(()=>React.createElement(App,null),canvasElement)},semaphore=new asyncMutex.Semaphore(1);async function renderToCanvas(renderContext,canvasElement){let{storyContext,forceRemount}=renderContext,storyId=storyContext.canvasElement.id;forceRemount&&remountStory(storyId),setStore(storyId,"args",storyContext.args),storyIsRendered(storyId)===false&&await semaphore.runExclusive(async()=>{let disposeFn=renderSolidApp(storyId,renderContext,canvasElement);setStore(storyId,prev=>({...prev,disposeFn}));});}var render=(_,context)=>{let{id,component:Component}=context;if(!Component)throw new Error(`Unable to render story ${id} as the component annotation is missing from the default export`);return React.createElement(Component,{...context.args})};var parameters={renderer:"solid"},decorators=[solidReactivityDecorator];function setProjectAnnotations(projectAnnotations){return previewApi.setDefaultProjectAnnotations(entry_preview_exports),previewApi.setProjectAnnotations(projectAnnotations)}
++var __defProp=Object.defineProperty;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:true});};var{window:globalWindow}=global.global;globalWindow.STORYBOOK_ENV="solid";var entry_preview_exports={};__export(entry_preview_exports,{decorators:()=>decorators,parameters:()=>parameters,render:()=>render,renderToCanvas:()=>renderToCanvas});var[store,setStore]=store$1.createStore({}),solidReactivityDecorator=(Story,context)=>{let storyId=context.canvasElement.id;return context.args=store[storyId].args,web.createComponent(Story,web.mergeProps(()=>context.args))},cleanStoryStore=storeId=>{setStore({[storeId]:{args:{},rendered:false,disposeFn:()=>{}}});},disposeStory=storeId=>{store[storeId]?.disposeFn?.();},remountStory=storyId=>{disposeStory(storyId),cleanStoryStore(storyId);},storyIsRendered=storyId=>!!store[storyId]?.rendered,renderSolidApp=(storyId,renderContext,canvasElement)=>{let{storyContext,storyFn,showMain,showException}=renderContext;setStore(storyId,"rendered",true);let App=()=>{let Story=storyFn;return solidJs.onMount(()=>{showMain();}),web.createComponent(solidJs.ErrorBoundary,{fallback:err=>(showException(err),err),get children(){return web.createComponent(Story,storyContext)}})};return web.render(()=>web.createComponent(App,{}),canvasElement)},semaphore=new asyncMutex.Semaphore(1);async function renderToCanvas(renderContext,canvasElement){let{storyContext,forceRemount}=renderContext,storyId=storyContext.canvasElement.id;forceRemount&&remountStory(storyId),setStore(storyId,"args",storyContext.args),storyIsRendered(storyId)===false&&await semaphore.runExclusive(async()=>{let disposeFn=renderSolidApp(storyId,renderContext,canvasElement);setStore(storyId,prev=>({...prev,disposeFn}));});}var render=(_,context)=>{let{id,component:Component}=context;if(!Component)throw new Error(`Unable to render story ${id} as the component annotation is missing from the default export`);return web.createComponent(Component,web.mergeProps(()=>context.args))};var parameters={renderer:"solid"},decorators=[solidReactivityDecorator];function setProjectAnnotations(projectAnnotations){return previewApi.setDefaultProjectAnnotations(entry_preview_exports),previewApi.setProjectAnnotations(projectAnnotations)}
+ 
+ exports.setProjectAnnotations = setProjectAnnotations;
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 232c8e48cdf2466eb59e21d4e2f8da76459012f5..92c450fcb10c470026a6fd869dc884d5a8781eb0 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,4 +1,4 @@
+-import { entry_preview_exports } from './chunk-R24FBBRX.mjs';
++import { entry_preview_exports } from './chunk-BR5HNRIH.mjs';
+ import './chunk-CEH6MNVV.mjs';
+ import { global } from '@storybook/global';
+ import { setProjectAnnotations as setProjectAnnotations$1, setDefaultProjectAnnotations } from '@storybook/preview-api';
+diff --git a/src/typings.d.ts b/src/typings.d.ts
+deleted file mode 100644
+index 8c32ddcdb9e11a72f43a1e6d7ef8aa9a9ddd45ff..0000000000000000000000000000000000000000
