@@ -27,18 +27,7 @@ export const usePassportApplications = () => {
 			})) ?? [],
 		);
 
-		const passportApplications = handles
-			.sort(
-				// descending
-				(a, b) => -1 * UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid)),
-			)
-			.map(application => ({
-				uuid: application.uuid,
-				automergeUrl: application.automergeUrl,
-				...application.handle.doc(),
-			})) as unknown as PassportApplication[];
-
-		return passportApplications;
+		return handles;
 	};
 
 	const passportApplications = useQuery(() => ({
@@ -46,6 +35,16 @@ export const usePassportApplications = () => {
 			authnContext().keycloak?.token,
 		),
 		queryFn: getPassportApplications,
+		select: data =>
+			data
+				.sort((a, b) =>
+					desc(UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid))),
+				)
+				.map(application => ({
+					uuid: application.uuid,
+					automergeUrl: application.automergeUrl,
+					...application.handle.doc(),
+				})) as unknown as PassportApplication[],
 		get enabled() {
 			return Boolean(automergeUrls.data);
 		},
@@ -55,3 +54,5 @@ export const usePassportApplications = () => {
 		passportApplications,
 	};
 };
+
+const desc = (sortOrder: number) => -1 * sortOrder;

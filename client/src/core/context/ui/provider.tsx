@@ -51,9 +51,9 @@ export const UiProvider: Component<ParentProps> = props => {
 	});
 
 	return (
-		<RepoContext.Provider value={repo}>
-			<UiContext.Provider value={value}>
-				<Show when={!value().isInitialLoading()}>
+		<UiContext.Provider value={value}>
+			<Show when={!value().isInitialLoading()}>
+				<RepoContext.Provider value={repo}>
 					<QueryClientProvider
 						client={value().queryClient as QueryClient}>
 						<I18nProvider locale={value().locale}>
@@ -64,8 +64,8 @@ export const UiProvider: Component<ParentProps> = props => {
 							</ToastRegion>
 						</I18nProvider>
 					</QueryClientProvider>
-				</Show>
-			</UiContext.Provider>
-		</RepoContext.Provider>
+				</RepoContext.Provider>
+			</Show>
+		</UiContext.Provider>
 	);
 };
