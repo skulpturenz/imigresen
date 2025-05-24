@@ -1,5 +1,5 @@
 import type { createForm, FormStore } from "@modular-forms/solid";
-import type { MyPassportForm } from "./api";
+import type { MyPassportForm } from "./form";
 
 export enum Step {
 	PersonalDetails = 1,

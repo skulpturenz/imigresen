@@ -1,5 +1,8 @@
 export interface PassportApplication {
-	hello: string;
+	personalDetails: {
+		firstName: string;
+		lastName: string;
+	};
 	uuid: string;
 	automergeUrl: string;
 }

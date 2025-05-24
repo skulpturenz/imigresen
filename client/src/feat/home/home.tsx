@@ -42,8 +42,8 @@ export const Home = () => {
 								};
 
 								return (
-									<li class="text-white">
-										<A href={getHref()}>{item.hello}</A>
+									<li class="text-foreground">
+										<A href={getHref()}>{item.uuid}</A>
 									</li>
 								);
 							}}

@@ -48,9 +48,7 @@ export const useMyPassportForm = () => {
 			return handle;
 		}
 
-		return repo.create<MyPassportForm>({
-			hello: "world",
-		});
+		return repo.create<MyPassportForm>();
 	};
 	const handle = getDocHandle();
 
