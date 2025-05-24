@@ -8,7 +8,7 @@ import { usePassportApplications } from "./hooks/usePassportApplications";
 import type { resources } from "./resources/i18n/en-US";
 
 export const Home = () => {
-	const { queries } = usePassportApplications();
+	const { passportApplications } = usePassportApplications();
 	const t = useI18n<typeof resources>();
 
 	return (
@@ -19,10 +19,10 @@ export const Home = () => {
 				</Button>
 			</div>
 
-			<Show when={!queries.passportApplications.isLoading}>
+			<Show when={!passportApplications.isLoading}>
 				<div class="bg-background">
 					<ul>
-						<For each={queries.passportApplications.data}>
+						<For each={passportApplications.data}>
 							{item => {
 								const getHref = () => {
 									const url = new URL(location.origin);
