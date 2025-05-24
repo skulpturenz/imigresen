@@ -127,7 +127,6 @@ export const useMyPassportForm = () => {
 	};
 
 	createEffect(() => {
-		// TODO: think this would just retrieve all dirty fields
 		const dirtyFields = flattenObject(
 			getValues(form, {
 				shouldDirty: true,
