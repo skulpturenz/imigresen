@@ -24,6 +24,7 @@ import {
 } from "ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
+import { cn } from "ui/utils";
 import { usePassportApplications } from "./hooks/usePassportApplications";
 import type { resources } from "./resources/i18n/en-US";
 
@@ -128,15 +129,11 @@ export const Home = () => {
 								<Typography variant="h3">
 									Your latest travel document has the
 									number&nbsp;
-									<span
-										// TODO: decoration color depending on time to expiry
-										class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
 										A1234123
 									</span>
 									&nbsp; and is due to expire &nbsp;
-									<span
-										// TODO: decoration color depending on time to expiry
-										class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
 										today
 									</span>
 								</Typography>
@@ -150,14 +147,66 @@ export const Home = () => {
 									Your latest travel document has the
 									number&nbsp;
 									<span
-										// TODO: decoration color depending on time to expiry
-										class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
+										class={cn(
+											"underline underline-offset-4",
+											{
+												"decoration-green-500 dark:decoration-green-900":
+													getDifferenceUnit(
+														randomDate,
+													) === "years" ||
+													(getDifferenceUnit(
+														randomDate,
+													) === "months" &&
+														getDifference(
+															randomDate,
+														) > 6),
+												"decoration-yellow-500 dark:decoration-yellow-900":
+													getDifferenceUnit(
+														randomDate,
+													) === "months" &&
+													getDifference(randomDate) <=
+														6,
+												"decoration-red-500 dark:decoration-red-900":
+													getDifferenceUnit(
+														randomDate,
+													) !== "years" &&
+													getDifferenceUnit(
+														randomDate,
+													) !== "months",
+											},
+										)}>
 										A1234123
-									</span>{" "}
-									and is due to expire in{" "}
+									</span>
+									&nbsp; and is due to expire in&nbsp;
 									<span
-										// TODO: decoration color depending on time to expiry
-										class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
+										class={cn(
+											"underline underline-offset-4",
+											{
+												"decoration-green-500 dark:decoration-green-900":
+													getDifferenceUnit(
+														randomDate,
+													) === "years" ||
+													(getDifferenceUnit(
+														randomDate,
+													) === "months" &&
+														getDifference(
+															randomDate,
+														) > 6),
+												"decoration-yellow-500 dark:decoration-yellow-900":
+													getDifferenceUnit(
+														randomDate,
+													) === "months" &&
+													getDifference(randomDate) <=
+														6,
+												"decoration-red-500 dark:decoration-red-900":
+													getDifferenceUnit(
+														randomDate,
+													) !== "years" &&
+													getDifferenceUnit(
+														randomDate,
+													) !== "months",
+											},
+										)}>
 										{getDifference(randomDate)}&nbsp;
 										{getDifferenceUnit(randomDate)}
 									</span>
