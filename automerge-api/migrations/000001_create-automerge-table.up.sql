@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS automerge (
+    id BIGINT GENERATED ALWAYS AS IDENTITY,
+    key TEXT NOT NULL,
+    data BYTEA NOT NULL,
+    deleted BOOLEAN,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT pk_automerge PRIMARY KEY (id, key)
+)
