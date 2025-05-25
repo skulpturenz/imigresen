@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS automerge (
     deleted BOOLEAN,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT pk_automerge PRIMARY KEY (id, key)
-)
+);

@@ -2,7 +2,8 @@ FROM node:lts AS base
 
 RUN apt update && apt upgrade -y && \
     apt install vim bash-completion -y && \
-    curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-arm64.deb -o migrate.deb && dpkg -i migrate.deb
+    curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-$(dpkg --print-architecture).deb -o migrate.deb && \
+    dpkg -i migrate.deb
 RUN git config --global pager.branch false
 RUN echo "if [ -f /etc/bash_completion ]; then\n\t. /etc/bash_completion\nfi" >> /etc/bash.bashrc
 
