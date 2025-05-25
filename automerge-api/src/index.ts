@@ -43,7 +43,7 @@ app.get("/", async c => {
 	});
 
 	return new Response(null, {
-		status: StatusCode.UpgradeRequired,
+		status: StatusCode.SwitchingProtocols,
 		webSocket: client,
 	});
 });
