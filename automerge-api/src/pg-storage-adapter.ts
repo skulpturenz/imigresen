@@ -59,8 +59,9 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 	}
 
 	async loadRange(keyPrefix: StorageKey): Promise<Chunk[]> {
+		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
 		const result = (await this
-			.#sql`SELECT key, data FROM automerge WHERE key LIKE '${serializeStorageKey(keyPrefix)}%'`) as AutomergeRow[];
+			.#sql`SELECT key, data FROM automerge WHERE key LIKE ${serializeStorageKey(keyPrefix) + "%"}`) as AutomergeRow[];
 
 		return result.map(({ key, data }) => ({
 			key: key.split("."),
@@ -69,8 +70,9 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 	}
 
 	async removeRange(keyPrefix: StorageKey): Promise<void> {
+		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
 		const result = await this
-			.#sql`DELETE FROM automerge WHERE key LIKE '${serializeStorageKey(keyPrefix)}%'
+			.#sql`DELETE FROM automerge WHERE key LIKE ${serializeStorageKey(keyPrefix) + "%"}
 			
 			RETURNING *`;
 
