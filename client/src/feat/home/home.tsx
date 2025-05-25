@@ -42,7 +42,7 @@ export const Home = () => {
 			"Expiry date must be greater than or equal to today",
 		);
 
-		const yearsToExpiry = differenceInYears(expiryDate, Date.now());
+		const yearsToExpiry = differenceInYears(expiryDate, new Date());
 		if (yearsToExpiry > 1) {
 			return yearsToExpiry;
 		}
@@ -70,7 +70,7 @@ export const Home = () => {
 			"Expiry date must be greater than or equal to today",
 		);
 
-		const yearsToExpiry = differenceInYears(expiryDate, Date.now());
+		const yearsToExpiry = differenceInYears(expiryDate, new Date());
 		if (yearsToExpiry > 1) {
 			return "years";
 		}
