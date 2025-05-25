@@ -1,14 +1,17 @@
-import { randFirstName, randLastName } from "@ngneat/falso";
+import { randBetweenDate, randFirstName, randLastName } from "@ngneat/falso";
 import { A } from "@solidjs/router";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { useI18n } from "core/context/i18n";
 import { toPath } from "core/router/route";
 import {
+	addYears,
 	differenceInDays,
 	differenceInMonths,
 	differenceInWeeks,
 	differenceInYears,
+	isBefore,
 } from "date-fns";
+import { invariant } from "es-toolkit";
 import { For, Show } from "solid-js";
 import { Button } from "ui/button";
 import {
@@ -29,18 +32,26 @@ export const Home = () => {
 	const t = useI18n<typeof resources>();
 
 	const getDifference = (expiryDate: Date) => {
+		invariant(
+			!isBefore(
+				expiryDate.toLocaleDateString("en-US"),
+				new Date().toLocaleDateString("en-US"),
+			),
+			"Expiry date must be greater than or equal to today",
+		);
+
 		const yearsToExpiry = differenceInYears(expiryDate, Date.now());
-		if (yearsToExpiry > 0) {
+		if (yearsToExpiry > 1) {
 			return yearsToExpiry;
 		}
 
 		const monthsToExpiry = differenceInMonths(expiryDate, new Date());
-		if (monthsToExpiry > 0) {
+		if (monthsToExpiry > 1) {
 			return monthsToExpiry;
 		}
 
 		const weeksToExpiry = differenceInWeeks(expiryDate, new Date());
-		if (weeksToExpiry > 0) {
+		if (weeksToExpiry > 1) {
 			return weeksToExpiry;
 		}
 
@@ -49,23 +60,41 @@ export const Home = () => {
 	};
 
 	const getDifferenceUnit = (expiryDate: Date) => {
+		invariant(
+			!isBefore(
+				expiryDate.toLocaleDateString("en-US"),
+				new Date().toLocaleDateString("en-US"),
+			),
+			"Expiry date must be greater than or equal to today",
+		);
+
 		const yearsToExpiry = differenceInYears(expiryDate, Date.now());
-		if (yearsToExpiry > 0) {
+		if (yearsToExpiry > 1) {
 			return "years";
 		}
 
 		const monthsToExpiry = differenceInMonths(expiryDate, new Date());
-		if (monthsToExpiry > 0) {
+		if (monthsToExpiry > 1) {
 			return "months";
 		}
 
 		const weeksToExpiry = differenceInWeeks(expiryDate, new Date());
-		if (weeksToExpiry > 0) {
+		if (weeksToExpiry > 1) {
 			return "weeks";
+		}
+
+		const daysToExpiry = differenceInDays(expiryDate, new Date());
+		if (daysToExpiry === 0) {
+			return "today";
 		}
 
 		return "days";
 	};
+
+	const randomDate = randBetweenDate({
+		from: new Date().toLocaleDateString("en-US"),
+		to: addYears(new Date(), 5),
+	});
 
 	return (
 		<div>
@@ -92,21 +121,48 @@ export const Home = () => {
 								Summary
 							</Typography>
 
-							<Typography variant="h3">
-								Your latest travel document has the number{" "}
-								<span
-									// TODO: decoration color depending on time to expiry
-									class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
-									A1234123
-								</span>{" "}
-								and is due to expire in{" "}
-								<span
-									// TODO: decoration color depending on time to expiry
-									class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
-									{getDifference(new Date("12/12/2030"))}{" "}
-									{getDifferenceUnit(new Date("12/12/2030"))}
-								</span>
-							</Typography>
+							<Show
+								when={
+									getDifferenceUnit(randomDate) === "today"
+								}>
+								<Typography variant="h3">
+									Your latest travel document has the
+									number&nbsp;
+									<span
+										// TODO: decoration color depending on time to expiry
+										class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+										A1234123
+									</span>
+									&nbsp; and is due to expire &nbsp;
+									<span
+										// TODO: decoration color depending on time to expiry
+										class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+										today
+									</span>
+								</Typography>
+							</Show>
+
+							<Show
+								when={
+									getDifferenceUnit(randomDate) !== "today"
+								}>
+								<Typography variant="h3">
+									Your latest travel document has the
+									number&nbsp;
+									<span
+										// TODO: decoration color depending on time to expiry
+										class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
+										A1234123
+									</span>{" "}
+									and is due to expire in{" "}
+									<span
+										// TODO: decoration color depending on time to expiry
+										class="underline underline-offset-4 decoration-green-500 dark:decoration-green-900">
+										{getDifference(randomDate)}&nbsp;
+										{getDifferenceUnit(randomDate)}
+									</span>
+								</Typography>
+							</Show>
 						</div>
 
 						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
