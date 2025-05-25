@@ -97,6 +97,19 @@ export const Home = () => {
 		to: addYears(new Date(), 5),
 	});
 
+	const isValid = (expiryDate: Date) =>
+		getDifferenceUnit(expiryDate) === "years" ||
+		(getDifferenceUnit(expiryDate) === "months" &&
+			getDifference(expiryDate) > 6);
+
+	const isTimeToRenew = (expiryDate: Date) =>
+		getDifferenceUnit(expiryDate) === "months" &&
+		getDifference(expiryDate) <= 6;
+
+	const isExpired = (expiryDate: Date) =>
+		getDifferenceUnit(expiryDate) !== "years" &&
+		getDifferenceUnit(expiryDate) !== "months";
+
 	return (
 		<div>
 			<div class="flex justify-end my-8">
@@ -151,28 +164,11 @@ export const Home = () => {
 											"underline underline-offset-4",
 											{
 												"decoration-green-500 dark:decoration-green-900":
-													getDifferenceUnit(
-														randomDate,
-													) === "years" ||
-													(getDifferenceUnit(
-														randomDate,
-													) === "months" &&
-														getDifference(
-															randomDate,
-														) > 6),
+													isValid(randomDate),
 												"decoration-yellow-500 dark:decoration-yellow-900":
-													getDifferenceUnit(
-														randomDate,
-													) === "months" &&
-													getDifference(randomDate) <=
-														6,
+													isTimeToRenew(randomDate),
 												"decoration-red-500 dark:decoration-red-900":
-													getDifferenceUnit(
-														randomDate,
-													) !== "years" &&
-													getDifferenceUnit(
-														randomDate,
-													) !== "months",
+													isExpired(randomDate),
 											},
 										)}>
 										A1234123
@@ -183,28 +179,11 @@ export const Home = () => {
 											"underline underline-offset-4",
 											{
 												"decoration-green-500 dark:decoration-green-900":
-													getDifferenceUnit(
-														randomDate,
-													) === "years" ||
-													(getDifferenceUnit(
-														randomDate,
-													) === "months" &&
-														getDifference(
-															randomDate,
-														) > 6),
+													isValid(randomDate),
 												"decoration-yellow-500 dark:decoration-yellow-900":
-													getDifferenceUnit(
-														randomDate,
-													) === "months" &&
-													getDifference(randomDate) <=
-														6,
+													isTimeToRenew(randomDate),
 												"decoration-red-500 dark:decoration-red-900":
-													getDifferenceUnit(
-														randomDate,
-													) !== "years" &&
-													getDifferenceUnit(
-														randomDate,
-													) !== "months",
+													isExpired(randomDate),
 											},
 										)}>
 										{getDifference(randomDate)}&nbsp;
