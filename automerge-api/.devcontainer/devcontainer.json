@@ -1,0 +1,7 @@
+{
+	"name": "Node LTS",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"postStartCommand": "corepack pnpm install"
+}
