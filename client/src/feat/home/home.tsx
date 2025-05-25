@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { useI18n } from "core/context/i18n";
 import { toPath } from "core/router/route";
+import { generatePath } from "core/utils";
 import {
 	addYears,
 	differenceInDays,
@@ -205,11 +206,12 @@ export const Home = () => {
 												automergeUrl: item.automergeUrl,
 											});
 
-										url.pathname =
-											MyPassportForm.Edit.replace(
-												":uuid",
-												item.uuid,
-											);
+										url.pathname = generatePath(
+											MyPassportForm.Edit,
+											{
+												uuid: item.uuid,
+											},
+										);
 										url.search = searchParams.toString();
 
 										return url.href;

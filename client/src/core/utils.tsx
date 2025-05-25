@@ -1,3 +1,4 @@
+import { invariant, isNil } from "es-toolkit";
 import { splitProps, type Component, type ParentProps } from "solid-js";
 
 export const spreadProps = <T extends Record<any, any>>(props: T) =>
@@ -26,3 +27,13 @@ export const withParents =
 			</Merged>
 		);
 	};
+
+export const generatePath = (path: string, routeParams: Record<string, any>) =>
+	Object.entries(routeParams).reduce((path, [searchValue, replaceValue]) => {
+		invariant(
+			!isNil(replaceValue) && replaceValue?.toString(),
+			`Route parameter for ${searchValue} is not defined`,
+		);
+
+		return path.replace(`:${searchValue}`, replaceValue.toString());
+	}, path);
