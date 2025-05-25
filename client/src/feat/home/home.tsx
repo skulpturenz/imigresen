@@ -175,21 +175,30 @@ export const Home = () => {
 										A1234123
 									</span>
 									&nbsp; and is due to expire in&nbsp;
-									<span
-										class={cn(
-											"underline underline-offset-4",
-											{
-												"decoration-green-500 dark:decoration-green-900":
-													isValid(randomDate),
-												"decoration-yellow-500 dark:decoration-yellow-900":
-													isTimeToRenew(randomDate),
-												"decoration-red-500 dark:decoration-red-900":
-													isExpired(randomDate),
-											},
-										)}>
-										{getDifference(randomDate)}&nbsp;
-										{getDifferenceUnit(randomDate)}
-									</span>
+									<Tooltip>
+										<TooltipTrigger
+											as="span"
+											class={cn(
+												"underline underline-offset-4",
+												{
+													"decoration-green-500 dark:decoration-green-900":
+														isValid(randomDate),
+													"decoration-yellow-500 dark:decoration-yellow-900":
+														isTimeToRenew(
+															randomDate,
+														),
+													"decoration-red-500 dark:decoration-red-900":
+														isExpired(randomDate),
+												},
+											)}>
+											{getDifference(randomDate)}&nbsp;
+											{getDifferenceUnit(randomDate)}
+										</TooltipTrigger>
+
+										<TooltipContent>
+											{randomDate.toDateString()}
+										</TooltipContent>
+									</Tooltip>
 								</Typography>
 							</Show>
 						</div>
