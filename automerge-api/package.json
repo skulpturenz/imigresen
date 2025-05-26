@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@automerge/automerge-repo": "^2.0.0",
 		"@automerge/automerge-repo-network-websocket": "^2.0.0",
+		"@hono/oidc-auth": "^1.6.0",
 		"cbor-x": "^1.6.0",
 		"es-toolkit": "^1.38.0",
 		"hono": "^4.7.10",
