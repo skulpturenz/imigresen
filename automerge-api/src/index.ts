@@ -24,6 +24,11 @@ enum HttpMethod {
 	Options = "OPTIONS",
 }
 
+enum HttpHeaders {
+	UpgradeInsecureRequests = "Upgrade-Insecure-Requests",
+	Upgrade = "Upgrade",
+}
+
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 app.use(
 	initOidcAuthMiddleware({
@@ -40,7 +45,10 @@ app.use(
 		origin: origin => {
 			return origin; // TODO
 		},
-		allowHeaders: ["Upgrade-Insecure-Requests"],
+		allowHeaders: [
+			HttpHeaders.UpgradeInsecureRequests,
+			HttpHeaders.Upgrade,
+		],
 		allowMethods: [HttpMethod.Get, HttpMethod.Options],
 		credentials: false,
 	}),
@@ -57,7 +65,7 @@ app.get("/callback", processOAuthCallback);
 app.use("*", oidcAuthMiddleware());
 
 app.get("/", async c => {
-	if (c.req.header("Upgrade") !== "websocket") {
+	if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 		return new Response("Expected Upgrade: websocket", {
 			status: StatusCode.UpgradeRequired,
 		});
