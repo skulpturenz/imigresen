@@ -203,7 +203,7 @@ export const Home = () => {
 							</Show>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
 							<For each={passportApplications.data}>
 								{item => {
 									const getHref = () => {
@@ -251,7 +251,9 @@ export const Home = () => {
 									];
 
 									return (
-										<A href={getHref()} class="group">
+										<A
+											href={getHref()}
+											class="group hover:scale-105 group-hover:not-hover:scale-95 transition-transform">
 											<Card class="h-full">
 												<CardHeader>
 													<Show
