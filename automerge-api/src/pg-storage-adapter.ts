@@ -28,6 +28,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 		const result = (await this
 			.sql`SELECT data FROM automerge WHERE key = ${serializeStorageKey(key)}`) as AutomergeRow[];
 
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug("loaded", serializeStorageKey(key), result);
+		}
+
 		if (!result.length) {
 			return;
 		}
@@ -50,6 +54,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			
 		RETURNING *`;
 
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug("saved", serializeStorageKey(key), result);
+		}
+
 		invariant(
 			result.length,
 			new HTTPException(500, {
@@ -64,6 +72,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			
 			RETURNING *`;
 
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug("removed", serializeStorageKey(key), result);
+		}
+
 		invariant(
 			result.length,
 			new HTTPException(500, {
@@ -76,6 +88,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
 		const result = (await this
 			.sql`SELECT key, data FROM automerge WHERE key LIKE ${serializeStorageKey(keyPrefix) + "%"}`) as AutomergeRow[];
+
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug("loadRange", serializeStorageKey(keyPrefix), result);
+		}
 
 		if (!result.length) {
 			return [];
@@ -93,6 +109,14 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			.sql`DELETE FROM automerge WHERE key LIKE ${serializeStorageKey(keyPrefix) + "%"}
 			
 			RETURNING *`;
+
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug(
+				"removeRange",
+				serializeStorageKey(keyPrefix),
+				result,
+			);
+		}
 
 		invariant(
 			result.length,
