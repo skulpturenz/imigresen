@@ -29,12 +29,6 @@ export default [
 		rules: {
 			eqeqeq: "error",
 			"no-duplicate-imports": "error",
-			"import/no-nodejs-modules": [
-				"error",
-				{
-					allow: [],
-				},
-			],
 			"import/no-namespace": "error",
 			"import/no-default-export": "error",
 			"@typescript-eslint/no-unused-vars": [

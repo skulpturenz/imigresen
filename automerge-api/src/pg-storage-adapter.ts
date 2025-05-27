@@ -5,8 +5,8 @@ import {
 } from "@automerge/automerge-repo";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
-// eslint-disable-next-line import/no-nodejs-modules
-import { Buffer } from "node:buffer"; // TODO
+import { HTTPException } from "hono/http-exception";
+import { Buffer } from "node:buffer";
 import { default as postgres } from "postgres";
 
 interface AutomergeRow {
@@ -32,7 +32,12 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			.sql`SELECT data FROM automerge WHERE key = ${serializeStorageKey(key)}`) as AutomergeRow[];
 
 		const row = result.at(0);
-		invariant(row?.data, `Unable to load "${serializeStorageKey(key)}"`);
+		invariant(
+			row?.data,
+			new HTTPException(500, {
+				message: `Unable to load "${serializeStorageKey(key)}"`,
+			}),
+		);
 
 		return Buffer.from(row.data);
 	}
@@ -46,7 +51,9 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 
 		invariant(
 			result.length,
-			`No data for "${serializeStorageKey(key)}" inserted`,
+			new HTTPException(500, {
+				message: `No data for "${serializeStorageKey(key)}" inserted`,
+			}),
 		);
 	}
 
@@ -56,7 +63,12 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			
 			RETURNING *`;
 
-		invariant(result.length, `"${serializeStorageKey(key)}" not removed`);
+		invariant(
+			result.length,
+			new HTTPException(500, {
+				message: `"${serializeStorageKey(key)}" not removed`,
+			}),
+		);
 	}
 
 	async loadRange(keyPrefix: StorageKey): Promise<Chunk[]> {
@@ -79,7 +91,9 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 
 		invariant(
 			result.length,
-			`"${serializeStorageKey(keyPrefix)}" not removed`,
+			new HTTPException(500, {
+				message: `"${serializeStorageKey(keyPrefix)}" not removed`,
+			}),
 		);
 	}
 }

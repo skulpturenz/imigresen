@@ -4,9 +4,6 @@ import {
 	type PeerId,
 	type PeerMetadata,
 } from "@automerge/automerge-repo";
-// eslint-disable-next-line import/no-nodejs-modules
-import { Buffer } from "node:buffer"; // TODO
-
 import {
 	ProtocolV1,
 	type FromClientMessage,
@@ -15,6 +12,8 @@ import {
 } from "@automerge/automerge-repo-network-websocket";
 import { Encoder, decode as cborXdecode } from "cbor-x";
 import { invariant } from "es-toolkit";
+import { HTTPException } from "hono/http-exception";
+import { Buffer } from "node:buffer";
 
 function encode(obj: unknown): Buffer {
 	const encoder = new Encoder({ tagUint8Array: false, useRecords: false });
@@ -78,18 +77,23 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	send(message: Message): void {
 		invariant(
 			"targetId" in message && message.targetId !== undefined,
-			"targetId not specified",
+			new HTTPException(500, { message: "targetId not specified" }),
 		);
 		invariant(
 			!message.data ||
 				(message.data && Number(message.data?.byteLength) > 0),
-			"tried to send a zero-length message",
+			new HTTPException(500, {
+				message: "tried to send a zero-length message",
+			}),
 		);
 
 		const senderId = this.peerId;
 		invariant(
 			senderId,
-			"no peerId set for the websocket server network adapter.",
+			new HTTPException(500, {
+				message:
+					"no peerId set for the websocket server network adapter.",
+			}),
 		);
 
 		if (this.client.readyState === WebSocket.CLOSED) {
@@ -121,7 +125,12 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		const { type, senderId } = message;
 
 		const myPeerId = this.peerId;
-		invariant(myPeerId, `is peer ${this.peerId} connected?`);
+		invariant(
+			myPeerId,
+			new HTTPException(500, {
+				message: `is peer ${this.peerId} connected?`,
+			}),
+		);
 
 		const documentId =
 			"documentId" in message ? "@" + message.documentId : "";
@@ -153,7 +162,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 				this.send({
 					type: "error",
 					senderId: this.peerId!,
-					/// @ts-expect-error TODO
+					/// @ts-expect-error: types don't have it but might be used
 					message: "unsupported protocol version",
 					targetId: senderId,
 				});
@@ -162,7 +171,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 				this.send({
 					type: "peer",
 					senderId: this.peerId!,
-					/// @ts-expect-error TODO
+					/// @ts-expect-error: types don't have it but might be used
 					peerMetadata: this.peerMetadata!,
 					selectedProtocolVersion: ProtocolV1,
 					targetId: senderId,
