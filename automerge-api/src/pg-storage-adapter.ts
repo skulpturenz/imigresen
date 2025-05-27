@@ -28,6 +28,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 		const result = (await this
 			.sql`SELECT data FROM automerge WHERE key = ${serializeStorageKey(key)}`) as AutomergeRow[];
 
+		if (!result.length) {
+			return;
+		}
+
 		const row = result.at(0);
 		invariant(
 			row?.data,
@@ -72,6 +76,10 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
 		const result = (await this
 			.sql`SELECT key, data FROM automerge WHERE key LIKE ${serializeStorageKey(keyPrefix) + "%"}`) as AutomergeRow[];
+
+		if (!result.length) {
+			return [];
+		}
 
 		return result.map(({ key, data }) => ({
 			key: key.split("."),
