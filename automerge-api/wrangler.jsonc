@@ -8,6 +8,13 @@
 		// https://github.com/cloudflare/workers-sdk/issues/6587#issuecomment-2576937634
 		"ip": "127.0.0.1",
 	},
+	"env": {
+		"dev": {
+			"vars": {
+				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable"
+			}
+		}
+	}
 	// "compatibility_flags": [
 	//   "nodejs_compat"
 	// ],
