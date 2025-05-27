@@ -13,7 +13,7 @@ import {
 	isBefore,
 } from "date-fns";
 import { invariant } from "es-toolkit";
-import { For, Show } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import { Button } from "ui/button";
 import {
 	Card,
@@ -119,7 +119,7 @@ export const Home = () => {
 				</Button>
 			</div>
 
-			<Show when={!passportApplications.isLoading}>
+			<Suspense fallback={<div>Loading...</div>}>
 				<Show when={!passportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
@@ -363,7 +363,7 @@ export const Home = () => {
 						</div>
 					</div>
 				</Show>
-			</Show>
+			</Suspense>
 		</div>
 	);
 };

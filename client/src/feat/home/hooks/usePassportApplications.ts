@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
+import { delay } from "es-toolkit";
 import { HomeContext } from "feat/home/context";
 import type { PassportApplication } from "feat/home/types";
 import { useRepo } from "solid-automerge";
@@ -24,7 +25,13 @@ export const usePassportApplications = () => {
 				const handle = await repo.find<
 					Omit<PassportApplication, "uuid" | "automergeUrl">
 				>(value as AnyDocumentId);
-				await handle.whenReady();
+
+				// this usually happens if the doc does not exist on the remote or locally
+				// either there's been a indexdb migration (database name change for example)
+				// or the remote repo does not have the document
+				await makeTimeout({
+					message: `timed out waiting for automerge doc with url "${value}"`,
+				})(handle.whenReady());
 
 				const doc = handle.doc();
 
@@ -65,3 +72,17 @@ export const usePassportApplications = () => {
 };
 
 const desc = (sortOrder: number) => -1 * sortOrder;
+
+const makeTimeout =
+	({ timeoutMs = 500, message = "" }) =>
+	(promise: Promise<any>) =>
+		Promise.race([
+			promise,
+			new Promise((_, reject) =>
+				delay(timeoutMs).then(() =>
+					reject(
+						new Error(message || `timed out after ${timeoutMs} ms`),
+					),
+				),
+			),
+		]);
