@@ -12,7 +12,11 @@ import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 import { appendTrailingSlash } from "hono/trailing-slash";
 import { CfWebSocketNetworkAdapter } from "./cf-websocket-network-adapter";
-import { storageAdapter } from "./pg-storage-adapter";
+import {
+	createPgClient,
+	PgStorageAdapter,
+	warmupConnectionPool,
+} from "./pg-storage-adapter";
 
 enum StatusCode {
 	UpgradeRequired = 426,
@@ -70,6 +74,10 @@ app.get("/", async c => {
 			status: StatusCode.UpgradeRequired,
 		});
 	}
+
+	const pgClient = createPgClient();
+	const storageAdapter = new PgStorageAdapter(pgClient);
+	warmupConnectionPool(pgClient);
 
 	const pair = new WebSocketPair();
 	const [client, server] = Object.values(pair);

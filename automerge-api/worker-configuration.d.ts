@@ -13,23 +13,10 @@ declare namespace Cloudflare {
 }
 interface CloudflareBindings extends Cloudflare.Env {}
 type StringifyValues<EnvType extends Record<string, unknown>> = {
-	[Binding in keyof EnvType]: EnvType[Binding] extends string
-		? EnvType[Binding]
-		: string;
+	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv
-		extends StringifyValues<
-			Pick<
-				Cloudflare.Env,
-				| "PG_CONNECTION_STRING"
-				| "OIDC_AUTH_SECRET"
-				| "OIDC_REDIRECT_URL"
-				| "OIDC_ISSUER"
-				| "OIDC_CLIENT_ID"
-				| "OIDC_CLIENT_SECRET"
-			>
-		> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "PG_CONNECTION_STRING" | "OIDC_AUTH_SECRET" | "OIDC_REDIRECT_URL" | "OIDC_ISSUER" | "OIDC_CLIENT_ID" | "OIDC_CLIENT_SECRET">> {}
 }
 
 // Begin runtime types

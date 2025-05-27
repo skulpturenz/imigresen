@@ -15,17 +15,14 @@ interface AutomergeRow {
 }
 
 invariant(env.PG_CONNECTION_STRING, "Postgres connection string not defined");
-const pgClient = postgres(env.PG_CONNECTION_STRING);
+export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
 
-const warmupConnectionPool = () => pgClient`SELECT 1;`;
-warmupConnectionPool();
+export const warmupConnectionPool = (sql: postgres.Sql) => sql`SELECT 1;`;
 
 const serializeStorageKey = (key: StorageKey) => key.join(".");
 
 export class PgStorageAdapter implements StorageAdapterInterface {
-	constructor(private sql: postgres.Sql) {
-		warmupConnectionPool();
-	}
+	constructor(private sql: postgres.Sql) {}
 
 	async load(key: StorageKey): Promise<Uint8Array | undefined> {
 		const result = (await this
@@ -97,5 +94,3 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 		);
 	}
 }
-
-export const storageAdapter = new PgStorageAdapter(pgClient);
