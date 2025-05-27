@@ -81,7 +81,8 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			"targetId not specified",
 		);
 		invariant(
-			"data" in message && message.data?.byteLength === 0,
+			!message.data ||
+				(message.data && Number(message.data?.byteLength) > 0),
 			"tried to send a zero-length message",
 		);
 

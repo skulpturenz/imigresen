@@ -31,16 +31,6 @@ enum HttpHeaders {
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 app.use(
-	initOidcAuthMiddleware({
-		OIDC_AUTH_SECRET: "", // TODO
-		OIDC_REDIRECT_URI: "", // TODO
-		OIDC_ISSUER: "", // TODO
-		OIDC_CLIENT_ID: "", // TODO
-		OIDC_CLIENT_SECRET: "", // TODO
-	}),
-);
-
-app.use(
 	cors({
 		origin: origin => {
 			return origin; // TODO
@@ -53,6 +43,16 @@ app.use(
 		credentials: false,
 	}),
 );
+app.use(
+	initOidcAuthMiddleware({
+		OIDC_AUTH_SECRET: "", // TODO
+		OIDC_REDIRECT_URI: "", // TODO
+		OIDC_ISSUER: "", // TODO
+		OIDC_CLIENT_ID: "", // TODO
+		OIDC_CLIENT_SECRET: "", // TODO
+	}),
+);
+
 app.use(logger());
 app.use(secureHeaders());
 app.use(timing());
