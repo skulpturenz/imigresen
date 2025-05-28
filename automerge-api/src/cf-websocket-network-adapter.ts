@@ -6,15 +6,13 @@ import {
 	type ProtocolVersion,
 } from "@automerge/automerge-repo-network-websocket";
 import {
-	cbor as cborHelpers,
+	cbor,
 	NetworkAdapter,
 	type PeerId,
 	type PeerMetadata,
 } from "@automerge/automerge-repo/slim";
 import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
-
-const { encode, decode } = cborHelpers;
 
 enum AutomergeEvents {
 	PeerDisconnected = "peer-disconnected",
@@ -69,7 +67,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.peerMetadata = peerMetadata;
 
 		const keepAliveId = setInterval(() => {
-			this.server.send(toArrayBuffer(encode(".")));
+			this.server.send(toArrayBuffer(cbor.encode(".")));
 		}, this.keepAliveInterval);
 
 		this.server.addEventListener("close", () => {
@@ -126,16 +124,13 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			return;
 		}
 
-		const encoded = encode(message);
-		const arrayBuf = toArrayBuffer(encoded) as ArrayBuffer;
-
-		this.server.send(arrayBuf);
+		this.server.send(toArrayBuffer(cbor.encode(message)));
 	}
 
 	#receiveMessage(messageBuffer: ArrayBuffer) {
 		let message: FromClientMessage;
 		try {
-			message = decode(new Uint8Array(messageBuffer));
+			message = cbor.decode(new Uint8Array(messageBuffer));
 		} catch (error) {
 			console.error("invalid message, closing connection", error);
 
