@@ -22,7 +22,16 @@ interface AutomergeRepo {
 invariant(env.PG_CONNECTION_STRING, 'env "PG_CONNECTION_STRING" not defined');
 export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
 
-export const warmupConnectionPool = (sql: postgres.Sql) => sql`SELECT 1;`;
+export const warmupConnectionPool = async (sql: postgres.Sql) => {
+	const result = await sql`SELECT 1;`;
+
+	invariant(
+		result.length,
+		new HTTPException(StatusCode.InternalServerError, {
+			message: "Failed to warmup connection pool",
+		}),
+	);
+};
 
 export class PgStorageAdapter
 	implements AutomergeRepo, StorageAdapterInterface
