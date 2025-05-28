@@ -1,6 +1,14 @@
 import { Repo } from "@automerge/automerge-repo";
+import {
+	initOidcAuthMiddleware,
+	oidcAuthMiddleware,
+	processOAuthCallback,
+} from "@hono/oidc-auth";
+import { invariant } from "es-toolkit";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
@@ -16,6 +24,7 @@ import {
 enum StatusCode {
 	UpgradeRequired = 426,
 	SwitchingProtocols = 101,
+	BadRequest = 400,
 }
 
 enum HttpMethod {
@@ -28,70 +37,98 @@ enum HttpHeaders {
 	Upgrade = "Upgrade",
 }
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
-app.use(
-	cors({
-		origin: origin => {
-			return origin; // TODO
-		},
-		allowHeaders: [
-			HttpHeaders.UpgradeInsecureRequests,
-			HttpHeaders.Upgrade,
-		],
-		allowMethods: [HttpMethod.Get, HttpMethod.Options],
-		credentials: false,
-	}),
-);
-// app.use(
-// 	initOidcAuthMiddleware({
-// 		OIDC_AUTH_SECRET: "", // TODO
-// 		OIDC_REDIRECT_URI: "", // TODO
-// 		OIDC_ISSUER: "", // TODO
-// 		OIDC_CLIENT_ID: "", // TODO
-// 		OIDC_CLIENT_SECRET: "", // TODO
-// 	}),
-// );
+const api = new Hono()
+	.use("*", oidcAuthMiddleware())
+	.get("/", async c => {
+		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
+			return new Response("Expected Upgrade: websocket", {
+				status: StatusCode.UpgradeRequired,
+			});
+		}
 
-app.use(logger());
-app.use(secureHeaders());
-app.use(timing());
-app.use(appendTrailingSlash());
-app.use("*", requestId());
+		/// @ts-expect-error: TODO
+		const pgClient = c.get("pg");
+		/// @ts-expect-error: TODO
+		const storageAdapter = new PgStorageAdapter(pgClient);
 
-app.get("/ping", c => c.text("."));
+		const pair = new WebSocketPair();
+		const client = pair[0];
+		const server = pair[1];
 
-// app.get("/callback", processOAuthCallback);
-// app.use("*", oidcAuthMiddleware());
-
-app.get("/", async c => {
-	if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
-		return new Response("Expected Upgrade: websocket", {
-			status: StatusCode.UpgradeRequired,
+		new Repo({
+			storage: storageAdapter,
+			network: [new CfWebSocketNetworkAdapter(client, server)],
+			// server should only share what is asked for
+			sharePolicy: async () => false,
 		});
-	}
 
-	const pgClient = createPgClient();
-	const storageAdapter = new PgStorageAdapter(pgClient);
-	warmupConnectionPool(pgClient);
+		server.accept();
 
-	const pair = new WebSocketPair();
-	const client = pair[0];
-	const server = pair[1];
+		return new Response(null, {
+			status: StatusCode.SwitchingProtocols,
+			webSocket: client,
+		});
+	})
+	.delete("/doc/:documentId", async c => {
+		/// @ts-expect-error: TODO
+		const pgClient = c.get("pg");
 
-	new Repo({
-		storage: storageAdapter,
-		network: [new CfWebSocketNetworkAdapter(client, server)],
-		// server should only share what is asked for
-		sharePolicy: async () => false,
+		const { documentId } = c.req.param();
+
+		invariant(
+			documentId,
+			new HTTPException(StatusCode.BadRequest, {
+				message: "Automerge document ID not specified",
+			}),
+		);
+
+		/// @ts-expect-error: TODO
+		const storageAdapter = new PgStorageAdapter(pgClient);
+
+		storageAdapter.softRemoveRange([documentId]);
 	});
 
-	server.accept();
+const app = new Hono<{ Bindings: CloudflareBindings }>()
+	.use(logger())
+	.use(secureHeaders())
+	.use(timing())
+	.use(appendTrailingSlash())
+	.use("*", requestId())
+	.use(
+		cors({
+			origin: origin => {
+				return origin; // TODO
+			},
+			allowHeaders: [
+				HttpHeaders.UpgradeInsecureRequests,
+				HttpHeaders.Upgrade,
+			],
+			allowMethods: [HttpMethod.Get, HttpMethod.Options],
+			credentials: false,
+		}),
+	)
+	.use(
+		initOidcAuthMiddleware({
+			OIDC_AUTH_SECRET: "", // TODO
+			OIDC_REDIRECT_URI: "", // TODO
+			OIDC_ISSUER: "", // TODO
+			OIDC_CLIENT_ID: "", // TODO
+			OIDC_CLIENT_SECRET: "", // TODO
+		}),
+	)
+	.use(
+		createMiddleware(async (c, next) => {
+			const pgClient = createPgClient();
+			warmupConnectionPool(pgClient);
 
-	return new Response(null, {
-		status: StatusCode.SwitchingProtocols,
-		webSocket: client,
-	});
-});
+			c.set("pg", pgClient);
+
+			next();
+		}),
+	)
+	.get("/ping", c => c.text("."))
+	.get("/callback", processOAuthCallback)
+	.route("/api/v1", api);
 
 // eslint-disable-next-line import/no-default-export
 export default app;

@@ -14,6 +14,10 @@ interface AutomergeRow {
 	data: Buffer;
 }
 
+interface AutomergeRepo {
+	softRemoveRange: (keyPrefix: StorageKey) => Promise<void>;
+}
+
 invariant(env.PG_CONNECTION_STRING, "Postgres connection string not defined");
 export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
 
@@ -22,7 +26,9 @@ export const warmupConnectionPool = (sql: postgres.Sql) => sql`SELECT 1;`;
 const toDatabaseKey = (key: StorageKey) => key.join(".");
 const toAutomergeKey = (key: string) => key.split(".");
 
-export class PgStorageAdapter implements StorageAdapterInterface {
+export class PgStorageAdapter
+	implements AutomergeRepo, StorageAdapterInterface
+{
 	constructor(private sql: postgres.Sql) {}
 
 	async load(key: StorageKey): Promise<Uint8Array | undefined> {
@@ -119,6 +125,25 @@ export class PgStorageAdapter implements StorageAdapterInterface {
 			result.length,
 			new HTTPException(500, {
 				message: `"${toDatabaseKey(keyPrefix)}" not removed`,
+			}),
+		);
+	}
+
+	async softRemoveRange(keyPrefix: StorageKey): Promise<void> {
+		const result = await this.sql`UPDATE automerge
+				SET deleted = TRUE
+				WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"}
+			
+			RETURNING *`;
+
+		if (env.WORKER_ENVIRONMENT !== "production") {
+			console.debug("removed", toDatabaseKey(keyPrefix), result);
+		}
+
+		invariant(
+			result.length,
+			new HTTPException(500, {
+				message: `"${toDatabaseKey(keyPrefix)}" not soft removed`,
 			}),
 		);
 	}
