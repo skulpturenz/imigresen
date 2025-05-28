@@ -19,7 +19,7 @@ interface AutomergeRepo {
 	softRemoveRange: (keyPrefix: StorageKey) => Promise<void>;
 }
 
-invariant(env.PG_CONNECTION_STRING, "Postgres connection string not defined");
+invariant(env.PG_CONNECTION_STRING, 'env "PG_CONNECTION_STRING" not defined');
 export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
 
 export const warmupConnectionPool = (sql: postgres.Sql) => sql`SELECT 1;`;

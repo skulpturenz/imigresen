@@ -24,6 +24,7 @@ import {
 	warmupConnectionPool,
 } from "./pg-storage-adapter";
 
+invariant(env.ALLOWED_ORIGINS, 'env "ALLOWED_ORIGINS" not defined');
 const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
 	origin.trim(),
 );
