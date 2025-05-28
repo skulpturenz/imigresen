@@ -78,13 +78,22 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		});
 
 		this.server.addEventListener("message", event => {
-			this.#receiveMessage(event.data as ArrayBuffer);
+			invariant(
+				event.data instanceof ArrayBuffer,
+				"Message data should be binary",
+			);
+			this.#receiveMessage(event.data);
 		});
 
 		const queuedMessages = [...this.messages];
 		queuedMessages.forEach(event => {
+			invariant(
+				event.data instanceof ArrayBuffer,
+				"Message data should be binary",
+			);
+
 			this.messages.shift();
-			this.#receiveMessage(event.data as ArrayBuffer);
+			this.#receiveMessage(event.data);
 		});
 	}
 
