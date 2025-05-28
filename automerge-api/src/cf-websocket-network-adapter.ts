@@ -69,7 +69,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.peerMetadata = peerMetadata;
 
 		const keepAliveId = setInterval(() => {
-			this.server.send(".");
+			this.server.send(toArrayBuffer(encode(".")));
 		}, this.keepAliveInterval);
 
 		this.server.addEventListener("close", () => {
