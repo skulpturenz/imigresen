@@ -8,6 +8,7 @@ import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
 import type { Buffer } from "node:buffer";
 import { default as postgres } from "postgres";
+import { StatusCode } from "./enums";
 
 interface AutomergeRow {
 	key: string;
@@ -23,17 +24,16 @@ export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
 
 export const warmupConnectionPool = (sql: postgres.Sql) => sql`SELECT 1;`;
 
-const toDatabaseKey = (key: StorageKey) => key.join(".");
-const toAutomergeKey = (key: string) => key.split(".");
-
 export class PgStorageAdapter
 	implements AutomergeRepo, StorageAdapterInterface
 {
 	constructor(private sql: postgres.Sql) {}
 
 	async load(key: StorageKey): Promise<Uint8Array | undefined> {
-		const result = (await this
-			.sql`SELECT data FROM automerge WHERE key = ${toDatabaseKey(key)}`) as AutomergeRow[];
+		const result = (await this.sql`SELECT data
+				FROM automerge 
+				WHERE key = ${toDatabaseKey(key)} AND 
+				deleted IS NOT TRUE`) as AutomergeRow[];
 
 		if (env.WORKER_ENVIRONMENT !== "production") {
 			console.debug("loaded", toDatabaseKey(key), result);
@@ -46,7 +46,7 @@ export class PgStorageAdapter
 		const row = result.at(0);
 		invariant(
 			row?.data,
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message: `Unable to load "${toDatabaseKey(key)}"`,
 			}),
 		);
@@ -67,7 +67,7 @@ export class PgStorageAdapter
 
 		invariant(
 			result.length,
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message: `No data for "${toDatabaseKey(key)}" inserted`,
 			}),
 		);
@@ -85,7 +85,7 @@ export class PgStorageAdapter
 
 		invariant(
 			result.length,
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message: `"${toDatabaseKey(key)}" not removed`,
 			}),
 		);
@@ -93,8 +93,10 @@ export class PgStorageAdapter
 
 	async loadRange(keyPrefix: StorageKey): Promise<Chunk[]> {
 		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
-		const result = (await this
-			.sql`SELECT key, data FROM automerge WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"}`) as AutomergeRow[];
+		const result = (await this.sql`SELECT key, data 
+				FROM automerge 
+				WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"} AND 
+				deleted IS NOT TRUE`) as AutomergeRow[];
 
 		if (env.WORKER_ENVIRONMENT !== "production") {
 			console.debug("loadRange", toDatabaseKey(keyPrefix), result);
@@ -112,8 +114,8 @@ export class PgStorageAdapter
 
 	async removeRange(keyPrefix: StorageKey): Promise<void> {
 		// quotation marks: https://github.com/porsager/postgres?tab=readme-ov-file#query-parameters
-		const result = await this
-			.sql`DELETE FROM automerge WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"}
+		const result = await this.sql`DELETE FROM automerge 
+				WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"}
 			
 			RETURNING *`;
 
@@ -123,12 +125,15 @@ export class PgStorageAdapter
 
 		invariant(
 			result.length,
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message: `"${toDatabaseKey(keyPrefix)}" not removed`,
 			}),
 		);
 	}
 
+	// if an automerge is removed by calling `delete` on the handle then
+	// it should call `removeRange` but just in case we also soft delete
+	// it so that we know what the stale records are
 	async softRemoveRange(keyPrefix: StorageKey): Promise<void> {
 		const result = await this.sql`UPDATE automerge
 				SET deleted = TRUE
@@ -139,12 +144,8 @@ export class PgStorageAdapter
 		if (env.WORKER_ENVIRONMENT !== "production") {
 			console.debug("removed", toDatabaseKey(keyPrefix), result);
 		}
-
-		invariant(
-			result.length,
-			new HTTPException(500, {
-				message: `"${toDatabaseKey(keyPrefix)}" not soft removed`,
-			}),
-		);
 	}
 }
+
+const toDatabaseKey = (key: StorageKey) => key.join(".");
+const toAutomergeKey = (key: string) => key.split(".");

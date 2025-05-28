@@ -4,6 +4,7 @@ import {
 	oidcAuthMiddleware,
 	processOAuthCallback,
 } from "@hono/oidc-auth";
+import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -14,30 +15,26 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 import { appendTrailingSlash } from "hono/trailing-slash";
+import type { default as postgres } from "postgres";
 import { CfWebSocketNetworkAdapter } from "./cf-websocket-network-adapter";
+import { HttpHeaders, HttpMethod, StatusCode } from "./enums";
 import {
 	createPgClient,
 	PgStorageAdapter,
 	warmupConnectionPool,
 } from "./pg-storage-adapter";
 
-enum StatusCode {
-	UpgradeRequired = 426,
-	SwitchingProtocols = 101,
-	BadRequest = 400,
+const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
+	origin.trim(),
+);
+
+interface Env {
+	Variables: {
+		pg: postgres.Sql;
+	};
 }
 
-enum HttpMethod {
-	Get = "GET",
-	Options = "OPTIONS",
-}
-
-enum HttpHeaders {
-	UpgradeInsecureRequests = "Upgrade-Insecure-Requests",
-	Upgrade = "Upgrade",
-}
-
-const api = new Hono()
+const api = new Hono<Env>()
 	.use("*", oidcAuthMiddleware())
 	.get("/", async c => {
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
@@ -46,9 +43,7 @@ const api = new Hono()
 			});
 		}
 
-		/// @ts-expect-error: TODO
 		const pgClient = c.get("pg");
-		/// @ts-expect-error: TODO
 		const storageAdapter = new PgStorageAdapter(pgClient);
 
 		const pair = new WebSocketPair();
@@ -70,7 +65,6 @@ const api = new Hono()
 		});
 	})
 	.delete("/doc/:documentId", async c => {
-		/// @ts-expect-error: TODO
 		const pgClient = c.get("pg");
 
 		const { documentId } = c.req.param();
@@ -82,13 +76,12 @@ const api = new Hono()
 			}),
 		);
 
-		/// @ts-expect-error: TODO
 		const storageAdapter = new PgStorageAdapter(pgClient);
 
 		storageAdapter.softRemoveRange([documentId]);
 	});
 
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+const app = new Hono()
 	.use(logger())
 	.use(secureHeaders())
 	.use(timing())
@@ -96,9 +89,8 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 	.use("*", requestId())
 	.use(
 		cors({
-			origin: origin => {
-				return origin; // TODO
-			},
+			origin: origin =>
+				ALLOWED_ORIGINS.find(allowedOrigin => allowedOrigin === origin),
 			allowHeaders: [
 				HttpHeaders.UpgradeInsecureRequests,
 				HttpHeaders.Upgrade,
@@ -117,7 +109,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 		}),
 	)
 	.use(
-		createMiddleware(async (c, next) => {
+		createMiddleware<Env>(async (c, next) => {
 			const pgClient = createPgClient();
 			warmupConnectionPool(pgClient);
 

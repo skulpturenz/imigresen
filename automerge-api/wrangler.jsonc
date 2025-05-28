@@ -9,9 +9,17 @@
 		"ip": "127.0.0.1",
 	},
 	"env": {
-		"dev": {
+		"development": {
 			"vars": {
+				"WORKER_ENVIRONMENT": "development",
+				"ALLOWED_ORIGINS": "https://imigresen-automerge-dev.skulpture.xyz, wss://imigresen-automerge-dev.skulpture.xyz",
 				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable",
+			},
+		},
+		"production": {
+			"vars": {
+				"WORKER_ENVIRONMENT": "production",
+				"ALLOWED_ORIGINS": "https://imigresen-automerge-prod.skulpture.xyz, wss://imigresen-automerge-prod.skulpture.xyz",
 			},
 		},
 	},

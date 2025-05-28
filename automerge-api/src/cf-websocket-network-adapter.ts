@@ -13,6 +13,7 @@ import {
 } from "@automerge/automerge-repo/slim";
 import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
+import { StatusCode } from "./enums";
 
 enum AutomergeEvents {
 	PeerDisconnected = "peer-disconnected",
@@ -98,11 +99,13 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	send(message: FromServerMessage): void {
 		invariant(
 			"targetId" in message && message.targetId !== undefined,
-			new HTTPException(500, { message: "targetId not specified" }),
+			new HTTPException(StatusCode.InternalServerError, {
+				message: "targetId not specified",
+			}),
 		);
 		invariant(
 			!("data" in message && message.data?.byteLength === 0),
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message: "Tried to send a zero-length message",
 			}),
 		);
@@ -110,7 +113,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		const senderId = this.peerId;
 		invariant(
 			senderId,
-			new HTTPException(500, {
+			new HTTPException(StatusCode.InternalServerError, {
 				message:
 					"no peerId set for the websocket server network adapter.",
 			}),
@@ -128,23 +131,29 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	}
 
 	#receiveMessage(messageBuffer: ArrayBuffer) {
-		let message: FromClientMessage;
-		try {
-			message = cbor.decode(new Uint8Array(messageBuffer));
-		} catch (error) {
-			console.error("invalid message, closing connection", error);
+		const decodeMessage = (messageBuffer: ArrayBuffer) => {
+			try {
+				return cbor.decode<FromClientMessage>(
+					new Uint8Array(messageBuffer),
+				);
+			} catch (error) {
+				console.error("invalid message, closing connection", error);
 
-			this.client.close();
+				return null;
+			}
+		};
+
+		const message = decodeMessage(messageBuffer);
+		if (!message) {
+			this.disconnect();
 
 			return;
 		}
 
-		const { type, senderId } = message;
-
-		const myPeerId = this.peerId;
+		const serverPeerId = this.peerId;
 		invariant(
-			myPeerId,
-			new HTTPException(500, {
+			serverPeerId,
+			new HTTPException(StatusCode.InternalServerError, {
 				message: `is peer ${this.peerId} connected?`,
 			}),
 		);
@@ -153,41 +162,51 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			"documentId" in message ? "@" + message.documentId : "";
 		const { byteLength } = messageBuffer;
 		console.log(
-			`[${senderId}->${myPeerId}${documentId}] ${type} | ${byteLength} bytes`,
+			`[${message.senderId}->${serverPeerId}${documentId}] ${message.type} | ${byteLength} bytes`,
 		);
 
-		if (isJoinMessage(message)) {
-			const { peerMetadata, supportedProtocolVersions } = message;
-
-			// Let the repo know that we have a new connection.
-			this.emit(AutomergeEvents.PeerCandidate, {
-				peerId: senderId,
-				peerMetadata,
-			});
-
-			const selectedProtocolVersion = selectProtocol(
-				supportedProtocolVersions,
-			);
-			if (selectedProtocolVersion === null) {
-				this.send({
-					type: "error",
-					senderId: this.peerId!,
-					message: "unsupported protocol version",
-					targetId: senderId,
-				});
-				this.client.close();
-			} else {
-				this.send({
-					type: "peer",
-					senderId: this.peerId!,
-					peerMetadata: this.peerMetadata!,
-					selectedProtocolVersion: ProtocolV1,
-					targetId: senderId,
-				});
-			}
-		} else {
+		if (!isJoinMessage(message)) {
 			this.emit(AutomergeEvents.Message, message);
+
+			return;
 		}
+
+		// Let the repo know that we have a new connection.
+		this.emit(AutomergeEvents.PeerCandidate, {
+			peerId: message.senderId,
+			peerMetadata: message.peerMetadata,
+		});
+
+		const selectedProtocolVersion = selectProtocol(
+			message.supportedProtocolVersions,
+		);
+
+		invariant(
+			this.peerId,
+			new HTTPException(StatusCode.InternalServerError, {
+				message: "client does not have a peer id",
+			}),
+		);
+
+		if (selectedProtocolVersion === null) {
+			this.send({
+				type: "error",
+				senderId: this.peerId,
+				message: "unsupported protocol version",
+				targetId: message.senderId,
+			});
+			this.client.close();
+
+			return;
+		}
+
+		this.send({
+			type: "peer",
+			senderId: this.peerId,
+			peerMetadata: this.peerMetadata!,
+			selectedProtocolVersion: ProtocolV1,
+			targetId: message.senderId,
+		});
 	}
 }
 
