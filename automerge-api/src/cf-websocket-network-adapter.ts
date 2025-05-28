@@ -16,10 +16,11 @@ import { HTTPException } from "hono/http-exception";
 
 const { encode, decode } = cborHelpers;
 
-const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
-	const { buffer, byteOffset, byteLength } = bytes;
-	return buffer.slice(byteOffset, byteOffset + byteLength) as ArrayBuffer;
-};
+enum AutomergeEvents {
+	PeerDisconnected = "peer-disconnected",
+	PeerCandidate = "peer-candidate",
+	Message = "message",
+}
 
 // note: based on `WebSocketServerAdapter` from `@automerge/automerge-repo-network-websocket`
 export class CfWebSocketNetworkAdapter extends NetworkAdapter {
@@ -74,8 +75,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.server.addEventListener("close", () => {
 			clearInterval(keepAliveId);
 
-			this.client.close(1000, "disconnect");
-			this.server.close(1000, "disconnect");
+			this.disconnect();
 		});
 
 		this.server.addEventListener("message", event => {
@@ -90,9 +90,11 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	}
 
 	disconnect(): void {
-		this.emit("peer-disconnected", { peerId: this.peerId as PeerId });
-		this.client.close(1000, "disconnect"); // TODO: check code
-		this.server.close(1000, "disconnect");
+		this.emit(AutomergeEvents.PeerDisconnected, {
+			peerId: this.peerId as PeerId,
+		});
+		this.client.close();
+		this.server.close();
 	}
 
 	send(message: FromServerMessage): void {
@@ -163,7 +165,10 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			const { peerMetadata, supportedProtocolVersions } = message;
 
 			// Let the repo know that we have a new connection.
-			this.emit("peer-candidate", { peerId: senderId, peerMetadata });
+			this.emit(AutomergeEvents.PeerCandidate, {
+				peerId: senderId,
+				peerMetadata,
+			});
 
 			const selectedProtocolVersion = selectProtocol(
 				supportedProtocolVersions,
@@ -186,10 +191,15 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 				});
 			}
 		} else {
-			this.emit("message", message);
+			this.emit(AutomergeEvents.Message, message);
 		}
 	}
 }
+
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
+	const { buffer, byteOffset, byteLength } = bytes;
+	return buffer.slice(byteOffset, byteOffset + byteLength) as ArrayBuffer;
+};
 
 const isJoinMessage = (message: FromClientMessage): message is JoinMessage =>
 	message.type === "join";

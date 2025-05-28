@@ -9,10 +9,13 @@ const storage = new IndexedDBStorageAdapter(
 
 const network: NetworkAdapterInterface[] = [
 	// TODO
-	new BrowserWebSocketClientAdapter("ws://localhost:5173"),
+	new BrowserWebSocketClientAdapter("ws://localhost:8787"),
+	// new BrowserWebSocketClientAdapter("ws://localhost:5173"),
 ];
 
 export const repo = new Repo({
 	storage,
 	network,
+	sharePolicy: async () => true,
+	enableRemoteHeadsGossiping: true,
 });

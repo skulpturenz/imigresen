@@ -81,6 +81,7 @@ app.get("/", async c => {
 	new Repo({
 		storage: storageAdapter,
 		network: [new CfWebSocketNetworkAdapter(client, server)],
+		// server should only share what is asked for
 		sharePolicy: async () => false,
 	});
 
