@@ -147,5 +147,6 @@ export class PgStorageAdapter
 	}
 }
 
-const toDatabaseKey = (key: StorageKey) => key.join(".");
-const toAutomergeKey = (key: string) => key.split(".");
+const DELIMITER = "::";
+const toDatabaseKey = (key: StorageKey) => key.join(DELIMITER);
+const toAutomergeKey = (key: string) => key.split(DELIMITER);
