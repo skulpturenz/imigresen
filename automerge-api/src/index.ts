@@ -66,6 +66,8 @@ const api = new Hono<Env>()
 		});
 	})
 	.delete("/doc/:documentId", async c => {
+		const AUTOMERGE_URL_PREFIX = "automerge:";
+
 		const pgClient = c.get("pg");
 
 		const { documentId } = c.req.param();
@@ -79,7 +81,9 @@ const api = new Hono<Env>()
 
 		const storageAdapter = new PgStorageAdapter(pgClient);
 
-		storageAdapter.softRemoveRange([documentId]);
+		storageAdapter.softRemoveRange([
+			documentId.replaceAll(AUTOMERGE_URL_PREFIX, ""),
+		]);
 	});
 
 const OIDC_ENVS = {
