@@ -1,28 +1,21 @@
 import {
-	NetworkAdapter,
-	type Message,
-	type PeerId,
-	type PeerMetadata,
-} from "@automerge/automerge-repo";
-import {
 	ProtocolV1,
 	type FromClientMessage,
+	type FromServerMessage,
 	type JoinMessage,
 	type ProtocolVersion,
 } from "@automerge/automerge-repo-network-websocket";
-import { Encoder, decode as cborXdecode } from "cbor-x";
+import {
+	cbor as cborHelpers,
+	NetworkAdapter,
+	type PeerId,
+	type PeerMetadata,
+} from "@automerge/automerge-repo/slim";
 import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
 import { Buffer } from "node:buffer";
 
-function encode(obj: unknown): Buffer {
-	const encoder = new Encoder({ tagUint8Array: false, useRecords: false });
-	return encoder.encode(obj);
-}
-
-function decode<T = unknown>(buf: Buffer | Uint8Array): T {
-	return cborXdecode(buf);
-}
+const { encode, decode } = cborHelpers;
 
 const toArrayBuffer = (bytes: Uint8Array) => {
 	const { buffer, byteOffset, byteLength } = bytes;
@@ -31,12 +24,25 @@ const toArrayBuffer = (bytes: Uint8Array) => {
 
 // note: based on `WebSocketServerAdapter` from `@automerge/automerge-repo-network-websocket`
 export class CfWebSocketNetworkAdapter extends NetworkAdapter {
+	messages = [] as MessageEvent[];
+
 	constructor(
 		private client: WebSocket,
 		private server: WebSocket,
 		private keepAliveInterval = 5000,
 	) {
 		super();
+
+		// note: normally this wouldn't be necessary and whats supposed to happen
+		// is that the client sends a message when the connection opens, server replies
+		// and everything is synced up
+		// but: in local testing that initial message is sent before `connect` is called
+		// so the server never receives it and sync does not work
+		// we can't process this message right away because we also need a `peerId` which
+		// is only available after the connection
+		this.server.addEventListener("message", event => {
+			this.messages.push(event);
+		});
 	}
 
 	isReady() {
@@ -44,8 +50,17 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	}
 
 	whenReady() {
+		const INTERVAL_MS = 50;
+
 		return new Promise<void>(resolve => {
-			this.server.addEventListener("open", () => resolve());
+			// no `open` event with cloudflare workers
+			const interval = setInterval(() => {
+				if (this.isReady()) {
+					clearInterval(interval);
+
+					resolve();
+				}
+			}, INTERVAL_MS);
 		});
 	}
 
@@ -54,7 +69,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.peerMetadata = peerMetadata;
 
 		const keepAliveId = setInterval(() => {
-			this.client.send(".");
+			this.server.send(".");
 		}, this.keepAliveInterval);
 
 		this.server.addEventListener("close", () => {
@@ -67,23 +82,29 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.server.addEventListener("message", event => {
 			this.#receiveMessage(event.data as ArrayBuffer);
 		});
+
+		const queuedMessages = [...this.messages];
+		queuedMessages.forEach(event => {
+			this.messages.shift();
+			this.#receiveMessage(event.data as ArrayBuffer);
+		});
 	}
 
 	disconnect(): void {
+		this.emit("peer-disconnected", { peerId: this.peerId as PeerId });
 		this.client.close(1000, "disconnect"); // TODO: check code
 		this.server.close(1000, "disconnect");
 	}
 
-	send(message: Message): void {
+	send(message: FromServerMessage): void {
 		invariant(
 			"targetId" in message && message.targetId !== undefined,
 			new HTTPException(500, { message: "targetId not specified" }),
 		);
 		invariant(
-			!message.data ||
-				(message.data && Number(message.data?.byteLength) > 0),
+			!("data" in message && message.data?.byteLength === 0),
 			new HTTPException(500, {
-				message: "tried to send a zero-length message",
+				message: "Tried to send a zero-length message",
 			}),
 		);
 
@@ -96,7 +117,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			}),
 		);
 
-		if (this.client.readyState === WebSocket.CLOSED) {
+		if (this.server.readyState === WebSocket.CLOSED) {
 			console.debug(
 				`tried to send to disconnected client ${message.targetId}`,
 			);
@@ -107,7 +128,8 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		const encoded = encode(message);
 		const arrayBuf = toArrayBuffer(encoded) as ArrayBuffer;
 
-		this.client.send(arrayBuf);
+		// TODO: getting an error on the client when trying to decode the message
+		this.server.send(arrayBuf);
 	}
 
 	#receiveMessage(messageBuffer: ArrayBuffer) {
@@ -162,7 +184,6 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 				this.send({
 					type: "error",
 					senderId: this.peerId!,
-					/// @ts-expect-error: types don't have it but might be used
 					message: "unsupported protocol version",
 					targetId: senderId,
 				});
@@ -171,7 +192,6 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 				this.send({
 					type: "peer",
 					senderId: this.peerId!,
-					/// @ts-expect-error: types don't have it but might be used
 					peerMetadata: this.peerMetadata!,
 					selectedProtocolVersion: ProtocolV1,
 					targetId: senderId,

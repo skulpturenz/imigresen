@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "imigresen-automerge-api",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-05-25",
+	"compatibility_date": "2025-05-08",
 	"compatibility_flags": ["nodejs_compat"],
 	"dev": {
 		// https://github.com/cloudflare/workers-sdk/issues/6587#issuecomment-2576937634
@@ -11,10 +11,10 @@
 	"env": {
 		"dev": {
 			"vars": {
-				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable"
-			}
-		}
-	}
+				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable",
+			},
+		},
+	},
 	// "compatibility_flags": [
 	//   "nodejs_compat"
 	// ],
