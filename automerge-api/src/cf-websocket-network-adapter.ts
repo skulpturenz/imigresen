@@ -13,13 +13,12 @@ import {
 } from "@automerge/automerge-repo/slim";
 import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
-import { Buffer } from "node:buffer";
 
 const { encode, decode } = cborHelpers;
 
-const toArrayBuffer = (bytes: Uint8Array) => {
+const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
 	const { buffer, byteOffset, byteLength } = bytes;
-	return buffer.slice(byteOffset, byteOffset + byteLength);
+	return buffer.slice(byteOffset, byteOffset + byteLength) as ArrayBuffer;
 };
 
 // note: based on `WebSocketServerAdapter` from `@automerge/automerge-repo-network-websocket`
@@ -135,7 +134,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 	#receiveMessage(messageBuffer: ArrayBuffer) {
 		let message: FromClientMessage;
 		try {
-			message = decode(Buffer.from(messageBuffer));
+			message = decode(new Uint8Array(messageBuffer));
 		} catch (_e) {
 			console.error("invalid message, closing connection");
 
