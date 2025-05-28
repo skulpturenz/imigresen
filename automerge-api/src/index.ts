@@ -82,6 +82,17 @@ const api = new Hono<Env>()
 		storageAdapter.softRemoveRange([documentId]);
 	});
 
+const OIDC_ENVS = {
+	OIDC_AUTH_SECRET: env.OIDC_AUTH_SECRET,
+	OIDC_REDIRECT_URI: env.OIDC_REDIRECT_URL,
+	OIDC_ISSUER: env.OIDC_ISSUER,
+	OIDC_CLIENT_ID: env.OIDC_CLIENT_ID,
+	OIDC_CLIENT_SECRET: env.OIDC_CLIENT_SECRET,
+};
+Object.entries(OIDC_ENVS).forEach(([env, value]) =>
+	invariant(value, `env "${env}" not defined`),
+);
+
 const app = new Hono()
 	.use(logger())
 	.use(secureHeaders())
@@ -100,17 +111,9 @@ const app = new Hono()
 			credentials: false,
 		}),
 	)
+	.use(initOidcAuthMiddleware(OIDC_ENVS))
 	.use(
-		initOidcAuthMiddleware({
-			OIDC_AUTH_SECRET: "", // TODO
-			OIDC_REDIRECT_URI: "", // TODO
-			OIDC_ISSUER: "", // TODO
-			OIDC_CLIENT_ID: "", // TODO
-			OIDC_CLIENT_SECRET: "", // TODO
-		}),
-	)
-	.use(
-		createMiddleware<Env>(async (c, next) => {
+		createMiddleware(async (c, next) => {
 			const pgClient = createPgClient();
 			warmupConnectionPool(pgClient);
 
