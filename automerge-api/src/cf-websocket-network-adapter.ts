@@ -127,7 +127,6 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		const encoded = encode(message);
 		const arrayBuf = toArrayBuffer(encoded) as ArrayBuffer;
 
-		// TODO: getting an error on the client when trying to decode the message
 		this.server.send(arrayBuf);
 	}
 
@@ -135,8 +134,8 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		let message: FromClientMessage;
 		try {
 			message = decode(new Uint8Array(messageBuffer));
-		} catch (_e) {
-			console.error("invalid message, closing connection");
+		} catch (error) {
+			console.error("invalid message, closing connection", error);
 
 			this.client.close();
 
@@ -159,16 +158,6 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		console.log(
 			`[${senderId}->${myPeerId}${documentId}] ${type} | ${byteLength} bytes`,
 		);
-
-		const isJoinMessage = (
-			message: FromClientMessage,
-		): message is JoinMessage => message.type === "join";
-
-		const selectProtocol = (versions?: ProtocolVersion[]) => {
-			if (versions === undefined) return ProtocolV1;
-			if (versions.includes(ProtocolV1)) return ProtocolV1;
-			return null;
-		};
 
 		if (isJoinMessage(message)) {
 			const { peerMetadata, supportedProtocolVersions } = message;
@@ -201,3 +190,12 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		}
 	}
 }
+
+const isJoinMessage = (message: FromClientMessage): message is JoinMessage =>
+	message.type === "join";
+
+const selectProtocol = (versions?: ProtocolVersion[]) => {
+	if (versions === undefined) return ProtocolV1;
+	if (versions.includes(ProtocolV1)) return ProtocolV1;
+	return null;
+};
