@@ -123,7 +123,7 @@ const app = new Hono()
 
 			c.set("pg", pgClient);
 
-			next();
+			await next();
 		}),
 	)
 	.get("/ping", c => c.text("."))
