@@ -8,10 +8,10 @@ const storage = new IndexedDBStorageAdapter(
 	`imigresen-documents-${import.meta.env.MODE}`,
 );
 
-invariant(import.meta.env.VITE_CF_AUTOMERGE_WSS, "Automerge API not specified");
+invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
 
 const network: NetworkAdapterInterface[] = [
-	new BrowserWebSocketClientAdapter(import.meta.env.VITE_CF_AUTOMERGE_WSS),
+	new BrowserWebSocketClientAdapter(import.meta.env.VITE_AUTOMERGE_WSS),
 ];
 
 export const repo = new Repo({
