@@ -1,0 +1,43 @@
+{
+	// https://developers.cloudflare.com/workers/wrangler/configuration/
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "imigresen-automerge-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-05-08",
+	"compatibility_flags": ["nodejs_compat"],
+	"dev": {
+		// https://github.com/cloudflare/workers-sdk/issues/6587#issuecomment-2576937634
+		"ip": "127.0.0.1",
+		// TODO: testing deployed version first
+		// "local_protocol": "https",
+	},
+	"env": {
+		"development": {
+			"vars": {
+				"WORKER_ENVIRONMENT": "development",
+				"ALLOWED_ORIGINS": "https://dev.imigresen.skulpture.xyz, http://localhost:5173, https://imigresen.pages.dev",
+				"OIDC_REDIRECT_URL": "https://automerge-api-dev.imigresen.skulpture.xyz/callback",
+			},
+			"hyperdrive": [
+				{
+					"binding": "HYPERDRIVE",
+					"id": "066a0c6ab7cd4f34801215f1c64bbb1a",
+					"localConnectionString": "postgresql://test:test@postgres/test?sslmode=disable",
+				},
+			],
+		},
+		"production": {
+			"vars": {
+				"WORKER_ENVIRONMENT": "production",
+				"ALLOWED_ORIGINS": "https://imigresen.skulpture.xyz",
+				"OIDC_REDIRECT_URL": "https://automerge-api-master.imigresen.skulpture.xyz/callback",
+			},
+			"hyperdrive": [
+				{
+					"binding": "HYPERDRIVE",
+					"id": "b75d0ed9a01c41939a4da1d35514501c",
+				},
+			],
+		},
+	},
+}

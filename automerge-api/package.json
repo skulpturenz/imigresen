@@ -1,0 +1,40 @@
+{
+	"name": "imigresen-automerge-api",
+	"author": "Naveen Mathew",
+	"private": "true",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy --minify",
+		"deploy.comment": "TODO: unsure why but script gives no project selected for deployment error",
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
+		"lint": "eslint src/**/* --fix --no-warn-ignored --no-error-on-unmatched-pattern --max-warnings 0",
+		"format": "prettier .  --write",
+		"migrate": "migrate -source file://$(pwd)/migrations/ -database $PG_CONNECTION_STRING up",
+		"dry-run": "wrangler deploy --outdir dist/ --dry-run"
+	},
+	"dependencies": {
+		"@automerge/automerge-repo": "^2.0.0",
+		"@automerge/automerge-repo-network-websocket": "^2.0.0",
+		"@hono/oidc-auth": "^1.6.0",
+		"cbor-x": "^1.6.0",
+		"es-toolkit": "^1.38.0",
+		"hono": "^4.7.10",
+		"postgres": "^3.4.7",
+		"ws": "^8.18.2"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250525.0",
+		"@eslint/js": "^9.27.0",
+		"@types/node": "^22.15.21",
+		"@types/ws": "^8.18.1",
+		"eslint": "^9.27.0",
+		"eslint-config-prettier": "^10.1.5",
+		"eslint-plugin-import": "^2.31.0",
+		"eslint-plugin-prettier": "^5.4.0",
+		"prettier": "^3.5.3",
+		"prettier-plugin-organize-imports": "^4.1.0",
+		"typescript-eslint": "^8.32.1",
+		"wrangler": "^4.17.0"
+	},
+	"packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+}

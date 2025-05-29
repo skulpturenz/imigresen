@@ -1,0 +1,8 @@
+{
+	"name": "Automerge API",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "automerge-api",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"postStartCommand": "corepack pnpm install",
+	"forwardPorts": [5432]
+}
