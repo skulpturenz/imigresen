@@ -3,7 +3,7 @@
 	"author": "Naveen Mathew",
 	"private": "true",
 	"scripts": {
-		"dev": "wrangler dev",
+		"dev": "wrangler dev --env development",
 		"deploy": "wrangler deploy --minify",
 		"deploy.comment": "TODO: unsure why but script gives no project selected for deployment error",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",

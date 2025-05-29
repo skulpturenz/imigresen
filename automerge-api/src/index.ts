@@ -1,8 +1,9 @@
 import { Repo } from "@automerge/automerge-repo";
 import {
 	initOidcAuthMiddleware,
-	// oidcAuthMiddleware,
+	oidcAuthMiddleware,
 	processOAuthCallback,
+	type OidcAuthEnv,
 } from "@hono/oidc-auth";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
@@ -36,7 +37,7 @@ interface Env {
 }
 
 const api = new Hono<Env>()
-	// .use("*", oidcAuthMiddleware())
+	.use("*", oidcAuthMiddleware())
 	.get("/", async c => {
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {
@@ -86,7 +87,7 @@ const api = new Hono<Env>()
 		]);
 	});
 
-const OIDC_ENVS = {
+const OIDC_ENVS: Partial<OidcAuthEnv> = {
 	OIDC_AUTH_SECRET: env.OIDC_AUTH_SECRET,
 	OIDC_REDIRECT_URI: env.OIDC_REDIRECT_URL,
 	OIDC_ISSUER: env.OIDC_ISSUER,
