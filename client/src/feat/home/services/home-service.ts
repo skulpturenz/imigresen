@@ -17,7 +17,11 @@ export const homeService = (token?: string) => {
 			return localItems;
 		}
 
-		throw new Error("TODO");
+		// TODO
+		const localKeys = await storage.getKeys();
+		const localItems = await storage.getItems<string>(localKeys);
+
+		return localItems;
 	};
 
 	return {
