@@ -16,14 +16,28 @@
 			"vars": {
 				"WORKER_ENVIRONMENT": "development",
 				"ALLOWED_ORIGINS": "https://dev.imigresen.skulpture.xyz, http://localhost:5173",
-				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable",
+				"OIDC_REDIRECT_URL": "https://automerge-api-dev.imigresen.skulpture.xyz/callback",
 			},
+			"hyperdrive": [
+				{
+					"binding": "HYPERDRIVE",
+					"id": "066a0c6ab7cd4f34801215f1c64bbb1a",
+					"localConnectionString": "postgresql://test:test@postgres/test?sslmode=disable",
+				},
+			],
 		},
 		"production": {
 			"vars": {
 				"WORKER_ENVIRONMENT": "production",
 				"ALLOWED_ORIGINS": "https://imigresen.skulpture.xyz",
+				"OIDC_REDIRECT_URL": "https://automerge-api.imigresen.skulpture.xyz/callback",
 			},
+			"hyperdrive": [
+				{
+					"binding": "HYPERDRIVE",
+					"id": "b75d0ed9a01c41939a4da1d35514501c",
+				},
+			],
 		},
 	},
 }

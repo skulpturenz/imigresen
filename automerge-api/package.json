@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
+		"deploy.comment": "TODO: unsure why but script gives no project selected for deployment error",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"lint": "eslint src/**/* --fix --no-warn-ignored --no-error-on-unmatched-pattern --max-warnings 0",
 		"format": "prettier .  --write",

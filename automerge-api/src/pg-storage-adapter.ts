@@ -19,8 +19,7 @@ interface AutomergeRepo {
 	softRemoveRange: (keyPrefix: StorageKey) => Promise<void>;
 }
 
-invariant(env.PG_CONNECTION_STRING, 'env "PG_CONNECTION_STRING" not defined');
-export const createPgClient = () => postgres(env.PG_CONNECTION_STRING);
+export const createPgClient = () => postgres(env.HYPERDRIVE.connectionString);
 
 export const warmupConnectionPool = async (sql: postgres.Sql) => {
 	const result = await sql`SELECT 1;`;
@@ -36,7 +35,12 @@ export const warmupConnectionPool = async (sql: postgres.Sql) => {
 export class PgStorageAdapter
 	implements AutomergeRepo, StorageAdapterInterface
 {
-	constructor(private sql: postgres.Sql) {}
+	constructor(private sql: postgres.Sql) {
+		invariant(
+			env.HYPERDRIVE.connectionString,
+			'env "HYPERDRIVE.connectionString" not defined',
+		);
+	}
 
 	async load(key: StorageKey): Promise<Uint8Array | undefined> {
 		const result = (await this.sql`SELECT data
