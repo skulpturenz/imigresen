@@ -8,6 +8,8 @@
 	"dev": {
 		// https://github.com/cloudflare/workers-sdk/issues/6587#issuecomment-2576937634
 		"ip": "127.0.0.1",
+		// TODO: testing deployed version first
+		// "local_protocol": "https",
 	},
 	"env": {
 		"development": {
