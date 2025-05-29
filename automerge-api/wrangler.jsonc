@@ -30,7 +30,7 @@
 			"vars": {
 				"WORKER_ENVIRONMENT": "production",
 				"ALLOWED_ORIGINS": "https://imigresen.skulpture.xyz",
-				"OIDC_REDIRECT_URL": "https://automerge-api.imigresen.skulpture.xyz/callback",
+				"OIDC_REDIRECT_URL": "https://automerge-api-master.imigresen.skulpture.xyz/callback",
 			},
 			"hyperdrive": [
 				{
