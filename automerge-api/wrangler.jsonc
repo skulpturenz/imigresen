@@ -21,7 +21,7 @@
 			"hyperdrive": [
 				{
 					"binding": "HYPERDRIVE",
-					"id": "82f8c83479c04996af7154a0a68a042c",
+					"id": "db3ff5e1668d4851815ac10e227e3dfa",
 					"localConnectionString": "postgresql://test:test@postgres/test?sslmode=disable",
 				},
 			],
