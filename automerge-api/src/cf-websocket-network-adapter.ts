@@ -11,9 +11,10 @@ import {
 	type PeerId,
 	type PeerMetadata,
 } from "@automerge/automerge-repo/slim";
+import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
-import { StatusCode } from "./enums";
+import { StatusCode, WorkerEnvironment } from "./enums";
 
 enum AutomergeEvents {
 	PeerDisconnected = "peer-disconnected",
@@ -23,7 +24,7 @@ enum AutomergeEvents {
 
 // note: based on `WebSocketServerAdapter` from `@automerge/automerge-repo-network-websocket`
 export class CfWebSocketNetworkAdapter extends NetworkAdapter {
-	messages = [] as MessageEvent[];
+	#messages = [] as MessageEvent[];
 
 	constructor(
 		private client: WebSocket,
@@ -40,7 +41,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		// we can't process this message right away because we also need a `peerId` which
 		// is only available after the connection
 		this.server.addEventListener("message", event => {
-			this.messages.push(event);
+			this.#messages.push(event);
 		});
 	}
 
@@ -85,14 +86,14 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 			this.#receiveMessage(event.data);
 		});
 
-		const queuedMessages = [...this.messages];
+		const queuedMessages = [...this.#messages];
 		queuedMessages.forEach(event => {
 			invariant(
 				event.data instanceof ArrayBuffer,
 				"Message data should be binary",
 			);
 
-			this.messages.shift();
+			this.#messages.shift();
 			this.#receiveMessage(event.data);
 		});
 	}
@@ -129,9 +130,11 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		);
 
 		if (this.server.readyState === WebSocket.CLOSED) {
-			console.debug(
-				`tried to send to disconnected client ${message.targetId}`,
-			);
+			if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
+				console.debug(
+					`tried to send to disconnected client ${message.targetId}`,
+				);
+			}
 
 			return;
 		}
@@ -146,7 +149,9 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 					new Uint8Array(messageBuffer),
 				);
 			} catch (error) {
-				console.error("invalid message, closing connection", error);
+				if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
+					console.error("invalid message, closing connection", error);
+				}
 
 				return null;
 			}
@@ -170,9 +175,11 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		const documentId =
 			"documentId" in message ? "@" + message.documentId : "";
 		const { byteLength } = messageBuffer;
-		console.log(
-			`[${message.senderId}->${serverPeerId}${documentId}] ${message.type} | ${byteLength} bytes`,
-		);
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
+			console.debug(
+				`[${message.senderId}->${serverPeerId}${documentId}] ${message.type} | ${byteLength} bytes`,
+			);
+		}
 
 		if (!isJoinMessage(message)) {
 			this.emit(AutomergeEvents.Message, message);
@@ -212,7 +219,7 @@ export class CfWebSocketNetworkAdapter extends NetworkAdapter {
 		this.send({
 			type: "peer",
 			senderId: this.peerId,
-			peerMetadata: this.peerMetadata!,
+			peerMetadata: this.peerMetadata,
 			selectedProtocolVersion: ProtocolV1,
 			targetId: message.senderId,
 		});

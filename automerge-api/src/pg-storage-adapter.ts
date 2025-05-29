@@ -8,7 +8,7 @@ import { invariant } from "es-toolkit";
 import { HTTPException } from "hono/http-exception";
 import type { Buffer } from "node:buffer";
 import { default as postgres } from "postgres";
-import { StatusCode } from "./enums";
+import { StatusCode, WorkerEnvironment } from "./enums";
 
 interface AutomergeRow {
 	key: string;
@@ -44,7 +44,7 @@ export class PgStorageAdapter
 				WHERE key = ${toDatabaseKey(key)} AND 
 				deleted IS NOT TRUE`) as AutomergeRow[];
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("loaded", toDatabaseKey(key), result);
 		}
 
@@ -70,7 +70,7 @@ export class PgStorageAdapter
 			
 		RETURNING *`;
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("saved", toDatabaseKey(key), result);
 		}
 
@@ -88,7 +88,7 @@ export class PgStorageAdapter
 			
 			RETURNING *`;
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("removed", toDatabaseKey(key), result);
 		}
 
@@ -107,7 +107,7 @@ export class PgStorageAdapter
 				WHERE key LIKE ${toDatabaseKey(keyPrefix) + "%"} AND 
 				deleted IS NOT TRUE`) as AutomergeRow[];
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("loadRange", toDatabaseKey(keyPrefix), result);
 		}
 
@@ -128,7 +128,7 @@ export class PgStorageAdapter
 			
 			RETURNING *`;
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("removeRange", toDatabaseKey(keyPrefix), result);
 		}
 
@@ -150,7 +150,7 @@ export class PgStorageAdapter
 			
 			RETURNING *`;
 
-		if (env.WORKER_ENVIRONMENT !== "production") {
+		if (env.WORKER_ENVIRONMENT !== WorkerEnvironment.Production) {
 			console.debug("removed", toDatabaseKey(keyPrefix), result);
 		}
 	}

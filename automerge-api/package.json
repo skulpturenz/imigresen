@@ -8,7 +8,8 @@
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"lint": "eslint src/**/* --fix --no-warn-ignored --no-error-on-unmatched-pattern --max-warnings 0",
 		"format": "prettier .  --write",
-		"migrate": "migrate -source file://$(pwd)/migrations/ -database $PG_CONNECTION_STRING up"
+		"migrate": "migrate -source file://$(pwd)/migrations/ -database $PG_CONNECTION_STRING up",
+		"dry-run": "wrangler deploy --outdir dist/ --dry-run"
 	},
 	"dependencies": {
 		"@automerge/automerge-repo": "^2.0.0",

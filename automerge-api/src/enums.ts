@@ -14,3 +14,8 @@ export enum HttpHeaders {
 	UpgradeInsecureRequests = "Upgrade-Insecure-Requests",
 	Upgrade = "Upgrade",
 }
+
+export enum WorkerEnvironment {
+	Development = "Development",
+	Production = "Production",
+}

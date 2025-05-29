@@ -1,4 +1,5 @@
 {
+	// https://developers.cloudflare.com/workers/wrangler/configuration/
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "imigresen-automerge-api",
 	"main": "src/index.ts",
@@ -12,47 +13,15 @@
 		"development": {
 			"vars": {
 				"WORKER_ENVIRONMENT": "development",
-				"ALLOWED_ORIGINS": "https://imigresen-automerge-dev.skulpture.xyz, wss://imigresen-automerge-dev.skulpture.xyz",
+				"ALLOWED_ORIGINS": "https://dev.imigresen.skulpture.xyz, http://localhost:5173",
 				"PG_CONNECTION_STRING": "postgresql://test:test@postgres/test?sslmode=disable",
 			},
 		},
 		"production": {
 			"vars": {
 				"WORKER_ENVIRONMENT": "production",
-				"ALLOWED_ORIGINS": "https://imigresen-automerge-prod.skulpture.xyz, wss://imigresen-automerge-prod.skulpture.xyz",
+				"ALLOWED_ORIGINS": "https://imigresen.skulpture.xyz",
 			},
 		},
 	},
-	// "compatibility_flags": [
-	//   "nodejs_compat"
-	// ],
-	// "vars": {
-	//   "MY_VAR": "my-variable"
-	// },
-	// "kv_namespaces": [
-	//   {
-	//     "binding": "MY_KV_NAMESPACE",
-	//     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-	//   }
-	// ],
-	// "r2_buckets": [
-	//   {
-	//     "binding": "MY_BUCKET",
-	//     "bucket_name": "my-bucket"
-	//   }
-	// ],
-	// "d1_databases": [
-	//   {
-	//     "binding": "MY_DB",
-	//     "database_name": "my-database",
-	//     "database_id": ""
-	//   }
-	// ],
-	// "ai": {
-	//   "binding": "AI"
-	// },
-	// "observability": {
-	//   "enabled": true,
-	//   "head_sampling_rate": 1
-	// }
 }
