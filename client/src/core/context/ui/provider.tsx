@@ -1,6 +1,9 @@
+import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 import { I18nProvider } from "@kobalte/core/i18n";
 import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
+import { AuthnContext } from "core/context/authn";
 import { createUiContext } from "core/context/initializers";
+import { useContext } from "core/context/utils";
 import { RepoContext } from "solid-automerge";
 import {
 	createContext,
@@ -12,13 +15,14 @@ import {
 	type ParentProps,
 } from "solid-js";
 import { ToastList, ToastRegion } from "ui/toast";
-import { repo } from "./automerge";
+import { network, repo } from "./automerge";
 import { useStore, type UiSvc } from "./store";
 
 export const UiContext = createContext<Accessor<UiSvc>>(createUiContext);
 
 export const UiProvider: Component<ParentProps> = props => {
 	const value = useStore();
+	const authnContext = useContext(AuthnContext);
 
 	createEffect(() => {
 		if (value().isInitialLoading()) {
@@ -43,6 +47,25 @@ export const UiProvider: Component<ParentProps> = props => {
 			}
 
 			root.classList.add(value().theme);
+		}
+	});
+
+	createEffect(() => {
+		// if authenticated then we want automerge sync
+		if (authnContext().keycloak?.authenticated) {
+			network.push(
+				new BrowserWebSocketClientAdapter(
+					import.meta.env.VITE_AUTOMERGE_WSS,
+				),
+			);
+
+			return;
+		}
+
+		// otherwise remove all network adapters if any
+		// automerge allows for the array to be changed at runtime but we can't reassign it
+		while (network.length) {
+			network.pop();
 		}
 	});
 

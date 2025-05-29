@@ -2,7 +2,6 @@ import { Repo } from "@automerge/automerge-repo";
 import { NodeWSServerAdapter } from "@automerge/automerge-repo-network-websocket";
 import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs";
 import { default as tailwindcss } from "@tailwindcss/vite";
-// import { default as basicSsl } from "@vitejs/plugin-basic-ssl";
 import { join } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
@@ -53,9 +52,6 @@ export default defineConfig({
 		wasm(),
 		topLevelAwait(),
 		automergeWsServer(),
-		// TODO: testing deployed version first
-		// think will need to be a trusted cert so that workers doesn't error out
-		// basicSsl(),
 	],
 	resolve: {
 		alias: {
