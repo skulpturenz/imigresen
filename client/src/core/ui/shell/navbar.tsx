@@ -181,7 +181,9 @@ export const Navbar: Component<ParentProps> = () => {
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem class="flex gap-2">
+				<DropdownMenuItem
+					class="flex gap-2"
+					onClick={authContext().actions.logout}>
 					<LogOut />
 					<span>{resources.avatar.doLogout}</span>
 				</DropdownMenuItem>
