@@ -3,7 +3,6 @@ import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
-import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
@@ -129,7 +128,6 @@ const app = new Hono<AppEnv>()
 	.use("*", requestId())
 	.use(
 		createMiddleware(async (c, next) => {
-			console.log(getCookie(c, "IMIGRESEN_AUTH_COOKIE"));
 			const pgClient = createPgClient();
 			warmupConnectionPool(pgClient);
 
