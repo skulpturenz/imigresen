@@ -1,7 +1,7 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { toPath } from "core/router/route";
-import { invariant, once } from "es-toolkit";
+import { invariant, noop, once } from "es-toolkit";
 import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
@@ -84,6 +84,10 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					return;
 				}
 
+				// TODO: maybe better to move to BE
+				// don't await so that if a request gets blocked by CORS then
+				// it doesn't stop loading profiles from happening
+				fetch(getAutomergeUrl("/api/v1")).catch(noop);
 				const profile = await get().keycloak?.loadUserProfile();
 
 				if (!import.meta.env.SSR) {
@@ -135,7 +139,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				// but we also need to logout
 				// don't await so that if a request gets blocked by CORS then
 				// it doesn't stop keycloak logout from happening
-				fetch(getAutomergeLogoutUrl());
+				fetch(getAutomergeUrl("/logout")).catch(noop);
 
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
@@ -145,7 +149,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 	};
 });
 
-const getAutomergeLogoutUrl = () => {
+const getAutomergeUrl = (path: string) => {
 	const getProtocol = (currentProtocol: string) => {
 		if (currentProtocol.toLowerCase() === "wss") {
 			return "https";
@@ -161,10 +165,9 @@ const getAutomergeLogoutUrl = () => {
 	const logoutUrl = new URL(import.meta.env.VITE_AUTOMERGE_WSS);
 
 	const logoutProtocol = getProtocol(logoutUrl.protocol);
-	const logoutPath = "/logout";
 
 	logoutUrl.protocol = logoutProtocol;
-	logoutUrl.pathname = logoutPath;
+	logoutUrl.pathname = path;
 
 	return logoutUrl;
 };
