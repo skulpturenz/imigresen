@@ -27,7 +27,17 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 	const authnProviderUrl = import.meta.env.VITE_KEYCLOAK_URL;
 	const authnProviderRealm = import.meta.env.VITE_KEYCLOAK_REALM;
 	const authnProviderClientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-	const authnProviderClientUrl = import.meta.env.VITE_KEYCLOAK_CLIENT_URL;
+
+	const stripPath = (url: URL | string) => {
+		const withoutPath = new URL((url as URL).href || url);
+
+		withoutPath.pathname = "";
+		withoutPath.search = "";
+		withoutPath.hash = "";
+
+		return withoutPath;
+	};
+	const authnProviderClientUrl = stripPath(window.location.href);
 
 	invariant(authnProviderUrl, "Keycloak URL not specified");
 	invariant(authnProviderRealm, "Keycloak realm not specified");
