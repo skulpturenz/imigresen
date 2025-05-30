@@ -14,7 +14,7 @@
 			"vars": {
 				"WORKER_ENVIRONMENT": "development",
 				"ALLOWED_ORIGINS": "https://dev.imigresen.skulpture.xyz, http://localhost:5173, https://imigresen.pages.dev",
-				"OIDC_REDIRECT_URL": "https://imigresen-automerge-api-development.yb76qksbc8.workers.dev/callback",
+				"OIDC_REDIRECT_URL": "https://automerge-api-dev.imigresen.skulpture.xyz/callback",
 				// "OIDC_REDIRECT_URL": "http://localhost:8787/callback", // locally
 				// "OIDC_REDIRECT_URL": "https://automerge-api-dev.imigresen.skulpture.xyz/callback", // TODO
 			},
