@@ -3,6 +3,7 @@ import {
 	initOidcAuthMiddleware,
 	oidcAuthMiddleware,
 	processOAuthCallback,
+	revokeSession,
 	type OidcAuthEnv,
 } from "@hono/oidc-auth";
 import { env } from "cloudflare:workers";
@@ -15,7 +16,7 @@ import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
-import { appendTrailingSlash } from "hono/trailing-slash";
+import { trimTrailingSlash } from "hono/trailing-slash";
 import type { default as postgres } from "postgres";
 import { CfWebSocketNetworkAdapter } from "./cf-websocket-network-adapter";
 import { HttpHeaders, HttpMethod, StatusCode } from "./enums";
@@ -102,7 +103,7 @@ const app = new Hono()
 	.use(logger())
 	.use(secureHeaders())
 	.use(timing())
-	.use(appendTrailingSlash())
+	.use(trimTrailingSlash())
 	.use("*", requestId())
 	.use(
 		cors({
@@ -117,6 +118,13 @@ const app = new Hono()
 		}),
 	)
 	.use(initOidcAuthMiddleware(OIDC_ENVS))
+	.get("/ping", c => c.text("."))
+	.get("/callback", processOAuthCallback)
+	.get("/logout", async c => {
+		await revokeSession(c);
+
+		return c.newResponse(null, StatusCode.NoContent);
+	})
 	.use(
 		createMiddleware(async (c, next) => {
 			const pgClient = createPgClient();
@@ -127,8 +135,6 @@ const app = new Hono()
 			await next();
 		}),
 	)
-	.get("/ping", c => c.text("."))
-	.get("/callback", processOAuthCallback)
 	.route("/api/v1", api);
 
 // eslint-disable-next-line import/no-default-export
