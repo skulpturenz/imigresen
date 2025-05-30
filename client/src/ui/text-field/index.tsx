@@ -18,7 +18,7 @@ export const TextFieldRoot = <T extends ValidComponent = "div">(
 	<TextFieldPrimitive
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn("space-y-1", props.class)}
+		class={cn("flex flex-col space-y-4", props.class)}
 	/>
 );
 
