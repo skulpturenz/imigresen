@@ -36,7 +36,7 @@
 						"type": "ratelimit",
 						"namespace_id": "1234",
 						"simple": {
-							"limit": 5,
+							"limit": 25,
 							"period": 60,
 						},
 					},
@@ -68,7 +68,7 @@
 						"type": "ratelimit",
 						"namespace_id": "4321",
 						"simple": {
-							"limit": 25,
+							"limit": 125,
 							"period": 60,
 						},
 					},

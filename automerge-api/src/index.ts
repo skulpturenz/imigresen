@@ -87,6 +87,7 @@ const api = new Hono<Env>()
 interface AppEnv {
 	Variables: {
 		rateLimit: boolean;
+		jwtPayload: any;
 	};
 	Bindings: {
 		AUTOMERGE_RATE_LIMIT: RateLimit;
@@ -96,17 +97,14 @@ interface AppEnv {
 invariant(env.AUTHNZ_JWK_URL, "JWK url not specified");
 
 const app = new Hono<AppEnv>()
+	.get("/ping", c => c.text("."))
 	.use(
-		cloudflareRateLimiter<AppEnv>({
-			rateLimitBinding: c => c.env.AUTOMERGE_RATE_LIMIT,
-			keyGenerator: c => c.req.query("cf-connecting-ip"),
+		"*",
+		jwk({
+			jwks_uri: env.AUTHNZ_JWK_URL,
+			cookie: "IMIGRESEN_AUTH_COOKIE",
 		}),
 	)
-	.use(logger())
-	.use(secureHeaders())
-	.use(timing())
-	.use(trimTrailingSlash())
-	.use("*", requestId())
 	.use(
 		cors({
 			origin: origin =>
@@ -119,14 +117,17 @@ const app = new Hono<AppEnv>()
 			credentials: false,
 		}),
 	)
-	.get("/ping", c => c.text("."))
 	.use(
-		"*",
-		jwk({
-			jwks_uri: env.AUTHNZ_JWK_URL,
-			cookie: "IMIGRESEN_AUTH_COOKIE",
+		cloudflareRateLimiter<AppEnv>({
+			rateLimitBinding: c => c.env.AUTOMERGE_RATE_LIMIT,
+			keyGenerator: c => c.get("jwtPayload").sub,
 		}),
 	)
+	.use(logger())
+	.use(secureHeaders())
+	.use(timing())
+	.use(trimTrailingSlash())
+	.use("*", requestId())
 	.use(
 		createMiddleware(async (c, next) => {
 			console.log(getCookie(c, "IMIGRESEN_AUTH_COOKIE"));
