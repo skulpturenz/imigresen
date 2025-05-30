@@ -34,7 +34,6 @@ interface Env {
 }
 
 const api = new Hono<Env>()
-	// .use("*", oidcAuthMiddleware())
 	.get("/", async c => {
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {
