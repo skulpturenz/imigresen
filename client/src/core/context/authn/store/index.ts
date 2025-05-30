@@ -72,7 +72,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					),
 				),
 				secure: import.meta.env.PROD,
-				sameSite: "Strict",
+				sameSite: "Lax",
 			},
 		);
 
