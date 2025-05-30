@@ -124,7 +124,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				set({ isActionsLoading: false });
 			},
-			logout: async () => {
+			logout: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isActionsLoading: true });
@@ -133,13 +133,13 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				// at the moment after FE logs in when we attempt to make
 				// the WebSocket connection we will get authenticated
 				// but we also need to logout
-				await fetch(getAutomergeLogoutUrl());
+				// don't await so that if a request gets blocked by CORS then
+				// it doesn't stop keycloak logout from happening
+				fetch(getAutomergeLogoutUrl());
 
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
 				});
-
-				set({ isActionsLoading: false });
 			},
 		},
 	};
