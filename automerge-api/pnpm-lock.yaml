@@ -14,9 +14,9 @@ importers:
       '@automerge/automerge-repo-network-websocket':
         specifier: ^2.0.0
         version: 2.0.0
-      '@hono/oidc-auth':
-        specifier: ^1.6.0
-        version: 1.6.0(hono@4.7.10)
+      '@hono-rate-limiter/cloudflare':
+        specifier: ^0.2.2
+        version: 0.2.2(@cloudflare/workers-types@4.20250525.0)(hono@4.7.10)
       cbor-x:
         specifier: ^1.6.0
         version: 1.6.0
@@ -356,11 +356,11 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@hono/oidc-auth@1.6.0':
-    resolution: {integrity: sha512-bK+ypup0K1geC1U8SKDyzeMzONSvfH1IY9wBM/81XLsrKBqLPghsqonh864v0MYNV3TVaE5IADKXqH9T2x2Q/A==}
-    engines: {node: '>=18.0.0'}
+  '@hono-rate-limiter/cloudflare@0.2.2':
+    resolution: {integrity: sha512-wMnqeV+cb5Wov2npLIMFtCVm3tiNMtqw9LhPWSzSMwHOzh2qbhI3mCS6s962fxcJ6UUNJhRqDbVMEsB/NinCIQ==}
     peerDependencies:
-      hono: '>=3.*'
+      '@cloudflare/workers-types': ^4.20240529.0
+      hono: ^4.4.8
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1261,9 +1261,6 @@ packages:
     resolution: {integrity: sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==}
     hasBin: true
 
-  oauth4webapi@2.17.0:
-    resolution: {integrity: sha512-lbC0Z7uzAFNFyzEYRIC+pkSVvDHJTbEW+dYlSBAlCYDe6RxUkJ26bClhk8ocBZip1wfI9uKTe0fm4Ib4RHn6uQ==}
-
   object-inspect@1.13.4:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
     engines: {node: '>= 0.4'}
@@ -1860,10 +1857,10 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@hono/oidc-auth@1.6.0(hono@4.7.10)':
+  '@hono-rate-limiter/cloudflare@0.2.2(@cloudflare/workers-types@4.20250525.0)(hono@4.7.10)':
     dependencies:
+      '@cloudflare/workers-types': 4.20250525.0
       hono: 4.7.10
-      oauth4webapi: 2.17.0
 
   '@humanfs/core@0.19.1': {}
 
@@ -2890,8 +2887,6 @@ snapshots:
     dependencies:
       detect-libc: 2.0.4
     optional: true
-
-  oauth4webapi@2.17.0: {}
 
   object-inspect@1.13.4: {}
 

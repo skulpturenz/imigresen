@@ -1,11 +1,5 @@
 import { Repo } from "@automerge/automerge-repo";
-import {
-	initOidcAuthMiddleware,
-	oidcAuthMiddleware,
-	processOAuthCallback,
-	revokeSession,
-	type OidcAuthEnv,
-} from "@hono/oidc-auth";
+import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
@@ -38,7 +32,7 @@ interface Env {
 }
 
 const api = new Hono<Env>()
-	.use("*", oidcAuthMiddleware())
+	// .use("*", oidcAuthMiddleware())
 	.get("/", async c => {
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {
@@ -88,18 +82,22 @@ const api = new Hono<Env>()
 		]);
 	});
 
-const OIDC_ENVS: Partial<OidcAuthEnv> = {
-	OIDC_AUTH_SECRET: env.OIDC_AUTH_SECRET,
-	OIDC_REDIRECT_URI: env.OIDC_REDIRECT_URL,
-	OIDC_ISSUER: env.OIDC_ISSUER,
-	OIDC_CLIENT_ID: env.OIDC_CLIENT_ID,
-	OIDC_CLIENT_SECRET: env.OIDC_CLIENT_SECRET,
-};
-Object.entries(OIDC_ENVS).forEach(([env, value]) =>
-	invariant(value, `env "${env}" not defined`),
-);
+interface AppEnv {
+	Variables: {
+		rateLimit: boolean;
+	};
+	Bindings: {
+		AUTOMERGE_RATE_LIMIT: RateLimit;
+	};
+}
 
-const app = new Hono()
+const app = new Hono<AppEnv>()
+	.use(
+		cloudflareRateLimiter<AppEnv>({
+			rateLimitBinding: c => c.env.AUTOMERGE_RATE_LIMIT,
+			keyGenerator: c => c.req.query("cf-connecting-ip"),
+		}),
+	)
 	.use(logger())
 	.use(secureHeaders())
 	.use(timing())
@@ -117,14 +115,7 @@ const app = new Hono()
 			credentials: false,
 		}),
 	)
-	.use(initOidcAuthMiddleware(OIDC_ENVS))
 	.get("/ping", c => c.text("."))
-	.get("/callback", processOAuthCallback)
-	.get("/logout", async c => {
-		await revokeSession(c);
-
-		return c.newResponse(null, StatusCode.NoContent);
-	})
 	.use(
 		createMiddleware(async (c, next) => {
 			const pgClient = createPgClient();
