@@ -1,4 +1,3 @@
-import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 import { I18nProvider } from "@kobalte/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
@@ -63,27 +62,12 @@ export const UiProviderMock: Component<
 
 	onMount(() => {
 		withDefaultProps.svc().actions.init();
-	});
 
-	// COMMENT TO TEST AUTOMERGE WITH MOCK PROVIDERS
-	// AND ADD ADAPTER TO `network`
-	createEffect(() => {
-		// if authenticated then we want automerge sync
-		if (authnContext().keycloak?.authenticated) {
-			network.push(
-				new BrowserWebSocketClientAdapter(
-					import.meta.env.VITE_AUTOMERGE_WSS,
-				),
-			);
-
+		if (!authnContext().keycloak?.authenticated) {
 			return;
 		}
 
-		// otherwise remove all network adapters if any
-		// automerge allows for the array to be changed at runtime but we can't reassign it
-		while (network.length) {
-			network.pop();
-		}
+		repo.networkSubsystem.addNetworkAdapter(network);
 	});
 
 	return (

@@ -1,4 +1,5 @@
 import { Repo, type NetworkAdapterInterface } from "@automerge/automerge-repo";
+import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 import { IndexedDBStorageAdapter } from "@automerge/automerge-repo-storage-indexeddb";
 import { invariant } from "es-toolkit";
 
@@ -9,11 +10,11 @@ const storage = new IndexedDBStorageAdapter(
 
 invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
 
-export const network: NetworkAdapterInterface[] = [];
+export const network: NetworkAdapterInterface =
+	new BrowserWebSocketClientAdapter(import.meta.env.VITE_AUTOMERGE_WSS);
 
 export const repo = new Repo({
 	storage,
-	network,
 	sharePolicy: async () => true,
 	enableRemoteHeadsGossiping: true,
 });

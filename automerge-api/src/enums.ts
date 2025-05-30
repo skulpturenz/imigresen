@@ -3,6 +3,7 @@ export enum StatusCode {
 	SwitchingProtocols = 101,
 	BadRequest = 400,
 	InternalServerError = 500,
+	NoContent = 204,
 }
 
 export enum HttpMethod {
