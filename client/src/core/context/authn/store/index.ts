@@ -83,6 +83,16 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		document.cookie = cookie;
 	};
 
+	const deleteAuthCookie = () => {
+		// https://github.com/js-cookie/js-cookie?tab=readme-ov-file#basic-usage
+		// need to use same attributes for `path`, `domain`, `secure` and `sameSite`
+		Cookies.remove(storageKeys.authCookie, {
+			domain: `.${window.location.hostname}`,
+			secure: import.meta.env.PROD,
+			sameSite: "Strict",
+		});
+	};
+
 	return {
 		isInitialLoading: true,
 		isActionsLoading: false,
@@ -163,6 +173,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 			logout: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
+				deleteAuthCookie();
 				set({ isActionsLoading: true });
 
 				get().keycloak?.logout({
