@@ -56,6 +56,33 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		toPath(CoreRoute.Auth, AuthRoute.LogoutCallback),
 	].join("");
 
+	const setAuthCookie = () => {
+		if (!get().keycloak?.token) {
+			return;
+		}
+
+		const cookie = Cookies.set(
+			storageKeys.authCookie,
+			get().keycloak?.token ?? "",
+			{
+				domain: `.${window.location.hostname}`,
+				expires: new Date(
+					secondsToMilliseconds(
+						get().keycloak?.tokenParsed?.exp ?? 0,
+					),
+				),
+				secure: import.meta.env.PROD,
+				sameSite: "Strict",
+			},
+		);
+
+		if (!cookie) {
+			return;
+		}
+
+		document.cookie = cookie;
+	};
+
 	return {
 		isInitialLoading: true,
 		isActionsLoading: false,
@@ -92,36 +119,10 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				const profile = await get().keycloak?.loadUserProfile();
 
-				const setAuthCookie = () => {
-					if (!get().keycloak?.token) {
-						return;
-					}
-
-					const cookie = Cookies.set(
-						storageKeys.authCookie,
-						get().keycloak?.token ?? "",
-						{
-							domain: `.${window.location.hostname}`,
-							expires: new Date(
-								secondsToMilliseconds(
-									get().keycloak?.tokenParsed?.exp ?? 0,
-								),
-							),
-							secure: import.meta.env.PROD,
-						},
-					);
-
-					if (!cookie) {
-						return;
-					}
-
-					document.cookie = cookie;
-				};
-				setAuthCookie();
-
-				keycloak.onAuthRefreshSuccess = setAuthCookie;
-
 				if (!import.meta.env.SSR) {
+					setAuthCookie();
+					keycloak.onAuthRefreshSuccess = setAuthCookie;
+
 					window.localStorage.setItem(
 						AUTHN_SVC_SUB_CONFIG_KEY,
 						keycloak.tokenParsed?.sub ?? "",
@@ -164,14 +165,6 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				set({ isActionsLoading: true });
 
-				// TODO: maybe better to move to BE
-				// at the moment after FE logs in when we attempt to make
-				// the WebSocket connection we will get authenticated
-				// but we also need to logout
-				// don't await so that if a request gets blocked by CORS then
-				// it doesn't stop keycloak logout from happening
-				fetch(getAutomergeLogoutUrl());
-
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
 				});
@@ -179,27 +172,3 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		},
 	};
 });
-
-const getAutomergeLogoutUrl = () => {
-	const getProtocol = (currentProtocol: string) => {
-		if (currentProtocol.toLowerCase() === "wss") {
-			return "https";
-		}
-
-		if (currentProtocol.toLowerCase() === "ws") {
-			return "http";
-		}
-
-		return currentProtocol.toLowerCase();
-	};
-
-	const logoutUrl = new URL(import.meta.env.VITE_AUTOMERGE_WSS);
-
-	const logoutProtocol = getProtocol(logoutUrl.protocol);
-	const logoutPath = "/logout";
-
-	logoutUrl.protocol = logoutProtocol;
-	logoutUrl.pathname = logoutPath;
-
-	return logoutUrl;
-};
