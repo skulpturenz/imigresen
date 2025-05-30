@@ -3,7 +3,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
 import { toPath } from "core/router/route";
 import { secondsToMilliseconds } from "date-fns";
-import { invariant, once } from "es-toolkit";
+import { invariant, once, trimEnd } from "es-toolkit";
 import { default as Cookies } from "js-cookie";
 import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
@@ -48,11 +48,11 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 	invariant(authnProviderClientUrl, "Keycloak client URL not specified");
 
 	const loginRedirectUri = [
-		authnProviderClientUrl,
+		trimEnd(authnProviderClientUrl.href, "/"),
 		toPath(CoreRoute.Auth, AuthRoute.LoginCallback),
 	].join("");
 	const logoutRedirectUri = [
-		authnProviderClientUrl,
+		trimEnd(authnProviderClientUrl.href, "/"),
 		toPath(CoreRoute.Auth, AuthRoute.LogoutCallback),
 	].join("");
 
