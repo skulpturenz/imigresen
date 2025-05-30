@@ -27,7 +27,17 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 	const authnProviderUrl = import.meta.env.VITE_KEYCLOAK_URL;
 	const authnProviderRealm = import.meta.env.VITE_KEYCLOAK_REALM;
 	const authnProviderClientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-	const authnProviderClientUrl = import.meta.env.VITE_KEYCLOAK_CLIENT_URL;
+
+	const stripPath = (url: URL | string) => {
+		const withoutPath = new URL((url as URL).href || url);
+
+		withoutPath.pathname = "";
+		withoutPath.search = "";
+		withoutPath.hash = "";
+
+		return withoutPath;
+	};
+	const authnProviderClientUrl = stripPath(window.location.href);
 
 	invariant(authnProviderUrl, "Keycloak URL not specified");
 	invariant(authnProviderRealm, "Keycloak realm not specified");
@@ -114,7 +124,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				set({ isActionsLoading: false });
 			},
-			logout: async () => {
+			logout: () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isActionsLoading: true });
@@ -123,13 +133,13 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				// at the moment after FE logs in when we attempt to make
 				// the WebSocket connection we will get authenticated
 				// but we also need to logout
-				await fetch(getAutomergeLogoutUrl());
+				// don't await so that if a request gets blocked by CORS then
+				// it doesn't stop keycloak logout from happening
+				fetch(getAutomergeLogoutUrl());
 
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
 				});
-
-				set({ isActionsLoading: false });
 			},
 		},
 	};
