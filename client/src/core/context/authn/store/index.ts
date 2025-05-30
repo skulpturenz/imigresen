@@ -1,7 +1,10 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
+import { storageKeys } from "core/constants/storage-keys";
 import { toPath } from "core/router/route";
+import { secondsToMilliseconds } from "date-fns";
 import { invariant, once } from "es-toolkit";
+import { default as Cookies } from "js-cookie";
 import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
@@ -84,12 +87,44 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					return;
 				}
 
+				const keycloak = get().keycloak;
+				invariant(keycloak, "Keycloak is initialized incorrectly");
+
 				const profile = await get().keycloak?.loadUserProfile();
+
+				const setAuthCookie = () => {
+					if (!get().keycloak?.token) {
+						return;
+					}
+
+					const cookie = Cookies.set(
+						storageKeys.authCookie,
+						get().keycloak?.token ?? "",
+						{
+							domain: `.${window.location.hostname}`,
+							expires: new Date(
+								secondsToMilliseconds(
+									get().keycloak?.tokenParsed?.exp ?? 0,
+								),
+							),
+							secure: import.meta.env.PROD,
+						},
+					);
+
+					if (!cookie) {
+						return;
+					}
+
+					document.cookie = cookie;
+				};
+				setAuthCookie();
+
+				keycloak.onAuthRefreshSuccess = setAuthCookie;
 
 				if (!import.meta.env.SSR) {
 					window.localStorage.setItem(
 						AUTHN_SVC_SUB_CONFIG_KEY,
-						get().keycloak?.tokenParsed?.sub ?? "",
+						keycloak.tokenParsed?.sub ?? "",
 					);
 				}
 

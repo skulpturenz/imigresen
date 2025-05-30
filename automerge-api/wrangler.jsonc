@@ -12,6 +12,7 @@
 	"env": {
 		"development": {
 			"vars": {
+				"AUTHNZ_JWK_URL": "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/certs",
 				"WORKER_ENVIRONMENT": "development",
 				"ALLOWED_ORIGINS": "https://dev.imigresen.skulpture.xyz, http://localhost:5173, https://imigresen.pages.dev",
 			},
@@ -44,6 +45,7 @@
 		},
 		"production": {
 			"vars": {
+				"AUTHNZ_JWK_URL": "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/certs",
 				"WORKER_ENVIRONMENT": "production",
 				"ALLOWED_ORIGINS": "https://imigresen.skulpture.xyz",
 			},

@@ -15,6 +15,7 @@
 	"dependencies": {
 		"@ark-ui/solid": "^5.9.2",
 		"@automerge/automerge-repo": "^2.0.0",
+		"@automerge/automerge-repo-network-websocket": "^2.0.0",
 		"@automerge/automerge-repo-storage-indexeddb": "^2.0.0",
 		"@corvu/drawer": "^0.2.2",
 		"@flipt-io/flipt-client-js": "^0.0.6",
@@ -31,6 +32,7 @@
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"es-toolkit": "^1.38.0",
+		"js-cookie": "^3.0.5",
 		"keycloak-js": "^26.1.0",
 		"lucide-solid": "^0.511.0",
 		"motion": "^12.12.1",
@@ -44,7 +46,6 @@
 		"zustand": "^5.0.3"
 	},
 	"devDependencies": {
-		"@automerge/automerge-repo-network-websocket": "^2.0.0",
 		"@automerge/automerge-repo-storage-nodefs": "^2.0.0",
 		"@chromatic-com/storybook": "^3.2.3",
 		"@ngneat/falso": "^7.2.0",
@@ -60,6 +61,7 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/user-event": "^14.5.2",
+		"@types/js-cookie": "^3.0.6",
 		"@types/node": "^22.13.1",
 		"@types/ws": "^8.18.1",
 		"eslint": "^9.19.0",
