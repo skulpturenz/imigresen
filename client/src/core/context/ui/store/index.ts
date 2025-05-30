@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/solid-query";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { once, partialRight, toMerged } from "es-toolkit";
+import { once, partialRight } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -43,16 +43,19 @@ const persistLocalStorage: (
 	storage: createJSONStorage(() => localStorage),
 	version: 1,
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
-	merge: (persistedState, currentState) => {
-		// take out state which is not serializable & internal fields
-		const {
-			queryClient: _queryClient,
-			actions: _actions,
-			hasHydrated: _hasHydrated,
-			...rest
-		} = persistedState as UiSvc & UiSvcInternal;
+	partialize: state => {
+		const keysToIgnore: Set<keyof (UiSvc & UiSvcInternal)> = new Set([
+			"queryClient",
+			"actions",
+			"hasHydrated",
+		]);
 
-		return toMerged(currentState, rest) as UiSvc & UiSvcInternal;
+		return Object.fromEntries(
+			Object.entries(state).filter(
+				([key]) =>
+					!keysToIgnore.has(key as keyof UiSvc & UiSvcInternal),
+			),
+		) as UiSvc & UiSvcInternal;
 	},
 } satisfies PersistOptions<UiSvc & UiSvcInternal>);
 

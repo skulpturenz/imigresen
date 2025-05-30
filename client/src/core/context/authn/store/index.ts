@@ -6,6 +6,8 @@ import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
+invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
+
 export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
 
 export interface AuthnSvc {
@@ -112,10 +114,16 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 
 				set({ isActionsLoading: false });
 			},
-			logout: () => {
+			logout: async () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isActionsLoading: true });
+
+				// TODO: maybe better to move to BE
+				// at the moment after FE logs in when we attempt to make
+				// the WebSocket connection we will get authenticated
+				// but we also need to logout
+				await fetch(getAutomergeLogoutUrl());
 
 				get().keycloak?.logout({
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
@@ -126,3 +134,27 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		},
 	};
 });
+
+const getAutomergeLogoutUrl = () => {
+	const getProtocol = (currentProtocol: string) => {
+		if (currentProtocol.toLowerCase() === "wss") {
+			return "https";
+		}
+
+		if (currentProtocol.toLowerCase() === "ws") {
+			return "http";
+		}
+
+		return currentProtocol.toLowerCase();
+	};
+
+	const logoutUrl = new URL(import.meta.env.VITE_AUTOMERGE_WSS);
+
+	const logoutProtocol = getProtocol(logoutUrl.protocol);
+	const logoutPath = "/logout";
+
+	logoutUrl.protocol = logoutProtocol;
+	logoutUrl.pathname = logoutPath;
+
+	return logoutUrl;
+};
