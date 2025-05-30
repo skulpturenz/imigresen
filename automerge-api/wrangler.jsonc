@@ -25,6 +25,12 @@
 					"localConnectionString": "postgresql://test:test@postgres/test?sslmode=disable",
 				},
 			],
+			"routes": [
+				{
+					"pattern": "automerge-api-dev.imigresen.skulpture.xyz",
+					"custom_domain": true,
+				},
+			],
 		},
 		"production": {
 			"vars": {
@@ -36,6 +42,12 @@
 				{
 					"binding": "HYPERDRIVE",
 					"id": "b75d0ed9a01c41939a4da1d35514501c",
+				},
+			],
+			"routes": [
+				{
+					"pattern": "automerge-api-master.imigresen.skulpture.xyz",
+					"custom_domain": true,
 				},
 			],
 		},
