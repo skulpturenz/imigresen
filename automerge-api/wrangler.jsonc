@@ -9,6 +9,9 @@
 		// https://github.com/cloudflare/workers-sdk/issues/6587#issuecomment-2576937634
 		"ip": "127.0.0.1",
 	},
+	"vars": {
+		"AUTHNZ_JWK_URL": "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/certs",
+	},
 	"env": {
 		"development": {
 			"vars": {

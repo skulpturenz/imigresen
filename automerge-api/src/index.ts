@@ -3,9 +3,11 @@ import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
+import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
+import { jwk } from "hono/jwk";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
@@ -91,6 +93,8 @@ interface AppEnv {
 	};
 }
 
+invariant(env.AUTHNZ_JWK_URL, "JWK url not specified");
+
 const app = new Hono<AppEnv>()
 	.use(
 		cloudflareRateLimiter<AppEnv>({
@@ -117,7 +121,15 @@ const app = new Hono<AppEnv>()
 	)
 	.get("/ping", c => c.text("."))
 	.use(
+		"*",
+		jwk({
+			jwks_uri: env.AUTHNZ_JWK_URL,
+			cookie: "IMIGRESEN_AUTH_COOKIE",
+		}),
+	)
+	.use(
 		createMiddleware(async (c, next) => {
+			console.log(getCookie(c, "IMIGRESEN_AUTH_COOKIE"));
 			const pgClient = createPgClient();
 			warmupConnectionPool(pgClient);
 
