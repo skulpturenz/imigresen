@@ -8,7 +8,7 @@ import {
 	setValue as setFormValue,
 } from "@modular-forms/solid";
 import { spreadProps } from "core/utils";
-import { invariant } from "es-toolkit";
+import { invariant, isNil } from "es-toolkit";
 import { distance } from "fastest-levenshtein";
 import { closestOptionMatch } from "feat/my-passport-form/utils/closest-option-match";
 import { createSignal, type ValidComponent } from "solid-js";
@@ -54,22 +54,45 @@ export const AutocorrectTextField = <
 
 	const [closestOptions, setClosestOptions] = createSignal([] as string[]);
 	const findClosestOptions = (value: string) => {
-		const distances = props.options.reduce(
-			(acc, option) => ({
-				...acc,
-				[option]: distance(value, option),
-			}),
-			Object.create(null),
-		);
-		const minDistance = Math.min(...(Object.values(distances) as number[]));
-		const maxDistance = Math.max(...(Object.values(distances) as number[]));
-		const midDistance = Math.floor((minDistance + maxDistance) / 2);
+		const { min, max, distances } = props.options.reduce((acc, option) => {
+			const calculated = distance(value, option);
+
+			const getMin = () => {
+				if (isNil(acc.min)) {
+					return calculated;
+				}
+
+				return Math.min(calculated, acc.min);
+			};
+
+			const getMax = () => {
+				if (isNil(acc.max)) {
+					return calculated;
+				}
+
+				return Math.max(calculated, acc.max);
+			};
+
+			return {
+				distances: {
+					...acc.distances,
+					[option]: calculated,
+				},
+				min: getMin(),
+				max: getMax(),
+			};
+		}, Object.create(null));
+		const midDistance = Math.floor((min + max) / 2);
 
 		const filteredOptions = Object.entries(distances)
-			.filter(([_, distance]) => Number(distance) <= midDistance)
 			.sort(([_a1, a2], [_b1, b2]) => Number(a2) - Number(b2))
-			.map(([option]) => option);
+			.reduce((acc, [option, distance]) => {
+				if (Number(distance) > midDistance) {
+					return acc;
+				}
 
+				return [...acc, option];
+			}, [] as string[]);
 		return filteredOptions;
 	};
 
