@@ -34,6 +34,7 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 ) => (
 	<SelectPrimitive.Trigger
 		{...spreadProps(props)}
+		tabIndex={0}
 		class={cn(
 			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background",
 			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none",
@@ -104,7 +105,8 @@ export const SelectClearSelection: Component<
 				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
 			)}
 			onPointerDown={onPointerDown}
-			onClick={props.onClear}>
+			onClick={props.onClear}
+			tabIndex={0}>
 			<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
 		</button>
 	);
