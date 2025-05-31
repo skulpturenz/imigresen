@@ -464,7 +464,7 @@ const StateOfBirth = (props: any) => {
 									<button
 										class={cn(
 											"absolute right-8 top-[30%] bg-muted cursor-pointer",
-											"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+											"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
 										)}
 										onPointerDown={onPointerDown}
 										onClick={state.clear}>
@@ -690,7 +690,7 @@ const SelectRelationshipStatus = (props: any) => {
 								<button
 									class={cn(
 										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
 									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
@@ -731,7 +731,7 @@ const SelectGender = (props: any) => {
 								<button
 									class={cn(
 										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
 									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
@@ -772,7 +772,7 @@ const SelectCountry = (props: any) => {
 								<button
 									class={cn(
 										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
 									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
