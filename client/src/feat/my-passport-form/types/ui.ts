@@ -11,7 +11,7 @@ export enum Step {
 
 // TODO
 export interface StepProps {
-	form: FormStore<any>;
+	form: FormStore<MyPassportForm>;
 	Field: ReturnType<typeof createForm<MyPassportForm>>[1]["Field"];
 	FieldArray: ReturnType<typeof createForm<MyPassportForm>>[1]["FieldArray"];
 }
