@@ -15,11 +15,13 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 			path: toPath(MyPassportForm.New),
 			title: t("metaTitle"),
 			component: lazy(async () => {
-				const { MyPassportFormProvider } = await import("./context");
+				const { MyPassportFormProviderMock } = await import(
+					"./context"
+				);
 
 				return import("./my-passport-form").then(exports => ({
 					default: withI18n(
-						withParents(MyPassportFormProvider)(
+						withParents(MyPassportFormProviderMock)(
 							exports.MyPassportForm,
 						),
 					),
@@ -31,11 +33,13 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 			path: toPath(MyPassportForm.Edit),
 			title: t("metaTitle"),
 			component: lazy(async () => {
-				const { MyPassportFormProvider } = await import("./context");
+				const { MyPassportFormProviderMock } = await import(
+					"./context"
+				);
 
 				return import("./my-passport-form").then(exports => ({
 					default: withI18n(
-						withParents(MyPassportFormProvider)(
+						withParents(MyPassportFormProviderMock)(
 							exports.MyPassportForm,
 						),
 					),

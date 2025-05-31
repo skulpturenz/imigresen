@@ -6,8 +6,8 @@ import {
 	Select as SelectPrimitive,
 } from "@kobalte/core/select";
 import { spreadProps } from "core/utils";
-import { Check, ChevronDown } from "lucide-solid";
-import type { ParentProps, ValidComponent } from "solid-js";
+import { Check, ChevronDown, X } from "lucide-solid";
+import type { Component, ParentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -33,12 +33,13 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 	props: ParentProps<PolymorphicProps<T, SelectTriggerProps<T>>>,
 ) => (
 	<SelectPrimitive.Trigger
+		tabIndex={0}
 		{...spreadProps(props)}
 		class={cn(
 			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background",
 			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none",
 			"focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed",
-			"disabled:opacity-50 [&>span]:line-clamp-1 transition-shadow",
+			"disabled:opacity-50 [&>span]:line-clamp-1 transition-shadow relative",
 			props.class,
 		)}>
 		{props.children}
@@ -85,3 +86,28 @@ export const SelectItem = <T extends ValidComponent = "li">(
 		<SelectPrimitive.ItemLabel>{props.children}</SelectPrimitive.ItemLabel>
 	</SelectPrimitive.Item>
 );
+
+export interface SelectClearSelectionProps {
+	onClear: () => void;
+}
+
+export const SelectClearSelection: Component<
+	SelectClearSelectionProps
+> = props => {
+	const onPointerDown = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+	};
+
+	return (
+		<button
+			class={cn(
+				"absolute right-8 top-[30%] bg-muted cursor-pointer",
+				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
+			)}
+			onPointerDown={onPointerDown}
+			onClick={props.onClear}
+			tabIndex={0}>
+			<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+		</button>
+	);
+};

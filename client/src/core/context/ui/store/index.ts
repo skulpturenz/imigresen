@@ -9,7 +9,7 @@ import {
 	type PersistOptions,
 } from "zustand/middleware";
 
-export type Locale = "en-US" | "en-MY" | "ms-MY";
+export type Locale = "en-NZ" | "en-MY" | "ms-MY";
 
 export type UiTheme = "light" | "dark" | "system";
 
@@ -64,7 +64,7 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 		return {
 			isInitialLoading: () =>
 				Boolean(!get()?.hasHydrated || !get().queryClient),
-			locale: "en-US", // https://www.ietf.org/rfc/bcp/bcp47.txt
+			locale: "en-NZ", // https://www.ietf.org/rfc/bcp/bcp47.txt
 			// TODO: There is a state update issue here
 			// if there is no persisted storage then `onRehydrateStorage`
 			// calls `setHasHydrated` but it doesn't update for some reason

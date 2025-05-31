@@ -19,7 +19,12 @@ export const myPassportFormService = (token?: string) => {
 			return uuid;
 		}
 
-		throw new Error("TODO");
+		// TODO
+		const uuid = uuidv7();
+
+		storage.setItem(uuid, automergeUrl);
+
+		return uuid;
 	};
 
 	const deleteApplication = async (uuid: string) => {
@@ -29,11 +34,16 @@ export const myPassportFormService = (token?: string) => {
 			return;
 		}
 
-		throw new Error("TODO");
+		// TODO
+		await storage.del(uuid);
 	};
+
+	// TODO
+	const getReferenceData = async () => Object.create(null);
 
 	return {
 		registerApplication,
 		deleteApplication,
+		getReferenceData,
 	};
 };

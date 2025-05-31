@@ -16,7 +16,9 @@ import {
 	type DateValue,
 	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
+import { useLocale } from "@kobalte/core";
 import { spreadProps } from "core/utils";
+import { format } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import type { VoidProps } from "solid-js";
 import { buttonVariants } from "ui/button";
@@ -47,21 +49,18 @@ export const DatePickerRootProvider = DatePickerPrimitive.RootProvider;
 export const DatePickerPositioner = DatePickerPrimitive.Positioner;
 
 export const DatePicker = (props: DatePickerRootProps) => {
-	const format = (value: DateValue) => {
-		const parsedDate = new Date(Date.parse(value.toString()));
+	const { locale } = useLocale();
 
-		const normalizedDate = new Date(
-			parsedDate.getUTCFullYear(),
-			parsedDate.getUTCMonth(),
-			parsedDate.getUTCDate(),
-		);
+	const formatDate = (date: DateValue) =>
+		format(date.toString(), "dd/MM/yyyy");
 
-		return new Intl.DateTimeFormat("en-US", {
-			dateStyle: "long",
-		}).format(normalizedDate);
-	};
-
-	return <DatePickerPrimitive.Root {...spreadProps(props)} format={format} />;
+	return (
+		<DatePickerPrimitive.Root
+			{...spreadProps(props)}
+			locale={locale()}
+			format={formatDate}
+		/>
+	);
 };
 
 export const DatePickerView = (props: DatePickerViewProps) => (
@@ -213,7 +212,7 @@ export const DatePickerInput = (props: DatePickerInputProps) => (
 	<DatePickerPrimitive.Input
 		{...spreadProps(props)}
 		class={cn(
-			"w-full h-9 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground shadow-sm",
+			"w-full h-10 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground",
 			"placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
 			"focus-visible:ring-offset-background focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
 			props.class,
@@ -226,7 +225,7 @@ export const DatePickerTrigger = (props: DatePickerTriggerProps) => (
 		{...spreadProps(props)}
 		class={cn(
 			"transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-9 rounded-e-md border group",
+			"focus-visible:ring-ring flex items-center justify-center min-w-9 min-h-10 rounded-e-md border group",
 			"border-border bg-background text-foreground [&>svg]:size-4 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50",
 			props.class,
 		)}>
