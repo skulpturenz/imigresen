@@ -1,4 +1,5 @@
 import { storageKeys } from "core/constants/storage-keys";
+import { default as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture.json";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 
@@ -21,8 +22,11 @@ export const myPassportFormService = (_token?: string) => {
 		await storage.del(uuid);
 	};
 
+	const getReferenceData = async () => referenceDataFixture;
+
 	return {
 		registerApplication,
 		deleteApplication,
+		getReferenceData,
 	};
 };

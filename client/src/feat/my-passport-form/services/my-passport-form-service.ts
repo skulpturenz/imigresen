@@ -38,8 +38,12 @@ export const myPassportFormService = (token?: string) => {
 		await storage.del(uuid);
 	};
 
+	// TODO
+	const getReferenceData = async () => Object.create(null);
+
 	return {
 		registerApplication,
 		deleteApplication,
+		getReferenceData,
 	};
 };
