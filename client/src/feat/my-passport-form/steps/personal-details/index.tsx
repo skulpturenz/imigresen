@@ -6,18 +6,24 @@ import { getValue, setValue, type FieldEvent } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { invariant, partial } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
-import { type StepProps } from "feat/my-passport-form/types";
+import {
+	type MyPassportForm,
+	type StepProps,
+} from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
-import { X } from "lucide-solid";
+import { InputGroup } from "feat/my-passport-form/ui/input-group";
+import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { Index, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import {
 	Combobox,
+	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
 } from "ui/combobox";
+import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import {
 	DatePicker,
 	DatePickerContent,
@@ -40,19 +46,19 @@ import {
 } from "ui/date-picker";
 import { Label } from "ui/label";
 import {
-	Select,
+	SelectClearSelection,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "ui/select";
+import { ModularFormsSelect } from "ui/select/modular-forms-select";
 import {
 	TextField,
 	TextFieldDescription,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
-import { cn } from "ui/utils";
 
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
@@ -212,21 +218,53 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{t("form.personalDetails.genderCode.label")}
 								</Label>
 
-								<SelectGender
+								<ModularFormsSelect<
+									string,
+									MyPassportForm,
+									never,
+									"input"
+								>
+									form={props.form}
+									{...field}
 									{...fieldProps}
-									name={field.name}
-									value={field.value}
-									// TODO: unsure why `onChange` isn't working
-									// think its because it does not emit an event
-									onChange={partial(
-										setValue,
-										props.form,
-										"personalDetails.genderCode",
-									)}
+									value={field.value ?? null}
+									options={[
+										"Apple",
+										"Banana",
+										"Blueberry",
+										"Grapes",
+										"Pineapple",
+									]}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
 									)}
-								/>
+									itemComponent={props => (
+										<SelectItem item={props.item}>
+											{props.item.rawValue}
+										</SelectItem>
+									)}>
+									<SelectTrigger class="w-full">
+										<SelectValue<string>>
+											{state => {
+												return (
+													<>
+														<div>
+															{state.selectedOption()}
+														</div>
+
+														<SelectClearSelection
+															onClear={
+																state.clear
+															}
+														/>
+													</>
+												);
+											}}
+										</SelectValue>
+									</SelectTrigger>
+
+									<SelectContent />
+								</ModularFormsSelect>
 							</InputGroup>
 						</>
 					)}
@@ -244,21 +282,53 @@ export const PersonalDetails: Component<StepProps> = props => {
 									)}
 								</Label>
 
-								<SelectRelationshipStatus
+								<ModularFormsSelect<
+									string,
+									MyPassportForm,
+									never,
+									"input"
+								>
+									form={props.form}
+									{...field}
 									{...fieldProps}
-									name={field.name}
-									value={field.value}
-									// TODO: unsure why `onChange` isn't working
-									// think its because it does not emit an event
-									onChange={partial(
-										setValue,
-										props.form,
-										"personalDetails.relationshipStatusCode",
-									)}
+									value={field.value ?? null}
+									options={[
+										"Apple",
+										"Banana",
+										"Blueberry",
+										"Grapes",
+										"Pineapple",
+									]}
 									placeholder={t(
 										"form.personalDetails.relationshipStatusCode.placeholder",
 									)}
-								/>
+									itemComponent={props => (
+										<SelectItem item={props.item}>
+											{props.item.rawValue}
+										</SelectItem>
+									)}>
+									<SelectTrigger class="w-full">
+										<SelectValue<string>>
+											{state => {
+												return (
+													<>
+														<div>
+															{state.selectedOption()}{" "}
+														</div>
+
+														<SelectClearSelection
+															onClear={
+																state.clear
+															}
+														/>
+													</>
+												);
+											}}
+										</SelectValue>
+									</SelectTrigger>
+
+									<SelectContent />
+								</ModularFormsSelect>
 							</InputGroup>
 						</>
 					)}
@@ -369,7 +439,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 				<props.Field
 					name="personalDetails.countryOfBirthCode"
 					type="string">
-					{(field, { onChange, ...rest }) => (
+					{(field, fieldProps) => (
 						<>
 							<TextFieldRoot
 								validationState={
@@ -382,7 +452,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 								</TextFieldLabel>
 
 								<AutocorrectTextField
-									{...rest}
+									{...field}
+									{...fieldProps}
 									form={props.form}
 									name={field.name}
 									value={field.value || ""}
@@ -430,18 +501,51 @@ export const PersonalDetails: Component<StepProps> = props => {
 									)}
 								</Label>
 
-								<StateOfBirth
+								<ModularFormsCombobox<
+									string,
+									MyPassportForm,
+									never,
+									"input"
+								>
+									{...field}
 									{...fieldProps}
-									value={field.value}
-									onChange={partial(
-										setValue,
-										props.form,
-										"personalDetails.stateOfBirth",
-									)}
+									form={props.form}
+									options={[
+										"Next.js",
+										"Astro",
+										"Qwik",
+										"SolidStart",
+										"Nuxt.js",
+									]}
+									value={field.value ?? ""}
 									placeholder={t(
 										"form.personalDetails.stateOfBirth.placeholder",
 									)}
-								/>
+									itemComponent={props => (
+										<ComboboxItem item={props.item}>
+											{props.item.rawValue}
+										</ComboboxItem>
+									)}>
+									<Combobox.Control<string>>
+										{state => {
+											return (
+												<>
+													<ComboboxTrigger class="relative">
+														<ComboboxInput />
+
+														<ComboboxClearSelection
+															selectedOptions={state.selectedOptions()}
+															onClear={
+																state.clear
+															}
+														/>
+													</ComboboxTrigger>
+												</>
+											);
+										}}
+									</Combobox.Control>
+									<ComboboxContent />
+								</ModularFormsCombobox>
 							</InputGroup>
 						</Show>
 					</>
@@ -451,55 +555,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 	);
 };
 
-const InputGroup = (props: any) => (
-	<div class="flex flex-col space-y-4">{props.children}</div>
-);
-
 // TODO
-const StateOfBirth = (props: any) => {
-	return (
-		<Combobox
-			options={["Next.js", "Astro", "Qwik", "SolidStart", "Nuxt.js"]}
-			placeholder={props.placeholder}
-			value={props.value}
-			onChange={props.onChange}
-			itemComponent={props => (
-				<ComboboxItem item={props.item}>
-					{props.item.rawValue}
-				</ComboboxItem>
-			)}>
-			<Combobox.Control>
-				{state => {
-					const onPointerDown = (event: MouseEvent) => {
-						event.stopImmediatePropagation();
-					};
-
-					return (
-						<>
-							<ComboboxTrigger class="relative">
-								<ComboboxInput />
-
-								<Show when={props.value}>
-									<button
-										class={cn(
-											"absolute right-8 top-[30%] bg-muted cursor-pointer",
-											"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
-										)}
-										onPointerDown={onPointerDown}
-										onClick={state.clear}>
-										<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-									</button>
-								</Show>
-							</ComboboxTrigger>
-						</>
-					);
-				}}
-			</Combobox.Control>
-			<ComboboxContent />
-		</Combobox>
-	);
-};
-
 const InputDate = (props: any) => {
 	const onChange = (details?: DatePickerValueChangeDetails) => {
 		if (!details?.valueAsString.length) {
@@ -683,99 +739,6 @@ const InputDate = (props: any) => {
 		</DatePicker>
 	);
 };
-
-const SelectRelationshipStatus = (props: any) => {
-	return (
-		<Select
-			value={props.value ?? null}
-			options={["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"]}
-			placeholder={props.placeholder}
-			onChange={props.onChange}
-			itemComponent={props => (
-				<SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
-			)}>
-			<Select.HiddenSelect />
-			<SelectTrigger class="w-full relative">
-				<SelectValue<string>>
-					{state => {
-						const onPointerDown = (event: MouseEvent) => {
-							event.stopImmediatePropagation();
-						};
-
-						return (
-							<>
-								<div>{state.selectedOption()} </div>
-
-								<button
-									class={cn(
-										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
-									)}
-									onPointerDown={onPointerDown}
-									onClick={state.clear}>
-									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-								</button>
-							</>
-						);
-					}}
-				</SelectValue>
-			</SelectTrigger>
-			<SelectContent />
-		</Select>
-	);
-};
-
-const SelectGender = (props: any) => {
-	return (
-		<Select
-			value={props.value ?? null}
-			options={["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"]}
-			placeholder={props.placeholder}
-			onChange={props.onChange}
-			itemComponent={props => (
-				<SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
-			)}>
-			<Select.HiddenSelect />
-			<SelectTrigger class="w-full relative">
-				<SelectValue<string>>
-					{state => {
-						const onPointerDown = (event: MouseEvent) => {
-							event.stopImmediatePropagation();
-						};
-
-						return (
-							<>
-								<div>{state.selectedOption()} </div>
-
-								<button
-									class={cn(
-										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
-									)}
-									onPointerDown={onPointerDown}
-									onClick={state.clear}>
-									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-								</button>
-							</>
-						);
-					}}
-				</SelectValue>
-			</SelectTrigger>
-			<SelectContent />
-		</Select>
-	);
-};
-
-// TODO
-const NextRow = (props: any) => (
-	<div class="col-span-full">
-		<div
-			// TODO: base grid config
-			class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
-			{props.children}
-		</div>
-	</div>
-);
 
 const isMetres = (x: number | string) => {
 	if (!x) {

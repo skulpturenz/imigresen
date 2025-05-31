@@ -1,14 +1,14 @@
 import {
+	Combobox as ComboboxPrimitive,
 	type ComboboxContentProps,
 	type ComboboxInputProps,
 	type ComboboxItemProps,
 	type ComboboxTriggerProps,
-	Combobox as ComboboxPrimitive,
 } from "@kobalte/core/combobox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
-import { Check, ChevronsDownUp } from "lucide-solid";
-import type { ParentProps, ValidComponent } from "solid-js";
+import { Check, ChevronsDownUp, X } from "lucide-solid";
+import { Show, type ParentProps, type ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 
 export const resources = {
@@ -106,3 +106,30 @@ export const ComboboxItem = <T extends ValidComponent = "li">(
 		</ComboboxPrimitive.ItemLabel>
 	</ComboboxPrimitive.Item>
 );
+
+export interface ComboboxClearSelectionProps<TOption> {
+	selectedOptions?: TOption[];
+	onClear: () => void;
+}
+
+export const ComboboxClearSelection = <TOption extends unknown>(
+	props: ComboboxClearSelectionProps<TOption>,
+) => {
+	const onPointerDown = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+	};
+
+	return (
+		<Show when={props.selectedOptions?.length}>
+			<button
+				class={cn(
+					"absolute right-8 top-[30%] bg-muted cursor-pointer",
+					"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
+				)}
+				onPointerDown={onPointerDown}
+				onClick={props.onClear}>
+				<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+			</button>
+		</Show>
+	);
+};

@@ -11,19 +11,18 @@ import { spreadProps } from "core/utils";
 import { invariant, isNil } from "es-toolkit";
 import { distance } from "fastest-levenshtein";
 import { closestOptionMatch } from "feat/my-passport-form/utils/closest-option-match";
-import { createSignal, type ValidComponent } from "solid-js";
+import { createEffect, createSignal, type ValidComponent } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "ui/select";
 import { TextField } from "ui/text-field";
 
-export interface AutocorrectTextFieldOwnProps<
+export interface AutocorrectTextFieldBaseProps<
 	F extends FieldValues,
 	N extends FieldPath<F> = FieldPath<F>,
 > {
 	form: FormStore<F>;
 	name: N;
 	value?: string;
-	onChange?: (value: string) => void;
 	options: string[];
 }
 
@@ -32,10 +31,13 @@ export type AutocorrectTextFieldProps<
 	N extends FieldPath<F> = FieldPath<F>,
 	T extends ValidComponent = "input",
 > = Omit<
-	PolymorphicProps<T, TextFieldInputProps<T>>,
-	keyof AutocorrectTextFieldOwnProps<F, N>
-> &
-	AutocorrectTextFieldOwnProps<F, N>;
+	Omit<
+		PolymorphicProps<T, TextFieldInputProps<T>>,
+		keyof AutocorrectTextFieldBaseProps<F, N>
+	> &
+		AutocorrectTextFieldBaseProps<F, N>,
+	"onChange"
+>;
 
 export const AutocorrectTextField = <
 	F extends FieldValues,
@@ -43,7 +45,7 @@ export const AutocorrectTextField = <
 >(
 	props: AutocorrectTextFieldProps<F>,
 ) => {
-	const [value, setValue] = createSignal(props.value ?? "");
+	const [value, setValue] = createSignal("");
 
 	const [showOptions, setShowOptions] = createSignal(false);
 	const toggleShowOptions = () => setShowOptions(showOptions => !showOptions);
@@ -159,6 +161,11 @@ export const AutocorrectTextField = <
 
 		propsOnBlur?.(event);
 	};
+
+	// don't `onChange`
+	createEffect(() => {
+		setValue(props.value ?? "");
+	});
 
 	return (
 		<>

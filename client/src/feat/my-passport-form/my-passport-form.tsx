@@ -11,6 +11,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
+import { cn } from "ui/utils";
 import { useMyPassportForm } from "./hooks/useMyPassportForm";
 import { useWizardSteps } from "./hooks/useWizardSteps";
 import type { resources } from "./resources/i18n/en-US";
@@ -22,6 +23,7 @@ import {
 	PreviousDocuments,
 } from "./steps";
 import { Step } from "./types";
+import { constants } from "./ui/constants";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Wizard } from "./ui/wizard";
 
@@ -66,10 +68,7 @@ export const MyPassportForm = () => {
 						/>
 					</>
 				}>
-				<Form
-					of={form}
-					onSubmit={onSubmit}
-					class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+				<Form of={form} onSubmit={onSubmit} class={cn(constants.grid)}>
 					<Suspense fallback={<div>{t("loading")}</div>}>
 						<Show
 							when={
