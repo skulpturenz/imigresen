@@ -458,6 +458,7 @@ const StateOfBirth = (props: any) => {
 						<>
 							<ComboboxTrigger class="relative">
 								<ComboboxInput />
+
 								<button
 									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
 									onPointerDown={onPointerDown}
