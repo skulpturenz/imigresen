@@ -7,6 +7,7 @@ import { useI18n } from "core/context/i18n";
 import { invariant, partial } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import { type StepProps } from "feat/my-passport-form/types";
+import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { X } from "lucide-solid";
 import { Index, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
@@ -368,30 +369,48 @@ export const PersonalDetails: Component<StepProps> = props => {
 				<props.Field
 					name="personalDetails.countryOfBirthCode"
 					type="string">
-					{(field, fieldProps) => (
-						<InputGroup>
-							<Label>
-								{t(
-									"form.personalDetails.countryOfBirthCode.label",
-								)}
-							</Label>
+					{(field, { onChange, ...rest }) => (
+						<>
+							<TextFieldRoot
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
+								<TextFieldLabel>
+									{t(
+										"form.personalDetails.countryOfBirthCode.label",
+									)}
+								</TextFieldLabel>
 
-							<SelectCountry
-								{...fieldProps}
-								name={field.name}
-								value={field.value}
-								// TODO: unsure why `onChange` isn't working
-								// think its because it does not emit an event
-								onChange={partial(
-									setValue,
-									props.form,
-									"personalDetails.countryOfBirthCode",
-								)}
-								placeholder={t(
-									"form.personalDetails.countryOfBirthCode.placeholder",
-								)}
-							/>
-						</InputGroup>
+								<AutocorrectTextField
+									{...rest}
+									form={props.form}
+									name={field.name}
+									value={field.value || ""}
+									placeholder={t(
+										"form.personalDetails.countryOfBirthCode.placeholder",
+									)}
+									options={[
+										"Malaysia",
+										"Afghanistan",
+										"Albania",
+										"Algeria",
+										"Andorra",
+										"Angola",
+										"Argentina",
+										"Armenia",
+										"Australia",
+										"New Zealand",
+										"United states of America",
+									]}
+								/>
+
+								<TextFieldDescription>
+									{t(
+										"form.personalDetails.countryOfBirthCode.description",
+									)}
+								</TextFieldDescription>
+							</TextFieldRoot>
+						</>
 					)}
 				</props.Field>
 			</div>

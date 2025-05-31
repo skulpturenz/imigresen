@@ -9,9 +9,11 @@ import {
 } from "@modular-forms/solid";
 import { spreadProps } from "core/utils";
 import { invariant } from "es-toolkit";
+import { distance } from "fastest-levenshtein";
 import { closestOptionMatch } from "feat/my-passport-form/utils/closest-option-match";
 import { createSignal, type ValidComponent } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "ui/select";
 import { TextField } from "ui/text-field";
 
 export interface AutocorrectTextFieldOwnProps<
@@ -43,25 +45,87 @@ export const AutocorrectTextField = <
 ) => {
 	const [value, setValue] = createSignal(props.value ?? "");
 
+	const [showOptions, setShowOptions] = createSignal(false);
+	const toggleShowOptions = () => setShowOptions(showOptions => !showOptions);
+
+	const [isClosestMatch, setIsClosestMatch] = createSignal(false);
+	const toggleIsClosestMatch = () =>
+		setIsClosestMatch(isClosestMatch => !isClosestMatch);
+
+	const [closestOptions, setClosestOptions] = createSignal([] as string[]);
+	const findClosestOptions = (value: string) => {
+		const distances = props.options.reduce(
+			(acc, option) => ({
+				...acc,
+				[option]: distance(value, option),
+			}),
+			Object.create(null),
+		);
+		const minDistance = Math.min(...(Object.values(distances) as number[]));
+		const maxDistance = Math.max(...(Object.values(distances) as number[]));
+		const midDistance = Math.floor((minDistance + maxDistance) / 2);
+
+		const filteredOptions = Object.entries(distances)
+			.filter(([_, distance]) => Number(distance) <= midDistance)
+			.sort(([_a1, a2], [_b1, b2]) => Number(a2) - Number(b2))
+			.map(([option]) => option);
+
+		return filteredOptions;
+	};
+
+	const onClickSelect = () => {
+		if (isClosestMatch()) {
+			toggleShowOptions();
+			toggleIsClosestMatch();
+
+			return;
+		}
+	};
+
+	const onControlledChange = (value: string | null) => {
+		setValue(value ?? "");
+		setFormValue(
+			props.form,
+			props.name,
+			(value ?? "") as FieldPathValue<F, N>,
+		);
+	};
+
+	const onSelectChange = (value: string | null) => {
+		if (value === null) {
+			return;
+		}
+
+		onControlledChange(value);
+	};
+
+	const hideOptions = () => {
+		if (!showOptions()) {
+			return;
+		}
+
+		toggleShowOptions();
+	};
+
 	const onChange: JSX.ChangeEventHandler<any, InputEvent> = event => {
 		const newValue = event?.target?.value;
 
-		invariant(newValue, "Input event is invalid");
+		invariant(
+			newValue !== null && newValue !== undefined,
+			"Input event is invalid",
+		);
 
-		setValue(newValue);
-		setFormValue(props.form, props.name, newValue as FieldPathValue<F, N>);
+		onControlledChange(newValue ?? "");
 	};
 
 	const onBlur: JSX.FocusEventHandler<any, FocusEvent> = event => {
 		const closestMatch = closestOptionMatch(value(), props.options);
 
-		if (closestMatch !== value()) {
-			setValue(closestMatch);
-			setFormValue(
-				props.form,
-				props.name,
-				closestMatch as FieldPathValue<F, N>,
-			);
+		if (closestMatch !== value() && value()) {
+			setClosestOptions(findClosestOptions(value()));
+
+			onControlledChange(closestMatch);
+			toggleIsClosestMatch();
 		}
 
 		const propsOnBlur = props.onBlur;
@@ -74,11 +138,33 @@ export const AutocorrectTextField = <
 	};
 
 	return (
-		<TextField
-			{...spreadProps(props)}
-			value={value()}
-			onChange={onChange}
-			onBlur={onBlur}
-		/>
+		<>
+			<Select
+				options={closestOptions()}
+				itemComponent={props => (
+					<SelectItem onClick={toggleShowOptions} item={props.item}>
+						{props.item.rawValue}
+					</SelectItem>
+				)}
+				class="relative"
+				onClick={onClickSelect}
+				onChange={onSelectChange}
+				optionValue={option => option}
+				open={showOptions()}
+				value={value()}>
+				<TextField
+					{...spreadProps(props)}
+					value={value()}
+					onChange={onChange}
+					onBlur={onBlur}
+				/>
+
+				<SelectTrigger
+					tabIndex={-1}
+					class="absolute top-0 right-0 -z-30"
+				/>
+				<SelectContent onFocusOutside={hideOptions} />
+			</Select>
+		</>
 	);
 };

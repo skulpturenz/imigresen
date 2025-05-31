@@ -56,6 +56,7 @@ export const resources = {
 			countryOfBirthCode: {
 				label: "Country of birth",
 				placeholder: "",
+				description: "Autocorrected to a valid country",
 			},
 			stateOfBirth: {
 				label: "State of birth",
