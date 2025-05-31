@@ -766,47 +766,6 @@ const SelectGender = (props: any) => {
 	);
 };
 
-const SelectCountry = (props: any) => {
-	return (
-		<Select
-			value={props.value ?? null}
-			options={["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"]}
-			placeholder={props.placeholder}
-			onChange={props.onChange}
-			itemComponent={props => (
-				<SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
-			)}>
-			<Select.HiddenSelect />
-			<SelectTrigger class="w-full relative">
-				<SelectValue<string>>
-					{state => {
-						const onPointerDown = (event: MouseEvent) => {
-							event.stopImmediatePropagation();
-						};
-
-						return (
-							<>
-								<div>{state.selectedOption()} </div>
-
-								<button
-									class={cn(
-										"absolute right-8 top-[30%] bg-muted cursor-pointer",
-										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
-									)}
-									onPointerDown={onPointerDown}
-									onClick={state.clear}>
-									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-								</button>
-							</>
-						);
-					}}
-				</SelectValue>
-			</SelectTrigger>
-			<SelectContent />
-		</Select>
-	);
-};
-
 // TODO
 const NextRow = (props: any) => (
 	<div class="col-span-full">
