@@ -11,6 +11,13 @@ import { X } from "lucide-solid";
 import { Index, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import {
+	Combobox,
+	ComboboxContent,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxTrigger,
+} from "ui/combobox";
+import {
 	DatePicker,
 	DatePickerContent,
 	DatePickerContext,
@@ -388,37 +395,38 @@ export const PersonalDetails: Component<StepProps> = props => {
 				</props.Field>
 			</div>
 
-			<Show
-				when={getValue(
-					props.form,
-					"personalDetails.countryOfBirthCode",
-				)}>
-				<props.Field name="personalDetails.stateOfBirth">
-					{(field, props) => (
-						<>
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
+			<props.Field name="personalDetails.stateOfBirth">
+				{(field, fieldProps) => (
+					<>
+						<Show
+							when={getValue(
+								props.form,
+								"personalDetails.countryOfBirthCode",
+							)}>
+							<InputGroup>
+								<Label>
 									{t(
 										"form.personalDetails.stateOfBirth.label",
 									)}
-								</TextFieldLabel>
+								</Label>
 
-								<TextField
-									{...props}
-									name={field.name}
-									value={field.value ?? ""}
+								<StateOfBirth
+									{...fieldProps}
+									value={field.value}
+									onChange={partial(
+										setValue,
+										props.form,
+										"personalDetails.stateOfBirth",
+									)}
 									placeholder={t(
 										"form.personalDetails.stateOfBirth.placeholder",
 									)}
 								/>
-							</TextFieldRoot>
-						</>
-					)}
-				</props.Field>
-			</Show>
+							</InputGroup>
+						</Show>
+					</>
+				)}
+			</props.Field>
 		</>
 	);
 };
@@ -428,6 +436,26 @@ const InputGroup = (props: any) => (
 );
 
 // TODO
+const StateOfBirth = (props: any) => {
+	return (
+		<Combobox
+			options={["Next.js", "Astro", "Qwik", "SolidStart", "Nuxt.js"]}
+			placeholder={props.placeholder}
+			value={props.value}
+			onChange={props.onChange}
+			itemComponent={props => (
+				<ComboboxItem item={props.item}>
+					{props.item.rawValue}
+				</ComboboxItem>
+			)}>
+			<ComboboxTrigger>
+				<ComboboxInput />
+			</ComboboxTrigger>
+			<ComboboxContent />
+		</Combobox>
+	);
+};
+
 const InputDate = (props: any) => {
 	const onChange = (details?: DatePickerValueChangeDetails) => {
 		if (!details?.valueAsString.length) {
