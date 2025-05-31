@@ -51,6 +51,7 @@ import {
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
+import { cn } from "ui/utils";
 
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
@@ -459,12 +460,17 @@ const StateOfBirth = (props: any) => {
 							<ComboboxTrigger class="relative">
 								<ComboboxInput />
 
-								<button
-									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
-									onPointerDown={onPointerDown}
-									onClick={state.clear}>
-									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-								</button>
+								<Show when={props.value}>
+									<button
+										class={cn(
+											"absolute right-8 top-[30%] bg-muted cursor-pointer",
+											"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+										)}
+										onPointerDown={onPointerDown}
+										onClick={state.clear}>
+										<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+									</button>
+								</Show>
 							</ComboboxTrigger>
 						</>
 					);
@@ -682,7 +688,10 @@ const SelectRelationshipStatus = (props: any) => {
 								<div>{state.selectedOption()} </div>
 
 								<button
-									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
+									class={cn(
+										"absolute right-8 top-[30%] bg-muted cursor-pointer",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
 									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
@@ -720,7 +729,10 @@ const SelectGender = (props: any) => {
 								<div>{state.selectedOption()} </div>
 
 								<button
-									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
+									class={cn(
+										"absolute right-8 top-[30%] bg-muted cursor-pointer",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
 									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
@@ -758,7 +770,10 @@ const SelectCountry = (props: any) => {
 								<div>{state.selectedOption()} </div>
 
 								<button
-									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
+									class={cn(
+										"absolute right-8 top-[30%] bg-muted cursor-pointer",
+										"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+									)}
 									onPointerDown={onPointerDown}
 									onClick={state.clear}>
 									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />

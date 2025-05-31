@@ -48,8 +48,8 @@ export const ComboboxTrigger = <T extends ValidComponent = "button">(
 			{...spreadProps(props)}
 			ref={props.ref}
 			class={cn(
-				"flex h-10 w-full items-center justify-between rounded-md border border-input px-3 shadow-sm has-[:focus-visible]:ring-2",
-				"has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 transition-shadow has-[:focus-visible]:ring-offset-background",
+				"flex h-10 w-full items-center justify-between rounded-md border border-input px-3 has-[:focus-visible]:ring-2",
+				"has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 transition has-[:focus-visible]:ring-offset-background",
 				props.class,
 			)}>
 			{props.children}
