@@ -448,9 +448,27 @@ const StateOfBirth = (props: any) => {
 					{props.item.rawValue}
 				</ComboboxItem>
 			)}>
-			<ComboboxTrigger>
-				<ComboboxInput />
-			</ComboboxTrigger>
+			<Combobox.Control>
+				{state => {
+					const onPointerDown = (event: MouseEvent) => {
+						event.stopImmediatePropagation();
+					};
+
+					return (
+						<>
+							<ComboboxTrigger class="relative">
+								<ComboboxInput />
+								<button
+									class="absolute right-8 top-[30%] bg-muted cursor-pointer"
+									onPointerDown={onPointerDown}
+									onClick={state.clear}>
+									<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+								</button>
+							</ComboboxTrigger>
+						</>
+					);
+				}}
+			</Combobox.Control>
 			<ComboboxContent />
 		</Combobox>
 	);
