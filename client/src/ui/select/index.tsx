@@ -33,8 +33,8 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 	props: ParentProps<PolymorphicProps<T, SelectTriggerProps<T>>>,
 ) => (
 	<SelectPrimitive.Trigger
-		{...spreadProps(props)}
 		tabIndex={0}
+		{...spreadProps(props)}
 		class={cn(
 			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background",
 			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none",
