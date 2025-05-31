@@ -16,7 +16,9 @@ import {
 	type DateValue,
 	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
+import { useLocale } from "@kobalte/core";
 import { spreadProps } from "core/utils";
+import { format } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import type { VoidProps } from "solid-js";
 import { buttonVariants } from "ui/button";
@@ -47,21 +49,18 @@ export const DatePickerRootProvider = DatePickerPrimitive.RootProvider;
 export const DatePickerPositioner = DatePickerPrimitive.Positioner;
 
 export const DatePicker = (props: DatePickerRootProps) => {
-	const format = (value: DateValue) => {
-		const parsedDate = new Date(Date.parse(value.toString()));
+	const { locale } = useLocale();
 
-		const normalizedDate = new Date(
-			parsedDate.getUTCFullYear(),
-			parsedDate.getUTCMonth(),
-			parsedDate.getUTCDate(),
-		);
+	const formatDate = (date: DateValue) =>
+		format(date.toString(), "dd/MM/yyyy");
 
-		return new Intl.DateTimeFormat("en-US", {
-			dateStyle: "long",
-		}).format(normalizedDate);
-	};
-
-	return <DatePickerPrimitive.Root {...spreadProps(props)} format={format} />;
+	return (
+		<DatePickerPrimitive.Root
+			{...spreadProps(props)}
+			locale={locale()}
+			format={formatDate}
+		/>
+	);
 };
 
 export const DatePickerView = (props: DatePickerViewProps) => (

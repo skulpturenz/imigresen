@@ -4,6 +4,7 @@ import {
 } from "@ark-ui/solid/date-picker";
 import { getValue, setValue, type FieldEvent } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
+import { parse } from "date-fns";
 import { invariant, partial } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
@@ -568,7 +569,13 @@ const InputDate = (props: any) => {
 
 		invariant(selectedDate, "Selected date is not specified");
 
-		props.onChange?.(new Date(selectedDate));
+		const parsedDate = parse(selectedDate ?? "", "dd/MM/yyyy", new Date());
+
+		if (!import.meta.env.PROD) {
+			console.debug("parsed date", parsedDate);
+		}
+
+		props.onChange?.(parse(selectedDate ?? "", "dd/MM/yyyy", new Date()));
 	};
 
 	const getValue = () => {

@@ -14,7 +14,7 @@ import {
 	type Resource,
 } from "solid-js";
 
-const I18nContext = createContext<I18nSvc | null>(null);
+export const I18nContext = createContext<I18nSvc | null>(null);
 
 interface I18nSvc<T extends Record<string, any> = Record<string, any>> {
 	i18n: Resource<Flatten<T>>;
@@ -34,10 +34,10 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 	// then the `locale` will point to the system locale which may or may not be supported
 	// in that case, just set things to `en-US`
 	const getLocale = (): Locale => {
-		const supportedLocales: Locale[] = ["en-US", "en-MY", "ms-MY"];
+		const supportedLocales: Locale[] = ["en-NZ", "en-MY", "ms-MY"];
 
 		if (!supportedLocales.includes(locale() as Locale)) {
-			return "en-US";
+			return "en-NZ";
 		}
 
 		return locale() as Locale;
