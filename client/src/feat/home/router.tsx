@@ -11,7 +11,11 @@ import type { resources } from "./resources/i18n/en-US";
 export const Router: Component<RouterProps> = withI18n(_props => {
 	const t = useI18n<typeof resources>();
 
-	const HomeRedirect = () => <Navigate href={toPath(CoreRoute.Home)} />;
+	const HomeRedirect = () => (
+		<Navigate
+			href={[toPath(CoreRoute.Home), window.location.search].join("")}
+		/>
+	);
 
 	const routes = [
 		{

@@ -3,6 +3,7 @@ export const createRedirectUrl = (
 	redirectPath?: string,
 ) => {
 	const params = new URLSearchParams({
+		...Object.fromEntries(new URLSearchParams(window.location.search)),
 		redirectPath: redirectPath ?? "",
 	});
 
