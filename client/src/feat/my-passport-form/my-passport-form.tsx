@@ -30,6 +30,7 @@ import { Wizard } from "./ui/wizard";
 export const MyPassportForm = () => {
 	const {
 		show,
+		data,
 		handle: _handle,
 		form,
 		isMutating,
@@ -79,6 +80,7 @@ export const MyPassportForm = () => {
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
+								dropdownOptions={data.referenceData}
 							/>
 						</Show>
 

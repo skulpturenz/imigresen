@@ -203,13 +203,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									value={field.value ?? null}
-									options={[
-										"Apple",
-										"Banana",
-										"Blueberry",
-										"Grapes",
-										"Pineapple",
-									]}
+									options={Object.keys(
+										props.dropdownOptions()
+											?.genderOptions ??
+											Object.create(null),
+									)}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
 									)}
@@ -267,13 +265,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									value={field.value ?? null}
-									options={[
-										"Apple",
-										"Banana",
-										"Blueberry",
-										"Grapes",
-										"Pineapple",
-									]}
+									options={Object.keys(
+										props.dropdownOptions()
+											?.relationshipStatusOptions ??
+											Object.create(null),
+									)}
 									placeholder={t(
 										"form.personalDetails.relationshipStatusCode.placeholder",
 									)}
@@ -433,19 +429,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									placeholder={t(
 										"form.personalDetails.countryOfBirthCode.placeholder",
 									)}
-									options={[
-										"Malaysia",
-										"Afghanistan",
-										"Albania",
-										"Algeria",
-										"Andorra",
-										"Angola",
-										"Argentina",
-										"Armenia",
-										"Australia",
-										"New Zealand",
-										"United states of America",
-									]}
+									options={Object.keys(
+										props.dropdownOptions()
+											?.countryOptions ??
+											Object.create(null),
+									)}
 								/>
 
 								<TextFieldDescription>
@@ -483,13 +471,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									options={[
-										"Next.js",
-										"Astro",
-										"Qwik",
-										"SolidStart",
-										"Nuxt.js",
-									]}
+									options={Object.values(
+										props.dropdownOptions()?.stateOptions ??
+											[],
+									)}
 									value={field.value ?? ""}
 									placeholder={t(
 										"form.personalDetails.stateOfBirth.placeholder",
