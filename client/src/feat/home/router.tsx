@@ -13,7 +13,9 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 
 	const HomeRedirect = () => (
 		<Navigate
-			href={[toPath(CoreRoute.Home), window.location.search].join("")}
+			href={[toPath(CoreRoute.Home), window.location.search]
+				.filter(Boolean)
+				.join("")}
 		/>
 	);
 
