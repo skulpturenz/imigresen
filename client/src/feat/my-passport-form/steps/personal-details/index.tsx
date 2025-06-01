@@ -498,7 +498,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 											<ComboboxItem item={props.item}>
 												{props.item.rawValue}
 											</ComboboxItem>
-										)}>
+										)}
+										sameWidth>
 										<Combobox.Control<string>>
 											{state => {
 												return (
