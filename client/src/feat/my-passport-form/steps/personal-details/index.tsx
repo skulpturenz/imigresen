@@ -522,13 +522,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</ModularFormsCombobox>
 
 									<Show when={!styles.device.hasHover()}>
-										<Label
-											description
-											info={t(
-												"form.personalDetails.stateOfBirth.info",
-											)}>
+										<Label description>
 											{t(
-												"form.personalDetails.stateOfBirth.label",
+												"form.personalDetails.stateOfBirth.info",
 											)}
 										</Label>
 									</Show>
