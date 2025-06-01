@@ -43,7 +43,7 @@ export const myPassportFormService = (token?: string) => {
 
 	// TODO
 	const getReferenceDataStates = async (_country: string) => {
-		return [];
+		return [] as string[];
 	};
 
 	return {
