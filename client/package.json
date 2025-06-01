@@ -20,6 +20,7 @@
 		"@corvu/drawer": "^0.2.4",
 		"@flipt-io/flipt-client-js": "^0.0.6",
 		"@kobalte/core": "^0.13.10",
+		"@mapbox/search-js-core": "^1.1.0",
 		"@modular-forms/solid": "^0.25.1",
 		"@open-policy-agent/opa-wasm": "^1.10.0",
 		"@solid-primitives/i18n": "^2.2.1",
