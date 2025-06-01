@@ -16,6 +16,7 @@ import { spreadProps } from "core/utils";
 import {
 	createEffect,
 	createResource,
+	onCleanup,
 	Show,
 	Suspense,
 	type Component,
@@ -221,12 +222,12 @@ export const Route: Component<
 export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
+	const getRouteContext = useContext(RouterContext);
+
 	const addRoutesWithParentPath = (
 		parentPath: string | null,
 		routes: RouteProps[],
 	) => {
-		const getRouteContext = useContext(RouterContext);
-
 		const InternalRoute = Route as Component<
 			ParentProps<RouteProps & RouteInternalProps>
 		>;
@@ -272,6 +273,10 @@ export const addRoutes = (...routes: RouteProps[]) => {
 			);
 		});
 	};
+
+	onCleanup(() => {
+		getRouteContext().actions.reset();
+	});
 
 	return addRoutesWithParentPath(null, routes);
 };

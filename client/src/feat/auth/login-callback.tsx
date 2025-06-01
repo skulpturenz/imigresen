@@ -21,12 +21,14 @@ export const LoginCallback: Component<ParentProps> = () => {
 			redirectPath &&
 			redirectPath !== toPath(CoreRoute.Auth, AuthRoute.LoginCallback)
 		) {
-			return [redirectPath, remainingSearchParams.toString()].join("?");
+			return [redirectPath, remainingSearchParams.toString()]
+				.filter(Boolean)
+				.join("?");
 		}
 
-		return [toPath(CoreRoute.Home), remainingSearchParams.toString()].join(
-			"?",
-		);
+		return [toPath(CoreRoute.Home), remainingSearchParams.toString()]
+			.filter(Boolean)
+			.join("?");
 	};
 
 	return <Navigate href={getRedirectPath()} />;

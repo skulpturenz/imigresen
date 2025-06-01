@@ -49,6 +49,7 @@ export const createRouterContext = (): RouterSvc => ({
 	isInitialLoading: () => true,
 	routes: Object.create(null),
 	actions: {
+		reset: noop as any,
 		getNextMask: noop as any,
 		appendRoute: noop,
 		getRoute: noop as any,

@@ -8,6 +8,7 @@ export interface RouterSvc {
 	routes: Record<string, RouteProps & RouteInternalProps>;
 	isInitialLoading: () => boolean;
 	actions: {
+		reset: () => void;
 		getNextMask: () => number;
 		appendRoute: (route: RouteProps & RouteInternalProps) => void;
 		getRoute: (path: string) => RouteProps;
@@ -28,6 +29,12 @@ export const useStore = createWithSignal<RouterSvc & RouterInternalSvc>(
 				get().routesLoadingMask !== ROUTES_LOADED_MASK,
 			routesLoadingMask: ROUTES_LOADED_MASK,
 			actions: {
+				reset: () => {
+					set({
+						routes: Object.create(null),
+						routesLoadingMask: ROUTES_LOADED_MASK,
+					});
+				},
 				getNextMask: () => {
 					const mask = routeMaskSequence.next().value as number;
 
