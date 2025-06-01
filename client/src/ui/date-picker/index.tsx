@@ -16,7 +16,6 @@ import {
 	type DateValue,
 	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
-import { useLocale } from "@kobalte/core";
 import { spreadProps } from "core/utils";
 import { format } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
@@ -49,15 +48,18 @@ export const DatePickerRootProvider = DatePickerPrimitive.RootProvider;
 export const DatePickerPositioner = DatePickerPrimitive.Positioner;
 
 export const DatePicker = (props: DatePickerRootProps) => {
-	const { locale } = useLocale();
-
 	const formatDate = (date: DateValue) =>
 		format(date.toString(), "dd/MM/yyyy");
 
 	return (
 		<DatePickerPrimitive.Root
 			{...spreadProps(props)}
-			locale={locale()}
+			// dates are expressed in as `DD/MM/YYYY` in NZ
+			// but `MM/DD/YYYY` in the US
+			// `formatDate` is not localized so if this were to follow
+			// locale settings then any input ends up in the locale way of expressing
+			// the date but if using the date picker the format changes to `DD/MM/YYYY`
+			locale="en-NZ"
 			format={formatDate}
 		/>
 	);
