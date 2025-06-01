@@ -11,6 +11,7 @@ export const createAuthnContext = (): AuthnSvc => ({
 	isActionsLoading: false,
 	keycloak: null,
 	profile: null,
+	userId: "",
 	actions: {
 		init: noop,
 		login: noop,

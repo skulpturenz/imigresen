@@ -18,6 +18,7 @@ export interface AuthnSvc {
 	isActionsLoading: boolean;
 	keycloak?: Keycloak | null;
 	profile?: KeycloakProfile | null;
+	userId: string;
 	actions: {
 		init: () => void;
 		login: () => void;
@@ -102,6 +103,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 			realm: authnProviderRealm,
 			clientId: authnProviderClientId,
 		}),
+		userId: crypto.randomUUID(),
 		actions: {
 			init: once(async () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
@@ -139,7 +141,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					);
 				}
 
-				set({ profile });
+				set({ profile, userId: keycloak.tokenParsed?.sub });
 				set({ isInitialLoading: false });
 			}),
 			login: () => {
