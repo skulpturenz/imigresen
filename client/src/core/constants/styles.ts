@@ -9,4 +9,7 @@ export const styles = {
 		isExtraLarge: () => window.matchMedia("(width >= 80rem)").matches,
 		isExtraLargeTwice: () => window.matchMedia("(width >= 96rem)").matches,
 	},
+	device: {
+		hasHover: () => window.matchMedia("(hover: hover)").matches,
+	},
 };
