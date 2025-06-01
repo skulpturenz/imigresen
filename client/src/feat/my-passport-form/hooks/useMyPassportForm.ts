@@ -1,21 +1,24 @@
 import type { AnyDocumentId } from "@automerge/automerge-repo";
 import {
 	createForm,
+	getValue,
 	getValues,
 	reset,
 	type SubmitHandler,
 } from "@modular-forms/solid";
 import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
-import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { CoreRoute } from "core/constants/core-route.enum";
-import { queryKeys } from "core/constants/query-keys";
+import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
 import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
+import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import type {
+	DropdownOptions,
 	MyPassportForm,
 	PassportApplication,
 } from "feat/my-passport-form/types";
@@ -54,6 +57,25 @@ export const useMyPassportForm = () => {
 		validateOn: "change",
 		revalidateOn: "change",
 	});
+
+	const referenceData = useQuery<DropdownOptions>(() => ({
+		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
+		queryFn: myPassportFormContext.getReferenceData,
+		staleTime: Infinity,
+	}));
+
+	const referenceDataStates = useQuery<string[]>(() => ({
+		queryKey: queryKeys.getReferenceDataStates(
+			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
+			authnContext().keycloak?.token,
+		),
+		queryFn: () =>
+			myPassportFormContext.getReferenceDataStates(
+				getValue(form, "personalDetails.countryOfBirthCode") ?? "",
+			),
+		enabled: Boolean(getValue(form, "personalDetails.countryOfBirthCode")),
+		placeholderData: [],
+	}));
 
 	const [handle] = createResource(async () => {
 		if (searchParams.automergeUrl) {
@@ -96,7 +118,7 @@ export const useMyPassportForm = () => {
 
 		const existingApplications =
 			queryClient.getQueryData<PassportApplication[]>(
-				queryKeys.getPassportApplications(
+				globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 			) ?? [];
@@ -106,7 +128,9 @@ export const useMyPassportForm = () => {
 		);
 
 		queryClient.setQueryData(
-			queryKeys.getPassportApplications(authnContext().keycloak?.token),
+			globalQueryKeys.getPassportApplications(
+				authnContext().keycloak?.token,
+			),
 			filteredApplications,
 		);
 
@@ -184,7 +208,7 @@ export const useMyPassportForm = () => {
 
 			const existingApplications =
 				queryClient.getQueryData<PassportApplication[]>(
-					queryKeys.getPassportApplications(
+					globalQueryKeys.getPassportApplications(
 						authnContext().keycloak?.token,
 					),
 				) ?? [];
@@ -203,7 +227,7 @@ export const useMyPassportForm = () => {
 			);
 
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(
+				globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 				updatedApplications,
@@ -222,7 +246,9 @@ export const useMyPassportForm = () => {
 
 			const existingAutomergeUrls =
 				queryClient.getQueryData<string[]>(
-					queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+					globalQueryKeys.getAutomergeUrls(
+						authnContext().keycloak?.token,
+					),
 				) ?? [];
 
 			const updatedAutomergeUrls = [
@@ -231,13 +257,15 @@ export const useMyPassportForm = () => {
 			];
 
 			queryClient.setQueryData(
-				queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
+				globalQueryKeys.getAutomergeUrls(
+					authnContext().keycloak?.token,
+				),
 				updatedAutomergeUrls,
 			);
 
 			const existingApplications =
 				queryClient.getQueryData<PassportApplication[]>(
-					queryKeys.getPassportApplications(
+					globalQueryKeys.getPassportApplications(
 						authnContext().keycloak?.token,
 					),
 				) ?? [];
@@ -252,7 +280,7 @@ export const useMyPassportForm = () => {
 			];
 
 			queryClient.setQueryData(
-				queryKeys.getPassportApplications(
+				globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 				updatedApplications,
@@ -268,7 +296,21 @@ export const useMyPassportForm = () => {
 		queueMicrotask(() => registerNewForm());
 	});
 
+	const selectReferenceData = (): DropdownOptions | null => {
+		if (!referenceData.data) {
+			return null;
+		}
+
+		return {
+			...referenceData.data,
+			stateOptions: referenceDataStates.data ?? ([] as string[]),
+		};
+	};
+
 	return {
+		data: {
+			referenceData: selectReferenceData,
+		},
 		show,
 		toggleDeleteFrictionDialog,
 		handle,

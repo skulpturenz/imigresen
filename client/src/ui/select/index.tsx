@@ -60,6 +60,7 @@ export const SelectContent = <T extends ValidComponent = "div">(
 				"relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground",
 				"shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
+				"max-h-[50vh] overflow-scroll",
 				props.class,
 			)}>
 			<SelectPrimitive.Listbox class="p-1 focus-visible:outline-none" />

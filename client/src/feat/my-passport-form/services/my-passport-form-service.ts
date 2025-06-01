@@ -41,9 +41,15 @@ export const myPassportFormService = (token?: string) => {
 	// TODO
 	const getReferenceData = async () => Object.create(null);
 
+	// TODO
+	const getReferenceDataStates = async (_country: string) => {
+		return [];
+	};
+
 	return {
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
+		getReferenceDataStates,
 	};
 };

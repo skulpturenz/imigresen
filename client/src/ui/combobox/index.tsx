@@ -74,6 +74,7 @@ export const ComboboxContent = <T extends ValidComponent = "div">(
 				"shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
 				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
 				"origin-[--kb-combobox-content-transform-origin]",
+				"max-h-[50vh] overflow-scroll",
 				props.class,
 			)}>
 			<ComboboxPrimitive.Listbox class="p-1" />
