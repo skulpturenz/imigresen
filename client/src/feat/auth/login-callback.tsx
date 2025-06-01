@@ -8,15 +8,25 @@ export const LoginCallback: Component<ParentProps> = () => {
 	const [searchParams] = useSearchParams<{ redirectPath: string }>();
 
 	const getRedirectPath = () => {
+		const { redirectPath, ...rest } = searchParams;
+		const remainingSearchParams = new URLSearchParams(rest);
+
+		remainingSearchParams.forEach((value, key) => {
+			if (!value) {
+				remainingSearchParams.delete(key);
+			}
+		});
+
 		if (
-			searchParams.redirectPath &&
-			searchParams.redirectPath !==
-				toPath(CoreRoute.Auth, AuthRoute.LoginCallback)
+			redirectPath &&
+			redirectPath !== toPath(CoreRoute.Auth, AuthRoute.LoginCallback)
 		) {
-			return searchParams.redirectPath;
+			return [redirectPath, remainingSearchParams.toString()].join("?");
 		}
 
-		return toPath(CoreRoute.Home);
+		return [toPath(CoreRoute.Home), remainingSearchParams.toString()].join(
+			"?",
+		);
 	};
 
 	return <Navigate href={getRedirectPath()} />;
