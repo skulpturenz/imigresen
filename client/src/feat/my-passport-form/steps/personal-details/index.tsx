@@ -2,6 +2,8 @@ import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
+	Gender,
+	RelationshipStatus,
 	type MyPassportForm,
 	type StepProps,
 } from "feat/my-passport-form/types";
@@ -199,15 +201,14 @@ export const PersonalDetails: Component<StepProps> = props => {
 									never,
 									"input"
 								>
-									form={props.form}
 									{...field}
 									{...fieldProps}
+									form={props.form}
 									value={field.value ?? null}
-									options={Object.keys(
-										props.dropdownOptions()
-											?.genderOptions ??
-											Object.create(null),
+									options={Object.keys(Gender).filter(key =>
+										Number.isNaN(Number(key)),
 									)}
+									optionValue={gender => gender}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
 									)}
@@ -266,10 +267,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...fieldProps}
 									value={field.value ?? null}
 									options={Object.keys(
-										props.dropdownOptions()
-											?.relationshipStatusOptions ??
-											Object.create(null),
-									)}
+										RelationshipStatus,
+									).filter(key => Number.isNaN(Number(key)))}
+									optionValue={relationshipStatus =>
+										relationshipStatus
+									}
 									placeholder={t(
 										"form.personalDetails.relationshipStatusCode.placeholder",
 									)}
@@ -284,7 +286,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 												return (
 													<>
 														<div>
-															{state.selectedOption()}{" "}
+															{state.selectedOption()}
 														</div>
 
 														<SelectClearSelection
@@ -475,6 +477,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										props.dropdownOptions()?.stateOptions ??
 											[],
 									)}
+									optionValue={state => state}
 									value={field.value ?? ""}
 									placeholder={t(
 										"form.personalDetails.stateOfBirth.placeholder",
