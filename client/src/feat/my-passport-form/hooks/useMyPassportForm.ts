@@ -75,6 +75,7 @@ export const useMyPassportForm = () => {
 			),
 		enabled: Boolean(getValue(form, "personalDetails.countryOfBirthCode")),
 		placeholderData: [],
+		staleTime: Infinity,
 	}));
 
 	const [handle] = createResource(async () => {
