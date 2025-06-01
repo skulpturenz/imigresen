@@ -9,6 +9,7 @@ import {
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
+import { localeAsc } from "feat/my-passport-form/utils/sort";
 import { Show, type Component } from "solid-js";
 import {
 	Combobox,
@@ -208,7 +209,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										props.dropdownOptions()
 											?.genderOptions ??
 											Object.create(null),
-									)}
+									).sort(localeAsc)}
 									optionValue={gender => gender}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
@@ -271,7 +272,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										props.dropdownOptions()
 											?.relationshipStatusOptions ??
 											Object.create(null),
-									)}
+									).sort(localeAsc)}
 									optionValue={relationshipStatus =>
 										relationshipStatus
 									}
@@ -440,7 +441,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										props.dropdownOptions()
 											?.countryOptions ??
 											Object.create(null),
-									)}
+									).sort(localeAsc)}
 								/>
 
 								<TextFieldDescription>
@@ -488,10 +489,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										{...fieldProps}
 										form={props.form}
 										value={findOption(field.value) ?? ""}
-										options={
+										options={Object.values(
 											props.dropdownOptions()
-												?.stateOptions ?? []
-										}
+												?.stateOptions ?? [],
+										).sort(localeAsc)}
 										optionValue={state => state}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
