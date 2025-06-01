@@ -1,4 +1,5 @@
 import { getValue, type FieldEvent } from "@modular-forms/solid";
+import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
@@ -490,7 +491,6 @@ export const PersonalDetails: Component<StepProps> = props => {
 												?.stateOptions ?? []
 										}
 										optionValue={state => state}
-										// value={field.value ?? ""}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
 										)}
@@ -519,6 +519,18 @@ export const PersonalDetails: Component<StepProps> = props => {
 										</Combobox.Control>
 										<ComboboxContent />
 									</ModularFormsCombobox>
+
+									<Show when={!styles.device.hasHover()}>
+										<Label
+											description
+											info={t(
+												"form.personalDetails.stateOfBirth.info",
+											)}>
+											{t(
+												"form.personalDetails.stateOfBirth.label",
+											)}
+										</Label>
+									</Show>
 								</InputGroup>
 							</Show>
 						</>

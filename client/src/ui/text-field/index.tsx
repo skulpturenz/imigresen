@@ -7,6 +7,7 @@ import {
 	type TextFieldInputProps,
 	type TextFieldRootProps,
 } from "@kobalte/core/text-field";
+import { styles } from "core/constants/styles";
 import { spreadProps } from "core/utils";
 import { Info } from "lucide-solid";
 import { Show, type ValidComponent } from "solid-js";
@@ -41,7 +42,7 @@ export const TextFieldLabel = <T extends ValidComponent = "label">(
 			/>
 		</div>
 
-		<Show when={props.info}>
+		<Show when={props.info && styles.device.hasHover()}>
 			<div class="text-foreground">
 				<Tooltip>
 					<TooltipTrigger>
