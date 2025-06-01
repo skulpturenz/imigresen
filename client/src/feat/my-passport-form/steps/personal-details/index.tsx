@@ -460,7 +460,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 								"personalDetails.countryOfBirthCode",
 							)}>
 							<InputGroup>
-								<Label>
+								<Label
+									info={t(
+										"form.personalDetails.stateOfBirth.info",
+									)}>
 									{t(
 										"form.personalDetails.stateOfBirth.label",
 									)}

@@ -1,8 +1,10 @@
 import type { PolymorphicProps } from "@kobalte/core";
 import { cva, type VariantProps } from "class-variance-authority";
 import { spreadProps } from "core/utils";
-import type { ValidComponent } from "solid-js";
+import { Info } from "lucide-solid";
+import { Show, type ValidComponent } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { cn } from "ui/utils";
 
 export const label = cva(
@@ -25,20 +27,42 @@ export const label = cva(
 	},
 );
 
+export interface LabelProps extends VariantProps<typeof label> {
+	info?: string;
+}
+
 export const Label = <T extends ValidComponent = "label">(
-	props: PolymorphicProps<T, VariantProps<typeof label>>,
+	props: PolymorphicProps<T, LabelProps>,
 ) => (
-	<Dynamic
-		{...spreadProps(props)}
-		ref={props.ref}
-		component={props.as ?? "label"}
-		class={cn(
-			label({
-				label: props.label,
-				error: props.error,
-				description: props.description,
-			}),
-			props.class,
-		)}
-	/>
+	<div class="flex gap-4 items-center">
+		<div>
+			<Dynamic
+				{...spreadProps(props)}
+				ref={props.ref}
+				component={props.as ?? "label"}
+				class={cn(
+					label({
+						label: props.label,
+						error: props.error,
+						description: props.description,
+					}),
+					props.class,
+				)}
+			/>
+		</div>
+
+		<Show when={props.info}>
+			<div class="text-foreground">
+				<Tooltip>
+					<TooltipTrigger>
+						<Info class="size-[0.875rem]" />
+					</TooltipTrigger>
+
+					<TooltipContent class="max-w-sm text-wrap break-all">
+						<p>{props.info}</p>
+					</TooltipContent>
+				</Tooltip>
+			</div>
+		</Show>
+	</div>
 );
