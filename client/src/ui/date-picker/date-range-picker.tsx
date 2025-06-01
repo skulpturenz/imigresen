@@ -33,6 +33,7 @@ export interface DateRangePickerProps
 	value?: Date | null;
 	onChange?: (date: Date | null) => void;
 	placeholder?: string;
+	autocomplete?: string;
 }
 
 export const DateRangePicker: Component<DateRangePickerProps> = props => {
@@ -67,7 +68,10 @@ export const DateRangePicker: Component<DateRangePickerProps> = props => {
 	return (
 		<DatePicker value={getValue()} onValueChange={onChange}>
 			<DatePickerControl class="w-full">
-				<DatePickerInput placeholder={props.placeholder} />
+				<DatePickerInput
+					autocomplete={props.autocomplete}
+					placeholder={props.placeholder}
+				/>
 				<DatePickerTrigger />
 			</DatePickerControl>
 			<Portal>
