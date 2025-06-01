@@ -10,7 +10,10 @@ export default {
 		Married: "M",
 		Widowed: "W",
 	},
-	countryOptions: [...new Set(randCountry({ length: 150 }))].reduce(
+	countryOptions: [
+		...new Set(randCountry({ length: 150 })),
+		"Malaysia",
+	].reduce(
 		(acc, country) => ({
 			...acc,
 			[country]: country,

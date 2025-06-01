@@ -61,6 +61,7 @@ export const resources = {
 			stateOfBirth: {
 				label: "State of birth",
 				placeholder: "",
+				info: "Required if you were born outside of Malaysia",
 			},
 			height: {
 				label: "Height",
