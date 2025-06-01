@@ -452,70 +452,78 @@ export const PersonalDetails: Component<StepProps> = props => {
 			</div>
 
 			<props.Field name="personalDetails.stateOfBirth">
-				{(field, fieldProps) => (
-					<>
-						<Show
-							when={getValue(
-								props.form,
-								"personalDetails.countryOfBirthCode",
-							)}>
-							<InputGroup>
-								<Label
-									info={t(
-										"form.personalDetails.stateOfBirth.info",
-									)}>
-									{t(
-										"form.personalDetails.stateOfBirth.label",
-									)}
-								</Label>
+				{(field, fieldProps) => {
+					const findOption = (value?: string) =>
+						props
+							.dropdownOptions()
+							?.stateOptions.find(option => option === value);
 
-								<ModularFormsCombobox<
-									string,
-									MyPassportForm,
-									never,
-									"input"
-								>
-									{...field}
-									{...fieldProps}
-									form={props.form}
-									options={Object.values(
-										props.dropdownOptions()?.stateOptions ??
-											[],
-									)}
-									optionValue={state => state}
-									value={field.value ?? ""}
-									placeholder={t(
-										"form.personalDetails.stateOfBirth.placeholder",
-									)}
-									itemComponent={props => (
-										<ComboboxItem item={props.item}>
-											{props.item.rawValue}
-										</ComboboxItem>
-									)}>
-									<Combobox.Control<string>>
-										{state => {
-											return (
-												<>
-													<ComboboxTrigger class="relative">
-														<ComboboxInput />
+					return (
+						<>
+							<Show
+								when={getValue(
+									props.form,
+									"personalDetails.countryOfBirthCode",
+								)}>
+								<InputGroup>
+									<Label
+										info={t(
+											"form.personalDetails.stateOfBirth.info",
+										)}>
+										{t(
+											"form.personalDetails.stateOfBirth.label",
+										)}
+									</Label>
 
-														<ComboboxClearSelection
-															selectedOptions={state.selectedOptions()}
-															onClear={
-																state.clear
-															}
-														/>
-													</ComboboxTrigger>
-												</>
-											);
-										}}
-									</Combobox.Control>
-									<ComboboxContent />
-								</ModularFormsCombobox>
-							</InputGroup>
-						</Show>
-					</>
-				)}
+									<ModularFormsCombobox<
+										string,
+										MyPassportForm,
+										never,
+										"input"
+									>
+										{...field}
+										{...fieldProps}
+										form={props.form}
+										value={findOption(field.value) ?? ""}
+										options={
+											props.dropdownOptions()
+												?.stateOptions ?? []
+										}
+										optionValue={state => state}
+										// value={field.value ?? ""}
+										placeholder={t(
+											"form.personalDetails.stateOfBirth.placeholder",
+										)}
+										itemComponent={props => (
+											<ComboboxItem item={props.item}>
+												{props.item.rawValue}
+											</ComboboxItem>
+										)}>
+										<Combobox.Control<string>>
+											{state => {
+												return (
+													<>
+														<ComboboxTrigger class="relative">
+															<ComboboxInput />
+
+															<ComboboxClearSelection
+																selectedOptions={state.selectedOptions()}
+																onClear={
+																	state.clear
+																}
+															/>
+														</ComboboxTrigger>
+													</>
+												);
+											}}
+										</Combobox.Control>
+										<ComboboxContent />
+									</ModularFormsCombobox>
+								</InputGroup>
+							</Show>
+						</>
+					);
+				}}
 			</props.Field>
 		</>
 	);
