@@ -401,6 +401,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										placeholder={t(
 											"form.personalDetails.dateOfBirth.placeholder",
 										)}
+										autocomplete="bday"
 									/>
 								</InputGroup>
 							</>
@@ -431,6 +432,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									form={props.form}
 									name={field.name}
 									value={field.value || ""}
+									autocomplete="country-name"
 									placeholder={t(
 										"form.personalDetails.countryOfBirthCode.placeholder",
 									)}
