@@ -2,8 +2,6 @@ import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
-	Gender,
-	RelationshipStatus,
 	type MyPassportForm,
 	type StepProps,
 } from "feat/my-passport-form/types";
@@ -204,9 +202,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									value={field.value ?? null}
-									options={Object.keys(Gender).filter(key =>
-										Number.isNaN(Number(key)),
+									value={field.value ?? ""}
+									options={Object.keys(
+										props.dropdownOptions()
+											?.genderOptions ??
+											Object.create(null),
 									)}
 									optionValue={gender => gender}
 									placeholder={t(
@@ -262,13 +262,15 @@ export const PersonalDetails: Component<StepProps> = props => {
 									never,
 									"input"
 								>
-									form={props.form}
 									{...field}
 									{...fieldProps}
-									value={field.value ?? null}
+									form={props.form}
+									value={field.value ?? ""}
 									options={Object.keys(
-										RelationshipStatus,
-									).filter(key => Number.isNaN(Number(key)))}
+										props.dropdownOptions()
+											?.relationshipStatusOptions ??
+											Object.create(null),
+									)}
 									optionValue={relationshipStatus =>
 										relationshipStatus
 									}

@@ -1,4 +1,4 @@
-import type { AnyDocumentId } from "@automerge/automerge-repo";
+import type { AnyDocumentId, DocHandle } from "@automerge/automerge-repo";
 import {
 	createForm,
 	getValue,
@@ -79,12 +79,26 @@ export const useMyPassportForm = () => {
 	}));
 
 	const [handle] = createResource(async () => {
+		// not ideal that we are performing side effects here
+		// but we don't want the page to load until we've set the initial data
+		const resetFormValues = (handle: DocHandle<MyPassportForm>) => {
+			if (!import.meta.env.PROD) {
+				console.debug("initialValues", handle.doc());
+			}
+
+			reset(form, {
+				initialValues: handle.doc(),
+			});
+		};
+
 		if (searchParams.automergeUrl) {
 			const handle = await repo.find<MyPassportForm>(
 				searchParams.automergeUrl as AnyDocumentId,
 			);
 
 			await handle.whenReady();
+
+			resetFormValues(handle);
 
 			return handle;
 		}
@@ -156,6 +170,10 @@ export const useMyPassportForm = () => {
 	};
 
 	createEffect(() => {
+		if (handle.loading) {
+			return;
+		}
+
 		const dirtyFields = flattenObject(
 			getValues(form, {
 				shouldDirty: true,
@@ -168,18 +186,12 @@ export const useMyPassportForm = () => {
 
 		handle()?.change(doc => {
 			Object.entries(dirtyFields).forEach(([path, value]) => {
+				if (!import.meta.env.PROD) {
+					console.debug("set", path, value);
+				}
+
 				set(doc, path, value);
 			});
-		});
-	});
-
-	createEffect(() => {
-		if (handle.loading) {
-			return;
-		}
-
-		reset(form, {
-			initialValues: handle()?.doc(),
 		});
 	});
 
@@ -201,6 +213,8 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
+		const currentUuid = routeParams.uuid;
+
 		const updateExistingFormEntry = () => {
 			invariant(
 				handle()?.url,
@@ -216,7 +230,7 @@ export const useMyPassportForm = () => {
 
 			const updatedApplications = existingApplications.map(
 				application => {
-					if (application.uuid === routeParams.uuid) {
+					if (application.uuid === currentUuid) {
 						return {
 							...application,
 							...getValues(form),
@@ -288,7 +302,7 @@ export const useMyPassportForm = () => {
 			);
 		};
 
-		if (routeParams.uuid) {
+		if (currentUuid) {
 			queueMicrotask(() => updateExistingFormEntry());
 
 			return;
