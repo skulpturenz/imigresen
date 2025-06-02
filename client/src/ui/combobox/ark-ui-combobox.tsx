@@ -16,7 +16,15 @@ export const Combobox = ArkCombobox.Root;
 
 export const ComboboxItemGroup = ArkCombobox.ItemGroup; // TODO
 
-export const ComboxboxItemGroupLabel = ArkCombobox.ItemGroupLabel; // TODO
+export const ComboxboxItemGroupLabel = (
+	props: ArkCombobox.ItemGroupLabelProps,
+) => (
+	<ArkCombobox.ItemGroupLabel
+		{...spreadProps(props)}
+		class={cn("text-sm font-bold py-1.5 pr-2 pl-8", props.class)}>
+		{props.children}
+	</ArkCombobox.ItemGroupLabel>
+);
 
 export const ComboboxInput = (props: ArkCombobox.InputProps) => (
 	<ArkCombobox.Input
