@@ -125,7 +125,7 @@ const sortAccuracyDesc = (
 	const getSortOrder = (x: AddressAutofillSuggestion) => {
 		const idx = accuracies.findIndex(accuracy => x.accuracy === accuracy);
 
-		if (~idx) {
+		if (!~idx) {
 			return 0;
 		}
 
