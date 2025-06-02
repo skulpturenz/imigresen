@@ -1,5 +1,5 @@
 import { storageKeys } from "core/constants/storage-keys";
-import { delay } from "es-toolkit";
+import { delay, invariant } from "es-toolkit";
 import { default as referenceDataStateFixture } from "feat/my-passport-form/chore/reference-data-states.fixture";
 import { default as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import { createStorage } from "unstorage";
@@ -30,7 +30,19 @@ export const myPassportFormService = (_token?: string) => {
 		return referenceDataFixture;
 	};
 
-	const getReferenceDataStates = async (_country: string) => {
+	const getReferenceDataStates = async ({ queryKey }: any) => {
+		invariant(
+			queryKey && Array.isArray(queryKey),
+			"Expected an array for query key",
+		);
+
+		const COUNTRY_IDX = -2;
+		const country = queryKey.at(COUNTRY_IDX);
+
+		if (!country) {
+			return [];
+		}
+
 		await delay(250);
 
 		return referenceDataStateFixture;

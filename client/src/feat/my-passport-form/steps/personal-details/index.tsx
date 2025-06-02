@@ -460,7 +460,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 					const findOption = (value?: string) =>
 						props
 							.dropdownOptions()
-							?.stateOptions.find(option => option === value);
+							?.personalDetailsStateOptions.find(
+								option => option === value,
+							);
 
 					return (
 						<>
@@ -491,7 +493,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 										value={findOption(field.value) ?? ""}
 										options={Object.values(
 											props.dropdownOptions()
-												?.stateOptions ?? [],
+												?.personalDetailsStateOptions ??
+												[],
 										).sort(localeAsc)}
 										optionValue={state => state}
 										placeholder={t(

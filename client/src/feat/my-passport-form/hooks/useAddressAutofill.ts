@@ -81,7 +81,8 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 			{
 				addressDetails: {
 					postcode: option.postcode,
-					country: option.country,
+					// TODO: we are referring to countries by names at the moment
+					countryCode: option.countryCode,
 					state: option.state,
 					city: option.city,
 				},

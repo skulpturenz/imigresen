@@ -88,7 +88,12 @@ export const MyPassportForm = () => {
 							when={
 								stepStatus().currentStep === Step.AddressDetails
 							}>
-							<AddressDetails />
+							<AddressDetails
+								form={form}
+								Field={Components.Field}
+								FieldArray={Components.FieldArray}
+								dropdownOptions={data.referenceData}
+							/>
 						</Show>
 
 						<Show
@@ -96,7 +101,12 @@ export const MyPassportForm = () => {
 								stepStatus().currentStep ===
 								Step.ApplicationDetails
 							}>
-							<ApplicationDetails />
+							<ApplicationDetails
+								form={form}
+								Field={Components.Field}
+								FieldArray={Components.FieldArray}
+								dropdownOptions={data.referenceData}
+							/>
 						</Show>
 
 						<Show
