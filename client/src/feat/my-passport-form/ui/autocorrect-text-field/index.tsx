@@ -11,6 +11,12 @@ import { spreadProps } from "core/utils";
 import { invariant, isNil } from "es-toolkit";
 import { distance } from "fastest-levenshtein";
 import { closestOptionMatch } from "feat/my-passport-form/utils/closest-option-match";
+import {
+	asc,
+	get,
+	localeAsc,
+	multiSort,
+} from "feat/my-passport-form/utils/sort";
 import { createEffect, createSignal, type ValidComponent } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "ui/select";
@@ -86,8 +92,15 @@ export const AutocorrectTextField = <
 		}, Object.create(null));
 		const midDistance = Math.floor((min + max) / 2);
 
-		const filteredOptions = Object.entries(distances)
-			.sort(([_a1, a2], [_b1, b2]) => Number(a2) - Number(b2))
+		const getDistance = ([_, distance]: [string, number]) => distance;
+		const getOption = ([option, _]: [string, number]) => option;
+		const sortByDistanceOptionAsc = multiSort(
+			get(getDistance)(asc),
+			get(getOption)(localeAsc),
+		);
+
+		const filteredOptions = Object.entries<number>(distances)
+			.sort(sortByDistanceOptionAsc)
 			.reduce((acc, [option, distance]) => {
 				if (Number(distance) > midDistance) {
 					return acc;
