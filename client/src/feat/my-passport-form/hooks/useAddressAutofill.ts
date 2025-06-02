@@ -3,18 +3,13 @@ import {
 	type AddressAutofillRetrieveResponse,
 	type AddressAutofillSuggestion,
 } from "@mapbox/search-js-core";
-import {
-	getValue,
-	setValue,
-	setValues,
-	type FormStore,
-} from "@modular-forms/solid";
+import { setValue, setValues, type FormStore } from "@modular-forms/solid";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { debounce, invariant, memoize } from "es-toolkit";
 import type { MyPassportForm } from "feat/my-passport-form/types";
 import { get, localeAsc, multiSort } from "feat/my-passport-form/utils/sort";
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 
 invariant(
 	import.meta.env.VITE_MAPBOX_TOKEN,
@@ -69,18 +64,6 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 
 	const debouncedGetOptions = debounce(memoize(getOptions), 250);
 
-	createEffect(() => {
-		const search = getValue(props.form, "addressDetails.streetAddress", {
-			shouldDirty: true,
-		});
-
-		if (!search) {
-			return;
-		}
-
-		debouncedGetOptions(search);
-	});
-
 	onCleanup(() => {
 		debouncedGetOptions.cancel();
 	});
@@ -128,6 +111,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	};
 
 	return {
+		getOptions: debouncedGetOptions,
 		autofillOptions,
 		getSuggestionDetails,
 		onChangeOption,
