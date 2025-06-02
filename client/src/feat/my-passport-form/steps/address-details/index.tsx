@@ -1,3 +1,4 @@
+import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import type { MyPassportForm, StepProps } from "feat/my-passport-form/types";
@@ -169,6 +170,12 @@ export const AddressDetails: Component<StepProps> = props => {
 											placeholder={t(
 												"form.addressDetails.state.placeholder",
 											)}
+											disabled={
+												!getValue(
+													props.form,
+													"addressDetails.countryCode",
+												)
+											}
 											itemComponent={props => (
 												<ComboboxItem item={props.item}>
 													{props.item.rawValue}
