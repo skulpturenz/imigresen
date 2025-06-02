@@ -73,18 +73,18 @@ export const AddressDetails: Component<StepProps> = props => {
 												details.inputValue.toString(),
 											)
 										}>
-										<ArkCombobox.Label>
-											Framework
-										</ArkCombobox.Label>
+										{/** <ComboboxControl /> */}
 										<ArkCombobox.Control>
-											<ArkCombobox.Input class="bg-background text-foreground" />
 											<ArkCombobox.Trigger>
-												Open
+												<ArkCombobox.Input class="bg-background text-foreground" />
+
+												<ArkCombobox.ClearTrigger>
+													Clear
+												</ArkCombobox.ClearTrigger>
 											</ArkCombobox.Trigger>
-											<ArkCombobox.ClearTrigger>
-												Clear
-											</ArkCombobox.ClearTrigger>
 										</ArkCombobox.Control>
+
+										{/** <ComboboxContent /> */}
 										<Portal>
 											<ArkCombobox.Positioner>
 												<ArkCombobox.Content>
