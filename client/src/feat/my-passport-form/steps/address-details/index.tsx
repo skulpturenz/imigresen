@@ -61,6 +61,7 @@ export const AddressDetails: Component<StepProps> = props => {
 										{...fieldProps}
 										/// @ts-expect-error: TODO
 										ref={fieldProps.ref}
+										noResetInputOnBlur
 										value={findAddressOption(field.value)}
 										options={autofillOptions()}
 										optionValue={formatOption}
