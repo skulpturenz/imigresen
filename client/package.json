@@ -47,7 +47,7 @@
 		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
-		"@automerge/automerge-repo-storage-nodefs": "^2.0.0",
+		"@automerge/automerge-repo-storage-nodefs": "^2.0.1",
 		"@chromatic-com/storybook": "^3.2.6",
 		"@ngneat/falso": "^7.3.0",
 		"@solidjs/testing-library": "^0.8.10",
