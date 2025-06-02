@@ -7,7 +7,7 @@ import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { createEffect, type Component } from "solid-js";
+import { type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -30,10 +30,6 @@ export const AddressDetails: Component<StepProps> = props => {
 
 	const { autofillOptions, onChangeOption, getOptions } = useAddressAutofill({
 		form: props.form,
-	});
-
-	createEffect(() => {
-		console.log(autofillOptions());
 	});
 
 	return (
@@ -62,9 +58,14 @@ export const AddressDetails: Component<StepProps> = props => {
 
 									<Combobox
 										{...field}
+										{...fieldProps}
+										noResetInputOnBlur
+										/// @ts-expect-error: TODO
+										ref={fieldProps.ref}
 										value={findAddressOption(field.value)}
 										options={autofillOptions()}
 										optionValue={formatOption}
+										triggerMode="input"
 										optionLabel={state =>
 											state.streetAddress ?? ""
 										}
