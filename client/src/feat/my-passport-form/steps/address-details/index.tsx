@@ -1,7 +1,4 @@
-import {
-	Combobox as ArkCombobox,
-	createListCollection as arkCreateListCollection,
-} from "@ark-ui/solid/combobox";
+import { createListCollection as arkCreateListCollection } from "@ark-ui/solid/combobox";
 import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
@@ -11,8 +8,7 @@ import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { createMemo, For, type Component } from "solid-js";
-import { Portal } from "solid-js/web";
+import { createMemo, createSignal, For, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -21,6 +17,7 @@ import {
 	ComboboxItem,
 	ComboboxTrigger,
 } from "ui/combobox";
+import * as NewCombobox from "ui/combobox/ark-ui-combobox"; // TODO
 import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { Label } from "ui/label";
 import {
@@ -30,6 +27,8 @@ import {
 	TextFieldRoot,
 } from "ui/text-field";
 
+const initialItems = ["React", "Solid", "Vue"];
+
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
@@ -37,10 +36,21 @@ export const AddressDetails: Component<StepProps> = props => {
 		form: props.form,
 	});
 
+	const [items, setItems] = createSignal(initialItems);
 	// https://ark-ui.com/docs/components/combobox
 	const collection = createMemo(() =>
-		arkCreateListCollection({ items: autofillOptions() }),
+		arkCreateListCollection({ items: items() }),
 	);
+
+	const handleInputChange = (
+		details: NewCombobox.ComboboxInputValueChangeDetails,
+	) => {
+		setItems(
+			initialItems.filter(item =>
+				item.toLowerCase().includes(details.inputValue.toLowerCase()),
+			),
+		);
+	};
 
 	return (
 		<>
@@ -66,56 +76,30 @@ export const AddressDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<ArkCombobox.Root
+									<NewCombobox.Combobox
 										collection={collection()}
-										onInputValueChange={details =>
-											getOptions(
-												details.inputValue.toString(),
-											)
-										}>
-										{/** <ComboboxControl /> */}
-										<ArkCombobox.Control>
-											<ArkCombobox.Trigger>
-												<ArkCombobox.Input class="bg-background text-foreground" />
+										onInputValueChange={handleInputChange}>
+										<NewCombobox.ComboboxTrigger>
+											<NewCombobox.ComboboxInput />
+										</NewCombobox.ComboboxTrigger>
 
-												<ArkCombobox.ClearTrigger>
-													Clear
-												</ArkCombobox.ClearTrigger>
-											</ArkCombobox.Trigger>
-										</ArkCombobox.Control>
+										<NewCombobox.ComboboxContent>
+											<NewCombobox.ComboboxItemGroup>
+												<NewCombobox.ComboxboxItemGroupLabel>
+													Frameworks
+												</NewCombobox.ComboxboxItemGroupLabel>
 
-										{/** <ComboboxContent /> */}
-										<Portal>
-											<ArkCombobox.Positioner>
-												<ArkCombobox.Content>
-													<ArkCombobox.ItemGroup>
-														<ArkCombobox.ItemGroupLabel>
-															Frameworks
-														</ArkCombobox.ItemGroupLabel>
-														<For
-															each={
-																collection()
-																	.items
-															}>
-															{item => (
-																<ArkCombobox.Item
-																	item={item}>
-																	<ArkCombobox.ItemText>
-																		{
-																			item.streetAddress
-																		}
-																	</ArkCombobox.ItemText>
-																	<ArkCombobox.ItemIndicator>
-																		✓
-																	</ArkCombobox.ItemIndicator>
-																</ArkCombobox.Item>
-															)}
-														</For>
-													</ArkCombobox.ItemGroup>
-												</ArkCombobox.Content>
-											</ArkCombobox.Positioner>
-										</Portal>
-									</ArkCombobox.Root>
+												<For each={collection().items}>
+													{item => (
+														<NewCombobox.ComboboxItem
+															item={item}>
+															{item}
+														</NewCombobox.ComboboxItem>
+													)}
+												</For>
+											</NewCombobox.ComboboxItemGroup>
+										</NewCombobox.ComboboxContent>
+									</NewCombobox.Combobox>
 
 									<Combobox
 										{...field}
