@@ -59,13 +59,11 @@ export const AddressDetails: Component<StepProps> = props => {
 									<Combobox
 										{...field}
 										{...fieldProps}
-										noResetInputOnBlur
 										/// @ts-expect-error: TODO
 										ref={fieldProps.ref}
 										value={findAddressOption(field.value)}
 										options={autofillOptions()}
 										optionValue={formatOption}
-										triggerMode="input"
 										optionLabel={state =>
 											state.streetAddress ?? ""
 										}
@@ -100,6 +98,7 @@ export const AddressDetails: Component<StepProps> = props => {
 												);
 											}}
 										</Combobox.Control>
+
 										<ComboboxContent />
 									</Combobox>
 								</InputGroup>

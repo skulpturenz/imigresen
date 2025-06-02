@@ -4,9 +4,11 @@ import {
 	type AddressAutofillSuggestion,
 } from "@mapbox/search-js-core";
 import { setValue, setValues, type FormStore } from "@modular-forms/solid";
+import { useQueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
-import { debounce, invariant, memoize } from "es-toolkit";
+import { debounce, invariant } from "es-toolkit";
+import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import type { MyPassportForm } from "feat/my-passport-form/types";
 import { get, localeAsc, multiSort } from "feat/my-passport-form/utils/sort";
 import { createSignal, onCleanup } from "solid-js";
@@ -35,34 +37,52 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const addressAutofill = new AddressAutofillCore({
 		accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
 	});
+	const queryClient = useQueryClient();
 
 	const [autofillOptions, setAutofillOptions] = createSignal<AddressOption[]>(
 		[],
 	);
 
-	const getOptions = async (search: string) => {
-		if (!search) {
-			return [];
-		}
+	const DEBOUNCE_TIME_MS = 250;
 
-		const { suggestions } = await addressAutofill.suggest(search, {
-			sessionToken: authnContext().userId,
+	const getOptions = async (search: string) => {
+		const _getOptions = async (search: string) => {
+			if (!search) {
+				return [];
+			}
+
+			const { suggestions } = await addressAutofill.suggest(search, {
+				sessionToken: authnContext().userId,
+			});
+
+			const getStreetAddress = (suggestion: AddressAutofillSuggestion) =>
+				suggestion.address ?? "";
+
+			const sortByAccuracyDescNameAsc = multiSort(
+				sortAccuracyDesc,
+				get(getStreetAddress)(localeAsc),
+			);
+
+			return suggestions
+				.sort(sortByAccuracyDescNameAsc)
+				.map(toAddressOption);
+		};
+
+		const data = await queryClient.fetchQuery({
+			queryKey: queryKeys.getAddressAutofill(
+				search,
+				authnContext().userId,
+			),
+			queryFn: () => _getOptions(search),
+			staleTime: Infinity,
 		});
 
-		const getStreetAddress = (suggestion: AddressAutofillSuggestion) =>
-			suggestion.address ?? "";
+		setAutofillOptions(data);
 
-		const sortByAccuracyDescNameAsc = multiSort(
-			sortAccuracyDesc,
-			get(getStreetAddress)(localeAsc),
-		);
-
-		setAutofillOptions(
-			suggestions.sort(sortByAccuracyDescNameAsc).map(toAddressOption),
-		);
+		return data;
 	};
 
-	const debouncedGetOptions = debounce(memoize(getOptions), 250);
+	const debouncedGetOptions = debounce(getOptions, DEBOUNCE_TIME_MS);
 
 	onCleanup(() => {
 		debouncedGetOptions.cancel();
