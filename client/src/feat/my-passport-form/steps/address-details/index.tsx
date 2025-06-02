@@ -1,3 +1,7 @@
+import {
+	Combobox as ArkCombobox,
+	createListCollection as arkCreateListCollection,
+} from "@ark-ui/solid/combobox";
 import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
@@ -7,7 +11,8 @@ import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { type Component } from "solid-js";
+import { createMemo, For, type Component } from "solid-js";
+import { Portal } from "solid-js/web";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -32,6 +37,11 @@ export const AddressDetails: Component<StepProps> = props => {
 		form: props.form,
 	});
 
+	// https://ark-ui.com/docs/components/combobox
+	const collection = createMemo(() =>
+		arkCreateListCollection({ items: autofillOptions() }),
+	);
+
 	return (
 		<>
 			<div class="col-span-full">
@@ -55,6 +65,57 @@ export const AddressDetails: Component<StepProps> = props => {
 											"form.addressDetails.streetAddress.label",
 										)}
 									</Label>
+
+									<ArkCombobox.Root
+										collection={collection()}
+										onInputValueChange={details =>
+											getOptions(
+												details.inputValue.toString(),
+											)
+										}>
+										<ArkCombobox.Label>
+											Framework
+										</ArkCombobox.Label>
+										<ArkCombobox.Control>
+											<ArkCombobox.Input class="bg-background text-foreground" />
+											<ArkCombobox.Trigger>
+												Open
+											</ArkCombobox.Trigger>
+											<ArkCombobox.ClearTrigger>
+												Clear
+											</ArkCombobox.ClearTrigger>
+										</ArkCombobox.Control>
+										<Portal>
+											<ArkCombobox.Positioner>
+												<ArkCombobox.Content>
+													<ArkCombobox.ItemGroup>
+														<ArkCombobox.ItemGroupLabel>
+															Frameworks
+														</ArkCombobox.ItemGroupLabel>
+														<For
+															each={
+																collection()
+																	.items
+															}>
+															{item => (
+																<ArkCombobox.Item
+																	item={item}>
+																	<ArkCombobox.ItemText>
+																		{
+																			item.streetAddress
+																		}
+																	</ArkCombobox.ItemText>
+																	<ArkCombobox.ItemIndicator>
+																		✓
+																	</ArkCombobox.ItemIndicator>
+																</ArkCombobox.Item>
+															)}
+														</For>
+													</ArkCombobox.ItemGroup>
+												</ArkCombobox.Content>
+											</ArkCombobox.Positioner>
+										</Portal>
+									</ArkCombobox.Root>
 
 									<Combobox
 										{...field}
