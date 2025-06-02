@@ -2,39 +2,54 @@ import {
 	AddressAutofillCore,
 	type AddressAutofillRetrieveResponse,
 	type AddressAutofillSuggestion,
-	type AddressAutofillSuggestionResponse,
 } from "@mapbox/search-js-core";
-import type { FormStore } from "@modular-forms/solid";
+import { setValue, setValues, type FormStore } from "@modular-forms/solid";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
-import { flow } from "es-toolkit";
+import { invariant } from "es-toolkit";
 import type { MyPassportForm } from "feat/my-passport-form/types";
+import { get, localeAsc, multiSort } from "feat/my-passport-form/utils/sort";
+
+invariant(
+	import.meta.env.VITE_MAPBOX_TOKEN,
+	"Mapbox public token not specified",
+);
 
 export interface UseAddressAutofillProps {
 	form: FormStore<MyPassportForm>;
 }
 
 export interface AddressOption {
-	streetAddress: string;
-	postcode: string;
-	city: string;
-	state: string;
-	country: string;
-	countryCode: string;
-	suggestion: AddressAutofillSuggestionResponse;
+	streetAddress?: string;
+	postcode?: string;
+	city?: string;
+	state?: string;
+	country?: string;
+	countryCode?: string;
+	suggestion: AddressAutofillSuggestion;
 }
 
 export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const authnContext = useContext(AuthnContext);
-	const addressAutofill = new AddressAutofillCore(); // TODO
+	const addressAutofill = new AddressAutofillCore({
+		accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
+	});
 
 	const getOptions = async (search: string): Promise<AddressOption[]> => {
 		const suggestions = await addressAutofill.suggest(search, {
 			sessionToken: authnContext().userId,
 		});
 
+		const getStreetAddress = (suggestion: AddressAutofillSuggestion) =>
+			suggestion.address ?? "";
+
+		const sortByAccuracyDescNameAsc = multiSort(
+			sortAccuracyDesc,
+			get(getStreetAddress)(localeAsc),
+		);
+
 		return suggestions.suggestions
-			.sort(flow(sortSuggesstions, desc))
+			.sort(sortByAccuracyDescNameAsc)
 			.map(toAddressOption);
 	};
 
@@ -50,24 +65,51 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 		});
 	};
 
-	const onChangeSuggestion = (
-		suggestion: AddressAutofillSuggestionResponse,
-	) => {}; // TODO
+	const onChangeOption = (option: AddressOption) => {
+		setValue(
+			props.form,
+			"addressDetails.streetAddress",
+			option.streetAddress ?? "",
+			{
+				shouldDirty: true,
+				shouldValidate: true,
+			},
+		);
+
+		setValues(
+			props.form,
+			{
+				addressDetails: {
+					postcode: option.postcode,
+					country: option.country,
+					state: option.state,
+					city: option.city,
+				},
+			},
+			{ shouldDirty: false, shouldValidate: true },
+		);
+	};
 
 	return {
 		getOptions,
 		getSuggestionDetails,
-		onChangeSuggestion,
+		onChangeOption,
 	};
 };
 
 const toAddressOption = (
 	suggestion: AddressAutofillSuggestion,
-): AddressOption => Object.create(null); // TODO
+): AddressOption => ({
+	streetAddress: suggestion.address,
+	postcode: suggestion.postcode,
+	country: suggestion.country,
+	countryCode: suggestion.country_code,
+	state: suggestion.address_level1,
+	city: suggestion.address_level2,
+	suggestion,
+});
 
-const desc = (sortOrder: number) => -1 * sortOrder;
-
-const sortSuggesstions = (
+const sortAccuracyDesc = (
 	a: AddressAutofillSuggestion,
 	b: AddressAutofillSuggestion,
 ) => {

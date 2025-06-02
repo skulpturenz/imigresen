@@ -1,5 +1,6 @@
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;
+	addressDetails: AddressDetails;
 };
 
 export type PersonalDetails = {
@@ -14,4 +15,12 @@ export type PersonalDetails = {
 	emailAddress: string;
 	mobileNumber: string;
 	relationshipStatusCode: string;
+};
+
+export type AddressDetails = {
+	streetAddress: string;
+	postcode: string;
+	city: string;
+	state: string;
+	country: string;
 };
