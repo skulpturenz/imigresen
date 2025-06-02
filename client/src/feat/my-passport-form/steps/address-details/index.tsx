@@ -1,12 +1,15 @@
 import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
+import { spreadProps } from "core/utils";
+import { debounce } from "es-toolkit";
+import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import type { MyPassportForm, StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { type Component } from "solid-js";
+import { createSignal, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -17,6 +20,7 @@ import {
 } from "ui/combobox";
 import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { Label } from "ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "ui/select";
 import {
 	TextField,
 	TextFieldDescription,
@@ -27,35 +31,107 @@ import {
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
+	const { autofillOptions, onChangeOption } = useAddressAutofill({
+		form: props.form,
+	});
+
+	const [showOptions, setShowOptions] = createSignal(false);
+	const toggleShowOptions = () => setShowOptions(showOptions => !showOptions);
+
+	const onSelectChange = onChangeOption;
+
+	const hideOptions = () => {
+		if (!showOptions()) {
+			return;
+		}
+
+		toggleShowOptions();
+	};
+
+	const debouncedToggle = debounce(toggleShowOptions, 500);
+
 	return (
 		<>
 			<div class="col-span-full">
 				<props.Field name="addressDetails.streetAddress">
-					{(field, props) => (
-						<>
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
-									{t(
-										"form.addressDetails.streetAddress.label",
-									)}
-								</TextFieldLabel>
+					{(field, props) => {
+						// TODO: can't just compare street address
+						const findAddressOption = (value?: string) =>
+							autofillOptions().find(
+								addressOption =>
+									addressOption.streetAddress === value,
+							);
 
-								<TextField
-									{...props}
-									name={field.name}
-									value={field.value ?? ""}
-									placeholder={t(
-										"form.addressDetails.streetAddress.placeholder",
-									)}
-									type="text"
-									autocomplete="shipping street-address"
-								/>
-							</TextFieldRoot>
-						</>
-					)}
+						const onKeyDown = (event: KeyboardEvent) => {
+							event.stopPropagation();
+							event.stopImmediatePropagation();
+
+							if (!autofillOptions().length || showOptions()) {
+								return;
+							}
+
+							debouncedToggle();
+
+							(event.target as HTMLInputElement).focus();
+						};
+
+						// TODO: click outside close
+						// TODO: factor out
+						// TODO: tried combobox but the listbox doesn't update until clicking outside
+						// and making it show again
+						// TODO: focus is lost when the select options show
+
+						return (
+							<>
+								<TextFieldRoot
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
+									<TextFieldLabel>
+										{t(
+											"form.addressDetails.streetAddress.label",
+										)}
+									</TextFieldLabel>
+
+									<Select
+										options={autofillOptions()}
+										itemComponent={props => (
+											<SelectItem
+												onClick={toggleShowOptions}
+												item={props.item}>
+												{formatOption(
+													props.item.rawValue,
+												)}
+											</SelectItem>
+										)}
+										class="relative"
+										onChange={onSelectChange}
+										optionValue={formatOption}
+										open={Boolean(
+											showOptions() &&
+												autofillOptions().length,
+										)}
+										value={findAddressOption(field.value)}>
+										<TextField
+											{...spreadProps(props)}
+											value={field.value}
+											onChange={props.onChange}
+											onKeyDown={onKeyDown}
+											autocomplete="shipping street-address"
+										/>
+
+										<SelectTrigger
+											tabIndex={-1}
+											class="absolute top-0 right-0 -z-30"
+										/>
+										<SelectContent
+											onFocusOutside={hideOptions}
+										/>
+									</Select>
+								</TextFieldRoot>
+							</>
+						);
+					}}
 				</props.Field>
 			</div>
 
