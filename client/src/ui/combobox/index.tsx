@@ -1,14 +1,11 @@
 import {
-	Combobox as ComboboxPrimitive,
-	type ComboboxContentProps,
-	type ComboboxInputProps,
-	type ComboboxItemProps,
-	type ComboboxTriggerProps,
-} from "@kobalte/core/combobox";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
+	Combobox as ArkCombobox,
+	createListCollection as arkCreateListCollection,
+} from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
-import { Show, type ParentProps, type ValidComponent } from "solid-js";
+import type { Component, ParentProps } from "solid-js";
+import { Portal } from "solid-js/web";
 import { cn } from "ui/utils";
 
 export const resources = {
@@ -16,76 +13,81 @@ export const resources = {
 	itemCheckedSrOnly: "Selected",
 };
 
-export const Combobox = ComboboxPrimitive;
+export type { ComboboxInputValueChangeDetails } from "@ark-ui/solid/combobox";
 
-export const ComboboxDescription = ComboboxPrimitive.Description;
+export const createListCollection = arkCreateListCollection;
 
-export const ComboboxErrorMessage = ComboboxPrimitive.ErrorMessage;
+export const Combobox = ArkCombobox.Root;
 
-export const ComboboxItemDescription = ComboboxPrimitive.ItemDescription;
+export const ComboboxItemGroup = ArkCombobox.ItemGroup;
 
-export const ComboboxHiddenSelect = ComboboxPrimitive.HiddenSelect;
-
-export const ComboboxInput = <T extends ValidComponent = "input">(
-	props: PolymorphicProps<T, ComboboxInputProps<T>>,
+export const ComboxboxItemGroupLabel = (
+	props: ArkCombobox.ItemGroupLabelProps,
 ) => (
-	<ComboboxPrimitive.Input
+	<ArkCombobox.ItemGroupLabel
+		{...spreadProps(props)}
+		class={cn("text-sm font-bold py-1.5 pr-2 pl-8", props.class)}>
+		{props.children}
+	</ArkCombobox.ItemGroupLabel>
+);
+
+export const ComboboxInput = (props: ArkCombobox.InputProps) => (
+	<ArkCombobox.Input
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
 			"h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
-			"disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:border-0 focus:shadow-none focus:ring-0",
+			"border-0 focus:border-0 focus:shadow-none focus:ring-0",
+			"disabled:cursor-not-allowed disabled:opacity-50",
 			props.class,
 		)}
 	/>
 );
 
-export const ComboboxTrigger = <T extends ValidComponent = "button">(
-	props: PolymorphicProps<T, ComboboxTriggerProps<T>>,
-) => (
-	<ComboboxPrimitive.Control>
-		<ComboboxPrimitive.Trigger
+export const ComboboxTrigger = (props: ArkCombobox.TriggerProps) => (
+	<ArkCombobox.Control>
+		<ArkCombobox.Trigger
 			{...spreadProps(props)}
 			ref={props.ref}
 			class={cn(
-				"flex h-10 w-full items-center justify-between rounded-md border border-input px-3 has-[:focus-visible]:ring-2",
+				"relative flex h-10 w-full items-center justify-between rounded-md border border-input px-3 has-[:focus-visible]:ring-2",
 				"has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 transition has-[:focus-visible]:ring-offset-background",
+				"disabled:cursor-not-allowed disabled:opacity-50",
 				props.class,
 			)}>
 			{props.children}
-			<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground">
+
+			<div class="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground">
 				<ChevronsDownUp class="h-4 w-4">
 					<span class="sr-only">{resources.triggerSrOnly}</span>
 				</ChevronsDownUp>
-			</ComboboxPrimitive.Icon>
-		</ComboboxPrimitive.Trigger>
-	</ComboboxPrimitive.Control>
+			</div>
+		</ArkCombobox.Trigger>
+	</ArkCombobox.Control>
 );
 
-export const ComboboxContent = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, ComboboxContentProps<T>>,
-) => (
-	<ComboboxPrimitive.Portal>
-		<ComboboxPrimitive.Content
-			{...spreadProps(props)}
-			ref={props.ref}
-			class={cn(
-				"relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground",
-				"shadow-md data-[expanded]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0",
-				"data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
-				"origin-[--kb-combobox-content-transform-origin]",
-				"max-h-[50vh] overflow-scroll",
-				props.class,
-			)}>
-			<ComboboxPrimitive.Listbox class="p-1" />
-		</ComboboxPrimitive.Content>
-	</ComboboxPrimitive.Portal>
+export const ComboboxContent = (props: ArkCombobox.ContentProps) => (
+	<Portal>
+		<ArkCombobox.Positioner>
+			<ArkCombobox.Content
+				{...spreadProps(props)}
+				ref={props.ref}
+				class={cn(
+					"relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground",
+					'shadow-md data-[state="open"]:animate-in data-[state="closed"]:animate-out data-[state="closed"]:fade-out-0',
+					'data-[state="open"]:fade-in-0 data-[state="closed"]:zoom-out-95 data-[state="open"]:zoom-in-95',
+					"origin-[--kb-combobox-content-transform-origin]",
+					"max-h-[50vh] overflow-scroll",
+					props.class,
+				)}>
+				<div class="p-1">{props.children}</div>
+			</ArkCombobox.Content>
+		</ArkCombobox.Positioner>
+	</Portal>
 );
 
-export const ComboboxItem = <T extends ValidComponent = "li">(
-	props: PolymorphicProps<T, ComboboxItemProps<T>>,
-) => (
-	<ComboboxPrimitive.Item
+export const ComboboxItem = (props: ArkCombobox.ItemProps) => (
+	<ArkCombobox.Item
 		{...spreadProps(props)}
 		ref={props.ref}
 		class={cn(
@@ -94,43 +96,33 @@ export const ComboboxItem = <T extends ValidComponent = "li">(
 			"data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
 			props.class,
 		)}>
-		<ComboboxPrimitive.ItemIndicator
+		<ArkCombobox.ItemIndicator
 			class={cn(
-				"absolute left-2 flex h-3.5 w-3.5 items-center justify-center text-foreground data-[highlighted]:text-accent-foreground",
+				"absolute left-2 flex h-3.5 w-3.5 items-center justify-center text-foreground",
+				"data-[highlighted]:text-accent-foreground",
 			)}>
 			<Check class="h-4 w-4">
 				<span class="sr-only">{resources.itemCheckedSrOnly}</span>
 			</Check>
-		</ComboboxPrimitive.ItemIndicator>
-		<ComboboxPrimitive.ItemLabel>
-			{props.children as ParentProps["children"]}
-		</ComboboxPrimitive.ItemLabel>
-	</ComboboxPrimitive.Item>
+		</ArkCombobox.ItemIndicator>
+
+		<ArkCombobox.ItemText>{props.children}</ArkCombobox.ItemText>
+	</ArkCombobox.Item>
 );
 
-export interface ComboboxClearSelectionProps<TOption> {
-	selectedOptions?: TOption[];
-	onClear: () => void;
-}
-
-export const ComboboxClearSelection = <TOption extends unknown>(
-	props: ComboboxClearSelectionProps<TOption>,
-) => {
-	const onPointerDown = (event: MouseEvent) => {
-		event.stopImmediatePropagation();
-	};
-
+export const ComboboxClearSelection: Component<
+	ParentProps<ArkCombobox.ClearTriggerProps>
+> = props => {
 	return (
-		<Show when={props.selectedOptions?.length}>
-			<button
-				class={cn(
-					"absolute right-8 top-[30%] bg-muted cursor-pointer",
-					"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none focus-visible:ring-offset-background",
-				)}
-				onPointerDown={onPointerDown}
-				onClick={props.onClear}>
-				<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-			</button>
-		</Show>
+		<ArkCombobox.ClearTrigger
+			{...spreadProps(props)}
+			class={cn(
+				"absolute right-8 top-[30%] cursor-pointer",
+				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
+				"focus-visible:ring-offset-background",
+				props.class,
+			)}>
+			<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+		</ArkCombobox.ClearTrigger>
 	);
 };

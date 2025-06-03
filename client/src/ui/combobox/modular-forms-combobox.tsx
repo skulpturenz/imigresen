@@ -1,5 +1,4 @@
-import type { PolymorphicProps } from "@kobalte/core";
-import type { ComboboxRootProps } from "@kobalte/core/combobox";
+import type { ComboboxRootProps } from "@ark-ui/solid/combobox";
 import {
 	setValue,
 	type FieldPath,
@@ -7,47 +6,58 @@ import {
 	type FormStore,
 } from "@modular-forms/solid";
 import { spreadProps } from "core/utils";
-import { partial } from "es-toolkit";
-import type { ValidComponent } from "solid-js";
-import { Combobox } from "ui/combobox";
+import { splitProps } from "solid-js";
+import { Combobox, type ComboboxInputValueChangeDetails } from "ui/combobox";
 
-export interface ModularFormComboboxBaseProps<
+export interface ModularFormsComboboxBaseProps<
 	TFieldValues extends FieldValues,
 	TFieldPaths extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
 	form: FormStore<TFieldValues>;
 	name: TFieldPaths;
+	value?: string | string[];
 }
 
 export type ModularFormsComboboxProps<
-	TOption,
+	TCollection extends string | Record<string, any>,
 	TFieldValues extends FieldValues,
-	TOptionGroup = never,
-	TComponent extends ValidComponent = "div",
 > = Omit<
-	PolymorphicProps<
-		TComponent,
-		Omit<ComboboxRootProps<TOption, TOptionGroup, TComponent>, "name"> &
-			ModularFormComboboxBaseProps<TFieldValues>
-	>,
-	"onChange"
+	Omit<ComboboxRootProps<TCollection>, "form" | "value"> &
+		ModularFormsComboboxBaseProps<TFieldValues>,
+	"onInputValueChange"
 >;
 
 export const ModularFormsCombobox = <
-	TOption,
+	TCollection extends string | Record<string, any>,
 	TFieldValues extends FieldValues,
-	TOptionGroup = never,
-	TComponent extends ValidComponent = "div",
 >(
-	props: ModularFormsComboboxProps<
-		TOption,
-		TFieldValues,
-		TOptionGroup,
-		TComponent
-	>,
-) => (
-	<Combobox
-		{...spreadProps(props)}
-		onChange={partial(setValue, props.form, props.name)}
-	/>
-);
+	props: ModularFormsComboboxProps<TCollection, TFieldValues>,
+) => {
+	const [_ignored, rest] = splitProps(props, ["form"]);
+	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		console.log(details, props.name);
+		setValue(props.form, props.name, details.inputValue as any);
+	};
+
+	const getValue = (
+		props: ModularFormsComboboxProps<TCollection, TFieldValues>,
+	) => {
+		if (!props.value) {
+			return [];
+		}
+
+		if (Array.isArray(props.value)) {
+			return props.value;
+		}
+
+		return [props.value];
+	};
+
+	return (
+		<Combobox
+			{...spreadProps(rest)}
+			value={getValue(props)}
+			onInputValueChange={onInputValueChange}
+		/>
+	);
+};
