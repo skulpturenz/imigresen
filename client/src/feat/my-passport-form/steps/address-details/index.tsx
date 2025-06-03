@@ -77,27 +77,27 @@ export const AddressDetails: Component<StepProps> = props => {
 									</Label>
 
 									<NewCombobox.Combobox
+										allowCustomValue
 										collection={collection()}
 										onInputValueChange={handleInputChange}>
 										<NewCombobox.ComboboxTrigger>
-											<NewCombobox.ComboboxInput />
+											<NewCombobox.ComboboxInput
+												{...field}
+												{...fieldProps}
+											/>
+
+											<NewCombobox.ComboboxClearSelection />
 										</NewCombobox.ComboboxTrigger>
 
 										<NewCombobox.ComboboxContent>
-											<NewCombobox.ComboboxItemGroup>
-												<NewCombobox.ComboxboxItemGroupLabel>
-													Frameworks
-												</NewCombobox.ComboxboxItemGroupLabel>
-
-												<For each={collection().items}>
-													{item => (
-														<NewCombobox.ComboboxItem
-															item={item}>
-															{item}
-														</NewCombobox.ComboboxItem>
-													)}
-												</For>
-											</NewCombobox.ComboboxItemGroup>
+											<For each={collection().items}>
+												{item => (
+													<NewCombobox.ComboboxItem
+														item={item}>
+														{item}
+													</NewCombobox.ComboboxItem>
+												)}
+											</For>
 										</NewCombobox.ComboboxContent>
 									</NewCombobox.Combobox>
 
