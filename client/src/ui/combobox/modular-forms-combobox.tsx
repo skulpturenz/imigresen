@@ -15,7 +15,7 @@ export interface ModularFormsComboboxBaseProps<
 > {
 	form: FormStore<TFieldValues>;
 	name: TFieldPaths;
-	value?: string | string[];
+	value?: string;
 }
 
 export type ModularFormsComboboxProps<
@@ -33,29 +33,20 @@ export const ModularFormsCombobox = <
 >(
 	props: ModularFormsComboboxProps<TCollection, TFieldValues>,
 ) => {
-	const [_ignored, rest] = splitProps(props, ["form"]);
+	// TODO: not so sure why there is a difference here with the normal `Combobox`
+	// on that we can specify both `value` and `inputValue` and any custom input stays
+	// but for this if `value` is specified any value we type is erased out
+	// might have to do with the type of option?
+	const [_ignored, rest] = splitProps(props, ["form", "value"]);
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		console.log(details.inputValue);
 		setValue(props.form, props.name, details.inputValue as any);
-	};
-
-	const getValue = (
-		props: ModularFormsComboboxProps<TCollection, TFieldValues>,
-	) => {
-		if (!props.value) {
-			return [];
-		}
-
-		if (Array.isArray(props.value)) {
-			return props.value;
-		}
-
-		return [props.value];
 	};
 
 	return (
 		<Combobox
 			{...spreadProps(rest)}
-			value={getValue(props)}
+			inputValue={props.value ?? ""}
 			onInputValueChange={onInputValueChange}
 		/>
 	);

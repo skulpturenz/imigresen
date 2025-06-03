@@ -464,13 +464,6 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<props.Field name="personalDetails.stateOfBirth">
 				{(field, fieldProps) => {
-					const findOption = (value?: string) =>
-						props
-							.dropdownOptions()
-							?.personalDetailsStateOptions.find(
-								option => option === value,
-							);
-
 					return (
 						<>
 							<Show
@@ -492,9 +485,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										{...field}
 										allowCustomValue
 										form={props.form}
-										inputValue={
-											findOption(field.value) ?? ""
-										}
+										inputValue={field.value}
 										collection={statesCollection()}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",

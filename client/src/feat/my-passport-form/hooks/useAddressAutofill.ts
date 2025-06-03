@@ -23,13 +23,17 @@ export interface UseAddressAutofillProps {
 }
 
 export interface AddressOption {
-	streetAddress?: string;
-	postcode?: string;
-	city?: string;
-	state?: string;
-	country?: string;
-	countryCode?: string;
-	suggestion: AddressAutofillSuggestion;
+	value: string;
+	label: string;
+	meta: {
+		streetAddress?: string;
+		postcode?: string;
+		city?: string;
+		state?: string;
+		country?: string;
+		countryCode?: string;
+		suggestion: AddressAutofillSuggestion;
+	};
 }
 
 export const useAddressAutofill = (props: UseAddressAutofillProps) => {
@@ -100,15 +104,23 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 		});
 	};
 
-	const onChangeOption = (option: AddressOption | null) => {
-		if (!option) {
+	const onChangeOption = (mapboxId?: string) => {
+		if (!mapboxId) {
 			return;
 		}
+
+		const option = autofillOptions().find(
+			option => option.value === mapboxId,
+		);
+		invariant(
+			option,
+			`Address autofill option with id ${mapboxId} not found`,
+		);
 
 		setValue(
 			props.form,
 			"addressDetails.streetAddress",
-			option.streetAddress ?? "",
+			option.meta.streetAddress ?? "",
 			{
 				shouldDirty: true,
 				shouldValidate: true,
@@ -119,11 +131,11 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 			props.form,
 			{
 				addressDetails: {
-					postcode: option.postcode,
+					postcode: option.meta.postcode,
 					// TODO: we are referring to countries by names at the moment
-					countryCode: option.countryCode,
-					state: option.state,
-					city: option.city,
+					countryCode: option.meta.countryCode,
+					state: option.meta.state,
+					city: option.meta.city,
 				},
 			},
 			{ shouldDirty: false, shouldValidate: true },
@@ -141,13 +153,17 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 const toAddressOption = (
 	suggestion: AddressAutofillSuggestion,
 ): AddressOption => ({
-	streetAddress: suggestion.address_line1,
-	postcode: suggestion.postcode,
-	country: suggestion.country,
-	countryCode: suggestion.country_code?.toUpperCase(),
-	state: suggestion.address_level1,
-	city: suggestion.address_level2,
-	suggestion,
+	value: suggestion.mapbox_id,
+	label: suggestion.address_line1 ?? "",
+	meta: {
+		streetAddress: suggestion.address_line1,
+		postcode: suggestion.postcode,
+		country: suggestion.country,
+		countryCode: suggestion.country_code?.toUpperCase(),
+		state: suggestion.address_level1,
+		city: suggestion.address_level2,
+		suggestion,
+	},
 });
 
 const sortAccuracyDesc = (
@@ -178,13 +194,3 @@ const sortAccuracyDesc = (
 
 	return accuracyA - accuracyB;
 };
-
-export const formatOption = (option?: AddressOption) =>
-	[
-		option?.streetAddress,
-		option?.city,
-		[option?.postcode, option?.state].filter(Boolean).join(" "),
-		option?.country,
-	]
-		.filter(Boolean)
-		.join(", ");

@@ -7,7 +7,7 @@ import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { createMemo, createSignal, For, type Component } from "solid-js";
+import { createMemo, For, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -17,6 +17,7 @@ import {
 	ComboboxTrigger,
 	createListCollection,
 	type ComboboxInputValueChangeDetails,
+	type ComboboxSelectionDetails,
 } from "ui/combobox";
 import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { Label } from "ui/label";
@@ -27,18 +28,22 @@ import {
 	TextFieldRoot,
 } from "ui/text-field";
 
-const initialItems = ["React", "Solid", "Vue"];
-
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const {
-		autofillOptions: _autofillOptions,
-		onChangeOption: _onChangeOption,
-		getOptions: _getOptions,
-	} = useAddressAutofill({
+	const { autofillOptions, onChangeOption, getOptions } = useAddressAutofill({
 		form: props.form,
 	});
+
+	const autofillCollection = createMemo(() =>
+		createListCollection({
+			items: autofillOptions(),
+		}),
+	);
+	const onStreetAddressChange = (details: ComboboxInputValueChangeDetails) =>
+		getOptions(details.inputValue);
+	const onSelectStreetAddress = (details: ComboboxSelectionDetails) =>
+		onChangeOption(details.itemValue);
 
 	const statesCollection = createMemo(() =>
 		createListCollection({
@@ -47,34 +52,14 @@ export const AddressDetails: Component<StepProps> = props => {
 		}),
 	);
 
-	const [items, setItems] = createSignal(initialItems);
-	// https://ark-ui.com/docs/components/combobox
-	const collection = createMemo(() =>
-		createListCollection({ items: items() }),
-	);
-
-	const handleInputChange = (details: ComboboxInputValueChangeDetails) => {
-		setItems(
-			initialItems.filter(item =>
-				item.toLowerCase().includes(details.inputValue.toLowerCase()),
-			),
-		);
-	};
-
 	return (
 		<>
 			<div class="col-span-full">
 				<props.Field name="addressDetails.streetAddress">
-					{(field, fieldProps) => {
-						// TODO: can't just compare street address
-						// const findAddressOption = (value?: string) =>
-						// 	autofillOptions().find(
-						// 		addressOption =>
-						// 			addressOption.streetAddress === value,
-						// 	);
-
-						// TODO: clear is not working when controlled
-
+					{(
+						field,
+						{ onChange: _onChange, onInput: _onInput, ...rest },
+					) => {
 						return (
 							<>
 								<InputGroup>
@@ -85,23 +70,28 @@ export const AddressDetails: Component<StepProps> = props => {
 									</Label>
 
 									<Combobox
+										{...field}
+										inputValue={field.value}
 										allowCustomValue
-										collection={collection()}
-										onInputValueChange={handleInputChange}>
+										collection={autofillCollection()}
+										onInputValueChange={
+											onStreetAddressChange
+										}
+										onSelect={onSelectStreetAddress}>
 										<ComboboxTrigger>
-											<ComboboxInput
-												{...field}
-												{...fieldProps}
-											/>
+											<ComboboxInput {...rest} />
 
 											<ComboboxClearSelection />
 										</ComboboxTrigger>
 
 										<ComboboxContent>
-											<For each={collection().items}>
+											<For
+												each={
+													autofillCollection().items
+												}>
 												{item => (
 													<ComboboxItem item={item}>
-														{item}
+														{item.label}
 													</ComboboxItem>
 												)}
 											</For>
@@ -187,14 +177,10 @@ export const AddressDetails: Component<StepProps> = props => {
 
 				<div>
 					<props.Field name="addressDetails.state">
-						{(field, fieldProps) => {
-							const findOption = (value?: string) =>
-								props
-									.dropdownOptions()
-									?.addressDetailsStateOptions.find(
-										option => option === value,
-									);
-
+						{(
+							field,
+							{ onChange: _onChange, onInput: _onInput, ...rest },
+						) => {
 							return (
 								<>
 									<InputGroup>
@@ -206,10 +192,8 @@ export const AddressDetails: Component<StepProps> = props => {
 
 										<ModularFormsCombobox
 											{...field}
+											name={field.name}
 											form={props.form}
-											inputValue={
-												findOption(field.value) ?? ""
-											}
 											allowCustomValue
 											collection={statesCollection()}
 											placeholder={t(
@@ -222,9 +206,7 @@ export const AddressDetails: Component<StepProps> = props => {
 												)
 											}>
 											<ComboboxTrigger>
-												<ComboboxInput
-													{...fieldProps}
-												/>
+												<ComboboxInput {...rest} />
 
 												<ComboboxClearSelection />
 											</ComboboxTrigger>
