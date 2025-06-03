@@ -17,6 +17,7 @@ export const createAuthnContext = (): AuthnSvc => ({
 		login: noop,
 		register: noop,
 		logout: noop,
+		cleanup: noop,
 	},
 });
 

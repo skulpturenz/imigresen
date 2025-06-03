@@ -13,11 +13,6 @@ import type { MyPassportForm } from "feat/my-passport-form/types";
 import { get, localeAsc, multiSort } from "feat/my-passport-form/utils/sort";
 import { createSignal, onCleanup } from "solid-js";
 
-invariant(
-	import.meta.env.VITE_MAPBOX_TOKEN,
-	"Mapbox public token not specified",
-);
-
 export interface UseAddressAutofillProps {
 	form: FormStore<MyPassportForm>;
 }
@@ -38,8 +33,11 @@ export interface AddressOption {
 
 export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const authnContext = useContext(AuthnContext);
+
+	invariant(authnContext().mapboxToken, "Mapbox public token not specified");
+
 	const addressAutofill = new AddressAutofillCore({
-		accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
+		accessToken: authnContext().mapboxToken,
 	});
 	const queryClient = useQueryClient();
 
