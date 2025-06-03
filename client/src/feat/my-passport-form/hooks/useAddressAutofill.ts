@@ -39,9 +39,6 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 
 	invariant(authnContext().mapboxToken, "Mapbox public token not specified");
 
-	const addressAutofill = new AddressAutofillCore({
-		accessToken: authnContext().mapboxToken,
-	});
 	const queryClient = useQueryClient();
 
 	const [autofillOptions, setAutofillOptions] = createSignal<AddressOption[]>(
@@ -53,11 +50,18 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const getOptions = async (search: string) => {
 		const _getOptions = async (search: string) => {
 			const CURRENT_DATE = new Date();
+			const MAX_MINUTES = 2;
 
-			if (
-				!import.meta.env.DEV &&
-				differenceInMinutes(CURRENT_DATE, START_DATE) >= 3
-			) {
+			const minutesElapsed = differenceInMinutes(
+				CURRENT_DATE,
+				START_DATE,
+			);
+
+			if (!import.meta.env.PROD) {
+				console.debug("minutes elapsed", minutesElapsed);
+			}
+
+			if (!import.meta.env.DEV && minutesElapsed >= MAX_MINUTES) {
 				return [];
 			}
 
@@ -65,6 +69,9 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 				return [];
 			}
 
+			const addressAutofill = new AddressAutofillCore({
+				accessToken: authnContext().mapboxToken,
+			});
 			const { suggestions } = await addressAutofill.suggest(search, {
 				sessionToken: authnContext().userId,
 			});
@@ -105,6 +112,10 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const getSuggestionDetails = async (
 		suggestion: AddressAutofillSuggestion,
 	): Promise<AddressAutofillRetrieveResponse | null> => {
+		const addressAutofill = new AddressAutofillCore({
+			accessToken: authnContext().mapboxToken,
+		});
+
 		if (!addressAutofill.canRetrieve(suggestion)) {
 			return null;
 		}
