@@ -42,7 +42,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 	const statesCollection = createMemo(() =>
 		createListCollection({
-			items: props.dropdownOptions()?.addressDetailsStateOptions ?? [],
+			items: props.dropdownOptions()?.personalDetailsStateOptions ?? [],
 			groupSort: localeAsc,
 		}),
 	);
