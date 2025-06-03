@@ -490,6 +490,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 									<ModularFormsCombobox
 										{...field}
+										allowCustomValue
 										form={props.form}
 										inputValue={
 											findOption(field.value) ?? ""

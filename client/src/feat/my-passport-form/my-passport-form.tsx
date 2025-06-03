@@ -1,6 +1,6 @@
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
-import { Show, Suspense } from "solid-js";
+import { Suspense } from "solid-js";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -69,60 +69,85 @@ export const MyPassportForm = () => {
 						/>
 					</>
 				}>
-				<Form of={form} onSubmit={onSubmit} class={cn(constants.grid)}>
+				<Form of={form} onSubmit={onSubmit}>
 					<Suspense fallback={<div>{t("loading")}</div>}>
-						<Show
-							when={
+						<div
+							class={cn(
+								constants.grid,
+								// if the elements are not rendered then modular forms does
+								// not keep any of the initial values
 								stepStatus().currentStep ===
-								Step.PersonalDetails
-							}>
+									Step.PersonalDetails
+									? "visible"
+									: "hidden",
+							)}>
 							<PersonalDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</Show>
+						</div>
 
-						<Show
-							when={
+						<div
+							class={cn(
+								constants.grid,
+								// if the elements are not rendered then modular forms does
+								// not keep any of the initial values
 								stepStatus().currentStep === Step.AddressDetails
-							}>
+									? "visible"
+									: "hidden",
+							)}>
 							<AddressDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</Show>
+						</div>
 
-						<Show
-							when={
+						<div
+							class={cn(
+								constants.grid,
+								// if the elements are not rendered then modular forms does
+								// not keep any of the initial values
 								stepStatus().currentStep ===
-								Step.ApplicationDetails
-							}>
+									Step.ApplicationDetails
+									? "visible"
+									: "hidden",
+							)}>
 							<ApplicationDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</Show>
+						</div>
 
-						<Show
-							when={
+						<div
+							class={cn(
+								constants.grid,
+								// if the elements are not rendered then modular forms does
+								// not keep any of the initial values
 								stepStatus().currentStep ===
-								Step.PreviousDocuments
-							}>
+									Step.PreviousDocuments
+									? "visible"
+									: "hidden",
+							)}>
 							<PreviousDocuments />
-						</Show>
+						</div>
 
-						<Show
-							when={
+						<div
+							class={cn(
+								constants.grid,
+								// if the elements are not rendered then modular forms does
+								// not keep any of the initial values
 								stepStatus().currentStep === Step.Declaration
-							}>
+									? "visible"
+									: "hidden",
+							)}>
 							<Declaration />
-						</Show>
+						</div>
 					</Suspense>
 				</Form>
 			</Wizard>

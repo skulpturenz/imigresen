@@ -35,7 +35,6 @@ export const ModularFormsCombobox = <
 ) => {
 	const [_ignored, rest] = splitProps(props, ["form"]);
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
-		console.log(details, props.name);
 		setValue(props.form, props.name, details.inputValue as any);
 	};
 
