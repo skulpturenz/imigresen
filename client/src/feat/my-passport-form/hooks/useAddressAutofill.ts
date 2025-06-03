@@ -7,6 +7,7 @@ import { setValue, setValues, type FormStore } from "@modular-forms/solid";
 import { useQueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
+import { differenceInMinutes } from "date-fns";
 import { debounce, invariant } from "es-toolkit";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import type { MyPassportForm } from "feat/my-passport-form/types";
@@ -32,6 +33,8 @@ export interface AddressOption {
 }
 
 export const useAddressAutofill = (props: UseAddressAutofillProps) => {
+	const START_DATE = new Date();
+
 	const authnContext = useContext(AuthnContext);
 
 	invariant(authnContext().mapboxToken, "Mapbox public token not specified");
@@ -49,6 +52,15 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 
 	const getOptions = async (search: string) => {
 		const _getOptions = async (search: string) => {
+			const CURRENT_DATE = new Date();
+
+			if (
+				!import.meta.env.DEV &&
+				differenceInMinutes(CURRENT_DATE, START_DATE) >= 3
+			) {
+				return [];
+			}
+
 			if (!search) {
 				return [];
 			}
