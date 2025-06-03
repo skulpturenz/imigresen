@@ -1,8 +1,10 @@
+import { default as mbxClient } from "@mapbox/mapbox-sdk";
+import { default as tokensClient } from "@mapbox/mapbox-sdk/services/tokens";
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
 import { toPath } from "core/router/route";
-import { secondsToMilliseconds } from "date-fns";
+import { addSeconds, secondsToMilliseconds } from "date-fns";
 import { invariant, once, trimEnd } from "es-toolkit";
 import { default as Cookies } from "js-cookie";
 import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
@@ -10,6 +12,10 @@ import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
 invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
+invariant(
+	import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
+	"Mapbox token not specified",
+);
 
 export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
 
@@ -18,11 +24,14 @@ export interface AuthnSvc {
 	isActionsLoading: boolean;
 	keycloak?: Keycloak | null;
 	profile?: KeycloakProfile | null;
+	userId: string;
+	mapboxToken?: string;
 	actions: {
 		init: () => void;
 		login: () => void;
 		register: () => void;
 		logout: () => void;
+		cleanup: () => void;
 	};
 }
 
@@ -93,6 +102,31 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		});
 	};
 
+	const mapboxClient = mbxClient({
+		accessToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
+	});
+	const mapboxTokensClient = tokensClient(mapboxClient);
+
+	const REFRESH_INTERVAL_SECONDS = 5;
+	const getTempMapboxToken = async () => {
+		const { body } = await mapboxTokensClient
+			.createTemporaryToken({
+				scopes: ["datasets:read"],
+				expires: addSeconds(
+					new Date(),
+					REFRESH_INTERVAL_SECONDS * 1.5,
+				).toISOString(),
+			})
+			.send();
+
+		set({ mapboxToken: body.token });
+	};
+
+	const refreshMapBoxTokenInterval = setInterval(
+		getTempMapboxToken,
+		secondsToMilliseconds(REFRESH_INTERVAL_SECONDS),
+	);
+
 	return {
 		isInitialLoading: true,
 		isActionsLoading: false,
@@ -102,11 +136,14 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 			realm: authnProviderRealm,
 			clientId: authnProviderClientId,
 		}),
+		userId: crypto.randomUUID(),
 		actions: {
 			init: once(async () => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isInitialLoading: true });
+
+				await getTempMapboxToken();
 
 				await get().keycloak?.init({
 					onLoad: "check-sso",
@@ -139,7 +176,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					);
 				}
 
-				set({ profile });
+				set({ profile, userId: keycloak.tokenParsed?.sub });
 				set({ isInitialLoading: false });
 			}),
 			login: () => {
@@ -180,6 +217,9 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 					redirectUri: createRedirectUrl(logoutRedirectUri).href,
 				});
 			},
+			cleanup: once(() => {
+				clearInterval(refreshMapBoxTokenInterval);
+			}),
 		},
 	};
 });

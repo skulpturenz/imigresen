@@ -64,16 +64,22 @@ export const useMyPassportForm = () => {
 		staleTime: Infinity,
 	}));
 
-	const referenceDataStates = useQuery<string[]>(() => ({
+	const referenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
 		queryKey: queryKeys.getReferenceDataStates(
 			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
 			authnContext().keycloak?.token,
 		),
-		queryFn: () =>
-			myPassportFormContext.getReferenceDataStates(
-				getValue(form, "personalDetails.countryOfBirthCode") ?? "",
-			),
-		enabled: Boolean(getValue(form, "personalDetails.countryOfBirthCode")),
+		queryFn: myPassportFormContext.getReferenceDataStates,
+		placeholderData: [],
+		staleTime: Infinity,
+	}));
+
+	const referenceDataAddressDetailsStates = useQuery<string[]>(() => ({
+		queryKey: queryKeys.getReferenceDataStates(
+			getValue(form, "addressDetails.countryCode") ?? "",
+			authnContext().keycloak?.token,
+		),
+		queryFn: myPassportFormContext.getReferenceDataStates,
 		placeholderData: [],
 		staleTime: Infinity,
 	}));
@@ -323,7 +329,10 @@ export const useMyPassportForm = () => {
 
 		return {
 			...referenceData.data,
-			stateOptions: referenceDataStates.data ?? ([] as string[]),
+			personalDetailsStateOptions:
+				referenceDataPersonalDetailsStates.data ?? ([] as string[]),
+			addressDetailsStateOptions:
+				referenceDataAddressDetailsStates.data ?? ([] as string[]),
 		};
 	};
 

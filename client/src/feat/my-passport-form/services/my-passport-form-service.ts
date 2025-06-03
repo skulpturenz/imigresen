@@ -42,7 +42,7 @@ export const myPassportFormService = (token?: string) => {
 	const getReferenceData = async () => Object.create(null);
 
 	// TODO
-	const getReferenceDataStates = async (_country: string) => {
+	const getReferenceDataStates = async ({ queryKey: _queryKey }: any) => {
 		return [] as string[];
 	};
 

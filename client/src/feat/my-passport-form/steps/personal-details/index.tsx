@@ -10,14 +10,14 @@ import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { localeAsc } from "feat/my-passport-form/utils/sort";
-import { Show, type Component } from "solid-js";
+import { createMemo, For, Show, type Component } from "solid-js";
 import {
-	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
+	createListCollection,
 } from "ui/combobox";
 import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
@@ -39,6 +39,13 @@ import {
 
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
+
+	const statesCollection = createMemo(() =>
+		createListCollection({
+			items: props.dropdownOptions()?.personalDetailsStateOptions ?? [],
+			groupSort: localeAsc,
+		}),
+	);
 
 	return (
 		<>
@@ -457,11 +464,6 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<props.Field name="personalDetails.stateOfBirth">
 				{(field, fieldProps) => {
-					const findOption = (value?: string) =>
-						props
-							.dropdownOptions()
-							?.stateOptions.find(option => option === value);
-
 					return (
 						<>
 							<Show
@@ -479,49 +481,31 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<ModularFormsCombobox<
-										string,
-										MyPassportForm,
-										never,
-										"input"
-									>
+									<ModularFormsCombobox
 										{...field}
-										{...fieldProps}
+										allowCustomValue
 										form={props.form}
-										value={findOption(field.value) ?? ""}
-										options={Object.values(
-											props.dropdownOptions()
-												?.stateOptions ?? [],
-										).sort(localeAsc)}
-										optionValue={state => state}
+										inputValue={field.value}
+										collection={statesCollection()}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
-										)}
-										itemComponent={props => (
-											<ComboboxItem item={props.item}>
-												{props.item.rawValue}
-											</ComboboxItem>
-										)}
-										sameWidth>
-										<Combobox.Control<string>>
-											{state => {
-												return (
-													<>
-														<ComboboxTrigger class="relative">
-															<ComboboxInput />
+										)}>
+										<ComboboxTrigger>
+											<ComboboxInput {...fieldProps} />
 
-															<ComboboxClearSelection
-																selectedOptions={state.selectedOptions()}
-																onClear={
-																	state.clear
-																}
-															/>
-														</ComboboxTrigger>
-													</>
-												);
-											}}
-										</Combobox.Control>
-										<ComboboxContent />
+											<ComboboxClearSelection />
+										</ComboboxTrigger>
+
+										<ComboboxContent>
+											<For
+												each={statesCollection().items}>
+												{item => (
+													<ComboboxItem item={item}>
+														{item}
+													</ComboboxItem>
+												)}
+											</For>
+										</ComboboxContent>
 									</ModularFormsCombobox>
 
 									<Show when={!styles.device.hasHover()}>

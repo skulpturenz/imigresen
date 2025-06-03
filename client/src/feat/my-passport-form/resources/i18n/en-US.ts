@@ -1,4 +1,7 @@
-import type { PersonalDetails } from "feat/my-passport-form/types";
+import type {
+	AddressDetails,
+	PersonalDetails,
+} from "feat/my-passport-form/types";
 import { Step } from "feat/my-passport-form/types/ui";
 
 export const resources = {
@@ -83,5 +86,28 @@ export const resources = {
 				placeholder: "",
 			},
 		} satisfies Record<keyof PersonalDetails, any>,
+		addressDetails: {
+			streetAddress: {
+				label: "Current street address",
+				placeholder: "",
+			},
+			postcode: {
+				label: "Postcode",
+				placeholder: "",
+			},
+			city: {
+				label: "City",
+				placeholder: "",
+			},
+			state: {
+				label: "State",
+				placeholder: "",
+			},
+			countryCode: {
+				label: "Country",
+				placeholder: "",
+				description: "Autocorrected to a valid country",
+			},
+		} satisfies Record<keyof AddressDetails, any>,
 	},
 };

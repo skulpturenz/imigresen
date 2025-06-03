@@ -12,4 +12,11 @@ export const queryKeys = {
 		country,
 		token,
 	],
+	getAddressAutofill: (search: string, userId: string) => [
+		"feat",
+		"my-passport-form",
+		"getAddressAutofill",
+		search,
+		userId,
+	],
 };

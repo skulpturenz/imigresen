@@ -1,5 +1,4 @@
-import type { PolymorphicProps } from "@kobalte/core";
-import type { ComboboxRootProps } from "@kobalte/core/combobox";
+import type { ComboboxRootProps } from "@ark-ui/solid/combobox";
 import {
 	setValue,
 	type FieldPath,
@@ -7,47 +6,48 @@ import {
 	type FormStore,
 } from "@modular-forms/solid";
 import { spreadProps } from "core/utils";
-import { partial } from "es-toolkit";
-import type { ValidComponent } from "solid-js";
-import { Combobox } from "ui/combobox";
+import { splitProps } from "solid-js";
+import { Combobox, type ComboboxInputValueChangeDetails } from "ui/combobox";
 
-export interface ModularFormComboboxBaseProps<
+export interface ModularFormsComboboxBaseProps<
 	TFieldValues extends FieldValues,
 	TFieldPaths extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
 	form: FormStore<TFieldValues>;
 	name: TFieldPaths;
+	value?: string;
 }
 
 export type ModularFormsComboboxProps<
-	TOption,
+	TCollection extends string | Record<string, any>,
 	TFieldValues extends FieldValues,
-	TOptionGroup = never,
-	TComponent extends ValidComponent = "div",
 > = Omit<
-	PolymorphicProps<
-		TComponent,
-		Omit<ComboboxRootProps<TOption, TOptionGroup, TComponent>, "name"> &
-			ModularFormComboboxBaseProps<TFieldValues>
-	>,
-	"onChange"
+	Omit<ComboboxRootProps<TCollection>, "form" | "value"> &
+		ModularFormsComboboxBaseProps<TFieldValues>,
+	"onInputValueChange"
 >;
 
 export const ModularFormsCombobox = <
-	TOption,
+	TCollection extends string | Record<string, any>,
 	TFieldValues extends FieldValues,
-	TOptionGroup = never,
-	TComponent extends ValidComponent = "div",
 >(
-	props: ModularFormsComboboxProps<
-		TOption,
-		TFieldValues,
-		TOptionGroup,
-		TComponent
-	>,
-) => (
-	<Combobox
-		{...spreadProps(props)}
-		onChange={partial(setValue, props.form, props.name)}
-	/>
-);
+	props: ModularFormsComboboxProps<TCollection, TFieldValues>,
+) => {
+	// TODO: not so sure why there is a difference here with the normal `Combobox`
+	// on that we can specify both `value` and `inputValue` and any custom input stays
+	// but for this if `value` is specified any value we type is erased out
+	// might have to do with the type of option?
+	const [_ignored, rest] = splitProps(props, ["form", "value"]);
+	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		console.log(details.inputValue);
+		setValue(props.form, props.name, details.inputValue as any);
+	};
+
+	return (
+		<Combobox
+			{...spreadProps(rest)}
+			inputValue={props.value ?? ""}
+			onInputValueChange={onInputValueChange}
+		/>
+	);
+};
