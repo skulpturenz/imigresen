@@ -133,12 +133,12 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 				addressDetails: {
 					postcode: option.meta.postcode,
 					// TODO: we are referring to countries by names at the moment
-					countryCode: option.meta.countryCode,
+					countryCode: option.meta.country,
 					state: option.meta.state,
 					city: option.meta.city,
 				},
 			},
-			{ shouldDirty: false, shouldValidate: true },
+			{ shouldDirty: true, shouldValidate: true },
 		);
 	};
 
