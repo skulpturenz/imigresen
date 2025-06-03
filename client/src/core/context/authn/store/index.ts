@@ -12,6 +12,10 @@ import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
 invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
+invariant(
+	import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
+	"Mapbox token not specified",
+);
 
 export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
 
@@ -98,27 +102,29 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		});
 	};
 
-	const mapboxClient = mbxClient({ accessToken: "" });
+	const mapboxClient = mbxClient({
+		accessToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
+	});
 	const mapboxTokensClient = tokensClient(mapboxClient);
 
-	const REFRESH_INTERVAL = secondsToMilliseconds(30);
+	const REFRESH_INTERVAL_SECONDS = 10;
 	const getTempMapboxToken = async () => {
 		const { body } = await mapboxTokensClient
 			.createTemporaryToken({
 				scopes: ["datasets:read"],
 				expires: addSeconds(
 					new Date(),
-					REFRESH_INTERVAL * 1.5,
+					REFRESH_INTERVAL_SECONDS * 1.5,
 				).toISOString(),
 			})
 			.send();
 
-		set({ mapboxToken: body });
+		set({ mapboxToken: body.token });
 	};
 
 	const refreshMapBoxTokenInterval = setInterval(
 		getTempMapboxToken,
-		REFRESH_INTERVAL,
+		secondsToMilliseconds(REFRESH_INTERVAL_SECONDS),
 	);
 
 	return {
@@ -136,6 +142,8 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				invariant(get().keycloak, "Keycloak instance not defined");
 
 				set({ isInitialLoading: true });
+
+				await getTempMapboxToken();
 
 				await get().keycloak?.init({
 					onLoad: "check-sso",
