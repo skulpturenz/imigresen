@@ -107,7 +107,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 	});
 	const mapboxTokensClient = tokensClient(mapboxClient);
 
-	const REFRESH_INTERVAL_SECONDS = 10;
+	const REFRESH_INTERVAL_SECONDS = 5;
 	const getTempMapboxToken = async () => {
 		const { body } = await mapboxTokensClient
 			.createTemporaryToken({
