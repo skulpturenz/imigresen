@@ -194,3 +194,13 @@ const sortAccuracyDesc = (
 
 	return accuracyA - accuracyB;
 };
+
+export const formatOption = (option?: AddressOption) =>
+	[
+		option?.meta.streetAddress,
+		option?.meta.city,
+		[option?.meta.postcode, option?.meta.state].filter(Boolean).join(" "),
+		option?.meta.country,
+	]
+		.filter(Boolean)
+		.join(", ");
