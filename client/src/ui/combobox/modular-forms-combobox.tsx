@@ -39,7 +39,6 @@ export const ModularFormsCombobox = <
 	// might have to do with the type of option?
 	const [_ignored, rest] = splitProps(props, ["form", "value"]);
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
-		console.log(details.inputValue);
 		setValue(props.form, props.name, details.inputValue as any);
 	};
 
