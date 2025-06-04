@@ -122,7 +122,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 		set({ mapboxToken: body.token });
 	};
 
-	const refreshMapBoxTokenInterval = setInterval(
+	const refreshMapboxTokenInterval = setInterval(
 		getTempMapboxToken,
 		secondsToMilliseconds(REFRESH_INTERVAL_SECONDS),
 	);
@@ -218,7 +218,7 @@ export const useStore = createWithSignal<AuthnSvc>((set, get) => {
 				});
 			},
 			cleanup: once(() => {
-				clearInterval(refreshMapBoxTokenInterval);
+				clearInterval(refreshMapboxTokenInterval);
 			}),
 		},
 	};
