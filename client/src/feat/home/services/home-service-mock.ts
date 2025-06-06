@@ -1,9 +1,9 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
-import { delay, invariant } from "es-toolkit";
+import { invariant } from "es-toolkit";
 import type { PassportApplication } from "feat/home/types";
-import { readJson } from "feat/home/utils/read-json";
+import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 
@@ -75,7 +75,7 @@ export const homeService = (repo: Repo, token?: string) => {
 	const registerApplication = async (automergeUrl: string) => {
 		const uuid = crypto.randomUUID();
 
-		storage.setItem(uuid, automergeUrl);
+		await storage.setItem(uuid, automergeUrl);
 
 		return uuid;
 	};
@@ -118,9 +118,7 @@ export const homeService = (repo: Repo, token?: string) => {
 	};
 
 	const importApplications = async (files: File[]) => {
-		const data: any[] = await Promise.all(
-			files.map(file => readJson(file)),
-		);
+		const data: any[] = await Promise.all(files.map(readJson));
 
 		const handles = await Promise.all(
 			data.map(async doc => {
@@ -133,11 +131,7 @@ export const homeService = (repo: Repo, token?: string) => {
 		);
 
 		const automergeUrls = handles.map(handle => handle.url);
-		const uuids = await Promise.all(
-			automergeUrls.map(automergeUrl =>
-				registerApplication(automergeUrl),
-			),
-		);
+		const uuids = await Promise.all(automergeUrls.map(registerApplication));
 
 		return automergeUrls.reduce((acc, automergeUrl, idx) => {
 			const uuid = uuids.at(idx);
@@ -158,17 +152,3 @@ export const homeService = (repo: Repo, token?: string) => {
 		importApplications,
 	};
 };
-
-const makeTimeout =
-	({ timeoutMs = 500, message = "" }) =>
-	(promise: Promise<any>) =>
-		Promise.race([
-			promise,
-			new Promise((_, reject) =>
-				delay(timeoutMs).then(() =>
-					reject(
-						new Error(message || `timed out after ${timeoutMs} ms`),
-					),
-				),
-			),
-		]);

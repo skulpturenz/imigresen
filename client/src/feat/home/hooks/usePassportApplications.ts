@@ -56,7 +56,9 @@ export const usePassportApplications = () => {
 		mDownloadApplications.reset();
 	};
 
-	const onClickImportApplications = async () => {
+	const onClickImportApplications = async (files: File[]) => {
+		await mImportApplications.mutateAsync(files);
+
 		qPassportApplications.refetch();
 	};
 
