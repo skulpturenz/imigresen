@@ -231,6 +231,7 @@ export const usePassportApplications = () => {
 		downloadApplications.reset();
 	};
 
+	/// @ts-expect-error: TODO
 	const onClickImportApplications = async () => {};
 
 	return {
