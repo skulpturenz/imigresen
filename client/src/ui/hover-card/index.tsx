@@ -3,7 +3,7 @@ import {
 	HoverCard as HoverCardPrimitive,
 } from "@kobalte/core/hover-card";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

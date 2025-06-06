@@ -6,7 +6,7 @@ import {
 	type FieldValues,
 	type FormStore,
 } from "@modular-forms/solid";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { partial } from "es-toolkit";
 import type { ValidComponent } from "solid-js";
 import { Select } from "ui/select";

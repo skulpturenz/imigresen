@@ -6,7 +6,7 @@ import {
 	type SwitchThumbProps,
 	Switch as SwitchPrimitive,
 } from "@kobalte/core/switch";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { ValidComponent } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { label } from "ui/label";

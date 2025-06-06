@@ -4,7 +4,7 @@ import {
 } from "@kobalte/core/alert";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { cva } from "class-variance-authority";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

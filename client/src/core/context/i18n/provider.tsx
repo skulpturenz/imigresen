@@ -2,7 +2,7 @@ import { useLocale } from "@kobalte/core";
 import { translator, type Flatten } from "@solid-primitives/i18n";
 import type { Locale } from "core/context/ui";
 import { useContext } from "core/context/utils";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import {
 	createContext,
 	createResource,

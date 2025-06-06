@@ -4,7 +4,7 @@ import {
 	Tooltip as TooltipPrimitive,
 	type TooltipRootProps,
 } from "@kobalte/core/tooltip";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { type ValidComponent, mergeProps } from "solid-js";
 import { cn } from "ui/utils";
 

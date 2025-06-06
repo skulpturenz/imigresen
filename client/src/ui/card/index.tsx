@@ -1,4 +1,4 @@
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { Component, ComponentProps } from "solid-js";
 import { cn } from "ui/utils";
 

@@ -3,7 +3,7 @@ import {
 	Checkbox as CheckboxPrimitive,
 } from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { Check } from "lucide-solid";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";

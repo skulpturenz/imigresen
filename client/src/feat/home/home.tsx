@@ -5,7 +5,7 @@ import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
-import { generatePath } from "core/utils";
+import { generatePath } from "core/utils/utils";
 import {
 	addYears,
 	differenceInDays,
@@ -46,9 +46,9 @@ export const Home = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const {
-		passportApplications,
+		qPassportApplications,
 		onClickExportApplications,
-		downloadApplications,
+		mDownloadApplications,
 	} = usePassportApplications();
 	const t = useI18n<typeof resources>();
 
@@ -133,20 +133,22 @@ export const Home = () => {
 	return (
 		<div>
 			<div class="flex justify-end gap-4 my-8">
-				<Show when={!passportApplications.data?.length}>
-					<Button
-						variant="secondary"
-						onClick={onClickExportApplications}>
-						{t("doImport")}
-					</Button>
-				</Show>
+				<Show when={!authnContext().keycloak?.token}>
+					<Show when={!qPassportApplications.data?.length}>
+						<Button
+							variant="secondary"
+							onClick={onClickExportApplications}>
+							{t("doImport")}
+						</Button>
+					</Show>
 
-				<Show when={passportApplications.data?.length}>
-					<Button
-						variant="secondary"
-						onClick={onClickExportApplications}>
-						{t("doExport")}
-					</Button>
+					<Show when={qPassportApplications.data?.length}>
+						<Button
+							variant="secondary"
+							onClick={onClickExportApplications}>
+							{t("doExport")}
+						</Button>
+					</Show>
 				</Show>
 
 				<Button as="a" href={toPath(MyPassportForm.New)}>
@@ -155,13 +157,13 @@ export const Home = () => {
 			</div>
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show when={!passportApplications.data?.length}>
+				<Show when={!qPassportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
 				</Show>
 
-				<Show when={passportApplications.data?.length}>
+				<Show when={qPassportApplications.data?.length}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<Alert>
@@ -173,32 +175,39 @@ export const Home = () => {
 									{t("exportAlertDescription")}
 								</AlertDescription>
 							</Alert>
-						</Show>
 
-						<AlertDialog
-							open={Boolean(
-								downloadApplications.data?.invalidUrls.length,
-							)}>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>
-										{t("exportFailedDialogTitle")}
-									</AlertDialogTitle>
-									<AlertDialogDescription>
-										{t("exportFailedDialogDescription", [
-											...(downloadApplications.data
-												?.invalidUrls ?? []),
-										])}
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogClose
-										onClick={downloadApplications.reset}>
-										{t("doCloseExportFailedDialog")}
-									</AlertDialogClose>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+							<AlertDialog
+								open={Boolean(
+									mDownloadApplications.data?.invalidUrls
+										.length,
+								)}>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											{t("exportFailedDialogTitle")}
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											{t(
+												"exportFailedDialogDescription",
+												[
+													...(mDownloadApplications
+														.data?.invalidUrls ??
+														[]),
+												],
+											)}
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogClose
+											onClick={
+												mDownloadApplications.reset
+											}>
+											{t("doCloseExportFailedDialog")}
+										</AlertDialogClose>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						</Show>
 
 						<div class="space-y-2">
 							<Typography
@@ -276,7 +285,7 @@ export const Home = () => {
 						</div>
 
 						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
-							<For each={passportApplications.data}>
+							<For each={qPassportApplications.data}>
 								{item => {
 									const getHref = () => {
 										const url = new URL(location.origin);

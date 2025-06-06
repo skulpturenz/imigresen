@@ -1,5 +1,5 @@
 import type { PolymorphicProps } from "@kobalte/core";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { ChevronRight, MoreHorizontal } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { Dynamic } from "solid-js/web";

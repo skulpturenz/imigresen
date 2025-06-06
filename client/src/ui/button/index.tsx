@@ -4,7 +4,7 @@ import {
 	type ButtonRootProps,
 } from "@kobalte/core/button";
 import { cva, type VariantProps } from "class-variance-authority";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

@@ -11,7 +11,7 @@ import {
 	DropdownMenu as DropdownMenuPrimitive,
 } from "@kobalte/core/dropdown-menu";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { ArrowRight, Check, CircleDot } from "lucide-solid";
 import { type ComponentProps, type ValidComponent, mergeProps } from "solid-js";
 import { cn } from "ui/utils";

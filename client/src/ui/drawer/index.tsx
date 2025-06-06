@@ -5,7 +5,7 @@ import {
 	type LabelProps,
 	default as DrawerPrimitive,
 } from "@corvu/drawer";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

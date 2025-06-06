@@ -8,7 +8,7 @@ import {
 	type ToastTitleProps,
 } from "@kobalte/core/toast";
 import { cva } from "class-variance-authority";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { X } from "lucide-solid";
 import {
 	mergeProps,

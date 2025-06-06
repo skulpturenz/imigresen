@@ -1,6 +1,7 @@
 import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
+import { localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
 import {
 	type MyPassportForm,
@@ -9,7 +10,6 @@ import {
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { localeAsc } from "feat/my-passport-form/utils/sort";
 import { createMemo, For, Show, type Component } from "solid-js";
 import {
 	ComboboxClearSelection,

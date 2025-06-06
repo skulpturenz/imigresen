@@ -5,7 +5,7 @@ import {
 	type FieldValues,
 	type FormStore,
 } from "@modular-forms/solid";
-import { spreadProps } from "core/utils";
+import { spreadProps } from "core/utils/utils";
 import { splitProps } from "solid-js";
 import { Combobox, type ComboboxInputValueChangeDetails } from "ui/combobox";
 
