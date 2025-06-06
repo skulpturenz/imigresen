@@ -56,6 +56,7 @@ export const Home = () => {
 	const {
 		show,
 		qPassportApplications,
+		mImportApplications,
 		onClickImportApplications,
 		onClickExportApplications,
 		onClickCloseExportApplications,
@@ -197,10 +198,10 @@ export const Home = () => {
 						<DialogContent>
 							<DialogHeader>
 								<DialogTitle>
-									{t("importAlertTitle")}
+									{t("importDialogTitle")}
 								</DialogTitle>
 								<DialogDescription>
-									{t("importAlertDescription")}
+									{t("importDialogDescription")}
 								</DialogDescription>
 
 								<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
@@ -217,6 +218,18 @@ export const Home = () => {
 							</DialogHeader>
 							<DialogFooter>
 								<Button
+									variant="secondary"
+									onClick={toggleImportDialog}>
+									<Show when={mImportApplications.isSuccess}>
+										{t("doFinishImport")}
+									</Show>
+
+									<Show when={mImportApplications.isIdle}>
+										{t("doCloseImportDialog")}
+									</Show>
+								</Button>
+
+								<Button
 									onClick={partial(
 										onClickImportApplications,
 										files(),
@@ -226,9 +239,6 @@ export const Home = () => {
 										!show().importFilesButton
 									}>
 									{t("doImportApplication")}
-								</Button>
-								<Button onClick={toggleImportDialog}>
-									{t("doFinishImport")}
 								</Button>
 							</DialogFooter>
 						</DialogContent>
