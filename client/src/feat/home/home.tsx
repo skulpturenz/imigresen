@@ -1,7 +1,9 @@
 import { randBetweenDate, randFirstName, randLastName } from "@ngneat/falso";
 import { A } from "@solidjs/router";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
+import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
+import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
 import { generatePath } from "core/utils";
 import {
@@ -13,7 +15,18 @@ import {
 	isBefore,
 } from "date-fns";
 import { invariant } from "es-toolkit";
+import { CircleAlert } from "lucide-solid";
 import { For, Show, Suspense } from "solid-js";
+import { Alert, AlertDescription, AlertTitle } from "ui/alert";
+import {
+	AlertDialog,
+	AlertDialogClose,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "ui/alert-dialog";
 import { Button } from "ui/button";
 import {
 	Card,
@@ -30,7 +43,13 @@ import { usePassportApplications } from "./hooks/usePassportApplications";
 import type { resources } from "./resources/i18n/en-US";
 
 export const Home = () => {
-	const { passportApplications } = usePassportApplications();
+	const authnContext = useContext(AuthnContext);
+
+	const {
+		passportApplications,
+		onClickExportApplications,
+		downloadApplications,
+	} = usePassportApplications();
 	const t = useI18n<typeof resources>();
 
 	const getDifference = (expiryDate: Date) => {
@@ -113,7 +132,14 @@ export const Home = () => {
 
 	return (
 		<div>
-			<div class="flex justify-end my-8">
+			<div class="flex justify-end gap-4 my-8">
+				<Button
+					variant="secondary"
+					onClick={onClickExportApplications}
+					disabled={!passportApplications.data?.length}>
+					{t("doExport")}
+				</Button>
+
 				<Button as="a" href={toPath(MyPassportForm.New)}>
 					{t("doApply")}
 				</Button>
@@ -128,6 +154,43 @@ export const Home = () => {
 
 				<Show when={passportApplications.data?.length}>
 					<div class="space-y-8">
+						<Show when={!authnContext().keycloak?.token}>
+							<Alert>
+								<CircleAlert class="size-4" />
+
+								<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
+
+								<AlertDescription>
+									{t("exportAlertDescription")}
+								</AlertDescription>
+							</Alert>
+						</Show>
+
+						<AlertDialog
+							open={Boolean(
+								downloadApplications.data?.invalidUrls.length,
+							)}>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										{t("exportFailedDialogTitle")}
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										{t("exportFailedDialogDescription", [
+											...(downloadApplications.data
+												?.invalidUrls ?? []),
+										])}
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogClose
+										onClick={downloadApplications.reset}>
+										{t("doCloseExportFailedDialog")}
+									</AlertDialogClose>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+
 						<div class="space-y-2">
 							<Typography
 								variant="small"

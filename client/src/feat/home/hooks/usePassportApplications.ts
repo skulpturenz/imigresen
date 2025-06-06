@@ -1,11 +1,12 @@
 import type { AnyDocumentId } from "@automerge/automerge-repo";
-import { useQuery } from "@tanstack/solid-query";
+import { useMutation, useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
-import { delay } from "es-toolkit";
+import { delay, invariant } from "es-toolkit";
 import { HomeContext } from "feat/home/context";
 import type { PassportApplication } from "feat/home/types";
+import { exportData } from "feat/home/utils/export-data";
 import { useRepo } from "solid-automerge";
 import { UUID } from "uuidv7";
 
@@ -17,6 +18,48 @@ export const usePassportApplications = () => {
 	const automergeUrls = useQuery(() => ({
 		queryKey: queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 		queryFn: homeContext.getAutomergeUrls,
+	}));
+
+	const downloadApplications = useMutation(() => ({
+		mutationKey: queryKeys.downloadPassportApplications(
+			authnContext().keycloak?.token,
+		),
+		mutationFn: async (automergeUrls: string[]) => {
+			const docs = await Promise.all(
+				automergeUrls.map(async automergeUrl => {
+					try {
+						const handle = await repo.find(
+							automergeUrl as AnyDocumentId,
+						);
+
+						await handle.whenReady();
+
+						return handle.doc();
+					} catch {
+						return null;
+					}
+				}),
+			);
+
+			const invalidUrls = docs.reduce<string[]>((acc, doc, idx) => {
+				if (doc) {
+					return acc;
+				}
+
+				const automergeUrl = automergeUrls.at(idx);
+				invariant(
+					automergeUrl,
+					`No \`automergeUrl\` at index ${idx}, are docs filtered?`,
+				);
+
+				return [...acc, automergeUrl];
+			}, []);
+
+			return {
+				docs: docs.filter(Boolean),
+				invalidUrls,
+			};
+		},
 	}));
 
 	const getPassportApplications = async () => {
@@ -66,8 +109,33 @@ export const usePassportApplications = () => {
 		},
 	}));
 
+	const onClickExportApplications = async () => {
+		if (!automergeUrls.data?.length) {
+			return;
+		}
+
+		const { docs } = await downloadApplications.mutateAsync(
+			automergeUrls.data?.map(automergeDoc => automergeDoc.value) ?? [],
+		);
+
+		const data = JSON.stringify(docs, null, 2);
+
+		const fileName = [
+			"passport",
+			"applications",
+			authnContext().keycloak?.profile?.email,
+		]
+			.filter(Boolean)
+			.join("-");
+
+		exportData(fileName, "application/json", data);
+	};
+
 	return {
+		automergeUrls,
 		passportApplications,
+		downloadApplications,
+		onClickExportApplications,
 	};
 };
 

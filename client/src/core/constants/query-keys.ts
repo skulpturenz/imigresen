@@ -12,4 +12,10 @@ export const queryKeys = {
 		"passportApplications",
 		token,
 	],
+	downloadPassportApplications: (token?: string) => [
+		"feat",
+		"home",
+		"downloadPassportApplications",
+		token,
+	],
 };
