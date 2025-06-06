@@ -121,7 +121,15 @@ export const homeService = (repo: Repo, token?: string) => {
 		const data = await Promise.all(files.map(readJson));
 
 		const handles = await Promise.all(
-			data.map(async doc => {
+			data.filter(Boolean).map(async data => {
+				invariant(data, "data is undefined");
+
+				const {
+					// ignore any existing uuid and assign a new one
+					uuid: _uuid,
+					...doc
+				} = data;
+
 				const handle = repo.create(doc);
 
 				await handle.whenReady();
