@@ -72,14 +72,6 @@ export const homeService = (repo: Repo, token?: string) => {
 			});
 	};
 
-	const registerApplication = async (automergeUrl: string) => {
-		const uuid = crypto.randomUUID();
-
-		await storage.setItem(uuid, automergeUrl);
-
-		return uuid;
-	};
-
 	const downloadApplications = async (automergeUrls: string[]) => {
 		const docs = await Promise.all(
 			automergeUrls.map(async automergeUrl => {
@@ -118,6 +110,14 @@ export const homeService = (repo: Repo, token?: string) => {
 	};
 
 	const importApplications = async (files: File[]) => {
+		const registerApplication = async (automergeUrl: string) => {
+			const uuid = crypto.randomUUID();
+
+			await storage.setItem(uuid, automergeUrl);
+
+			return uuid;
+		};
+
 		const data: any[] = await Promise.all(files.map(readJson));
 
 		const handles = await Promise.all(
@@ -147,7 +147,6 @@ export const homeService = (repo: Repo, token?: string) => {
 	return {
 		getAutomergeUrls,
 		getPassportApplications,
-		registerApplication,
 		downloadApplications,
 		importApplications,
 	};
