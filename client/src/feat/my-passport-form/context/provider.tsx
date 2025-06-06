@@ -12,10 +12,10 @@ export const MyPassportFormContext = createContext<MyPassportFormSvc>(
 
 export const MyPassportFormProvider: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
-	const value = myPassportFormService(authnContext().keycloak?.token);
 
 	return (
-		<MyPassportFormContext.Provider value={value}>
+		<MyPassportFormContext.Provider
+			value={myPassportFormService(authnContext().keycloak?.token)}>
 			{props.children}
 		</MyPassportFormContext.Provider>
 	);
