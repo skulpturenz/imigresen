@@ -129,6 +129,8 @@ export const usePassportApplications = () => {
 			.join("-");
 
 		exportData(fileName, "application/json", data);
+
+		downloadApplications.reset();
 	};
 
 	return {
