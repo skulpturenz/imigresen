@@ -236,7 +236,8 @@ export const Home = () => {
 									)}
 									disabled={
 										!files().length ||
-										!show().importFilesButton
+										!show().importFilesButton ||
+										mImportApplications.isPending
 									}>
 									{t("doImportApplication")}
 								</Button>
