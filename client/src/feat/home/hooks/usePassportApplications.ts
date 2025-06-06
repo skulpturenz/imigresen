@@ -1,12 +1,16 @@
 import type { AnyDocumentId } from "@automerge/automerge-repo";
-import { useMutation, useQuery } from "@tanstack/solid-query";
-import { queryKeys } from "core/constants/query-keys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
+import {
+	queryKeys as globalQueryKeys,
+	queryKeys,
+} from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { delay, invariant } from "es-toolkit";
 import { HomeContext } from "feat/home/context";
 import type { PassportApplication } from "feat/home/types";
 import { exportData } from "feat/home/utils/export-data";
+import { readJson } from "feat/home/utils/read-json";
 import { useRepo } from "solid-automerge";
 import { UUID } from "uuidv7";
 
@@ -14,12 +18,14 @@ export const usePassportApplications = () => {
 	const authnContext = useContext(AuthnContext);
 	const homeContext = useContext(HomeContext);
 	const repo = useRepo();
+	const queryClient = useQueryClient();
 
 	const automergeUrls = useQuery(() => ({
 		queryKey: queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
 		queryFn: homeContext.getAutomergeUrls,
 	}));
 
+	// TODO: sort
 	const downloadApplications = useMutation(() => ({
 		mutationKey: queryKeys.downloadPassportApplications(
 			authnContext().keycloak?.token,
@@ -59,6 +65,98 @@ export const usePassportApplications = () => {
 				docs: docs.filter(Boolean),
 				invalidUrls,
 			};
+		},
+	}));
+
+	const importApplications = useMutation(() => ({
+		mutationKey: queryKeys.importPassportApplications(
+			authnContext().keycloak?.token,
+		),
+		mutationFn: async (files: File[]) => {
+			// TODO: sort
+			const parsedFiles: any[] = await Promise.all(
+				files.map(file => readJson(file)), // TODO: types
+			);
+
+			const data: any[] = parsedFiles.reduce(
+				// TODO
+				(acc, parsed) => [...parsed, ...acc],
+				[],
+			);
+
+			const handles = await Promise.all(
+				data.map(async doc => {
+					const handle = repo.create(doc);
+
+					await handle.whenReady();
+
+					return handle;
+				}),
+			);
+
+			const automergeUrls = handles.map(handle => handle.url);
+			const uuids = automergeUrls.map(automergeUrl =>
+				homeContext.registerApplication(automergeUrl),
+			);
+
+			const existingAutomergeUrls =
+				queryClient.getQueryData<string[]>(
+					globalQueryKeys.getAutomergeUrls(
+						authnContext().keycloak?.token,
+					),
+				) ?? [];
+
+			const updatedAutomergeUrls = [
+				...automergeUrls,
+				...existingAutomergeUrls,
+			];
+
+			queryClient.setQueryData(
+				globalQueryKeys.getAutomergeUrls(
+					authnContext().keycloak?.token,
+				),
+				updatedAutomergeUrls,
+			);
+
+			const existingApplications =
+				queryClient.getQueryData<PassportApplication[]>(
+					globalQueryKeys.getPassportApplications(
+						authnContext().keycloak?.token,
+					),
+				) ?? [];
+
+			const updatedApplications = [
+				...data.reduce<any[]>((acc, doc, idx) => {
+					const automergeUrl = automergeUrls.at(idx);
+					const uuid = uuids.at(idx);
+
+					invariant(
+						automergeUrl,
+						`Automerge url not specified for document at index ${idx}`,
+					);
+					invariant(
+						uuid,
+						`Document at index ${idx} is not registered`,
+					);
+
+					return [
+						{
+							uuid,
+							automergeUrl,
+							...doc,
+						},
+						...acc,
+					];
+				}, []),
+				...existingApplications,
+			];
+
+			queryClient.setQueryData(
+				globalQueryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+				updatedApplications,
+			);
 		},
 	}));
 
@@ -133,11 +231,14 @@ export const usePassportApplications = () => {
 		downloadApplications.reset();
 	};
 
+	const onClickImportApplications = async () => {};
+
 	return {
 		automergeUrls,
 		passportApplications,
 		downloadApplications,
 		onClickExportApplications,
+		importApplications,
 	};
 };
 

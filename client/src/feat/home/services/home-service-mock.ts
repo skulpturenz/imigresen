@@ -16,7 +16,16 @@ export const homeService = (_token?: string) => {
 		return localItems;
 	};
 
+	const registerApplication = async (automergeUrl: string) => {
+		const uuid = crypto.randomUUID();
+
+		storage.setItem(uuid, automergeUrl);
+
+		return uuid;
+	};
+
 	return {
 		getAutomergeUrls,
+		registerApplication,
 	};
 };

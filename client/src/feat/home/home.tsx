@@ -133,12 +133,21 @@ export const Home = () => {
 	return (
 		<div>
 			<div class="flex justify-end gap-4 my-8">
-				<Button
-					variant="secondary"
-					onClick={onClickExportApplications}
-					disabled={!passportApplications.data?.length}>
-					{t("doExport")}
-				</Button>
+				<Show when={!passportApplications.data?.length}>
+					<Button
+						variant="secondary"
+						onClick={onClickExportApplications}>
+						{t("doImport")}
+					</Button>
+				</Show>
+
+				<Show when={passportApplications.data?.length}>
+					<Button
+						variant="secondary"
+						onClick={onClickExportApplications}>
+						{t("doExport")}
+					</Button>
+				</Show>
 
 				<Button as="a" href={toPath(MyPassportForm.New)}>
 					{t("doApply")}
