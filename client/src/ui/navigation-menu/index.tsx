@@ -5,7 +5,7 @@ import {
 	type NavigationMenuRootProps,
 } from "@kobalte/core/navigation-menu";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { ChevronDown } from "lucide-solid";
 import {
 	type ParentProps,

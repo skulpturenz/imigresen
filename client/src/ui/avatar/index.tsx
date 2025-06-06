@@ -5,7 +5,7 @@ import {
 	Image as ImagePrimitive,
 } from "@kobalte/core/image";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

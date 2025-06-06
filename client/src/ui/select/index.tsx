@@ -5,7 +5,7 @@ import {
 	type SelectTriggerProps,
 	Select as SelectPrimitive,
 } from "@kobalte/core/select";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { Check, ChevronDown, X } from "lucide-solid";
 import type { Component, ParentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";

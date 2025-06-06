@@ -1,4 +1,4 @@
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { constants } from "feat/my-passport-form/ui/constants";
 import type { Component, JSX, ParentProps } from "solid-js";
 import { cn } from "ui/utils";

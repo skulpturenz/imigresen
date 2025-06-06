@@ -2,7 +2,7 @@ import {
 	Combobox as ComboboxPrimitive,
 	createListCollection as arkCreateListCollection,
 } from "@ark-ui/solid/combobox";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import { children, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";

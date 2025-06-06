@@ -1,5 +1,5 @@
 import { type VariantProps, cva } from "class-variance-authority";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { type ComponentProps } from "solid-js";
 import { cn } from "ui/utils";
 

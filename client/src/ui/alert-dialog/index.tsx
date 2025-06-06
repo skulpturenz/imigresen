@@ -9,7 +9,7 @@ import type {
 	DialogOverlayProps,
 	DialogTitleProps,
 } from "@kobalte/core/dialog";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { buttonVariants } from "ui/button";
 import { cn } from "ui/utils";

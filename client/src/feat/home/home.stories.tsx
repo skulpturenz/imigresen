@@ -1,6 +1,6 @@
 import { AuthnProviderMock } from "core/context/authn";
 import { Shell } from "core/ui/shell";
-import { withParents } from "core/utils/utils";
+import { withParents } from "core/utils";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { HomeProviderMock } from "./context";
 import { Home } from "./home";

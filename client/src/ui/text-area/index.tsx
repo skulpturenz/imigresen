@@ -3,7 +3,7 @@ import {
 	type TextFieldTextAreaProps,
 	TextArea as TextFieldPrimitive,
 } from "@kobalte/core/text-field";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { cn } from "ui/utils";
 

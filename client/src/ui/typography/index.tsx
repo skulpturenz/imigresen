@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import type { ValidComponent } from "solid-js";
 import { Dynamic, type DynamicProps } from "solid-js/web";
 import { cn } from "ui/utils";

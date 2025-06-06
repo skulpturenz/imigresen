@@ -5,7 +5,7 @@ import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/route";
-import { generatePath } from "core/utils/utils";
+import { generatePath } from "core/utils";
 import {
 	addYears,
 	differenceInDays,

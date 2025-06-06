@@ -1,7 +1,7 @@
 import type { PolymorphicProps } from "@kobalte/core";
 import { cva, type VariantProps } from "class-variance-authority";
 import { styles } from "core/constants/styles";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { Info } from "lucide-solid";
 import { Show, type ValidComponent } from "solid-js";
 import { Dynamic } from "solid-js/web";

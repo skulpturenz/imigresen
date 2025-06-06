@@ -1,5 +1,5 @@
 import type { HoverCardTriggerProps } from "@kobalte/core/hover-card";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { CalendarDays } from "lucide-solid";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { Button } from "ui/button";

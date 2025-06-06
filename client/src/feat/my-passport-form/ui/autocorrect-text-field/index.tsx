@@ -8,7 +8,7 @@ import {
 	setValue as setFormValue,
 } from "@modular-forms/solid";
 import { asc, get, localeAsc, multiSort } from "core/data/sort";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { invariant, isNil } from "es-toolkit";
 import { distance } from "fastest-levenshtein";
 import { closestOptionMatch } from "feat/my-passport-form/utils/closest-option-match";

@@ -12,7 +12,7 @@ import { FliptContext, type FliptSvc } from "core/context/flipt";
 import { RouterContext } from "core/context/router";
 import { UserContext, type UserSvc } from "core/context/user";
 import { useContext } from "core/context/utils";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import {
 	createEffect,
 	createResource,

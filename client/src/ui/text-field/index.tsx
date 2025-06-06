@@ -8,7 +8,7 @@ import {
 	type TextFieldRootProps,
 } from "@kobalte/core/text-field";
 import { styles } from "core/constants/styles";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { Info } from "lucide-solid";
 import { Show, type ValidComponent } from "solid-js";
 import { label } from "ui/label";

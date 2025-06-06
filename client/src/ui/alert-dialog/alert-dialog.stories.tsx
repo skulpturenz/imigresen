@@ -1,5 +1,5 @@
 import type { AlertDialogTriggerProps } from "@kobalte/core/alert-dialog";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import {
 	AlertDialog,

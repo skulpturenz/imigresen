@@ -6,7 +6,7 @@ import {
 	type DialogOverlayProps,
 	type DialogTitleProps,
 } from "@kobalte/core/dialog";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { X } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { cn } from "ui/utils";

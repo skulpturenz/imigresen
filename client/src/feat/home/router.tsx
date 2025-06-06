@@ -3,7 +3,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import { useI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
 import { addRoutes, toPath, type RouteProps } from "core/router/route";
-import { withParents } from "core/utils/utils";
+import { withParents } from "core/utils";
 import { lazy, type Component } from "solid-js";
 import { withI18n } from "./resources";
 import type { resources } from "./resources/i18n/en-US";

@@ -16,7 +16,7 @@ import {
 	type DateValue,
 	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
-import { spreadProps } from "core/utils/utils";
+import { spreadProps } from "core/utils";
 import { format } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import type { VoidProps } from "solid-js";
