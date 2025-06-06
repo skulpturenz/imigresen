@@ -5,6 +5,10 @@ export const resources = {
 	doApply: "Create a new application",
 	doExport: "Export",
 	doImport: "Import",
+	importAlertTitle: "Import applications",
+	importAlertDescription: "Import passport applications from an export file",
+	doImportApplication: "Import",
+	doFinishImport: "Finish",
 	exportAlertTitle: "Export your data",
 	exportAlertDescription: [
 		"Your data is not saved to the cloud and can be lost in the event of failure, save a local copy by exporting it.",
