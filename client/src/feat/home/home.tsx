@@ -211,6 +211,7 @@ export const Home = () => {
 								</div>
 
 								<input
+									// TODO: proper file input
 									type="file"
 									multiple
 									onChange={onFilesChange}
