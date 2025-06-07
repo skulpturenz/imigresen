@@ -10,8 +10,6 @@ export interface HideProps {
 export const Hide: Component<ParentProps<HideProps>> = props => (
 	<div
 		{...spreadProps(props)}
-		// TODO: if `props.class` is after the visibility classes, it merges incorrectly
-		// joined without a space: `gap-y-8visible` instead of `gap-y-8 visible` for example
 		class={cn(props.class, props.when ? "hidden" : "visible")}>
 		{props.children}
 	</div>
