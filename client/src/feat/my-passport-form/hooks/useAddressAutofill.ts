@@ -37,8 +37,6 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 
 	const authnContext = useContext(AuthnContext);
 
-	invariant(authnContext().mapboxToken, "Mapbox public token not specified");
-
 	const queryClient = useQueryClient();
 
 	const [autofillOptions, setAutofillOptions] = createSignal<AddressOption[]>(
@@ -69,6 +67,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 				return [];
 			}
 
+			invariant(authnContext().mapboxToken, "Mapbox token not specified");
 			const addressAutofill = new AddressAutofillCore({
 				accessToken: authnContext().mapboxToken,
 			});
@@ -112,6 +111,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const getSuggestionDetails = async (
 		suggestion: AddressAutofillSuggestion,
 	): Promise<AddressAutofillRetrieveResponse | null> => {
+		invariant(authnContext().mapboxToken, "Mapbox token not specified");
 		const addressAutofill = new AddressAutofillCore({
 			accessToken: authnContext().mapboxToken,
 		});
