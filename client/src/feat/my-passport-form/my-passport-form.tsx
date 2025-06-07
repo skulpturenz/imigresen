@@ -11,7 +11,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
-import { cn } from "ui/utils";
 import { useMyPassportForm } from "./hooks/useMyPassportForm";
 import { useWizardSteps } from "./hooks/useWizardSteps";
 import type { resources } from "./resources/i18n/en-US";
@@ -25,6 +24,7 @@ import {
 import { Step } from "./types";
 import { constants } from "./ui/constants";
 import { DefaultFooter, MobileFooter } from "./ui/footer";
+import { Hide } from "./ui/hide";
 import { Wizard } from "./ui/wizard";
 
 export const MyPassportForm = () => {
@@ -71,83 +71,61 @@ export const MyPassportForm = () => {
 				}>
 				<Form of={form} onSubmit={onSubmit}>
 					<Suspense fallback={<div>{t("loading")}</div>}>
-						<div
-							class={cn(
-								constants.grid,
-								// if the elements are not rendered then modular forms does
-								// not keep any of the initial values
-								stepStatus().currentStep ===
-									Step.PersonalDetails
-									? "visible"
-									: "hidden",
-							)}>
+						<Hide
+							when={
+								stepStatus().currentStep !==
+								Step.PersonalDetails
+							}
+							class={constants.grid}>
 							<PersonalDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</div>
+						</Hide>
 
-						<div
-							class={cn(
-								constants.grid,
-								// if the elements are not rendered then modular forms does
-								// not keep any of the initial values
-								stepStatus().currentStep === Step.AddressDetails
-									? "visible"
-									: "hidden",
-							)}>
+						<Hide
+							when={
+								stepStatus().currentStep !== Step.AddressDetails
+							}
+							class={constants.grid}>
 							<AddressDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</div>
+						</Hide>
 
-						<div
-							class={cn(
-								constants.grid,
-								// if the elements are not rendered then modular forms does
-								// not keep any of the initial values
-								stepStatus().currentStep ===
-									Step.ApplicationDetails
-									? "visible"
-									: "hidden",
-							)}>
+						<Hide
+							when={
+								stepStatus().currentStep !==
+								Step.ApplicationDetails
+							}
+							class={constants.grid}>
 							<ApplicationDetails
 								form={form}
 								Field={Components.Field}
 								FieldArray={Components.FieldArray}
 								dropdownOptions={data.referenceData}
 							/>
-						</div>
+						</Hide>
 
-						<div
-							class={cn(
-								constants.grid,
-								// if the elements are not rendered then modular forms does
-								// not keep any of the initial values
-								stepStatus().currentStep ===
-									Step.PreviousDocuments
-									? "visible"
-									: "hidden",
-							)}>
+						<Hide
+							when={
+								stepStatus().currentStep !==
+								Step.PreviousDocuments
+							}
+							class={constants.grid}>
 							<PreviousDocuments />
-						</div>
+						</Hide>
 
-						<div
-							class={cn(
-								constants.grid,
-								// if the elements are not rendered then modular forms does
-								// not keep any of the initial values
-								stepStatus().currentStep === Step.Declaration
-									? "visible"
-									: "hidden",
-							)}>
+						<Hide
+							when={stepStatus().currentStep !== Step.Declaration}
+							class={constants.grid}>
 							<Declaration />
-						</div>
+						</Hide>
 					</Suspense>
 				</Form>
 			</Wizard>
