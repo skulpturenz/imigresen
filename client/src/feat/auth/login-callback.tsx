@@ -21,15 +21,23 @@ export const LoginCallback: Component<ParentProps> = () => {
 			redirectPath &&
 			redirectPath !== toPath(CoreRoute.Auth, AuthRoute.LoginCallback)
 		) {
-			return [redirectPath, remainingSearchParams.toString()]
-				.filter(Boolean)
-				.join("?");
+			const url = new URL(redirectPath, window.location.origin);
+			url.search = remainingSearchParams.toString();
+
+			return toRelativeUrl(url.href);
 		}
 
-		return [toPath(CoreRoute.Home), remainingSearchParams.toString()]
-			.filter(Boolean)
-			.join("?");
+		const url = new URL(
+			redirectPath ?? toPath(CoreRoute.Home),
+			window.location.origin,
+		);
+		url.search = remainingSearchParams.toString();
+
+		return toRelativeUrl(url.href);
 	};
 
 	return <Navigate href={getRedirectPath()} />;
 };
+
+const toRelativeUrl = (href: string) =>
+	href.replace(window.location.origin, "");
