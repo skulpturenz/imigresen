@@ -143,19 +143,19 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 			isInitialLoading: true,
 			isActionsLoading: false,
 			profile: null,
-			keycloak: new Keycloak({
-				url: authnProviderUrl,
-				realm: authnProviderRealm,
-				clientId: authnProviderClientId,
-			}),
+			keycloak: null,
 			userId: crypto.randomUUID(),
 			actions: {
 				init: once(async () => {
-					invariant(get().keycloak, "Keycloak instance not defined");
+					const keycloak = new Keycloak({
+						url: authnProviderUrl ?? "-",
+						realm: authnProviderRealm ?? "-",
+						clientId: authnProviderClientId ?? "-",
+					});
 
-					set({ isInitialLoading: true });
+					set({ keycloak, isInitialLoading: true });
 
-					await get().keycloak?.init({
+					await keycloak.init({
 						onLoad: "check-sso",
 						silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
 						scope: "openid roles profile email address",
@@ -167,16 +167,13 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 
 					set({ refreshMapboxTokenInterval: initMapbox() });
 
-					if (!get().keycloak?.authenticated) {
+					if (!keycloak.authenticated) {
 						set({ isInitialLoading: false });
 
 						return;
 					}
 
-					const keycloak = get().keycloak;
-					invariant(keycloak, "Keycloak is initialized incorrectly");
-
-					const profile = await get().keycloak?.loadUserProfile();
+					const profile = await keycloak.loadUserProfile();
 
 					if (!import.meta.env.SSR) {
 						setAuthCookie();

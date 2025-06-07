@@ -1,7 +1,6 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
-// TODO
-// import { toPath } from "core/router/route";
+import { toPath } from "core/router/route";
 
 export const getRedirectPath = ({
 	redirectPath = "",
@@ -36,5 +35,3 @@ export const getRedirectPath = ({
 
 const toRelativeUrl = (href: string) =>
 	href.replace(window.location.origin, "");
-
-const toPath = (...paths: string[]) => `/${paths.join("/")}`;

@@ -1,6 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 import { getRedirectPath } from "./utils";
 
+vi.mock("core/router/route", async _importOriginal => {
+	// TODO: trying to import the original results in import failing
+	// const original = await importOriginal();
+
+	// console.log(original);
+
+	return {
+		toPath: (...paths: string[]) => `/${paths.join("/")}`,
+	};
+});
+
 describe("getRedirectPath", () => {
 	it("gets correct relative url with hash and search params preserved", () => {
 		vi.spyOn(window, "location", "get").mockReturnValue({
