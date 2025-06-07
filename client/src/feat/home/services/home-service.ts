@@ -1,7 +1,7 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
-import { invariant } from "es-toolkit";
+import { flatten, invariant } from "es-toolkit";
 import type { PassportApplication } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
@@ -118,7 +118,7 @@ export const homeService = (repo: Repo, token?: string) => {
 			return uuid;
 		};
 
-		const data = await Promise.all(files.map(readJson));
+		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
 		const handles = await Promise.all(
 			data.filter(Boolean).map(async data => {
