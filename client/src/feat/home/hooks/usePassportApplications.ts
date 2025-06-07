@@ -12,16 +12,10 @@ export const usePassportApplications = () => {
 
 	const [show, setShow] = createSignal({
 		importDialog: false,
-		importFilesButton: false,
 		failedToExportDialog: false,
 	});
 	const toggleImportDialog = () =>
 		setShow(show => ({ ...show, importDialog: !show.importDialog }));
-	const toggleImportFilesButton = () =>
-		setShow(show => ({
-			...show,
-			importFilesButton: !show.importFilesButton,
-		}));
 	const toggleFailedToExportDialog = () =>
 		setShow(show => ({
 			...show,
@@ -89,7 +83,7 @@ export const usePassportApplications = () => {
 
 		qPassportApplications.refetch();
 
-		toggleImportFilesButton();
+		toggleImportDialog();
 	};
 
 	return {
@@ -101,7 +95,6 @@ export const usePassportApplications = () => {
 		onClickImportApplications,
 		onClickCloseExportApplications,
 		toggleImportDialog,
-		toggleImportFilesButton,
 		toggleFailedToExportDialog,
 	};
 };

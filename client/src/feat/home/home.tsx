@@ -62,7 +62,6 @@ export const Home = () => {
 		onClickCloseExportApplications,
 		mDownloadApplications,
 		toggleImportDialog,
-		toggleImportFilesButton,
 	} = usePassportApplications();
 
 	const [files, setFiles] = createSignal<File[]>([]);
@@ -70,14 +69,6 @@ export const Home = () => {
 		const selected: File[] = Array.from(event.target.files);
 
 		setFiles(selected);
-
-		if (!show().importFilesButton && selected.length) {
-			toggleImportFilesButton();
-		}
-
-		if (show().importFilesButton && !selected.length) {
-			toggleImportFilesButton();
-		}
 	};
 
 	const t = useI18n<typeof resources>();
@@ -191,60 +182,6 @@ export const Home = () => {
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
-
-					<Dialog
-						open={show().importDialog}
-						onOpenChange={toggleImportDialog}>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>
-									{t("importDialogTitle")}
-								</DialogTitle>
-								<DialogDescription>
-									{t("importDialogDescription")}
-								</DialogDescription>
-
-								<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
-									<Typography variant="small">
-										Drop files here
-									</Typography>
-								</div>
-
-								<input
-									// TODO: proper file input
-									type="file"
-									multiple
-									onChange={onFilesChange}
-								/>
-							</DialogHeader>
-							<DialogFooter>
-								<Button
-									variant="secondary"
-									onClick={toggleImportDialog}>
-									<Show when={mImportApplications.isSuccess}>
-										{t("doFinishImport")}
-									</Show>
-
-									<Show when={mImportApplications.isIdle}>
-										{t("doCloseImportDialog")}
-									</Show>
-								</Button>
-
-								<Button
-									onClick={partial(
-										onClickImportApplications,
-										files(),
-									)}
-									disabled={
-										!files().length ||
-										!show().importFilesButton ||
-										mImportApplications.isPending
-									}>
-									{t("doImportApplication")}
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
 				</Show>
 
 				<Show when={qPassportApplications.data?.length}>
@@ -259,36 +196,6 @@ export const Home = () => {
 									{t("exportAlertDescription")}
 								</AlertDescription>
 							</Alert>
-
-							<AlertDialog
-								open={show().failedToExportDialog}
-								onOpenChange={onClickCloseExportApplications}>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											{t("exportFailedDialogTitle")}
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											{t(
-												"exportFailedDialogDescription",
-												[
-													...(mDownloadApplications
-														.data?.invalidUrls ??
-														[]),
-												],
-											)}
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogClose
-											onClick={
-												onClickCloseExportApplications
-											}>
-											{t("doCloseExportFailedDialog")}
-										</AlertDialogClose>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
 						</Show>
 
 						<div class="space-y-2">
@@ -528,6 +435,81 @@ export const Home = () => {
 						</div>
 					</div>
 				</Show>
+
+				<AlertDialog
+					open={show().failedToExportDialog}
+					onOpenChange={onClickCloseExportApplications}>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								{t("exportFailedDialogTitle")}
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								{t("exportFailedDialogDescription", [
+									...(mDownloadApplications.data
+										?.invalidUrls ?? []),
+								])}
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogClose
+								onClick={onClickCloseExportApplications}>
+								{t("doCloseExportFailedDialog")}
+							</AlertDialogClose>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+
+				<Dialog
+					open={show().importDialog}
+					onOpenChange={toggleImportDialog}>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{t("importDialogTitle")}</DialogTitle>
+							<DialogDescription>
+								{t("importDialogDescription")}
+							</DialogDescription>
+
+							<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
+								<Typography variant="small">
+									Drop files here
+								</Typography>
+							</div>
+
+							<input
+								// TODO: proper file input
+								type="file"
+								multiple
+								onChange={onFilesChange}
+							/>
+						</DialogHeader>
+						<DialogFooter>
+							<Button
+								variant="secondary"
+								onClick={toggleImportDialog}>
+								<Show when={mImportApplications.isSuccess}>
+									{t("doFinishImport")}
+								</Show>
+
+								<Show when={mImportApplications.isIdle}>
+									{t("doCloseImportDialog")}
+								</Show>
+							</Button>
+
+							<Button
+								onClick={partial(
+									onClickImportApplications,
+									files(),
+								)}
+								disabled={
+									!files().length ||
+									mImportApplications.isPending
+								}>
+								{t("doImportApplication")}
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
 			</Suspense>
 		</div>
 	);
