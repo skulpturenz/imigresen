@@ -1,7 +1,8 @@
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { useI18n } from "core/context/i18n";
 import type { RouterProps } from "core/router";
-import { addRoutes, toPath, type RouteProps } from "core/router/route";
+import { addRoutes, type RouteProps } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { withParents } from "core/utils";
 import { lazy, type Component } from "solid-js";
 import { withI18n } from "./resources";

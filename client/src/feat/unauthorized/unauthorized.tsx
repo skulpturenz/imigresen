@@ -1,7 +1,7 @@
 import { A, Navigate, useLocation } from "@solidjs/router";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { useI18n } from "core/context/i18n";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { Show } from "solid-js";
 import { Button } from "ui/button";
 import { Typography } from "ui/typography";

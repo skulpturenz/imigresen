@@ -3,7 +3,7 @@ import { default as tokensClient } from "@mapbox/mapbox-sdk/services/tokens";
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { assertEnv } from "core/utils/assert-env";
 import { addSeconds, secondsToMilliseconds } from "date-fns";
 import { invariant, once, trimEnd } from "es-toolkit";

@@ -1,6 +1,6 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
 
 export const getRedirectPath = ({
 	redirectPath = "",

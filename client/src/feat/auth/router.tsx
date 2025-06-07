@@ -1,7 +1,8 @@
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import type { RouterProps } from "core/router";
-import { addRoutes, toPath, type RouteProps } from "core/router/route";
+import { addRoutes, type RouteProps } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { lazy, type Component } from "solid-js";
 
 export const Router: Component<RouterProps> = _props => {
