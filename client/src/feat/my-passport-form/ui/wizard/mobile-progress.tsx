@@ -86,18 +86,26 @@ export const MobileProgress: Component<
 							class="flex flex-col items-center px-8 my-10 space-y-8">
 							<Stepper variant="panel" class="w-full">
 								<For each={props.steps}>
-									{(step, idx) => (
-										<PanelStep
-											status={step.status}
-											label={step.description}
-											step={idx() + 1}
-											href={step.hash}
-											onClick={toggleIsDrawerOpen}
-											isLastStep={
-												idx() === props.steps.length - 1
-											}
-										/>
-									)}
+									{(step, idx) => {
+										const getHref = () =>
+											[location.search, step.hash]
+												.filter(Boolean)
+												.join("");
+
+										return (
+											<PanelStep
+												status={step.status}
+												label={step.description}
+												step={idx() + 1}
+												href={getHref()}
+												onClick={toggleIsDrawerOpen}
+												isLastStep={
+													idx() ===
+													props.steps.length - 1
+												}
+											/>
+										);
+									}}
 								</For>
 							</Stepper>
 
