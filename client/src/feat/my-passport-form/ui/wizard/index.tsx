@@ -53,14 +53,21 @@ export const Wizard: Component<ParentProps<WizardProps>> = props => {
 					)}>
 					<Stepper class="hidden sm:block sm:top-[40%] sm:sticky md:static md:top-auto">
 						<For each={props.steps}>
-							{step => (
-								<SimpleStep
-									status={step.status}
-									label={step.label}
-									description={step.description}
-									href={step.hash}
-								/>
-							)}
+							{step => {
+								const getHref = () =>
+									[location.search, step.hash]
+										.filter(Boolean)
+										.join("");
+
+								return (
+									<SimpleStep
+										status={step.status}
+										label={step.label}
+										description={step.description}
+										href={getHref()}
+									/>
+								);
+							}}
 						</For>
 					</Stepper>
 				</div>
