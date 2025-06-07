@@ -12,7 +12,7 @@ import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";

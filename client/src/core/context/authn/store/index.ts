@@ -3,7 +3,8 @@ import { default as tokensClient } from "@mapbox/mapbox-sdk/services/tokens";
 import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
+import { assertEnv } from "core/utils/assert-env";
 import { addSeconds, secondsToMilliseconds } from "date-fns";
 import { invariant, once, trimEnd } from "es-toolkit";
 import { default as Cookies } from "js-cookie";
@@ -11,8 +12,8 @@ import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
-invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
-invariant(
+assertEnv(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
+assertEnv(
 	import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
 	"Mapbox token not specified",
 );
@@ -56,10 +57,10 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 		};
 		const authnProviderClientUrl = stripPath(window.location.href);
 
-		invariant(authnProviderUrl, "Keycloak URL not specified");
-		invariant(authnProviderRealm, "Keycloak realm not specified");
-		invariant(authnProviderClientId, "Keycloak client ID not specified");
-		invariant(authnProviderClientUrl, "Keycloak client URL not specified");
+		assertEnv(authnProviderUrl, "Keycloak URL not specified");
+		assertEnv(authnProviderRealm, "Keycloak realm not specified");
+		assertEnv(authnProviderClientId, "Keycloak client ID not specified");
+		assertEnv(authnProviderClientUrl, "Keycloak client URL not specified");
 
 		const loginRedirectUri = [
 			trimEnd(authnProviderClientUrl.href, "/"),
@@ -142,19 +143,19 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 			isInitialLoading: true,
 			isActionsLoading: false,
 			profile: null,
-			keycloak: new Keycloak({
-				url: authnProviderUrl,
-				realm: authnProviderRealm,
-				clientId: authnProviderClientId,
-			}),
+			keycloak: null,
 			userId: crypto.randomUUID(),
 			actions: {
 				init: once(async () => {
-					invariant(get().keycloak, "Keycloak instance not defined");
+					const keycloak = new Keycloak({
+						url: authnProviderUrl ?? "-",
+						realm: authnProviderRealm ?? "-",
+						clientId: authnProviderClientId ?? "-",
+					});
 
-					set({ isInitialLoading: true });
+					set({ keycloak, isInitialLoading: true });
 
-					await get().keycloak?.init({
+					await keycloak.init({
 						onLoad: "check-sso",
 						silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
 						scope: "openid roles profile email address",
@@ -166,16 +167,13 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 
 					set({ refreshMapboxTokenInterval: initMapbox() });
 
-					if (!get().keycloak?.authenticated) {
+					if (!keycloak.authenticated) {
 						set({ isInitialLoading: false });
 
 						return;
 					}
 
-					const keycloak = get().keycloak;
-					invariant(keycloak, "Keycloak is initialized incorrectly");
-
-					const profile = await get().keycloak?.loadUserProfile();
+					const profile = await keycloak.loadUserProfile();
 
 					if (!import.meta.env.SSR) {
 						setAuthCookie();

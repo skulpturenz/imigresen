@@ -4,7 +4,7 @@ import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
-import { toPath } from "core/router/route";
+import { toPath } from "core/router/utils";
 import { generatePath } from "core/utils";
 import {
 	addYears,

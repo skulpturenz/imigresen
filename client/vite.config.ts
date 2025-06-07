@@ -1,22 +1,60 @@
+/// <reference types="vitest" />
+/// <reference types="vite/client" />
+
 import { Repo } from "@automerge/automerge-repo";
 import { NodeWSServerAdapter } from "@automerge/automerge-repo-network-websocket";
 import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs";
 import { default as tailwindcss } from "@tailwindcss/vite";
-import { join } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
 import { default as solid } from "vite-plugin-solid";
 import { default as topLevelAwait } from "vite-plugin-top-level-await";
 import { default as wasm } from "vite-plugin-wasm";
 import { default as webfontDownload } from "vite-plugin-webfont-dl";
+import { default as tsconfigPaths } from "vite-tsconfig-paths";
 import { WebSocketServer } from "ws";
+
+export default defineConfig(({ mode: _mode }) => {
+	return {
+		plugins: [
+			tsconfigPaths(),
+			solid(),
+			webfontDownload(),
+			viteCompression({
+				verbose: true,
+				algorithm: "brotliCompress",
+			}),
+			tailwindcss(),
+			wasm(),
+			topLevelAwait(),
+			automergeWsServer(),
+		],
+		resolve: {
+			alias: {
+				"feat/": new URL("./src/feat", import.meta.url).pathname,
+				"core/": new URL("./src/core", import.meta.url).pathname,
+				"ui/": new URL("./src/ui", import.meta.url).pathname,
+			},
+		},
+		build: {
+			sourcemap: true,
+		},
+		test: {
+			silent: "passed-only",
+			printConsoleTrace: true,
+			mockReset: true,
+		},
+	};
+});
 
 const automergeWsServer = (): Plugin => ({
 	name: "configure-automerge-ws-server",
 	configureServer(server) {
 		const wss = new WebSocketServer({ noServer: true });
 
-		const storage = new NodeFSStorageAdapter(join(__dirname, ".automerge"));
+		const storage = new NodeFSStorageAdapter(
+			new URL("./.automerge", import.meta.url).pathname,
+		);
 
 		new Repo({
 			storage,
@@ -37,30 +75,5 @@ const automergeWsServer = (): Plugin => ({
 				wss.emit("connection", socket, request);
 			});
 		});
-	},
-});
-
-export default defineConfig({
-	plugins: [
-		solid(),
-		webfontDownload(),
-		viteCompression({
-			verbose: true,
-			algorithm: "brotliCompress",
-		}),
-		tailwindcss(),
-		wasm(),
-		topLevelAwait(),
-		automergeWsServer(),
-	],
-	resolve: {
-		alias: {
-			feat: join(__dirname, "./src/feat"),
-			core: join(__dirname, "./src/core"),
-			ui: join(__dirname, "./src/ui"),
-		},
-	},
-	build: {
-		sourcemap: true,
 	},
 });

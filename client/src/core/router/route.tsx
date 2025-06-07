@@ -24,6 +24,7 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { PageLoading } from "ui/page-loading";
+import { toPath } from "./utils";
 
 export interface CoreContext {
 	user: UserSvc;
@@ -218,8 +219,6 @@ export const Route: Component<
 		</>
 	);
 };
-
-export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
 
 export const addRoutes = (...routes: RouteProps[]) => {
 	const getRouteContext = useContext(RouterContext);
