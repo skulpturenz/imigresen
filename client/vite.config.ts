@@ -1,3 +1,6 @@
+/// <reference types="vitest" />
+/// <reference types="vite/client" />
+
 import { Repo } from "@automerge/automerge-repo";
 import { NodeWSServerAdapter } from "@automerge/automerge-repo-network-websocket";
 import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs";
@@ -10,6 +13,38 @@ import { default as topLevelAwait } from "vite-plugin-top-level-await";
 import { default as wasm } from "vite-plugin-wasm";
 import { default as webfontDownload } from "vite-plugin-webfont-dl";
 import { WebSocketServer } from "ws";
+
+export default defineConfig(({ mode: _mode }) => {
+	return {
+		plugins: [
+			solid(),
+			webfontDownload(),
+			viteCompression({
+				verbose: true,
+				algorithm: "brotliCompress",
+			}),
+			tailwindcss(),
+			wasm(),
+			topLevelAwait(),
+			automergeWsServer(),
+		],
+		resolve: {
+			alias: {
+				feat: join(__dirname, "./src/feat"),
+				core: join(__dirname, "./src/core"),
+				ui: join(__dirname, "./src/ui"),
+			},
+		},
+		build: {
+			sourcemap: true,
+		},
+		test: {
+			silent: "passed-only",
+			printConsoleTrace: true,
+			mockReset: true,
+		},
+	};
+});
 
 const automergeWsServer = (): Plugin => ({
 	name: "configure-automerge-ws-server",
@@ -37,30 +72,5 @@ const automergeWsServer = (): Plugin => ({
 				wss.emit("connection", socket, request);
 			});
 		});
-	},
-});
-
-export default defineConfig({
-	plugins: [
-		solid(),
-		webfontDownload(),
-		viteCompression({
-			verbose: true,
-			algorithm: "brotliCompress",
-		}),
-		tailwindcss(),
-		wasm(),
-		topLevelAwait(),
-		automergeWsServer(),
-	],
-	resolve: {
-		alias: {
-			feat: join(__dirname, "./src/feat"),
-			core: join(__dirname, "./src/core"),
-			ui: join(__dirname, "./src/ui"),
-		},
-	},
-	build: {
-		sourcemap: true,
 	},
 });

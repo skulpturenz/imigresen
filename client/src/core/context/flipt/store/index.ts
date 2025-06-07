@@ -1,6 +1,7 @@
 import { FliptClient, type Flag } from "@flipt-io/flipt-client-js";
+import { assertEnv } from "core/utils/assert-env";
 import { secondsToMilliseconds } from "date-fns";
-import { invariant, once } from "es-toolkit";
+import { once } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 
 export interface FliptSvc {
@@ -23,9 +24,9 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 		const fliptClientToken = import.meta.env.VITE_FLIPT_CLIENT_TOKEN;
 		const fliptNamespace = import.meta.env.VITE_FLIPT_NAMESPACE;
 
-		invariant(fliptUrl, "Flipt URL not specified");
-		invariant(fliptClientToken, "Flipt client token not specified");
-		invariant(fliptNamespace, "Flipt namespace not specified");
+		assertEnv(fliptUrl, "Flipt URL not specified");
+		assertEnv(fliptClientToken, "Flipt client token not specified");
+		assertEnv(fliptNamespace, "Flipt namespace not specified");
 
 		const interval = secondsToMilliseconds(120);
 

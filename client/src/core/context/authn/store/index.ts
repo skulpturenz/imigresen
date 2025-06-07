@@ -4,6 +4,7 @@ import { AuthRoute } from "core/constants/auth-route.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
 import { toPath } from "core/router/route";
+import { assertEnv } from "core/utils/assert-env";
 import { addSeconds, secondsToMilliseconds } from "date-fns";
 import { invariant, once, trimEnd } from "es-toolkit";
 import { default as Cookies } from "js-cookie";
@@ -11,8 +12,8 @@ import { default as Keycloak, type KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { createRedirectUrl } from "./utils";
 
-invariant(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
-invariant(
+assertEnv(import.meta.env.VITE_AUTOMERGE_WSS, "Automerge API not specified");
+assertEnv(
 	import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
 	"Mapbox token not specified",
 );
@@ -56,10 +57,10 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 		};
 		const authnProviderClientUrl = stripPath(window.location.href);
 
-		invariant(authnProviderUrl, "Keycloak URL not specified");
-		invariant(authnProviderRealm, "Keycloak realm not specified");
-		invariant(authnProviderClientId, "Keycloak client ID not specified");
-		invariant(authnProviderClientUrl, "Keycloak client URL not specified");
+		assertEnv(authnProviderUrl, "Keycloak URL not specified");
+		assertEnv(authnProviderRealm, "Keycloak realm not specified");
+		assertEnv(authnProviderClientId, "Keycloak client ID not specified");
+		assertEnv(authnProviderClientUrl, "Keycloak client URL not specified");
 
 		const loginRedirectUri = [
 			trimEnd(authnProviderClientUrl.href, "/"),
