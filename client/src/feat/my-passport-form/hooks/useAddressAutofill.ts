@@ -7,11 +7,11 @@ import { setValue, setValues, type FormStore } from "@modular-forms/solid";
 import { useQueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
+import { get, localeAsc, multiSort } from "core/data/sort";
 import { differenceInMinutes } from "date-fns";
 import { debounce, invariant } from "es-toolkit";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import type { MyPassportForm } from "feat/my-passport-form/types";
-import { get, localeAsc, multiSort } from "feat/my-passport-form/utils/sort";
 import { createSignal, onCleanup } from "solid-js";
 
 export interface UseAddressAutofillProps {

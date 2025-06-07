@@ -6,10 +6,10 @@ import { MyPassportFormContext } from "./provider";
 
 export const MyPassportFormProviderMock: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
-	const value = myPassportFormService(authnContext().keycloak?.token);
 
 	return (
-		<MyPassportFormContext.Provider value={value}>
+		<MyPassportFormContext.Provider
+			value={myPassportFormService(authnContext().keycloak?.token)}>
 			{props.children}
 		</MyPassportFormContext.Provider>
 	);

@@ -58,13 +58,13 @@ export const useMyPassportForm = () => {
 		revalidateOn: "change",
 	});
 
-	const referenceData = useQuery<DropdownOptions>(() => ({
+	const qReferenceData = useQuery<DropdownOptions>(() => ({
 		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
 		queryFn: myPassportFormContext.getReferenceData,
 		staleTime: Infinity,
 	}));
 
-	const referenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
+	const qReferenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
 		queryKey: queryKeys.getReferenceDataStates(
 			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
 			authnContext().keycloak?.token,
@@ -74,7 +74,7 @@ export const useMyPassportForm = () => {
 		staleTime: Infinity,
 	}));
 
-	const referenceDataAddressDetailsStates = useQuery<string[]>(() => ({
+	const qReferenceDataAddressDetailsStates = useQuery<string[]>(() => ({
 		queryKey: queryKeys.getReferenceDataStates(
 			getValue(form, "addressDetails.countryCode") ?? "",
 			authnContext().keycloak?.token,
@@ -116,15 +116,15 @@ export const useMyPassportForm = () => {
 		return handle;
 	});
 
-	const deleteForm = useMutation(() => ({
+	const mDeleteForm = useMutation(() => ({
 		mutationFn: myPassportFormContext.deleteApplication,
 	}));
 
-	const register = useMutation(() => ({
+	const mRegister = useMutation(() => ({
 		mutationFn: myPassportFormContext.registerApplication,
 	}));
 
-	const submit = useMutation(() => ({
+	const mSubmit = useMutation(() => ({
 		mutationFn: (_formValues: MyPassportForm) =>
 			Promise.resolve(handle()?.url),
 	}));
@@ -134,7 +134,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		await deleteForm.mutateAsync(routeParams.uuid);
+		await mDeleteForm.mutateAsync(routeParams.uuid);
 		reset(form);
 
 		const existingApplications =
@@ -165,11 +165,11 @@ export const useMyPassportForm = () => {
 		formValues,
 		_event,
 	) => {
-		if (form.submitting || submit.isPending) {
+		if (form.submitting || mSubmit.isPending) {
 			return;
 		}
 
-		await submit.mutateAsync(formValues);
+		await mSubmit.mutateAsync(formValues);
 		reset(form);
 
 		navigate(toPath(CoreRoute.Home));
@@ -268,7 +268,7 @@ export const useMyPassportForm = () => {
 				"Automerge URL is not defined, check `handle`",
 			);
 
-			const uuid = await register.mutateAsync(automergeUrl);
+			const uuid = await mRegister.mutateAsync(automergeUrl);
 
 			const existingAutomergeUrls =
 				queryClient.getQueryData<string[]>(
@@ -323,16 +323,16 @@ export const useMyPassportForm = () => {
 	});
 
 	const selectReferenceData = (): DropdownOptions | null => {
-		if (!referenceData.data) {
+		if (!qReferenceData.data) {
 			return null;
 		}
 
 		return {
-			...referenceData.data,
+			...qReferenceData.data,
 			personalDetailsStateOptions:
-				referenceDataPersonalDetailsStates.data ?? ([] as string[]),
+				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
 			addressDetailsStateOptions:
-				referenceDataAddressDetailsStates.data ?? ([] as string[]),
+				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
 		};
 	};
 
@@ -346,7 +346,7 @@ export const useMyPassportForm = () => {
 		form,
 		onSubmit,
 		onDelete,
-		isMutating: () => form.submitting || submit.isPending,
+		isMutating: () => form.submitting || mSubmit.isPending,
 		Components: {
 			Form,
 			Field,

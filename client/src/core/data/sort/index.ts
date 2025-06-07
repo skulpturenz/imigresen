@@ -1,3 +1,5 @@
+import { UUID } from "uuidv7";
+
 export type Sorter<T = unknown> = (a: T, b: T) => number;
 
 export const multiSort =
@@ -31,3 +33,6 @@ export const get =
 	(sorter: Sorter<U>) =>
 	(a: T, b: T) =>
 		sorter(getter(a), getter(b));
+
+export const uuidAsc = (a: string, b: string) =>
+	UUID.parse(a).compareTo(UUID.parse(b));

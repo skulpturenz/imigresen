@@ -26,13 +26,13 @@ const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
 	origin.trim(),
 );
 
-interface Env {
+interface ApiEnv {
 	Variables: {
 		pg: postgres.Sql;
 	};
 }
 
-const api = new Hono<Env>()
+const api = new Hono<ApiEnv>()
 	.get("/", async c => {
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {

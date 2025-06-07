@@ -1,121 +1,63 @@
-import type { AnyDocumentId } from "@automerge/automerge-repo";
 import { useMutation, useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
-import { delay, invariant } from "es-toolkit";
 import { HomeContext } from "feat/home/context";
-import type { PassportApplication } from "feat/home/types";
-import { exportData } from "feat/home/utils/export-data";
-import { useRepo } from "solid-automerge";
-import { UUID } from "uuidv7";
+import { exportData } from "feat/home/utils";
+import { createSignal } from "solid-js";
 
 export const usePassportApplications = () => {
 	const authnContext = useContext(AuthnContext);
 	const homeContext = useContext(HomeContext);
-	const repo = useRepo();
 
-	const automergeUrls = useQuery(() => ({
-		queryKey: queryKeys.getAutomergeUrls(authnContext().keycloak?.token),
-		queryFn: homeContext.getAutomergeUrls,
-	}));
+	const [show, setShow] = createSignal({
+		importDialog: false,
+		importFilesButton: false,
+		failedToExportDialog: false,
+	});
+	const toggleImportDialog = () =>
+		setShow(show => ({ ...show, importDialog: !show.importDialog }));
+	const toggleImportFilesButton = () =>
+		setShow(show => ({
+			...show,
+			importFilesButton: !show.importFilesButton,
+		}));
+	const toggleFailedToExportDialog = () =>
+		setShow(show => ({
+			...show,
+			failedToExportDialog: !show.failedToExportDialog,
+		}));
 
-	const downloadApplications = useMutation(() => ({
+	const mDownloadApplications = useMutation(() => ({
 		mutationKey: queryKeys.downloadPassportApplications(
 			authnContext().keycloak?.token,
 		),
-		mutationFn: async (automergeUrls: string[]) => {
-			const docs = await Promise.all(
-				automergeUrls.map(async automergeUrl => {
-					try {
-						const handle = await repo.find(
-							automergeUrl as AnyDocumentId,
-						);
-
-						await handle.whenReady();
-
-						return handle.doc();
-					} catch {
-						return null;
-					}
-				}),
-			);
-
-			const invalidUrls = docs.reduce<string[]>((acc, doc, idx) => {
-				if (doc) {
-					return acc;
-				}
-
-				const automergeUrl = automergeUrls.at(idx);
-				invariant(
-					automergeUrl,
-					`No \`automergeUrl\` at index ${idx}, are docs filtered?`,
-				);
-
-				return [...acc, automergeUrl];
-			}, []);
-
-			return {
-				docs: docs.filter(Boolean),
-				invalidUrls,
-			};
-		},
+		mutationFn: homeContext.downloadApplications,
 	}));
 
-	const getPassportApplications = async () => {
-		const documents = await Promise.all(
-			automergeUrls.data?.map(async ({ key, value }) => {
-				const handle = await repo.find<
-					Omit<PassportApplication, "uuid" | "automergeUrl">
-				>(value as AnyDocumentId);
+	const mImportApplications = useMutation(() => ({
+		mutationKey: queryKeys.importPassportApplications(
+			authnContext().keycloak?.token,
+		),
+		mutationFn: homeContext.importApplications,
+	}));
 
-				// this usually happens if the doc does not exist on the remote or locally
-				// either there's been a indexdb migration (database name change for example)
-				// or the remote repo does not have the document
-				await makeTimeout({
-					message: `timed out waiting for automerge doc with url "${value}"`,
-				})(handle.whenReady());
-
-				const doc = handle.doc();
-
-				return {
-					uuid: key,
-					automergeUrl: value,
-					doc,
-				};
-			}) ?? [],
-		);
-
-		return documents
-			.sort((a, b) =>
-				desc(UUID.parse(a.uuid).compareTo(UUID.parse(b.uuid))),
-			)
-			.map<PassportApplication>(application => {
-				return {
-					uuid: application.uuid,
-					automergeUrl: application.automergeUrl,
-					...application.doc,
-				};
-			});
-	};
-
-	const passportApplications = useQuery(() => ({
+	const qPassportApplications = useQuery(() => ({
 		queryKey: queryKeys.getPassportApplications(
 			authnContext().keycloak?.token,
 		),
-		queryFn: getPassportApplications,
-		get enabled() {
-			return Boolean(automergeUrls.data);
-		},
+		queryFn: homeContext.getPassportApplications,
 	}));
 
 	const onClickExportApplications = async () => {
-		if (!automergeUrls.data?.length) {
+		if (!qPassportApplications.data?.length) {
 			return;
 		}
 
-		const { docs } = await downloadApplications.mutateAsync(
-			automergeUrls.data?.map(automergeDoc => automergeDoc.value) ?? [],
+		const { docs, invalidUrls } = await mDownloadApplications.mutateAsync(
+			qPassportApplications.data?.map(
+				passportApplication => passportApplication.automergeUrl,
+			) ?? [],
 		);
 
 		const data = JSON.stringify(docs, null, 2);
@@ -130,29 +72,36 @@ export const usePassportApplications = () => {
 
 		exportData(fileName, "application/json", data);
 
-		downloadApplications.reset();
+		if (invalidUrls.length) {
+			toggleFailedToExportDialog();
+		}
+	};
+
+	const onClickCloseExportApplications = async () => {
+		mDownloadApplications.reset();
+		toggleFailedToExportDialog();
+	};
+
+	const onClickImportApplications = async (files: File[]) => {
+		mImportApplications.reset();
+
+		await mImportApplications.mutateAsync(files);
+
+		qPassportApplications.refetch();
+
+		toggleImportFilesButton();
 	};
 
 	return {
-		automergeUrls,
-		passportApplications,
-		downloadApplications,
+		show,
+		qPassportApplications,
+		mDownloadApplications,
+		mImportApplications,
 		onClickExportApplications,
+		onClickImportApplications,
+		onClickCloseExportApplications,
+		toggleImportDialog,
+		toggleImportFilesButton,
+		toggleFailedToExportDialog,
 	};
 };
-
-const desc = (sortOrder: number) => -1 * sortOrder;
-
-const makeTimeout =
-	({ timeoutMs = 500, message = "" }) =>
-	(promise: Promise<any>) =>
-		Promise.race([
-			promise,
-			new Promise((_, reject) =>
-				delay(timeoutMs).then(() =>
-					reject(
-						new Error(message || `timed out after ${timeoutMs} ms`),
-					),
-				),
-			),
-		]);

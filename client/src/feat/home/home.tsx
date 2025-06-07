@@ -14,9 +14,9 @@ import {
 	differenceInYears,
 	isBefore,
 } from "date-fns";
-import { invariant } from "es-toolkit";
+import { invariant, partial } from "es-toolkit";
 import { CircleAlert } from "lucide-solid";
-import { For, Show, Suspense } from "solid-js";
+import { createSignal, For, Show, Suspense } from "solid-js";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
 	AlertDialog,
@@ -36,6 +36,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from "ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
 import { cn } from "ui/utils";
@@ -46,10 +54,32 @@ export const Home = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const {
-		passportApplications,
+		show,
+		qPassportApplications,
+		mImportApplications,
+		onClickImportApplications,
 		onClickExportApplications,
-		downloadApplications,
+		onClickCloseExportApplications,
+		mDownloadApplications,
+		toggleImportDialog,
+		toggleImportFilesButton,
 	} = usePassportApplications();
+
+	const [files, setFiles] = createSignal<File[]>([]);
+	const onFilesChange = (event: any) => {
+		const selected: File[] = Array.from(event.target.files);
+
+		setFiles(selected);
+
+		if (!show().importFilesButton && selected.length) {
+			toggleImportFilesButton();
+		}
+
+		if (show().importFilesButton && !selected.length) {
+			toggleImportFilesButton();
+		}
+	};
+
 	const t = useI18n<typeof resources>();
 
 	const getDifference = (expiryDate: Date) => {
@@ -133,12 +163,23 @@ export const Home = () => {
 	return (
 		<div>
 			<div class="flex justify-end gap-4 my-8">
-				<Button
-					variant="secondary"
-					onClick={onClickExportApplications}
-					disabled={!passportApplications.data?.length}>
-					{t("doExport")}
-				</Button>
+				<Show when={!authnContext().keycloak?.token}>
+					<Show when={!qPassportApplications.data?.length}>
+						<Button
+							variant="secondary"
+							onClick={toggleImportDialog}>
+							{t("doImport")}
+						</Button>
+					</Show>
+
+					<Show when={qPassportApplications.data?.length}>
+						<Button
+							variant="secondary"
+							onClick={onClickExportApplications}>
+							{t("doExport")}
+						</Button>
+					</Show>
+				</Show>
 
 				<Button as="a" href={toPath(MyPassportForm.New)}>
 					{t("doApply")}
@@ -146,13 +187,67 @@ export const Home = () => {
 			</div>
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show when={!passportApplications.data?.length}>
+				<Show when={!qPassportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
+
+					<Dialog
+						open={show().importDialog}
+						onOpenChange={toggleImportDialog}>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>
+									{t("importDialogTitle")}
+								</DialogTitle>
+								<DialogDescription>
+									{t("importDialogDescription")}
+								</DialogDescription>
+
+								<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
+									<Typography variant="small">
+										Drop files here
+									</Typography>
+								</div>
+
+								<input
+									// TODO: proper file input
+									type="file"
+									multiple
+									onChange={onFilesChange}
+								/>
+							</DialogHeader>
+							<DialogFooter>
+								<Button
+									variant="secondary"
+									onClick={toggleImportDialog}>
+									<Show when={mImportApplications.isSuccess}>
+										{t("doFinishImport")}
+									</Show>
+
+									<Show when={mImportApplications.isIdle}>
+										{t("doCloseImportDialog")}
+									</Show>
+								</Button>
+
+								<Button
+									onClick={partial(
+										onClickImportApplications,
+										files(),
+									)}
+									disabled={
+										!files().length ||
+										!show().importFilesButton ||
+										mImportApplications.isPending
+									}>
+									{t("doImportApplication")}
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
 				</Show>
 
-				<Show when={passportApplications.data?.length}>
+				<Show when={qPassportApplications.data?.length}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<Alert>
@@ -164,32 +259,37 @@ export const Home = () => {
 									{t("exportAlertDescription")}
 								</AlertDescription>
 							</Alert>
-						</Show>
 
-						<AlertDialog
-							open={Boolean(
-								downloadApplications.data?.invalidUrls.length,
-							)}>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>
-										{t("exportFailedDialogTitle")}
-									</AlertDialogTitle>
-									<AlertDialogDescription>
-										{t("exportFailedDialogDescription", [
-											...(downloadApplications.data
-												?.invalidUrls ?? []),
-										])}
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogClose
-										onClick={downloadApplications.reset}>
-										{t("doCloseExportFailedDialog")}
-									</AlertDialogClose>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+							<AlertDialog
+								open={show().failedToExportDialog}
+								onOpenChange={onClickCloseExportApplications}>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>
+											{t("exportFailedDialogTitle")}
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											{t(
+												"exportFailedDialogDescription",
+												[
+													...(mDownloadApplications
+														.data?.invalidUrls ??
+														[]),
+												],
+											)}
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogClose
+											onClick={
+												onClickCloseExportApplications
+											}>
+											{t("doCloseExportFailedDialog")}
+										</AlertDialogClose>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						</Show>
 
 						<div class="space-y-2">
 							<Typography
@@ -267,7 +367,7 @@ export const Home = () => {
 						</div>
 
 						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
-							<For each={passportApplications.data}>
+							<For each={qPassportApplications.data}>
 								{item => {
 									const getHref = () => {
 										const url = new URL(location.origin);
