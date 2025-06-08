@@ -1,3 +1,4 @@
+// TODO: shared type
 export interface PassportApplication {
 	personalDetails: {
 		firstName: string;

@@ -1,3 +1,4 @@
+// TODO: shared type
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;
 	addressDetails: AddressDetails;
