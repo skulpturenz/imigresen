@@ -1,4 +1,8 @@
 import { storageKeys } from "core/constants/storage-keys";
+import type {
+	DeleteApplicationVariables,
+	RegisterApplicationVariables,
+} from "feat/my-passport-form/types";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 import { uuidv7 } from "uuidv7";
@@ -13,7 +17,7 @@ export const myPassportFormService = (_token?: string) => {
 	const registerApplication = async ({
 		automergeUrl,
 		sub,
-	}: Record<string, any>) => {
+	}: RegisterApplicationVariables) => {
 		// TODO
 		const uuid = uuidv7();
 
@@ -25,7 +29,10 @@ export const myPassportFormService = (_token?: string) => {
 		return uuid;
 	};
 
-	const deleteApplication = async ({ uuid, sub }: Record<string, any>) => {
+	const deleteApplication = async ({
+		uuid,
+		sub,
+	}: DeleteApplicationVariables) => {
 		// TODO
 		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
 	};
