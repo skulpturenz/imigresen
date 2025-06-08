@@ -1,11 +1,12 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
-import { invariant } from "es-toolkit";
+import { flatten, invariant } from "es-toolkit";
 import type { PassportApplication } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
+import { uuidv7 } from "uuidv7";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -13,24 +14,21 @@ const storage = createStorage({
 	}),
 });
 
-export const homeService = (repo: Repo, token?: string) => {
-	const getAutomergeUrls = async () => {
-		if (!token) {
-			const localKeys = await storage.getKeys();
-			const localItems = await storage.getItems<string>(localKeys);
-
-			return localItems;
-		}
-
+export const homeService = (repo: Repo, _token?: string) => {
+	const getAutomergeUrls = async ({ sub }: Record<string, any>) => {
 		// TODO
-		const localKeys = await storage.getKeys();
+		const localKeys = await storage.getKeys(
+			storageKeys.myPassportFormApplications(sub),
+		);
 		const localItems = await storage.getItems<string>(localKeys);
 
 		return localItems;
 	};
 
-	const getPassportApplications = async () => {
-		const automergeUrls = await getAutomergeUrls();
+	const getPassportApplications = async ({ sub }: Record<string, any>) => {
+		const automergeUrls = await getAutomergeUrls({
+			sub,
+		});
 
 		if (!automergeUrls.length) {
 			return [];
@@ -52,7 +50,7 @@ export const homeService = (repo: Repo, token?: string) => {
 				const doc = handle.doc();
 
 				return {
-					uuid: key,
+					uuid: key.split(":").at(-1) as string,
 					automergeUrl: value,
 					doc,
 				};
@@ -109,16 +107,23 @@ export const homeService = (repo: Repo, token?: string) => {
 		};
 	};
 
-	const importApplications = async (files: File[]) => {
-		const registerApplication = async (automergeUrl: string) => {
-			const uuid = crypto.randomUUID();
+	const importApplications = async ({ files, sub }: Record<string, any>) => {
+		const registerApplication = async ({
+			automergeUrl,
+			sub,
+		}: Record<string, any>) => {
+			// TODO
+			const uuid = uuidv7();
 
-			await storage.setItem(uuid, automergeUrl);
+			storage.setItem(
+				storageKeys.myPassportFormApplication(uuid, sub),
+				automergeUrl,
+			);
 
 			return uuid;
 		};
 
-		const data = await Promise.all(files.map(readJson));
+		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
 		const handles = await Promise.all(
 			data.filter(Boolean).map(async data => {
@@ -139,7 +144,14 @@ export const homeService = (repo: Repo, token?: string) => {
 		);
 
 		const automergeUrls = handles.map(handle => handle.url);
-		const uuids = await Promise.all(automergeUrls.map(registerApplication));
+		const uuids = await Promise.all(
+			automergeUrls.map(automergeUrl =>
+				registerApplication({
+					automergeUrl,
+					sub,
+				}),
+			),
+		);
 
 		return automergeUrls.reduce((acc, automergeUrl, idx) => {
 			const uuid = uuids.at(idx);
