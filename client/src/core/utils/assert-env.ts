@@ -4,7 +4,11 @@ export function assertEnv(
 	condition: unknown,
 	message: string,
 ): asserts condition {
-	if (["test", "storybook"].includes(import.meta.env.MODE)) {
+	const modes: Mode[] = ["test", "storybook"];
+
+	// disable env assertions because in these modes we
+	// don't use the real services but sometimes they get bundled in
+	if (modes.includes(import.meta.env.MODE as Mode)) {
 		return;
 	}
 
