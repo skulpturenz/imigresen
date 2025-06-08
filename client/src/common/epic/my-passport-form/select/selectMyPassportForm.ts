@@ -1,8 +1,11 @@
 import type { Doc } from "@automerge/automerge-repo";
+import type { MyPassportForm } from "common/epic/my-passport-form/types";
 import { MyPassportFormVersion } from "common/epic/my-passport-form/types/MyPassportFormVersion.enum";
 import { invariant } from "es-toolkit";
 
-export const selectMyPassportForm = <T>(doc: Doc<T> & { version?: string }) => {
+export const selectMyPassportForm = <T>(
+	doc: Doc<T> & { version?: string },
+): Doc<MyPassportForm> => {
 	invariant(doc.version, "Invalid passport form");
 
 	if (doc.version === MyPassportFormVersion.V1_0) {
@@ -12,4 +15,9 @@ export const selectMyPassportForm = <T>(doc: Doc<T> & { version?: string }) => {
 	throw new Error("Unsupported version");
 };
 
-const selectMyPassportFormV1 = <T>(doc: Doc<T>) => doc;
+const selectMyPassportFormV1 = <
+	TCurrent extends Record<string, any> = Record<string, any>,
+	TPrevious extends Record<string, any> = Record<string, any>,
+>(
+	doc: Doc<TPrevious>,
+): Doc<TCurrent> => doc as unknown as Doc<TCurrent>;
