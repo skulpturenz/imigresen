@@ -8,7 +8,7 @@ export type MyPassportFormSyncSvc = ReturnType<
 	typeof myPassportFormSyncService
 >;
 
-export const MyPassportFormContext = createContext<MyPassportFormSyncSvc>(
+export const MyPassportFormSyncContext = createContext<MyPassportFormSyncSvc>(
 	createMyPassportFormSyncContext(),
 );
 
@@ -16,9 +16,9 @@ export const MyPassportFormSyncProvider: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
 
 	return (
-		<MyPassportFormContext.Provider
+		<MyPassportFormSyncContext.Provider
 			value={myPassportFormSyncService(authnContext().keycloak?.token)}>
 			{props.children}
-		</MyPassportFormContext.Provider>
+		</MyPassportFormSyncContext.Provider>
 	);
 };

@@ -11,9 +11,11 @@ export interface UserProfile {
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
+	syncComplete?: boolean;
 	actions: {
 		// TODO: once BE is up remove dependence on KC
 		init: (profile?: KeycloakProfile | null) => void;
+		completeSync: () => void;
 	};
 }
 
@@ -21,6 +23,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
+		syncComplete: false,
 		actions: {
 			init: once(async (profile?: KeycloakProfile | null) => {
 				// TODO: once BE is up remove dependence on KC
@@ -40,8 +43,17 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 					return;
 				}
 
+				// TODO: BE
+				const syncStatus = localStorage.getItem("syncStatus");
+				set({ syncComplete: syncStatus === "complete" });
+
 				set({ isInitialLoading: false });
 			}),
+			completeSync: () => {
+				localStorage.setItem("syncStatus", "complete");
+
+				set({ syncComplete: true });
+			},
 		},
 	};
 });

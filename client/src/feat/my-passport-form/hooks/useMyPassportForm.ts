@@ -20,7 +20,6 @@ import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import type {
 	DropdownOptions,
 	MyPassportForm,
-	PassportApplication,
 } from "feat/my-passport-form/types";
 import { useRepo } from "solid-automerge";
 import {
@@ -140,23 +139,11 @@ export const useMyPassportForm = () => {
 		});
 		reset(form);
 
-		const existingApplications =
-			queryClient.getQueryData<PassportApplication[]>(
-				globalQueryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
-			) ?? [];
-
-		const filteredApplications = existingApplications.filter(
-			application => application.uuid !== routeParams.uuid,
-		);
-
-		queryClient.setQueryData(
-			globalQueryKeys.getPassportApplications(
+		queryClient.refetchQueries({
+			queryKey: globalQueryKeys.getPassportApplications(
 				authnContext().keycloak?.token,
 			),
-			filteredApplications,
-		);
+		});
 
 		await handle()?.whenReady();
 		handle()?.delete();
@@ -235,32 +222,11 @@ export const useMyPassportForm = () => {
 				"Automerge URL for existing document is not defined, check `handle`",
 			);
 
-			const existingApplications =
-				queryClient.getQueryData<PassportApplication[]>(
-					globalQueryKeys.getPassportApplications(
-						authnContext().keycloak?.token,
-					),
-				) ?? [];
-
-			const updatedApplications = existingApplications.map(
-				application => {
-					if (application.uuid === currentUuid) {
-						return {
-							...application,
-							...getValues(form),
-						};
-					}
-
-					return application;
-				},
-			);
-
-			queryClient.setQueryData(
-				globalQueryKeys.getPassportApplications(
+			queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
-				updatedApplications,
-			);
+			});
 		};
 
 		const registerNewForm = async () => {
@@ -271,52 +237,16 @@ export const useMyPassportForm = () => {
 				"Automerge URL is not defined, check `handle`",
 			);
 
-			const uuid = await mRegister.mutateAsync({
+			await mRegister.mutateAsync({
 				automergeUrl: automergeUrl,
 				sub: authnContext().keycloak?.tokenParsed?.sub,
 			});
 
-			const existingAutomergeUrls =
-				queryClient.getQueryData<string[]>(
-					globalQueryKeys.getAutomergeUrls(
-						authnContext().keycloak?.token,
-					),
-				) ?? [];
-
-			const updatedAutomergeUrls = [
-				automergeUrl,
-				...existingAutomergeUrls,
-			];
-
-			queryClient.setQueryData(
-				globalQueryKeys.getAutomergeUrls(
+			queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
-				updatedAutomergeUrls,
-			);
-
-			const existingApplications =
-				queryClient.getQueryData<PassportApplication[]>(
-					globalQueryKeys.getPassportApplications(
-						authnContext().keycloak?.token,
-					),
-				) ?? [];
-
-			const updatedApplications = [
-				{
-					uuid,
-					automergeUrl: handle()?.url,
-					...getValues(form),
-				},
-				...existingApplications,
-			];
-
-			queryClient.setQueryData(
-				globalQueryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
-				updatedApplications,
-			);
+			});
 		};
 
 		if (currentUuid) {

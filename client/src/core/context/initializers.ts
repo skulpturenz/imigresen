@@ -63,5 +63,6 @@ export const createUserContext = (): UserSvc => ({
 	profile: null,
 	actions: {
 		init: noop,
+		completeSync: noop,
 	},
 });
