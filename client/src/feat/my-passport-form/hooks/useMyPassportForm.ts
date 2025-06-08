@@ -152,7 +152,7 @@ export const useMyPassportForm = () => {
 		});
 
 		await handle()?.whenReady();
-		handle()?.delete();
+		repo.delete(handle()?.documentId as AnyDocumentId);
 
 		navigate(toPath(CoreRoute.Home));
 	};
