@@ -2,7 +2,13 @@ import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { flatten, invariant } from "es-toolkit";
-import type { PassportApplication } from "feat/home/types";
+import type {
+	GetAutomergeUrlsVariables,
+	GetPassportApplicationsVariables,
+	ImportApplicationsVariables,
+	PassportApplication,
+	RegisterApplicationVariables,
+} from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
@@ -15,7 +21,7 @@ const storage = createStorage({
 });
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({ sub }: Record<string, any>) => {
+	const getAutomergeUrls = async ({ sub }: GetAutomergeUrlsVariables) => {
 		// TODO
 		const localKeys = await storage.getKeys(
 			storageKeys.myPassportFormApplications(sub),
@@ -25,7 +31,9 @@ export const homeService = (repo: Repo, _token?: string) => {
 		return localItems;
 	};
 
-	const getPassportApplications = async ({ sub }: Record<string, any>) => {
+	const getPassportApplications = async ({
+		sub,
+	}: GetPassportApplicationsVariables) => {
 		const automergeUrls = await getAutomergeUrls({
 			sub,
 		});
@@ -107,22 +115,26 @@ export const homeService = (repo: Repo, _token?: string) => {
 		};
 	};
 
-	const importApplications = async ({ files, sub }: Record<string, any>) => {
-		const registerApplication = async ({
+	// same as `registerApplications` in `myPassportFormService`
+	const registerApplication = async ({
+		automergeUrl,
+		sub,
+	}: RegisterApplicationVariables) => {
+		// TODO
+		const uuid = uuidv7();
+
+		storage.setItem(
+			storageKeys.myPassportFormApplication(uuid, sub),
 			automergeUrl,
-			sub,
-		}: Record<string, any>) => {
-			// TODO
-			const uuid = uuidv7();
+		);
 
-			storage.setItem(
-				storageKeys.myPassportFormApplication(uuid, sub),
-				automergeUrl,
-			);
+		return uuid;
+	};
 
-			return uuid;
-		};
-
+	const importApplications = async ({
+		files,
+		sub,
+	}: ImportApplicationsVariables) => {
 		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
 		const handles = await Promise.all(

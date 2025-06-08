@@ -2,6 +2,7 @@
 import { Providers } from "core/context";
 import { Router } from "core/router";
 import { ErrorBoundary, type Component, type ParentProps } from "solid-js";
+import { Global } from "../global";
 import { Fallback } from "./fallback";
 
 export const App = () => {
@@ -9,6 +10,8 @@ export const App = () => {
 		<AppErrorBoundary>
 			<Providers>
 				<Router />
+
+				<Global />
 			</Providers>
 		</AppErrorBoundary>
 	);
