@@ -1,4 +1,5 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
+import { selectMyPassportForm } from "common/epic/my-passport-form/select";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { flatten, invariant } from "es-toolkit";
@@ -6,6 +7,7 @@ import type {
 	GetAutomergeUrlsVariables,
 	GetPassportApplicationsVariables,
 	ImportApplicationsVariables,
+	MyPassportForm,
 	PassportApplication,
 	RegisterApplicationVariables,
 } from "feat/home/types";
@@ -55,7 +57,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 					message: `timed out waiting for automerge doc with url "${value}"`,
 				})(handle.whenReady());
 
-				const doc = handle.doc();
+				const doc = selectMyPassportForm(handle.doc());
 
 				return {
 					uuid: key.split(":").at(-1) as string,
@@ -73,7 +75,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 				return {
 					uuid: application.uuid,
 					automergeUrl: application.automergeUrl,
-					...application.doc,
+					...(application.doc as MyPassportForm),
 				};
 			});
 	};
@@ -88,7 +90,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 
 					await handle.whenReady();
 
-					return handle.doc();
+					return selectMyPassportForm(handle.doc());
 				} catch {
 					return null;
 				}
@@ -140,6 +142,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		const handles = await Promise.all(
 			data.filter(Boolean).map(async data => {
 				invariant(data, "data is undefined");
+				invariant(data.version, "invalid passport form");
 
 				const {
 					// ignore any existing uuid and assign a new one

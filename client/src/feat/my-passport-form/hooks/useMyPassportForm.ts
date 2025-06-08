@@ -1,4 +1,4 @@
-import type { AnyDocumentId, DocHandle } from "@automerge/automerge-repo";
+import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
 import {
 	createForm,
 	getValue,
@@ -8,6 +8,8 @@ import {
 } from "@modular-forms/solid";
 import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
+import { selectMyPassportForm } from "common/epic/my-passport-form/select";
+import { MyPassportFormVersion } from "common/epic/my-passport-form/types/MyPassportFormVersion.enum";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
@@ -86,13 +88,13 @@ export const useMyPassportForm = () => {
 	const [handle] = createResource(async () => {
 		// not ideal that we are performing side effects here
 		// but we don't want the page to load until we've set the initial data
-		const resetFormValues = (handle: DocHandle<MyPassportForm>) => {
+		const resetFormValues = (doc: Doc<MyPassportForm>) => {
 			if (!import.meta.env.PROD) {
-				console.debug("initialValues", handle.doc());
+				console.debug("initialValues", doc);
 			}
 
 			reset(form, {
-				initialValues: handle.doc(),
+				initialValues: doc,
 			});
 		};
 
@@ -103,12 +105,16 @@ export const useMyPassportForm = () => {
 
 			await handle.whenReady();
 
-			resetFormValues(handle);
+			const doc = selectMyPassportForm(handle.doc());
+
+			resetFormValues(doc);
 
 			return handle;
 		}
 
-		const handle = repo.create<MyPassportForm>();
+		const handle = repo.create<Partial<MyPassportForm>>({
+			version: MyPassportFormVersion.V1_0,
+		});
 
 		await handle.whenReady();
 

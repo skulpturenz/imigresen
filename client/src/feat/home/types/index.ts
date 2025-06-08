@@ -1,2 +1,2 @@
-export * from "common/types/epic/my-passport-form";
+export * from "common/epic/my-passport-form/types/";
 export * from "./api";

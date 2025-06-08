@@ -1,5 +1,6 @@
 import type { AnyDocumentId } from "@automerge/automerge-repo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
+import { selectMyPassportForm } from "common/epic/my-passport-form/select";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
@@ -32,7 +33,7 @@ export const useMyPassportFormSync = () => {
 
 					await handle.whenReady();
 
-					return handle.doc();
+					return selectMyPassportForm(handle.doc());
 				}),
 			);
 
