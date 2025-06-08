@@ -1,32 +1,17 @@
+import { withParents } from "core/utils";
 import { lazy } from "solid-js";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogClose,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "ui/alert-dialog";
+import { withI18n } from "./resources";
 
-export const MyPassportFormSyncLazy = lazy(async () => ({
-	default: MyPassportFormSync,
-}));
+export const MyPassportFormSyncLazy = lazy(async () => {
+	return import("./my-passport-form-sync").then(async exports => {
+		const { MyPassportFormSyncProviderMock } = await import("./context");
 
-export const MyPassportFormSync = () => {
-	return (
-		<AlertDialog defaultOpen>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Hello world!!!</AlertDialogTitle>
-					<AlertDialogDescription>TODO</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogClose>Cancel</AlertDialogClose>
-					<AlertDialogAction>Continue</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	);
-};
+		return {
+			default: withI18n(
+				withParents(MyPassportFormSyncProviderMock)(
+					exports.MyPassportFormSync,
+				),
+			),
+		};
+	});
+});
