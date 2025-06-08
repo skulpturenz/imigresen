@@ -9,7 +9,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/selectMyPassportForm";
-import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types/MyPassportFormVersion.enum";
+import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
