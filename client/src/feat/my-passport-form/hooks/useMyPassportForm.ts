@@ -134,7 +134,10 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		await mDeleteForm.mutateAsync(routeParams.uuid);
+		await mDeleteForm.mutateAsync({
+			uuid: routeParams.uuid,
+			sub: authnContext().keycloak?.tokenParsed?.sub,
+		});
 		reset(form);
 
 		const existingApplications =
@@ -268,7 +271,10 @@ export const useMyPassportForm = () => {
 				"Automerge URL is not defined, check `handle`",
 			);
 
-			const uuid = await mRegister.mutateAsync(automergeUrl);
+			const uuid = await mRegister.mutateAsync({
+				automergeUrl: automergeUrl,
+				sub: authnContext().keycloak?.tokenParsed?.sub,
+			});
 
 			const existingAutomergeUrls =
 				queryClient.getQueryData<string[]>(

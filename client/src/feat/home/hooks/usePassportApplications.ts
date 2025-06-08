@@ -40,7 +40,10 @@ export const usePassportApplications = () => {
 		queryKey: queryKeys.getPassportApplications(
 			authnContext().keycloak?.token,
 		),
-		queryFn: homeContext.getPassportApplications,
+		queryFn: () =>
+			homeContext.getPassportApplications({
+				sub: authnContext().keycloak?.tokenParsed?.sub,
+			}),
 	}));
 
 	const onClickExportApplications = async () => {
@@ -79,7 +82,10 @@ export const usePassportApplications = () => {
 	const onClickImportApplications = async (files: File[]) => {
 		mImportApplications.reset();
 
-		await mImportApplications.mutateAsync(files);
+		await mImportApplications.mutateAsync({
+			files,
+			sub: authnContext().keycloak?.tokenParsed?.sub,
+		});
 
 		qPassportApplications.refetch();
 

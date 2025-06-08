@@ -4,6 +4,7 @@ import { default as referenceDataStateFixture } from "feat/my-passport-form/chor
 import { default as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
+import { uuidv7 } from "uuidv7";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -12,16 +13,24 @@ const storage = createStorage({
 });
 
 export const myPassportFormService = (_token?: string) => {
-	const registerApplication = async (automergeUrl: string) => {
-		const uuid = crypto.randomUUID();
+	const registerApplication = async ({
+		automergeUrl,
+		sub,
+	}: Record<string, any>) => {
+		// TODO
+		const uuid = uuidv7();
 
-		storage.setItem(uuid, automergeUrl);
+		storage.setItem(
+			storageKeys.myPassportFormApplication(uuid, sub),
+			automergeUrl,
+		);
 
 		return uuid;
 	};
 
-	const deleteApplication = async (uuid: string) => {
-		await storage.del(uuid);
+	const deleteApplication = async ({ uuid, sub }: Record<string, any>) => {
+		// TODO
+		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
 	};
 
 	const getReferenceData = async () => {

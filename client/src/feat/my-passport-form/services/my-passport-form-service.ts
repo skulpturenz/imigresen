@@ -9,33 +9,25 @@ const storage = createStorage({
 	}),
 });
 
-export const myPassportFormService = (token?: string) => {
-	const registerApplication = async (automergeUrl: string) => {
-		if (!token) {
-			const uuid = uuidv7();
-
-			storage.setItem(uuid, automergeUrl);
-
-			return uuid;
-		}
-
+export const myPassportFormService = (_token?: string) => {
+	const registerApplication = async ({
+		automergeUrl,
+		sub,
+	}: Record<string, any>) => {
 		// TODO
 		const uuid = uuidv7();
 
-		storage.setItem(uuid, automergeUrl);
+		storage.setItem(
+			storageKeys.myPassportFormApplication(uuid, sub),
+			automergeUrl,
+		);
 
 		return uuid;
 	};
 
-	const deleteApplication = async (uuid: string) => {
-		if (!token) {
-			await storage.del(uuid);
-
-			return;
-		}
-
+	const deleteApplication = async ({ uuid, sub }: Record<string, any>) => {
 		// TODO
-		await storage.del(uuid);
+		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
 	};
 
 	// TODO
