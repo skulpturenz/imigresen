@@ -1,3 +1,4 @@
+import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
@@ -11,9 +12,11 @@ export interface UserProfile {
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
+	syncComplete?: boolean;
 	actions: {
 		// TODO: once BE is up remove dependence on KC
 		init: (profile?: KeycloakProfile | null) => void;
+		completeSync: () => void;
 	};
 }
 
@@ -34,14 +37,32 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 							phoneNumber: "",
 							avatar: "",
 						},
-						isInitialLoading: false,
 					});
+				}
 
-					return;
+				// TODO: BE
+				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
+				if (sub) {
+					set({
+						syncComplete:
+							localStorage.getItem(`syncStatus:${sub}`) ===
+							"complete",
+					});
 				}
 
 				set({ isInitialLoading: false });
 			}),
+			completeSync: () => {
+				// TODO: BE
+				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
+				if (!sub) {
+					return;
+				}
+
+				localStorage.setItem(`syncStatus:${sub}`, "complete");
+
+				set({ syncComplete: true });
+			},
 		},
 	};
 });

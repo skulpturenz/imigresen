@@ -1,6 +1,9 @@
+import type { MyPassportFormVersion } from "./MyPassportFormVersion.enum";
+
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;
 	addressDetails: AddressDetails;
+	version?: MyPassportFormVersion;
 };
 
 export type PersonalDetails = {

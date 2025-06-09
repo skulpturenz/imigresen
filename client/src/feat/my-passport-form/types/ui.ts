@@ -1,7 +1,7 @@
 import type { createForm, FormStore } from "@modular-forms/solid";
+import type { MyPassportForm } from "common/epic/my-passport-form/types";
 import type { Accessor } from "solid-js";
 import type { DropdownOptions } from "./api";
-import type { MyPassportForm } from "./form";
 
 export enum Step {
 	PersonalDetails = 1,

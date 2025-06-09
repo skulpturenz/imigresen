@@ -28,7 +28,8 @@
 		"paths": {
 			"feat/*": ["./feat/*"],
 			"core/*": ["./core/*"],
-			"ui/*": ["./ui/*"]
+			"ui/*": ["./ui/*"],
+			"common/*": ["./common/*"]
 		}
 	},
 	"include": ["src", ".storybook"]

@@ -34,6 +34,7 @@ export default defineConfig(({ mode: _mode }) => {
 				"feat/": new URL("./src/feat", import.meta.url).pathname,
 				"core/": new URL("./src/core", import.meta.url).pathname,
 				"ui/": new URL("./src/ui", import.meta.url).pathname,
+				"common/": new URL("./src/common", import.meta.url).pathname,
 			},
 		},
 		build: {

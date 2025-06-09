@@ -10,8 +10,3 @@ export interface ImportApplicationsVariables {
 	files: File[];
 	sub?: string;
 }
-
-export interface RegisterApplicationVariables {
-	automergeUrl: string;
-	sub?: string;
-}
