@@ -40,6 +40,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 					});
 				}
 
+				// TODO: BE
 				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
 				if (sub) {
 					set({
