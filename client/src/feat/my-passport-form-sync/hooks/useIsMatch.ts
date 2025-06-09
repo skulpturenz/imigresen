@@ -7,10 +7,17 @@ export const useIsMatch = () => {
 	const userContext = useContext(UserContext);
 	const searchParams = new URLSearchParams(window.location.search);
 
-	const isMatch = () =>
-		Boolean(authnContext().keycloak?.token) &&
-		!userContext().syncComplete &&
-		!searchParams.has("view", "sync");
+	const isMatch = () => {
+		if (import.meta.env.DEV) {
+			return searchParams.has("debug", "myPassportFormSync");
+		}
+
+		return (
+			Boolean(authnContext().keycloak?.token) &&
+			!userContext().syncComplete &&
+			!searchParams.has("view", "sync")
+		);
+	};
 
 	return isMatch;
 };
