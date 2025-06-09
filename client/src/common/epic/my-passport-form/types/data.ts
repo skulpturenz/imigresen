@@ -1,6 +1,6 @@
 import type { MyPassportForm } from "./form";
 
-export interface PassportApplication extends MyPassportForm {
+export interface RegisteredMyPassportForm extends MyPassportForm {
 	uuid: string;
 	automergeUrl: string;
 }

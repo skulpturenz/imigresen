@@ -8,6 +8,10 @@ export const resources = {
 	listItemDescription: (createdAt: Date) =>
 		`Created on ${formatDate(createdAt, "dd/MM/yyyy")}`,
 	toastTitle: "Applications imported",
-	toastDescription: (numberOfApplications: number) =>
-		`${numberOfApplications} applications imported`,
+	toastDescription: (numberOfApplications: number) => {
+		const applications =
+			numberOfApplications === 1 ? "application" : "applications";
+
+		return `${numberOfApplications} ${applications} imported`;
+	},
 };

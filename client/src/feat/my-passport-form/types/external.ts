@@ -1,1 +1,1 @@
-export type { PassportApplication } from "feat/home/types";
+export type { RegisteredMyPassportForm as PassportApplication } from "feat/home/types";

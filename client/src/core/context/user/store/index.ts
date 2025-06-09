@@ -1,3 +1,4 @@
+import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
@@ -23,7 +24,6 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
-		syncComplete: false,
 		actions: {
 			init: once(async (profile?: KeycloakProfile | null) => {
 				// TODO: once BE is up remove dependence on KC
@@ -43,15 +43,25 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 					return;
 				}
 
-				// TODO: BE
-				// TODO: needs to be scoped
-				const syncStatus = localStorage.getItem("syncStatus");
-				set({ syncComplete: syncStatus === "complete" });
+				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
+				if (sub) {
+					set({
+						syncComplete:
+							localStorage.getItem(`syncStatus:${sub}`) ===
+							"complete",
+					});
+				}
 
 				set({ isInitialLoading: false });
 			}),
 			completeSync: () => {
-				localStorage.setItem("syncStatus", "complete");
+				// TODO: BE
+				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
+				if (!sub) {
+					return;
+				}
+
+				localStorage.setItem(`syncStatus:${sub}`, "complete");
 
 				set({ syncComplete: true });
 			},

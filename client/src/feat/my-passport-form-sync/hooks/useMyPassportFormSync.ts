@@ -25,8 +25,7 @@ export const useMyPassportFormSync = () => {
 			authnContext().keycloak?.token,
 		),
 		queryFn: myPassportFormSync.getLocalPublicApplications,
-		select: data =>
-			data?.map(application => selectMyPassportForm(application)),
+		select: data => data?.map(selectMyPassportForm),
 	}));
 
 	const mTransferApplications = useMutation(() => ({

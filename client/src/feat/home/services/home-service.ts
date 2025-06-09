@@ -8,8 +8,8 @@ import type {
 	GetPassportApplicationsVariables,
 	ImportApplicationsVariables,
 	MyPassportForm,
-	PassportApplication,
 	RegisterApplicationVariables,
+	RegisteredMyPassportForm,
 } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
@@ -47,7 +47,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		const documents = await Promise.all(
 			automergeUrls?.map(async ({ key, value }) => {
 				const handle = await repo.find<
-					Omit<PassportApplication, "uuid" | "automergeUrl">
+					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
 				>(value as AnyDocumentId);
 
 				// this usually happens if the doc does not exist on the remote or locally
@@ -71,7 +71,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 
 		return documents
 			.sort(flip(get(getUuid)(uuidAsc)))
-			.map<PassportApplication>(application => {
+			.map<RegisteredMyPassportForm>(application => {
 				return {
 					uuid: application.uuid,
 					automergeUrl: application.automergeUrl,

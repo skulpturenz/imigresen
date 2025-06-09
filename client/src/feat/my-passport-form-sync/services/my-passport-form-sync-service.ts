@@ -3,8 +3,8 @@ import { storageKeys } from "core/constants/storage-keys";
 import { invariant } from "es-toolkit";
 import type {
 	DeleteApplicationVariables,
-	PassportApplication,
 	RegisterApplicationVariables,
+	RegisteredMyPassportForm,
 	TransferPublicApplicationsVariables,
 } from "feat/my-passport-form-sync/types";
 import { createStorage } from "unstorage";
@@ -34,7 +34,7 @@ export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 
 		const docs = await Promise.all(
 			automergeUrls.map(async (automergeUrl, idx) => {
-				const handle = await repo.find<PassportApplication>(
+				const handle = await repo.find<RegisteredMyPassportForm>(
 					automergeUrl as AnyDocumentId,
 				);
 
