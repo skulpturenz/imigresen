@@ -21,7 +21,7 @@ importers:
     dependencies:
       '@ark-ui/solid':
         specifier: ^5.12.0
-        version: 5.12.0(solid-js@1.9.7)
+        version: 5.13.0(solid-js@1.9.7)
       '@automerge/automerge-repo':
         specifier: ^2.0.1
         version: 2.0.1
@@ -141,8 +141,8 @@ importers:
         specifier: ^8.6.14
         version: 8.6.14(storybook@8.6.14(prettier@3.5.3))
       '@storybook/addon-viewport':
-        specifier: ^8.6.14
-        version: 8.6.14(storybook@8.6.14(prettier@3.5.3))
+        specifier: ^9.0.6
+        version: 9.0.6
       '@storybook/blocks':
         specifier: ^8.6.14
         version: 8.6.14(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.5.3))
@@ -267,8 +267,8 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@ark-ui/solid@5.12.0':
-    resolution: {integrity: sha512-feEV4BRreNXl49LvyY/jJuZvvkpfU/67sQSJEltBIlCerXEITNG41oSztQYUEspFxWooWZR7d3bul9oDH9U/eA==}
+  '@ark-ui/solid@5.13.0':
+    resolution: {integrity: sha512-8KKfGkVyZ5p1XG+jMOULRJ6lx2aZC7XQkwsuXhel/TIch9c7DWJjSAH7B1GG6PJmkLgLG5VFseusmkUjSt0BjA==}
     peerDependencies:
       solid-js: '>=1.6.0'
 
@@ -1055,6 +1055,9 @@ packages:
     resolution: {integrity: sha512-gNzVQbMqRC+/4uQTPI2ZrWuRHGquTMZpdgB9DrD88VTEjNudP+J6r8myLfr2VvGksBbUMHkGHMXHuIhrBEnXYA==}
     peerDependencies:
       storybook: ^8.6.14
+
+  '@storybook/addon-viewport@9.0.6':
+    resolution: {integrity: sha512-FWdnGMPUCw/Gth5oTXkhDi4ax+PRnz/d/6T5yoiZwGbeVQ7ndpGADxrMKNXvHEvwqGfEkCLlDGARnVEKk3CZTg==}
 
   '@storybook/blocks@8.6.14':
     resolution: {integrity: sha512-rBMHAfA39AGHgkrDze4RmsnQTMw1ND5fGWobr9pDcJdnDKWQWNRD7Nrlxj0gFlN3n4D9lEZhWGdFrCbku7FVAQ==}
@@ -4326,7 +4329,7 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@ark-ui/solid@5.12.0(solid-js@1.9.7)':
+  '@ark-ui/solid@5.13.0(solid-js@1.9.7)':
     dependencies:
       '@internationalized/date': 3.8.1
       '@zag-js/accordion': 1.15.0
@@ -5161,6 +5164,8 @@ snapshots:
     dependencies:
       memoizerific: 1.11.3
       storybook: 8.6.14(prettier@3.5.3)
+
+  '@storybook/addon-viewport@9.0.6': {}
 
   '@storybook/blocks@8.6.14(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.5.3))':
     dependencies:
