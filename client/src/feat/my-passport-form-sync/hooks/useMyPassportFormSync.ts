@@ -4,14 +4,21 @@ import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import { invariant } from "es-toolkit";
 import { MyPassportFormSyncContext } from "feat/my-passport-form-sync/context";
 import { queryKeys } from "feat/my-passport-form-sync/resources/query-keys";
+import { createSignal } from "solid-js";
 
 export const useMyPassportFormSync = () => {
 	const authnContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const myPassportFormSync = useContext(MyPassportFormSyncContext);
 	const queryClient = useQueryClient();
+
+	const [isOpen, setIsOpen] = createSignal(true);
+	const toggleIsOpen = () => setIsOpen(isOpen => !isOpen);
+
+	const [formRef, setFormRef] = createSignal<HTMLFormElement | null>(null);
 
 	const qPublicApplications = useQuery(() => ({
 		queryKey: queryKeys.getPublicApplications(
@@ -29,9 +36,14 @@ export const useMyPassportFormSync = () => {
 		mutationFn: myPassportFormSync.transferPublicApplications,
 	}));
 
-	const onClickTransferApplications = async (automergeUrls: string[]) => {
+	const onClickImport = async () => {
+		const form = formRef();
+		invariant(form, "Form ref is not defined");
+
+		const formData = new FormData(form);
+
 		await mTransferApplications.mutateAsync({
-			automergeUrls,
+			automergeUrls: Object.values(formData),
 			sub: authnContext().keycloak?.token,
 		});
 
@@ -42,14 +54,23 @@ export const useMyPassportFormSync = () => {
 		});
 
 		userContext().actions.completeSync();
+		toggleIsOpen();
+	};
+
+	const onClickCancel = () => {
+		userContext().actions.completeSync();
 	};
 
 	return {
 		data: {
 			publicApplications: () => qPublicApplications.data,
 		},
+		isOpen,
+		toggleIsOpen,
+		setFormRef,
 		qPublicApplications,
 		mTransferApplications,
-		onClickTransferApplications,
+		onClickCancel,
+		onClickImport,
 	};
 };

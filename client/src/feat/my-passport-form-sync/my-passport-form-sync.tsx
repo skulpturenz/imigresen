@@ -25,10 +25,14 @@ import { useMyPassportFormSync } from "./hooks";
 import type { resources } from "./resources/i18n/en-US";
 
 export const MyPassportFormSync = () => {
-	const [isOpen, setIsOpen] = createSignal(true);
-	const toggleIsOpen = () => setIsOpen(isOpen => !isOpen);
-
-	const { data } = useMyPassportFormSync();
+	const {
+		data,
+		isOpen,
+		toggleIsOpen,
+		setFormRef,
+		onClickImport,
+		onClickCancel,
+	} = useMyPassportFormSync();
 
 	const t = useI18n<typeof resources>();
 
@@ -43,7 +47,7 @@ export const MyPassportFormSync = () => {
 						</DialogDescription>
 					</DialogHeader>
 
-					<form>
+					<form ref={setFormRef}>
 						<ol class="flex flex-col space-y-4 my-4">
 							<For each={data.publicApplications()}>
 								{application => (
@@ -61,11 +65,11 @@ export const MyPassportFormSync = () => {
 					</form>
 
 					<DialogFooter>
-						<Button variant="ghost" onClick={toggleIsOpen}>
+						<Button variant="ghost" onClick={onClickCancel}>
 							{t("doCancel")}
 						</Button>
 
-						<Button type="submit" onClick={toggleIsOpen}>
+						<Button type="submit" onClick={onClickImport}>
 							{t("doImport")}
 						</Button>
 					</DialogFooter>
@@ -115,7 +119,7 @@ const PassportApplicationListItem: Component<
 			<div class="flex space-x-4 items-center">
 				<Checkbox
 					name={props.uuid}
-					value={isChecked() ? "on" : "off"}
+					value={props.automergeUrl}
 					checked={isChecked()}
 					onChange={setIsChecked}>
 					<CheckboxControl />
