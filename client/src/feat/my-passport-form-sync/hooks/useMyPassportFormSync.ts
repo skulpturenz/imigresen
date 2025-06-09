@@ -61,6 +61,7 @@ export const useMyPassportFormSync = () => {
 
 	const onClickCancel = () => {
 		userContext().actions.completeSync();
+		toggleIsOpen();
 	};
 
 	return {
