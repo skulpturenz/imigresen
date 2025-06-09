@@ -8,10 +8,9 @@ export const useIsMatch = () => {
 	const searchParams = new URLSearchParams(window.location.search);
 
 	const isMatch = () =>
-		true || // TODO
-		(Boolean(authnContext().keycloak?.token) &&
-			userContext().syncComplete &&
-			!searchParams.has("view", "sync"));
+		Boolean(authnContext().keycloak?.token) &&
+		!userContext().syncComplete &&
+		!searchParams.has("view", "sync");
 
 	return isMatch;
 };

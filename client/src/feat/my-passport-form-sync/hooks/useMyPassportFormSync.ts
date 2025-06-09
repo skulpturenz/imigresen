@@ -43,8 +43,10 @@ export const useMyPassportFormSync = () => {
 		const formData = new FormData(form);
 
 		await mTransferApplications.mutateAsync({
-			automergeUrls: Object.values(formData),
-			sub: authnContext().keycloak?.token,
+			automergeUrls: Object.values(
+				Object.fromEntries(formData),
+			) as string[],
+			sub: authnContext().keycloak?.tokenParsed?.sub,
 		});
 
 		await queryClient.refetchQueries({
