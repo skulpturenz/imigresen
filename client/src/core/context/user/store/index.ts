@@ -37,10 +37,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 							phoneNumber: "",
 							avatar: "",
 						},
-						isInitialLoading: false,
 					});
-
-					return;
 				}
 
 				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
