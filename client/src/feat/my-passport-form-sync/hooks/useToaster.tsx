@@ -8,7 +8,7 @@ import { invariant } from "es-toolkit";
 import type { resources } from "feat/my-passport-form-sync/resources/i18n/en-US";
 import { queryKeys } from "feat/my-passport-form-sync/resources/query-keys";
 import {
-	createEffect,
+	createReaction,
 	createSignal,
 	type Component,
 	type ParentProps,
@@ -25,7 +25,7 @@ export const useToaster = () => {
 
 	const [toastId, setToastId] = createSignal(0);
 
-	createEffect(() => {
+	const track = createReaction(() => {
 		if (!userContext().syncComplete || toastId()) {
 			return;
 		}
@@ -50,6 +50,8 @@ export const useToaster = () => {
 
 		setToastId(id);
 	});
+
+	track(() => userContext().syncComplete);
 
 	return toastId;
 };
