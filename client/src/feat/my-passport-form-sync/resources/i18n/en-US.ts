@@ -7,4 +7,7 @@ export const resources = {
 	doImport: "Import",
 	listItemDescription: (createdAt: Date) =>
 		`Created on ${formatDate(createdAt, "dd/MM/yyyy")}`,
+	toastTitle: "Applications imported",
+	toastDescription: (numberOfApplications: number) =>
+		`${numberOfApplications} applications imported`,
 };

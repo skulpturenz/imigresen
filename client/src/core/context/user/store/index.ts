@@ -44,6 +44,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 				}
 
 				// TODO: BE
+				// TODO: needs to be scoped
 				const syncStatus = localStorage.getItem("syncStatus");
 				set({ syncComplete: syncStatus === "complete" });
 
