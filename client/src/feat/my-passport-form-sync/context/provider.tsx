@@ -1,6 +1,7 @@
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { myPassportFormSyncService } from "feat/my-passport-form-sync/services/my-passport-form-sync-service";
+import { useRepo } from "solid-automerge";
 import { createContext, type Component, type ParentProps } from "solid-js";
 import { createMyPassportFormSyncContext } from "./initializers";
 
@@ -14,10 +15,14 @@ export const MyPassportFormSyncContext = createContext<MyPassportFormSyncSvc>(
 
 export const MyPassportFormSyncProvider: Component<ParentProps> = props => {
 	const authnContext = useContext(AuthnContext);
+	const repo = useRepo();
 
 	return (
 		<MyPassportFormSyncContext.Provider
-			value={myPassportFormSyncService(authnContext().keycloak?.token)}>
+			value={myPassportFormSyncService(
+				repo,
+				authnContext().keycloak?.token,
+			)}>
 			{props.children}
 		</MyPassportFormSyncContext.Provider>
 	);

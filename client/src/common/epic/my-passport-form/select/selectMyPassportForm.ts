@@ -3,9 +3,9 @@ import type { MyPassportForm } from "common/epic/my-passport-form/types";
 import { MyPassportFormVersion } from "common/epic/my-passport-form/types/MyPassportFormVersion.enum";
 import { invariant } from "es-toolkit";
 
-export const selectMyPassportForm = <T>(
-	doc: Doc<T> & { version?: string },
-): Doc<MyPassportForm> => {
+export const selectMyPassportForm = <T, U extends MyPassportForm>(
+	doc: Doc<T | U> & { version?: string },
+): Doc<U> => {
 	invariant(doc.version, "Invalid passport form");
 
 	if (doc.version === MyPassportFormVersion.V1_0) {

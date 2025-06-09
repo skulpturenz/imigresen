@@ -1,7 +1,9 @@
+import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
 import { invariant } from "es-toolkit";
 import type {
 	DeleteApplicationVariables,
+	PassportApplication,
 	RegisterApplicationVariables,
 	TransferPublicApplicationsVariables,
 } from "feat/my-passport-form-sync/types";
@@ -15,14 +17,41 @@ const storage = createStorage({
 	}),
 });
 
-export const myPassportFormSyncServiceMock = (_token?: string) => {
-	const getPublicApplications = async () => {
+export const myPassportFormSyncServiceMock = (repo: Repo, _token?: string) => {
+	const getLocalPublicItems = async () => {
 		const localKeys = await storage.getKeys(
 			storageKeys.myPassportFormApplications(),
 		);
 		const localItems = await storage.getItems<string>(localKeys);
 
 		return localItems;
+	};
+
+	const getLocalPublicApplications = async () => {
+		const items = await getLocalPublicItems();
+
+		const automergeUrls = items.map(({ value }) => value);
+
+		const docs = await Promise.all(
+			automergeUrls.map(async (automergeUrl, idx) => {
+				const handle = await repo.find<PassportApplication>(
+					automergeUrl as AnyDocumentId,
+				);
+
+				await handle.whenReady();
+
+				const uuid = items.at(idx)?.key.split(":").at(-1);
+				invariant(uuid, "invalid application");
+
+				return {
+					...handle.doc(),
+					uuid,
+					automergeUrl,
+				};
+			}),
+		);
+
+		return docs;
 	};
 
 	// same as `registerApplications` in `myPassportFormService`
@@ -54,7 +83,7 @@ export const myPassportFormSyncServiceMock = (_token?: string) => {
 		automergeUrls,
 		sub,
 	}: TransferPublicApplicationsVariables) => {
-		const publicApplications = await getPublicApplications();
+		const publicApplications = await getLocalPublicItems();
 
 		const selectedApplications = publicApplications.filter(
 			({ value: publicApplicationUrl }) =>
@@ -88,7 +117,8 @@ export const myPassportFormSyncServiceMock = (_token?: string) => {
 	};
 
 	return {
-		getPublicApplications,
+		getLocalPublicItems,
+		getLocalPublicApplications,
 		transferPublicApplications,
 	};
 };
