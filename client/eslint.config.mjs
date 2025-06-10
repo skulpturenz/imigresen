@@ -18,7 +18,7 @@ export default [
 		},
 	},
 	{
-		files: ["**/*.{js,ts,jsx,tsx}"],
+		files: ["**/*"],
 		plugins: {
 			"check-file": checkFile,
 		},
@@ -26,10 +26,16 @@ export default [
 			"check-file/filename-naming-convention": [
 				"error",
 				{
-					"**/*.{js,ts,jsx,tsx}": "KEBAB_CASE",
+					"**/*": "KEBAB_CASE",
 				},
 				{
 					ignoreMiddleExtensions: true,
+				},
+			],
+			"check-file/folder-naming-convention": [
+				"error",
+				{
+					"**/*": "KEBAB_CASE",
 				},
 			],
 		},
