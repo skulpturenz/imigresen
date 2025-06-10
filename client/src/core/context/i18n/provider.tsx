@@ -1,8 +1,9 @@
 import { useLocale } from "@kobalte/core";
-import { translator, type Flatten } from "@solid-primitives/i18n";
+import { flatten, translator, type Flatten } from "@solid-primitives/i18n";
 import type { Locale } from "core/context/ui";
 import { useContext } from "core/context/utils";
 import { spreadProps } from "core/utils";
+import { invariant } from "es-toolkit";
 import {
 	createContext,
 	createResource,
@@ -63,14 +64,50 @@ const I18nProvider: Component<ParentProps<I18nProviderProps>> = props => {
 	);
 };
 
-export const makeWithI18n =
-	({ fetcher, initialValue }: I18nProviderProps) =>
-	<T extends Record<string, any>>(Component: Component<T>) =>
-	(props: T) => (
-		<I18nProvider fetcher={fetcher} initialValue={initialValue}>
-			<Component {...spreadProps(props)} />
-		</I18nProvider>
+interface Withi18nProviderOptionsCustomFetcher<
+	T extends Record<string, any> = Record<string, any>,
+> {
+	fetcher?: (locale: Locale) => Promise<Flatten<T>>;
+	initialValue?: Flatten<T>;
+	base?: never;
+}
+
+interface Withi18nProviderOptionsDefaultFetcher<
+	T extends Record<string, any> = Record<string, any>,
+> {
+	fetcher?: never;
+	initialValue?: Flatten<T>;
+	base?: string | URL;
+}
+
+type Withi18nProviderOptions =
+	| Withi18nProviderOptionsCustomFetcher
+	| Withi18nProviderOptionsDefaultFetcher;
+
+export const makeWithI18n = (options: Withi18nProviderOptions) => {
+	const defaultFetcher = async (locale: Locale) => {
+		const { resources } = await import(
+			new URL(`./i18n/${locale.toLowerCase()}.ts`, options?.base).pathname
+		);
+
+		return flatten(resources);
+	};
+
+	invariant(
+		(options.fetcher && !options.base) ||
+			(options.base && !options.fetcher),
+		"Either provide a custom fetcher or specify a base path to use the default fetcher",
 	);
+
+	return <T extends Record<string, any>>(Component: Component<T>) =>
+		(props: T) => (
+			<I18nProvider
+				fetcher={options?.fetcher ?? defaultFetcher}
+				initialValue={options?.initialValue}>
+				<Component {...spreadProps(props)} />
+			</I18nProvider>
+		);
+};
 
 export const useI18n = <
 	T extends Record<string, any> = Record<string, any>,
