@@ -1,6 +1,6 @@
 import type { Doc } from "@automerge/automerge-repo";
 import type { MyPassportForm } from "common/epic/my-passport-form/types";
-import { MyPassportFormVersion } from "common/epic/my-passport-form/types/MyPassportFormVersion.enum";
+import { MyPassportFormVersion } from "common/epic/my-passport-form/types/my-passport-form-version.enum";
 import { invariant } from "es-toolkit";
 
 export const selectMyPassportForm = <T, U extends MyPassportForm>(

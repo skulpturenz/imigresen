@@ -51,6 +51,7 @@
 	"devDependencies": {
 		"@automerge/automerge-repo-storage-nodefs": "^2.0.0",
 		"@chromatic-com/storybook": "^3.2.6",
+		"@eslint/js": "^9.28.0",
 		"@ngneat/falso": "^7.4.0",
 		"@solidjs/testing-library": "^0.8.10",
 		"@storybook/addon-essentials": "^8.6.14",
@@ -70,6 +71,7 @@
 		"@types/ws": "^8.18.1",
 		"eslint": "^9.28.0",
 		"eslint-config-prettier": "^10.1.5",
+		"eslint-plugin-check-file": "^3.3.0",
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-prettier": "^5.4.1",
 		"eslint-plugin-solid": "^0.14.5",

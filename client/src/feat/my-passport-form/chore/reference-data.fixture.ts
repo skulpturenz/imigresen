@@ -1,6 +1,6 @@
 import { randCountry } from "@ngneat/falso";
 
-export default {
+export const fixture = {
 	genderOptions: {
 		Female: "Female",
 		Male: "Male",

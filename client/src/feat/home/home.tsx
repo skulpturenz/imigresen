@@ -47,7 +47,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
 import { cn } from "ui/utils";
-import { usePassportApplications } from "./hooks/usePassportApplications";
+import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-US";
 
 export const Home = () => {

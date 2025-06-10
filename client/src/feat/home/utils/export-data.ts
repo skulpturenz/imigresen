@@ -8,7 +8,7 @@ export const exportData = (
 	const file = new Blob([data].flat(), { type: mime });
 
 	const element = document.createElement("a");
-	var objectUrl = URL.createObjectURL(file);
+	const objectUrl = URL.createObjectURL(file);
 	element.setAttribute("href", objectUrl);
 	element.setAttribute(
 		"download",
