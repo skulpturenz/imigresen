@@ -1,7 +1,7 @@
 import { useLocation, useParams } from "@solidjs/router";
 import { useI18n } from "core/context/i18n";
 import { isCurrentStep } from "feat/my-passport-form/hooks";
-import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
+import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { Step } from "feat/my-passport-form/types";
 import type { Accessor, Component } from "solid-js";
 import { Button } from "ui/button";

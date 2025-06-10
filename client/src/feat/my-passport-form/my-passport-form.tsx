@@ -13,7 +13,7 @@ import {
 } from "ui/alert-dialog";
 import { useMyPassportForm } from "./hooks/use-my-passport-form";
 import { useWizardSteps } from "./hooks/use-wizard-steps";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 import {
 	AddressDetails,
 	ApplicationDetails,

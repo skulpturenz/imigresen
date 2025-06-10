@@ -11,7 +11,7 @@ import {
 	AlertDialogTitle,
 } from "ui/alert-dialog";
 import { withI18n } from "./resources";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 
 export interface FallbackProps {
 	err: any;

@@ -48,7 +48,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
 import { cn } from "ui/utils";
 import { usePassportApplications } from "./hooks/use-passport-applications";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -76,8 +76,8 @@ export const Home = () => {
 	const getDifference = (expiryDate: Date) => {
 		invariant(
 			!isBefore(
-				expiryDate.toLocaleDateString("en-US"),
-				new Date().toLocaleDateString("en-US"),
+				expiryDate.toLocaleDateString("en-us"),
+				new Date().toLocaleDateString("en-us"),
 			),
 			"Expiry date must be greater than or equal to today",
 		);
@@ -104,8 +104,8 @@ export const Home = () => {
 	const getDifferenceUnit = (expiryDate: Date) => {
 		invariant(
 			!isBefore(
-				expiryDate.toLocaleDateString("en-US"),
-				new Date().toLocaleDateString("en-US"),
+				expiryDate.toLocaleDateString("en-us"),
+				new Date().toLocaleDateString("en-us"),
 			),
 			"Expiry date must be greater than or equal to today",
 		);
@@ -134,7 +134,7 @@ export const Home = () => {
 	};
 
 	const randomDate = randBetweenDate({
-		from: new Date().toLocaleDateString("en-US"),
+		from: new Date().toLocaleDateString("en-us"),
 		to: addYears(new Date(), 5),
 	});
 

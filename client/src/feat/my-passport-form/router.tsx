@@ -6,7 +6,7 @@ import { toPath } from "core/router/utils";
 import { withParents } from "core/utils";
 import { lazy, type Component } from "solid-js";
 import { withI18n } from "./resources";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 
 export const Router: Component<RouterProps> = withI18n(_props => {
 	const t = useI18n<typeof resources>();

@@ -5,7 +5,7 @@ import { toPath } from "core/router/utils";
 import { Show } from "solid-js";
 import { Button } from "ui/button";
 import { Typography } from "ui/typography";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 
 interface UnathorizedLocationState {
 	referer: string;

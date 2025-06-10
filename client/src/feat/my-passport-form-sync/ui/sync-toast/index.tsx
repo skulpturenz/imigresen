@@ -1,6 +1,6 @@
 import { useI18n } from "core/context/i18n";
 import { withI18n } from "feat/my-passport-form-sync/resources";
-import type { resources } from "feat/my-passport-form-sync/resources/i18n/en-US";
+import type { resources } from "feat/my-passport-form-sync/resources/i18n/en-us";
 import { type Component, type ParentProps } from "solid-js";
 import { Toast, ToastContent, ToastDescription, ToastTitle } from "ui/toast";
 

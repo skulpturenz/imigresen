@@ -10,7 +10,7 @@ import {
 	DialogTitle,
 } from "ui/dialog";
 import { useMyPassportFormSync } from "./hooks";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 import { PassportApplicationLi } from "./ui/passport-application-li";
 
 export const MyPassportFormSync = () => {
