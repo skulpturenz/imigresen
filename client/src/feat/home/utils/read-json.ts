@@ -17,7 +17,7 @@ export const readJson = <T extends Record<string, any> = Record<string, any>>(
 
 			try {
 				return resolve(JSON.parse(result));
-			} catch (error: unknown) {
+			} catch (_error: unknown) {
 				return reject(new Error("Failed to read file"));
 			}
 		});

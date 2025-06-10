@@ -1,5 +1,5 @@
 import { useI18n } from "core/context/i18n";
-import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
+import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import {
 	createSignal,
 	onCleanup,

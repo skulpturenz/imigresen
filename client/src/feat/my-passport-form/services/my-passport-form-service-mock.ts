@@ -1,7 +1,7 @@
 import { storageKeys } from "core/constants/storage-keys";
 import { delay, invariant } from "es-toolkit";
-import { default as referenceDataStateFixture } from "feat/my-passport-form/chore/reference-data-states.fixture";
-import { default as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
+import { fixture as referenceDataStateFixture } from "feat/my-passport-form/chore/reference-data-states.fixture";
+import { fixture as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import type {
 	DeleteApplicationVariables,
 	RegisterApplicationVariables,

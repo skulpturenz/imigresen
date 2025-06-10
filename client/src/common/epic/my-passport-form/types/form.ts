@@ -1,4 +1,4 @@
-import type { MyPassportFormVersion } from "./MyPassportFormVersion.enum";
+import type { MyPassportFormVersion } from "./my-passport-form-version.enum";
 
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;

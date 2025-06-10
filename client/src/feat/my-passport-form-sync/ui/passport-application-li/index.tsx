@@ -1,8 +1,8 @@
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { useI18n } from "core/context/i18n";
 import { generatePath } from "core/utils";
-import { uuidToDate } from "core/utils/uuidToDate";
-import type { resources } from "feat/my-passport-form-sync/resources/i18n/en-US";
+import { uuidToDate } from "core/utils/uuid-to-date";
+import type { resources } from "feat/my-passport-form-sync/resources/i18n/en-us";
 import { SquareArrowOutUpRight } from "lucide-solid";
 import { createSignal, type Component, type ParentProps } from "solid-js";
 import { Button } from "ui/button";

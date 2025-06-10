@@ -1,3 +1,3 @@
 import { randState } from "@ngneat/falso";
 
-export default [...new Set(randState({ length: 150 }))];
+export const fixture = [...new Set(randState({ length: 150 }))];

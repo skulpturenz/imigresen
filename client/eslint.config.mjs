@@ -1,6 +1,7 @@
 /// @ts-check
 
 import { default as js } from "@eslint/js";
+import checkFile from "eslint-plugin-check-file";
 import { flatConfigs as importPluginFlatConfig } from "eslint-plugin-import";
 import { default as eslintPluginPrettierRecommended } from "eslint-plugin-prettier/recommended";
 import { default as solid } from "eslint-plugin-solid/configs/typescript";
@@ -14,6 +15,29 @@ export default [
 	{
 		plugins: {
 			"@typescript-eslint": tseslint.plugin,
+		},
+	},
+	{
+		files: ["**/*"],
+		plugins: {
+			"check-file": checkFile,
+		},
+		rules: {
+			"check-file/filename-naming-convention": [
+				"error",
+				{
+					"**/*": "KEBAB_CASE",
+				},
+				{
+					ignoreMiddleExtensions: true,
+				},
+			],
+			"check-file/folder-naming-convention": [
+				"error",
+				{
+					"**/*": "KEBAB_CASE",
+				},
+			],
 		},
 	},
 	{

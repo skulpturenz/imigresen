@@ -2,7 +2,7 @@ import { A, useParams } from "@solidjs/router";
 import { useI18n } from "core/context/i18n";
 import { Button } from "ui/button";
 import { Typography } from "ui/typography";
-import type { resources } from "./resources/i18n/en-US";
+import type { resources } from "./resources/i18n/en-us";
 
 export const NotFound = () => {
 	const params = useParams<{ path?: string }>();

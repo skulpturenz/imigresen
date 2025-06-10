@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
-import { selectMyPassportForm } from "common/epic/my-passport-form/select/selectMyPassportForm";
+import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";

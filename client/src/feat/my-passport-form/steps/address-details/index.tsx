@@ -2,7 +2,7 @@ import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { localeAsc } from "core/data/sort";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
-import type { resources } from "feat/my-passport-form/resources/i18n/en-US";
+import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";

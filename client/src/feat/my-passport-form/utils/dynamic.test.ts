@@ -5,6 +5,7 @@ describe("dynamic", () => {
 	it("has statically known keys and dynamically known values", () => {
 		enum Test {
 			A = 1,
+			/* eslint-disable-next-line  @typescript-eslint/no-duplicate-enum-values */
 			B = 1,
 		}
 
@@ -23,6 +24,7 @@ describe("dynamic", () => {
 		it("if possible", () => {
 			enum Test {
 				A = 1,
+				/* eslint-disable-next-line  @typescript-eslint/no-duplicate-enum-values */
 				B = 1,
 			}
 
@@ -40,6 +42,7 @@ describe("dynamic", () => {
 		it("if not possible", () => {
 			enum Test {
 				A = 1,
+				/* eslint-disable-next-line  @typescript-eslint/no-duplicate-enum-values */
 				B = 1,
 			}
 
@@ -57,6 +60,7 @@ describe("dynamic", () => {
 	it("throws if key in static definition is not present", () => {
 		enum Test {
 			A = 1,
+			/* eslint-disable-next-line  @typescript-eslint/no-duplicate-enum-values */
 			B = 1,
 		}
 

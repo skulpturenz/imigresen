@@ -7,6 +7,7 @@ import { NodeFSStorageAdapter } from "@automerge/automerge-repo-storage-nodefs";
 import { default as tailwindcss } from "@tailwindcss/vite";
 import { defineConfig, type Plugin } from "vite";
 import { default as viteCompression } from "vite-plugin-compression";
+import { default as eslint } from "vite-plugin-eslint2";
 import { default as solid } from "vite-plugin-solid";
 import { default as topLevelAwait } from "vite-plugin-top-level-await";
 import { default as wasm } from "vite-plugin-wasm";
@@ -18,6 +19,15 @@ export default defineConfig(({ mode: _mode }) => {
 	return {
 		plugins: [
 			tsconfigPaths(),
+			eslint({
+				cache: true,
+				fix: false,
+				dev: false,
+				build: true,
+				lintInWorker: false,
+				lintDirtyOnly: true,
+				emitWarningAsError: true,
+			}),
 			solid(),
 			webfontDownload(),
 			viteCompression({
