@@ -1,6 +1,7 @@
 import type {
 	AddressDetails,
 	ApplicationDetails,
+	Declaration,
 	DocumentType,
 	PersonalDetails,
 	PreviousDocuments,
@@ -14,6 +15,7 @@ export const resources = {
 	doDelete: "Delete",
 	doBack: "Back",
 	doNext: "Next",
+	doSubmit: "Submit",
 	loading: "Loading...",
 	steps: {
 		[Step.PersonalDetails]: {
@@ -169,6 +171,40 @@ export const resources = {
 					"Only required if you are requesting a new one for your children",
 			},
 		} satisfies Record<keyof PreviousDocuments, any>,
+		declaration: {
+			confirmPreviousDocumentNumber: {
+				label: "Confirm previous travel document number",
+				placeholder: "",
+				description:
+					"Previous travel document refers to your current travel document at the time of the application",
+			},
+			isDetailsCorrect: {
+				label: (forDependents: boolean) => {
+					if (forDependents) {
+						return "I declare a request for a new passport / travel document to be issued for my child as per the provided details";
+					}
+
+					return "I declare a request for a new passport / travel document to be issued for myself as per the provided details";
+				},
+			},
+			declareTrueAndCorrect: {
+				label: [
+					"I declare that all information provided is true and correct.",
+					[
+						"I understand that if incorrect information is provided then I am liable",
+						"to be fined up to a minimum of RM 10,000 and a maximum of RM 50,000 or face imprisonment up to a minimum of",
+						"1 year and a maximum of 5 years or both under the Passport Act of 1966 (renewed 1996)",
+					].join(" "),
+				],
+			},
+			isLiable: {
+				label: [
+					"I understand and agree that Imigresen or Skulpture have made best efforts to ensure a valid application",
+					"but is not liable or responsible for any invalid applications and it is solely my responsibility to ensure an accurate",
+					"and valid application",
+				].join(" "),
+			},
+		} satisfies Record<keyof Declaration, any>,
 	},
 	options: {
 		documentTypes: {

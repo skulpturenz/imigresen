@@ -47,7 +47,8 @@ export type PreviousDocuments = {
 };
 
 export type Declaration = {
-	isDetailsCorrect?: true;
-	previousDocumentNumber?: number; // only if `previousDocuments.previousDocumentNumber`
+	isDetailsCorrect?: boolean;
+	confirmPreviousDocumentNumber?: string; // only if `previousDocuments.previousDocumentNumber`
 	declareTrueAndCorrect: boolean;
+	isLiable?: boolean;
 };
