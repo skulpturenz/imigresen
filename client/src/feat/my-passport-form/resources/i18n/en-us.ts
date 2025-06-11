@@ -1,5 +1,6 @@
 import type {
 	AddressDetails,
+	ApplicationDetails,
 	PersonalDetails,
 } from "feat/my-passport-form/types";
 import { Step } from "feat/my-passport-form/types/ui";
@@ -109,5 +110,25 @@ export const resources = {
 				description: "Autocorrected to a valid country",
 			},
 		} satisfies Record<keyof AddressDetails, any>,
+		applicationDetails: {
+			documentType: {
+				label: "Document type",
+				placeholder: "",
+			},
+			requestType: {
+				label: "Request type",
+				placeholder: "",
+			},
+			myKadNumber: {
+				label: "MyKad number",
+				placeholder: "",
+			},
+			birthDocumentNumber: {
+				label: "Birth document number",
+				placeholder: "",
+				description:
+					"Birth certificate number / Adoption certificate number / Borang W number",
+			},
+		} satisfies Record<keyof ApplicationDetails, any>,
 	},
 };
