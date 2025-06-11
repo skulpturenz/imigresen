@@ -126,8 +126,11 @@ export const resources = {
 			birthDocumentNumber: {
 				label: "Birth document number",
 				placeholder: "",
-				description:
-					"Birth certificate number / Adoption certificate number / Borang W number",
+				description: [
+					"Birth certificate number",
+					"Adoption certificate number",
+					"Borang W number",
+				].join(" / "),
 			},
 		} satisfies Record<keyof ApplicationDetails, any>,
 	},
