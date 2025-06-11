@@ -118,7 +118,12 @@ export const MyPassportForm = () => {
 								Step.PreviousDocuments
 							}
 							class={constants.grid}>
-							<PreviousDocuments />
+							<PreviousDocuments
+								form={form}
+								Field={Components.Field}
+								FieldArray={Components.FieldArray}
+								dropdownOptions={data.referenceData}
+							/>
 						</Hide>
 
 						<Hide

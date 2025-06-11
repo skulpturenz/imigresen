@@ -3,6 +3,7 @@ import type {
 	ApplicationDetails,
 	DocumentType,
 	PersonalDetails,
+	PreviousDocuments,
 	RequestType,
 } from "feat/my-passport-form/types";
 import { Step } from "feat/my-passport-form/types/ui";
@@ -135,6 +136,39 @@ export const resources = {
 				].join(" / "),
 			},
 		} satisfies Record<keyof ApplicationDetails, any>,
+		previousDocuments: {
+			previousDocumentNumber: {
+				label: "Previous travel document number",
+				placeholder: "",
+				description:
+					"Only required if you have lost your passport or are requesting a new one for your children",
+			},
+			dependentCaregiverFirstName: {
+				label: "Primary caregiver first name",
+				placeholder: "",
+				description:
+					"Only required if you are requesting a new one for your children",
+			},
+			dependentCaregiverLastName: {
+				label: "Primary caregiver last name",
+				placeholder: "",
+				description:
+					"Only required if you are requesting a new one for your children",
+			},
+			dependentCaregiverMyKadNumber: {
+				label: "Primary caregiver MyKad number",
+				placeholder: "",
+				description:
+					"Only required if you are requesting a new one for your children",
+			},
+			dependentCaregiverSignature: {
+				label: "Primary caregiver signature",
+				placeholder: "",
+				descriptionEnabled: "Leave blank or sign",
+				descriptionDisabled:
+					"Only required if you are requesting a new one for your children",
+			},
+		} satisfies Record<keyof PreviousDocuments, any>,
 	},
 	options: {
 		documentTypes: {

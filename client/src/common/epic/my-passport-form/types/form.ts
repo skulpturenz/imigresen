@@ -39,10 +39,8 @@ export type ApplicationDetails = {
 };
 
 export type PreviousDocuments = {
-	hasLostPreviousDocument?: boolean;
-	hasDestroyedPreviousDocument?: boolean;
-	isRequestForDependents?: boolean;
-	dependentCaregiverName?: string;
+	dependentCaregiverFirstName?: string;
+	dependentCaregiverLastName?: string;
 	dependentCaregiverMyKadNumber?: string;
 	dependentCaregiverSignature?: string;
 	previousDocumentNumber?: string;
