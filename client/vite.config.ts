@@ -15,6 +15,7 @@ import { default as webfontDownload } from "vite-plugin-webfont-dl";
 import { default as tsconfigPaths } from "vite-tsconfig-paths";
 import { WebSocketServer } from "ws";
 
+/* eslint-disable-next-line */
 export default defineConfig(({ mode: _mode }) => {
 	return {
 		plugins: [
