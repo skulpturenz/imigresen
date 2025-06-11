@@ -1,7 +1,9 @@
 import type {
 	AddressDetails,
 	ApplicationDetails,
+	DocumentType,
 	PersonalDetails,
+	RequestType,
 } from "feat/my-passport-form/types";
 import { Step } from "feat/my-passport-form/types/ui";
 
@@ -133,5 +135,25 @@ export const resources = {
 				].join(" / "),
 			},
 		} satisfies Record<keyof ApplicationDetails, any>,
+	},
+	options: {
+		documentTypes: {
+			Pages64: "Malaysian passport (64 pages)",
+			Pages32: "Malaysian passport (32 pages)",
+			LimitedSingapore: "Limited Malaysian passport - Singapore",
+			LimitedBrunei: "Limited Malaysian passport - Brunei",
+			BorderPhilippines: "Malaysia - Philippines border passport", // TODO
+			BorderIndonesia: "Malaysia - Indonesia border passport", // TODO
+			Limited: "Limited travel document",
+			EmergencyCertificate: "Emergency certificate",
+		} satisfies Record<keyof typeof DocumentType, string>,
+		requestTypes: {
+			First: "First request",
+			Expired: "Current passport expired",
+			Full: "Current passport full", // TODO
+			Damaged: "Damaged passport", // TODO
+			OutdatedPicturesDependents: "Renew pictures (for children)", // TODO
+			Lost: "Lost",
+		} satisfies Record<keyof typeof RequestType, string>,
 	},
 };

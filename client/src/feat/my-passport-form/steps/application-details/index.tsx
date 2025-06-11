@@ -1,8 +1,14 @@
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
-import type { MyPassportForm, StepProps } from "feat/my-passport-form/types";
+import {
+	DocumentType,
+	RequestType,
+	type MyPassportForm,
+	type StepProps,
+} from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
+import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import type { Component } from "solid-js";
 import { Label } from "ui/label";
 import {
@@ -22,6 +28,18 @@ import {
 
 export const ApplicationDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
+
+	const documentTypeOptions = dynamic(
+		DocumentType,
+		t("options.documentTypes"),
+		false,
+	);
+
+	const requestTypeOptions = dynamic(
+		RequestType,
+		t("options.requestTypes"),
+		false,
+	);
 
 	return (
 		<>
@@ -45,13 +63,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									options={[
-										"Apple",
-										"Banana",
-										"Blueberry",
-										"Grapes",
-										"Pineapple",
-									]}
+									options={Object.values(documentTypeOptions)}
 									placeholder={t(
 										"form.applicationDetails.documentType.placeholder",
 									)}
@@ -108,13 +120,9 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										{...field}
 										{...fieldProps}
 										form={props.form}
-										options={[
-											"Apple",
-											"Banana",
-											"Blueberry",
-											"Grapes",
-											"Pineapple",
-										]}
+										options={Object.values(
+											requestTypeOptions,
+										)}
 										placeholder={t(
 											"form.applicationDetails.requestType.placeholder",
 										)}

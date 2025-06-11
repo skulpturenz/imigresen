@@ -11,6 +11,7 @@ export const dynamic = <
 >(
 	dynamicEnum: E,
 	data: D,
+	reverseMap = true,
 ): DynamicEnum<E, D> => {
 	const hasDuplicateValues =
 		new Set(Object.values(data)).size !== Object.values(data).length;
@@ -26,7 +27,7 @@ export const dynamic = <
 			`Key ${key} is present in static definition but not the dynamic definition`,
 		);
 
-		if (!hasDuplicateValues) {
+		if (!hasDuplicateValues && reverseMap) {
 			return {
 				...acc,
 				[key]: data[key],
