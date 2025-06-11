@@ -3,13 +3,14 @@ import { useI18n } from "core/context/i18n";
 import { isCurrentStep } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { Step } from "feat/my-passport-form/types";
-import type { Accessor, Component } from "solid-js";
+import { Show, type Accessor, type Component } from "solid-js";
 import { Button } from "ui/button";
 
 export interface FooterProps {
 	onClickBack?: (event: MouseEvent) => void;
 	onClickNext?: (event: MouseEvent) => void;
 	onClickDelete?: (event: MouseEvent) => void;
+	onClickSubmit?: (event: MouseEvent) => void;
 	isMutating?: Accessor<boolean>;
 }
 
@@ -33,15 +34,31 @@ export const MobileFooter: Component<FooterProps> = props => {
 				{t("doBack")}
 			</Button>
 
-			<Button
-				variant="default"
-				class="w-full"
-				onClick={props.onClickNext}
-				disabled={
-					props.isMutating?.() || isCurrentStep(location, LAST_STEP)
-				}>
-				{t("doNext")}
-			</Button>
+			<Show when={!isCurrentStep(location, LAST_STEP)}>
+				<Button
+					variant="default"
+					class="w-full"
+					onClick={props.onClickNext}
+					disabled={
+						props.isMutating?.() ||
+						isCurrentStep(location, LAST_STEP)
+					}>
+					{t("doNext")}
+				</Button>
+			</Show>
+
+			<Show when={isCurrentStep(location, LAST_STEP)}>
+				<Button
+					variant="default"
+					class="w-full"
+					onClick={props.onClickSubmit}
+					disabled={
+						props.isMutating?.() ||
+						!isCurrentStep(location, LAST_STEP)
+					}>
+					{t("doSubmit")}
+				</Button>
+			</Show>
 
 			<Button
 				variant="destructive"
@@ -79,14 +96,29 @@ export const DefaultFooter: Component<FooterProps> = props => {
 				</Button>
 			</div>
 
-			<Button
-				variant="default"
-				onClick={props.onClickNext}
-				disabled={
-					props.isMutating?.() || isCurrentStep(location, LAST_STEP)
-				}>
-				{t("doNext")}
-			</Button>
+			<Show when={!isCurrentStep(location, LAST_STEP)}>
+				<Button
+					variant="default"
+					onClick={props.onClickNext}
+					disabled={
+						props.isMutating?.() ||
+						isCurrentStep(location, LAST_STEP)
+					}>
+					{t("doNext")}
+				</Button>
+			</Show>
+
+			<Show when={isCurrentStep(location, LAST_STEP)}>
+				<Button
+					variant="default"
+					onClick={props.onClickSubmit}
+					disabled={
+						props.isMutating?.() ||
+						!isCurrentStep(location, LAST_STEP)
+					}>
+					{t("doSubmit")}
+				</Button>
+			</Show>
 		</div>
 	);
 };

@@ -129,7 +129,12 @@ export const MyPassportForm = () => {
 						<Hide
 							when={stepStatus().currentStep !== Step.Declaration}
 							class={constants.grid}>
-							<Declaration />
+							<Declaration
+								form={form}
+								Field={Components.Field}
+								FieldArray={Components.FieldArray}
+								dropdownOptions={data.referenceData}
+							/>
 						</Hide>
 					</Suspense>
 				</Form>
