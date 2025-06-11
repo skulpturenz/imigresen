@@ -200,8 +200,8 @@ export const resources = {
 			isLiable: {
 				label: [
 					"I understand and agree that Imigresen or Skulpture have made best efforts to ensure a valid application",
-					"but is not liable or responsible for any invalid applications and it is solely my responsibility to ensure an accurate",
-					"and valid application",
+					"but is not liable or responsible for any incorrect applications and it is solely my responsibility to ensure a true",
+					"and correct application",
 				].join(" "),
 			},
 		} satisfies Record<keyof Declaration, any>,
