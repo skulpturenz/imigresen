@@ -3,6 +3,9 @@ import type { MyPassportFormVersion } from "./my-passport-form-version.enum";
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;
 	addressDetails: AddressDetails;
+	applicationDetails: ApplicationDetails;
+	previousDocuments: PreviousDocuments;
+	declaration: Declaration;
 	version?: MyPassportFormVersion;
 };
 
@@ -26,4 +29,27 @@ export type AddressDetails = {
 	city: string;
 	state: string;
 	countryCode: string;
+};
+
+export type ApplicationDetails = {
+	documentType: string;
+	requestType: string;
+	myKadNumber: string;
+	birthDocumentNumber: string;
+};
+
+export type PreviousDocuments = {
+	hasLostPreviousDocument?: boolean;
+	hasDestroyedPreviousDocument?: boolean;
+	isRequestForDependents?: boolean;
+	dependentCaregiverName?: string;
+	dependentCaregiverMyKadNumber?: string;
+	dependentCaregiverSignature?: string;
+	previousDocumentNumber?: string;
+};
+
+export type Declaration = {
+	isDetailsCorrect?: true;
+	previousDocumentNumber?: number; // only if `previousDocuments.previousDocumentNumber`
+	declareTrueAndCorrect: boolean;
 };
