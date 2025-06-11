@@ -169,7 +169,7 @@ export const PreviousDocuments: Component<StepProps> = props => {
 				{(_field, _fieldProps) => (
 					<div class="col-span-full">
 						<InputGroup>
-							<Label>
+							<Label disabled={!isRequestForDependent()}>
 								{t(
 									"form.previousDocuments.dependentCaregiverSignature.label",
 								)}
@@ -195,7 +195,9 @@ export const PreviousDocuments: Component<StepProps> = props => {
 							</Show>
 
 							<Show when={!isRequestForDependent()}>
-								<Label description>
+								<Label
+									description
+									disabled={!isRequestForDependent()}>
 									{t(
 										"form.previousDocuments.dependentCaregiverSignature.descriptionDisabled",
 									)}
