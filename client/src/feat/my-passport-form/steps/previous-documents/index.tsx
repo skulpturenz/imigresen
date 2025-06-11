@@ -57,7 +57,7 @@ export const PreviousDocuments: Component<StepProps> = props => {
 							<Show when={!hasPreviousDocument()}>
 								<TextFieldDescription>
 									{t(
-										"form.previousDocuments.previousDocumentNumber.description",
+										"form.previousDocuments.previousDocumentNumber.descriptionDisabled",
 									)}
 								</TextFieldDescription>
 							</Show>
@@ -90,7 +90,7 @@ export const PreviousDocuments: Component<StepProps> = props => {
 							<Show when={!isRequestForDependent()}>
 								<TextFieldDescription>
 									{t(
-										"form.previousDocuments.dependentCaregiverFirstName.description",
+										"form.previousDocuments.dependentCaregiverFirstName.descriptionDisabled",
 									)}
 								</TextFieldDescription>
 							</Show>
@@ -123,7 +123,7 @@ export const PreviousDocuments: Component<StepProps> = props => {
 							<Show when={!isRequestForDependent()}>
 								<TextFieldDescription>
 									{t(
-										"form.previousDocuments.dependentCaregiverLastName.description",
+										"form.previousDocuments.dependentCaregiverLastName.descriptionDisabled",
 									)}
 								</TextFieldDescription>
 							</Show>
@@ -156,7 +156,7 @@ export const PreviousDocuments: Component<StepProps> = props => {
 							<Show when={!isRequestForDependent()}>
 								<TextFieldDescription>
 									{t(
-										"form.previousDocuments.dependentCaregiverFirstName.description",
+										"form.previousDocuments.dependentCaregiverFirstName.descriptionDisabled",
 									)}
 								</TextFieldDescription>
 							</Show>

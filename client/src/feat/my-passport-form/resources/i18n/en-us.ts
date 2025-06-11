@@ -140,25 +140,25 @@ export const resources = {
 			previousDocumentNumber: {
 				label: "Previous travel document number",
 				placeholder: "",
-				description:
+				descriptionDisabled:
 					"Only required if you have lost your passport or are requesting a new one for your children",
 			},
 			dependentCaregiverFirstName: {
 				label: "Primary caregiver first name",
 				placeholder: "",
-				description:
+				descriptionDisabled:
 					"Only required if you are requesting a new one for your children",
 			},
 			dependentCaregiverLastName: {
 				label: "Primary caregiver last name",
 				placeholder: "",
-				description:
+				descriptionDisabled:
 					"Only required if you are requesting a new one for your children",
 			},
 			dependentCaregiverMyKadNumber: {
 				label: "Primary caregiver MyKad number",
 				placeholder: "",
-				description:
+				descriptionDisabled:
 					"Only required if you are requesting a new one for your children",
 			},
 			dependentCaregiverSignature: {
