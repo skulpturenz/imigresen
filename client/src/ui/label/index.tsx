@@ -21,6 +21,9 @@ export const label = cva(
 			description: {
 				true: "font-normal text-muted-foreground",
 			},
+			disabled: {
+				true: "cursor-not-allowed opacity-70",
+			},
 		},
 		defaultVariants: {
 			label: true,
@@ -46,6 +49,7 @@ export const Label = <T extends ValidComponent = "label">(
 						label: props.label,
 						error: props.error,
 						description: props.description,
+						disabled: props.disabled,
 					}),
 					props.class,
 				)}
