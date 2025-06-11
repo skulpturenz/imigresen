@@ -3,6 +3,7 @@ import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { RequestType, type StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
+import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import { Show, type Component } from "solid-js";
 import { Label } from "ui/label";
@@ -99,38 +100,44 @@ export const PreviousDocuments: Component<StepProps> = props => {
 				)}
 			</props.Field>
 
-			<props.Field name="previousDocuments.dependentCaregiverLastName">
-				{(field, fieldProps) => (
-					<div class="col-span-1">
-						<TextFieldRoot
-							validationState={field.error ? "invalid" : "valid"}
-							disabled={!isRequestForDependent()}>
-							<TextFieldLabel>
-								{t(
-									"form.previousDocuments.dependentCaregiverLastName.label",
-								)}
-							</TextFieldLabel>
+			<NextRow>
+				<div>
+					<props.Field name="previousDocuments.dependentCaregiverLastName">
+						{(field, fieldProps) => (
+							<div class="col-span-1">
+								<TextFieldRoot
+									validationState={
+										field.error ? "invalid" : "valid"
+									}
+									disabled={!isRequestForDependent()}>
+									<TextFieldLabel>
+										{t(
+											"form.previousDocuments.dependentCaregiverLastName.label",
+										)}
+									</TextFieldLabel>
 
-							<TextField
-								{...fieldProps}
-								name={field.name}
-								value={field.value ?? ""}
-								placeholder={t(
-									"form.previousDocuments.dependentCaregiverLastName.placeholder",
-								)}
-							/>
+									<TextField
+										{...fieldProps}
+										name={field.name}
+										value={field.value ?? ""}
+										placeholder={t(
+											"form.previousDocuments.dependentCaregiverLastName.placeholder",
+										)}
+									/>
 
-							<Show when={!isRequestForDependent()}>
-								<TextFieldDescription>
-									{t(
-										"form.previousDocuments.dependentCaregiverLastName.descriptionDisabled",
-									)}
-								</TextFieldDescription>
-							</Show>
-						</TextFieldRoot>
-					</div>
-				)}
-			</props.Field>
+									<Show when={!isRequestForDependent()}>
+										<TextFieldDescription>
+											{t(
+												"form.previousDocuments.dependentCaregiverLastName.descriptionDisabled",
+											)}
+										</TextFieldDescription>
+									</Show>
+								</TextFieldRoot>
+							</div>
+						)}
+					</props.Field>
+				</div>
+			</NextRow>
 
 			<props.Field name="previousDocuments.dependentCaregiverMyKadNumber">
 				{(field, fieldProps) => (
