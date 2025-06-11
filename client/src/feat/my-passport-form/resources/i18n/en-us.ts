@@ -199,7 +199,7 @@ export const resources = {
 			},
 			isLiable: {
 				label: [
-					"I understand and agree that Imigresen or Skulpture have made best efforts to ensure a valid application",
+					"I understand and agree that Imigresen and Skulpture have made best efforts to ensure a valid application",
 					"but is not liable or responsible for any incorrect applications and it is solely my responsibility to ensure a true",
 					"and correct application",
 				].join(" "),
