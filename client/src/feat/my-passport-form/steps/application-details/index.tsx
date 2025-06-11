@@ -6,6 +6,7 @@ import { NextRow } from "feat/my-passport-form/ui/next-row";
 import type { Component } from "solid-js";
 import { Label } from "ui/label";
 import {
+	SelectClearSelection,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
@@ -61,7 +62,21 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									)}>
 									<SelectTrigger>
 										<SelectValue<string>>
-											{state => state.selectedOption()}
+											{state => {
+												return (
+													<>
+														<div>
+															{state.selectedOption()}
+														</div>
+
+														<SelectClearSelection
+															onClear={
+																state.clear
+															}
+														/>
+													</>
+												);
+											}}
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent />
@@ -110,9 +125,21 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										)}>
 										<SelectTrigger>
 											<SelectValue<string>>
-												{state =>
-													state.selectedOption()
-												}
+												{state => {
+													return (
+														<>
+															<div>
+																{state.selectedOption()}
+															</div>
+
+															<SelectClearSelection
+																onClear={
+																	state.clear
+																}
+															/>
+														</>
+													);
+												}}
 											</SelectValue>
 										</SelectTrigger>
 										<SelectContent />
