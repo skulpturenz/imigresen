@@ -17,6 +17,14 @@ export const Declaration: Component<StepProps> = props => {
 
 	const requestTypeOptions = dynamic(RequestType, t("options.requestTypes"));
 
+	const hasPreviousDocument = () =>
+		[
+			requestTypeOptions.Lost,
+			requestTypeOptions.OutdatedPicturesDependents,
+		].includes(
+			getValue(props.form, "applicationDetails.requestType") ?? "",
+		);
+
 	const isRequestForDependent = () =>
 		getValue(props.form, "applicationDetails.requestType") ===
 		requestTypeOptions.OutdatedPicturesDependents;
@@ -31,6 +39,7 @@ export const Declaration: Component<StepProps> = props => {
 							<TextFieldLabel>
 								{t(
 									"form.declaration.confirmPreviousDocumentNumber.label",
+									hasPreviousDocument(),
 								)}
 							</TextFieldLabel>
 

@@ -173,7 +173,13 @@ export const resources = {
 		} satisfies Record<keyof PreviousDocuments, any>,
 		declaration: {
 			confirmPreviousDocumentNumber: {
-				label: "Confirm previous travel document number",
+				label: (hasSpecified: boolean) => {
+					if (hasSpecified) {
+						return "Confirm previous travel document number";
+					}
+
+					return "Previous travel document number";
+				},
 				placeholder: "",
 				description:
 					"Previous travel document refers to your current travel document at the time of the application",
