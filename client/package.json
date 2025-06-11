@@ -10,7 +10,7 @@
 		"lint": "eslint src/**/* --fix --no-warn-ignored --no-error-on-unmatched-pattern --max-warnings 0",
 		"format": "prettier .  --write",
 		"storybook": "storybook dev -p 6006",
-		"build-storybook": "vite run && storybook build"
+		"build-storybook": "vitest run && tsc -b && storybook build"
 	},
 	"dependencies": {
 		"@ark-ui/solid": "^5.13.0",
