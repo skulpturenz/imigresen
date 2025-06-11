@@ -17,6 +17,11 @@ import { WebSocketServer } from "ws";
 
 /* eslint-disable-next-line */
 export default defineConfig(({ mode: _mode }) => {
+	const reporters = ["verbose"];
+	if (process.env.GITHUB_ACTIONS) {
+		reporters.push("github-actions");
+	}
+
 	return {
 		plugins: [
 			tsconfigPaths(),
@@ -55,6 +60,7 @@ export default defineConfig(({ mode: _mode }) => {
 			silent: "passed-only",
 			printConsoleTrace: true,
 			mockReset: true,
+			reporters,
 		},
 	};
 });
