@@ -3,7 +3,7 @@ import type { MyPassportFormVersion } from "./my-passport-form-version.enum";
 export type MyPassportForm = {
 	personalDetails: PersonalDetails;
 	addressDetails: AddressDetails;
-	aplicationDetails: ApplicationDetails;
+	applicationDetails: ApplicationDetails;
 	previousDocuments: PreviousDocuments;
 	declaration: Declaration;
 	version?: MyPassportFormVersion;
