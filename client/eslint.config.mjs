@@ -1,10 +1,12 @@
 /// @ts-check
 
 import { default as js } from "@eslint/js";
-import checkFile from "eslint-plugin-check-file";
+import { default as checkFile } from "eslint-plugin-check-file";
 import { flatConfigs as importPluginFlatConfig } from "eslint-plugin-import";
 import { default as eslintPluginPrettierRecommended } from "eslint-plugin-prettier/recommended";
+/* eslint-disable-next-line */
 import { default as solid } from "eslint-plugin-solid/configs/typescript";
+/* eslint-disable-next-line */
 import { default as tseslint } from "typescript-eslint";
 
 export default [
