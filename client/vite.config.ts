@@ -14,6 +14,7 @@ import { default as wasm } from "vite-plugin-wasm";
 import { default as webfontDownload } from "vite-plugin-webfont-dl";
 import { default as tsconfigPaths } from "vite-tsconfig-paths";
 import { WebSocketServer } from "ws";
+import metaMapPlugin from "./vite/vite-plugin-solid-meta-map";
 
 /* eslint-disable-next-line */
 export default defineConfig(({ mode: _mode }) => {
@@ -35,6 +36,10 @@ export default defineConfig(({ mode: _mode }) => {
 				emitWarningAsError: true,
 			}),
 			solid(),
+			metaMapPlugin({
+				pageMetaMapFilePath: "./src/page-meta-map.ts",
+				pageTemplateFilePath: "./src/page-template.tsx",
+			}),
 			webfontDownload(),
 			viteCompression({
 				verbose: true,

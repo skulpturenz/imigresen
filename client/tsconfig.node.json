@@ -12,6 +12,8 @@
 		"isolatedModules": true,
 		"moduleDetection": "force",
 		"noEmit": true,
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js",
 
 		/* Linting */
 		"strict": true,
@@ -29,5 +31,5 @@
 			"common/*": ["./common/*"]
 		}
 	},
-	"include": ["vite.config.ts"]
+	"include": ["vite", "vite.config.ts"]
 }
