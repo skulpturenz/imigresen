@@ -192,8 +192,8 @@ export const resources = {
 					"I declare that all information provided is true and correct.",
 					[
 						"I understand that if incorrect information is provided then I may be liable",
-						"to be fined a minimum of RM 10,000 and a maximum of RM 50,000 or face imprisonment for a minimum of",
-						"1 year and a maximum of 5 years or both under the Passport Act of 1966 (renewed 1996)",
+						"to be fined a minimum of RM 10,000 up to a maximum of RM 50,000 or face imprisonment for a minimum of",
+						"1 year up to a maximum of 5 years or both under the Passport Act of 1966 (renewed 1996)",
 					].join(" "),
 				],
 			},
