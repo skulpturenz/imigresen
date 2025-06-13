@@ -46,6 +46,7 @@
 		"tailwind-merge": "^3.3.0",
 		"unstorage": "^1.16.0",
 		"uuidv7": "^1.0.2",
+		"yup": "^1.6.1",
 		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
