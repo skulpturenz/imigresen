@@ -23,6 +23,9 @@ importers:
       cbor-x:
         specifier: ^1.6.0
         version: 1.6.0
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
       es-toolkit:
         specifier: ^1.38.0
         version: 1.38.0
@@ -32,6 +35,9 @@ importers:
       postgres:
         specifier: ^3.4.7
         version: 3.4.7
+      wretch:
+        specifier: ^2.11.0
+        version: 2.11.0
       ws:
         specifier: ^8.18.2
         version: 8.18.2
@@ -740,6 +746,10 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+
+  consola@3.4.2:
+    resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
+    engines: {node: ^14.18.0 || >=16.10.0}
 
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
@@ -1652,6 +1662,10 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
+  wretch@2.11.0:
+    resolution: {integrity: sha512-zbFW4PnPSS5RFQabHRkCAcMQjmFGrEQLcJwYe4YGXL9KWXneu03Dtaz2JUeqEkOwNDMjdfHEHPL+AIZJwE+y1g==}
+    engines: {node: '>=14'}
+
   ws@8.18.0:
     resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
     engines: {node: '>=10.0.0'}
@@ -2296,6 +2310,8 @@ snapshots:
       color-string: 1.9.1
 
   concat-map@0.0.1: {}
+
+  consola@3.4.2: {}
 
   cookie@0.7.2: {}
 
@@ -3415,6 +3431,8 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  wretch@2.11.0: {}
 
   ws@8.18.0: {}
 
