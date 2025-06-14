@@ -16,6 +16,7 @@
 		"@automerge/automerge-repo": "^2.0.0",
 		"@automerge/automerge-repo-network-websocket": "^2.0.0",
 		"@hono-rate-limiter/cloudflare": "^0.2.2",
+		"@sentry/cloudflare": "^9.29.0",
 		"cbor-x": "^1.6.0",
 		"es-toolkit": "^1.38.0",
 		"hono": "^4.7.11",
