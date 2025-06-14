@@ -52,6 +52,9 @@ importers:
       '@open-policy-agent/opa-wasm':
         specifier: ^1.10.0
         version: 1.10.0
+      '@sentry/solid':
+        specifier: ^9.29.0
+        version: 9.29.0(@solidjs/router@0.15.3(solid-js@1.9.7))(solid-js@1.9.7)
       '@solid-primitives/i18n':
         specifier: ^2.2.1
         version: 2.2.1(solid-js@1.9.7)
@@ -919,6 +922,40 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
+
+  '@sentry-internal/browser-utils@9.29.0':
+    resolution: {integrity: sha512-Wp6UJCDVV2KVK+TG8GwdLZyDy4GtUYDmVhGMpHKPS3G/Qgpf36cY/XHwChwaHZ5P9Bk1sjS9Ok698J59S8L2nw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/feedback@9.29.0':
+    resolution: {integrity: sha512-ADvetGrtr+RfYcQKrQxah4fHs/xDJ/VjbStVMSuaNllzwWPYNkWIGFE6YjQ7wZszj0DQIu5/H+B6lZKsFYk4xw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay-canvas@9.29.0':
+    resolution: {integrity: sha512-TrQYhSAVPhyenvu0fNkon7BznFibu1mzS5bCudxhgOWajZluUVrXcbp8Q3WZ3R+AogrcgA3Vy6aumP/+fMKdwg==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay@9.29.0':
+    resolution: {integrity: sha512-we/1JPRje8sNowQCyogOV1OYWuDOP/3XmDi48XoFG2HB0XMl2HfL5LI8AvgAvC/5nrqVAAo4ktbjoVLm1fb7rg==}
+    engines: {node: '>=18'}
+
+  '@sentry/browser@9.29.0':
+    resolution: {integrity: sha512-+GFX/yb+rh6V1fSgTYM6ttAgledl2aUR3T3Rg86HNuegbdX8ym6lOtUOIZ0j9jPK015HR47KIPyIZVZZJ7Rj9g==}
+    engines: {node: '>=18'}
+
+  '@sentry/core@9.29.0':
+    resolution: {integrity: sha512-wDyNe45PM+RCGtUn1tK7LzJ08ksv8i8KRUHrst7lsinEfRm83YH+wbWrPmwkVNEngUZvYkHwGLbNXM7xgFUuDQ==}
+    engines: {node: '>=18'}
+
+  '@sentry/solid@9.29.0':
+    resolution: {integrity: sha512-tzMBb7V6foMWeB4g1aKwuDUW/H0Wd4BvgwXgLnXM+r2eLL5f0HoLjG462/p9SE6J0T6sJPpRWXdPHd5EUuiNdw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@solidjs/router': ^0.13.4
+      solid-js: ^1.8.4
+    peerDependenciesMeta:
+      '@solidjs/router':
+        optional: true
 
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
@@ -5038,6 +5075,42 @@ snapshots:
     optional: true
 
   '@rtsao/scc@1.1.0': {}
+
+  '@sentry-internal/browser-utils@9.29.0':
+    dependencies:
+      '@sentry/core': 9.29.0
+
+  '@sentry-internal/feedback@9.29.0':
+    dependencies:
+      '@sentry/core': 9.29.0
+
+  '@sentry-internal/replay-canvas@9.29.0':
+    dependencies:
+      '@sentry-internal/replay': 9.29.0
+      '@sentry/core': 9.29.0
+
+  '@sentry-internal/replay@9.29.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 9.29.0
+      '@sentry/core': 9.29.0
+
+  '@sentry/browser@9.29.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 9.29.0
+      '@sentry-internal/feedback': 9.29.0
+      '@sentry-internal/replay': 9.29.0
+      '@sentry-internal/replay-canvas': 9.29.0
+      '@sentry/core': 9.29.0
+
+  '@sentry/core@9.29.0': {}
+
+  '@sentry/solid@9.29.0(@solidjs/router@0.15.3(solid-js@1.9.7))(solid-js@1.9.7)':
+    dependencies:
+      '@sentry/browser': 9.29.0
+      '@sentry/core': 9.29.0
+      solid-js: 1.9.7
+    optionalDependencies:
+      '@solidjs/router': 0.15.3(solid-js@1.9.7)
 
   '@sindresorhus/is@4.6.0': {}
 
