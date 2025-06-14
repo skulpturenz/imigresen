@@ -1,5 +1,7 @@
 import { Repo } from "@automerge/automerge-repo";
 import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
+/* eslint-disable-next-line */
+import * as Sentry from "@sentry/cloudflare";
 import { env } from "cloudflare:workers";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
@@ -89,12 +91,22 @@ interface AppEnv {
 	};
 	Bindings: {
 		AUTOMERGE_RATE_LIMIT: RateLimit;
+		CF_VERSION_METADATA: WorkerVersionMetadata;
 	};
 }
 
 invariant(env.AUTHNZ_JWK_URL, "JWK url not specified");
 
 const app = new Hono<AppEnv>()
+	.onError((err, c) => {
+		// Report _all_ unhandled errors.
+		Sentry.captureException(err);
+		if (err instanceof HTTPException) {
+			return err.getResponse();
+		}
+
+		return c.json({ error: "Internal server error" }, 500);
+	})
 	.get("/ping", c => c.text("."))
 	.use(
 		"*",
@@ -103,6 +115,13 @@ const app = new Hono<AppEnv>()
 			cookie: "IMIGRESEN_AUTH_COOKIE",
 		}),
 	)
+	.use((c, next) => {
+		Sentry.setUser({
+			id: c.get("jwtPayload").sub,
+		});
+
+		return next();
+	})
 	.use(
 		cors({
 			origin: origin =>
@@ -138,5 +157,21 @@ const app = new Hono<AppEnv>()
 	)
 	.route("/api/v1", api);
 
+// Sentry setup: https://docs.sentry.io/platforms/javascript/guides/cloudflare/frameworks/hono/
 // eslint-disable-next-line import/no-default-export
-export default app;
+export default Sentry.withSentry(env => {
+	invariant(env, "Misconfiguration");
+
+	const versionMetadata = (env as AppEnv["Bindings"]).CF_VERSION_METADATA;
+
+	invariant(versionMetadata, "Misconfiguration");
+
+	return {
+		dsn: "https://141811b132a84088aa15384e72d5156a@triage.skulpture.xyz/1",
+		release: versionMetadata.id,
+		sendDefaultPii: true,
+		// Enable logs to be sent to Sentry
+		_experiments: { enableLogs: true },
+		tracesSampleRate: 0.5,
+	};
+}, app);
