@@ -3,6 +3,7 @@ import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 /* eslint-disable-next-line */
 import * as Sentry from "@sentry/cloudflare";
 import { env } from "cloudflare:workers";
+import { createConsola } from "consola";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -17,11 +18,15 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import type { default as postgres } from "postgres";
 import { CfWebSocketNetworkAdapter } from "./cf-websocket-network-adapter";
 import { HttpHeaders, HttpMethod, StatusCode } from "./enums";
+import { ParseableReporter } from "./parseable-reporter";
 import {
 	createPgClient,
 	PgStorageAdapter,
 	warmupConnectionPool,
 } from "./pg-storage-adapter";
+
+const consola = createConsola();
+consola.wrapAll();
 
 invariant(env.ALLOWED_ORIGINS, 'env "ALLOWED_ORIGINS" not defined');
 const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
@@ -31,11 +36,14 @@ const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
 interface ApiEnv {
 	Variables: {
 		pg: postgres.Sql;
+		parseableReporter: ParseableReporter;
 	};
 }
 
 const api = new Hono<ApiEnv>()
 	.get("/", async c => {
+		const parseableReporter = c.get("parseableReporter");
+
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {
 				status: StatusCode.UpgradeRequired,
@@ -57,6 +65,7 @@ const api = new Hono<ApiEnv>()
 		});
 
 		server.accept();
+		server.addEventListener("close", parseableReporter.close);
 
 		return new Response(null, {
 			status: StatusCode.SwitchingProtocols,
@@ -115,13 +124,25 @@ const app = new Hono<AppEnv>()
 			cookie: "IMIGRESEN_AUTH_COOKIE",
 		}),
 	)
-	.use((c, next) => {
-		Sentry.setUser({
-			id: c.get("jwtPayload").sub,
-		});
+	.use(
+		createMiddleware((c, next) => {
+			Sentry.setUser({
+				id: c.get("jwtPayload").sub,
+			});
 
-		return next();
-	})
+			const parseableReporter = new ParseableReporter(
+				env.OTEL_EXPORTER_OTLP_ENDPOINT,
+				env.OTEL_EXPORTER_OTLP_AUTH_TOKEN,
+				"imigresen",
+			);
+
+			consola.addReporter(parseableReporter);
+
+			c.set("parseableReporter", parseableReporter);
+
+			return next();
+		}),
+	)
 	.use(
 		cors({
 			origin: origin =>
@@ -153,6 +174,19 @@ const app = new Hono<AppEnv>()
 			c.set("pg", pgClient);
 
 			await next();
+		}),
+	)
+	// want the routes to run then flush
+	// see: https://hono.dev/docs/guides/middleware#execution-order
+	.use(
+		createMiddleware(async (c, next) => {
+			await next();
+
+			const parseableReporter: ParseableReporter =
+				c.get("parseableReporter");
+
+			parseableReporter.close();
+			consola.removeReporter(parseableReporter);
 		}),
 	)
 	.route("/api/v1", api);

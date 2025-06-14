@@ -18,9 +18,11 @@
 		"@hono-rate-limiter/cloudflare": "^0.2.2",
 		"@sentry/cloudflare": "^9.29.0",
 		"cbor-x": "^1.6.0",
+		"consola": "^3.4.2",
 		"es-toolkit": "^1.38.0",
 		"hono": "^4.7.11",
 		"postgres": "^3.4.7",
+		"wretch": "^2.11.0",
 		"ws": "^8.18.2"
 	},
 	"devDependencies": {
