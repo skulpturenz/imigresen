@@ -15,23 +15,23 @@ export class ParseableReporter implements ConsolaReporter {
 		private maxRetries = 3,
 		private flushInterval = 250,
 	) {
-		this.#interval = setInterval(this.#flush, this.flushInterval);
+		this.#interval = setInterval(this.flush, this.flushInterval);
 	}
 
 	log(logObj: LogObject, _ctx: { options: ConsolaOptions }) {
 		this.#queue.push(logObj);
 
 		if (this.#queue.length >= this.maxEntries) {
-			this.#flush();
+			this.flush();
 		}
 	}
 
 	close() {
-		this.#flush();
+		this.flush();
 		clearInterval(this.#interval);
 	}
 
-	async #flush() {
+	async flush() {
 		if (!this.#queue.length) {
 			return;
 		}
