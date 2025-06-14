@@ -50,6 +50,7 @@ export class ParseableReporter implements ConsolaReporter {
 				.headers({
 					"Content-Type": "application/json",
 					Authorization: `Basic ${this.credentials}`,
+					"X-P-TAG": this.context.get("requestId"),
 					"X-P-TAG-Language": "javascript",
 					"X-P-TAG-Service": "imigresen-automerge-api",
 					"X-P-TAG-Environment": env.WORKER_ENVIRONMENT,
