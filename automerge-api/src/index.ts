@@ -26,13 +26,6 @@ import {
 } from "./pg-storage-adapter";
 
 const consola = createConsola();
-consola.addReporter(
-	new ParseableReporter(
-		env.OTEL_EXPORTER_OTLP_ENDPOINT,
-		env.OTEL_EXPORTER_OTLP_AUTH_TOKEN,
-		"imigresen",
-	),
-);
 consola.wrapAll();
 
 invariant(env.ALLOWED_ORIGINS, 'env "ALLOWED_ORIGINS" not defined');
@@ -137,6 +130,16 @@ const app = new Hono<AppEnv>()
 				id: c.get("jwtPayload").sub,
 			});
 
+			const parseableReporter = new ParseableReporter(
+				env.OTEL_EXPORTER_OTLP_ENDPOINT,
+				env.OTEL_EXPORTER_OTLP_AUTH_TOKEN,
+				"imigresen",
+			);
+
+			consola.addReporter(parseableReporter);
+
+			c.set("parseableReporter", parseableReporter);
+
 			return next();
 		}),
 	)
@@ -183,6 +186,7 @@ const app = new Hono<AppEnv>()
 				c.get("parseableReporter");
 
 			parseableReporter.flush();
+			consola.removeReporter(parseableReporter);
 		}),
 	)
 	.route("/api/v1", api);
