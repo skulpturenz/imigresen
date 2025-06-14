@@ -3,7 +3,7 @@ import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 /* eslint-disable-next-line */
 import * as Sentry from "@sentry/cloudflare";
 import { env } from "cloudflare:workers";
-import { createConsola } from "consola";
+import { consola } from "consola";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -25,7 +25,6 @@ import {
 	warmupConnectionPool,
 } from "./pg-storage-adapter";
 
-const consola = createConsola();
 consola.wrapAll();
 
 invariant(env.ALLOWED_ORIGINS, 'env "ALLOWED_ORIGINS" not defined');
@@ -65,7 +64,7 @@ const api = new Hono<ApiEnv>()
 		});
 
 		server.accept();
-		server.addEventListener("close", parseableReporter.close);
+		server.addEventListener("close", () => parseableReporter.close());
 
 		return new Response(null, {
 			status: StatusCode.SwitchingProtocols,
@@ -110,6 +109,7 @@ const app = new Hono<AppEnv>()
 	.onError((err, c) => {
 		// Report _all_ unhandled errors.
 		Sentry.captureException(err);
+		consola.error(err);
 		if (err instanceof HTTPException) {
 			return err.getResponse();
 		}
@@ -134,6 +134,7 @@ const app = new Hono<AppEnv>()
 				env.OTEL_EXPORTER_OTLP_ENDPOINT,
 				env.OTEL_EXPORTER_OTLP_AUTH_TOKEN,
 				"imigresen",
+				c,
 			);
 
 			consola.addReporter(parseableReporter);
@@ -185,7 +186,7 @@ const app = new Hono<AppEnv>()
 			const parseableReporter: ParseableReporter =
 				c.get("parseableReporter");
 
-			parseableReporter.flush();
+			await parseableReporter.flush();
 			consola.removeReporter(parseableReporter);
 		}),
 	)
