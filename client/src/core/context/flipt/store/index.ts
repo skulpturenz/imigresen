@@ -41,9 +41,6 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 					const flipt = await FliptClient.init({
 						namespace: fliptNamespace,
 						url: fliptUrl,
-						authentication: {
-							clientToken: fliptClientToken,
-						},
 						reference: import.meta.env.MODE,
 					});
 
