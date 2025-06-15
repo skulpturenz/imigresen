@@ -9,7 +9,6 @@ import { RepoContext } from "solid-automerge";
 import {
 	createContext,
 	createEffect,
-	onCleanup,
 	onMount,
 	Show,
 	type Accessor,
@@ -80,16 +79,11 @@ export const UiProvider: Component<ParentProps> = props => {
 				appUrl: appUrl.href,
 			});
 
+			await formbricks.logout().catch(console.error);
 			await formbricks.setUserId(authnContext().userId);
 		};
 
 		initFormbricks();
-
-		// for `userId` to change the user has to either login
-		// or logout which redirects to keycloak
-		onCleanup(() => {
-			formbricks.logout();
-		});
 	});
 
 	return (
