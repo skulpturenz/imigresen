@@ -14,6 +14,7 @@ interface ImportMetaEnv {
 	readonly VITE_FLIPT_NAMESPACE: string;
 	readonly VITE_AUTOMERGE_WSS: string;
 	readonly VITE_MAPBOX_ACCESS_TOKEN: string;
+	readonly VITE_FORMBRICKS_ENVIRONMENT: string;
 	readonly MODE: Mode;
 }
 

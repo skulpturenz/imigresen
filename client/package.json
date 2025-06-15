@@ -53,6 +53,7 @@
 		"@automerge/automerge-repo-storage-nodefs": "^2.0.0",
 		"@chromatic-com/storybook": "^3.2.6",
 		"@eslint/js": "^9.28.0",
+		"@formbricks/js": "^4.1.0",
 		"@ngneat/falso": "^7.4.0",
 		"@solidjs/testing-library": "^0.8.10",
 		"@storybook/addon-essentials": "^8.6.14",
