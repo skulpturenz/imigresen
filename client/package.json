@@ -71,7 +71,7 @@
 		"@types/mapbox__mapbox-sdk": "^0.16.3",
 		"@types/node": "^22.15.30",
 		"@types/ws": "^8.18.1",
-		"eslint": "^9.28.0",
+		"eslint": "^9.29.0",
 		"eslint-config-prettier": "^10.1.5",
 		"eslint-plugin-check-file": "^3.3.0",
 		"eslint-plugin-import": "^2.31.0",
