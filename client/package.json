@@ -13,7 +13,7 @@
 		"build-storybook": "vitest run && tsc -b && storybook build"
 	},
 	"dependencies": {
-		"@ark-ui/solid": "^5.13.0",
+		"@ark-ui/solid": "^5.14.0",
 		"@automerge/automerge-repo": "^2.0.1",
 		"@automerge/automerge-repo-network-websocket": "^2.0.0",
 		"@automerge/automerge-repo-storage-indexeddb": "^2.0.0",
