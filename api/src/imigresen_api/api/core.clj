@@ -15,7 +15,7 @@
 
 (defn api-v1 []
   ["/api/v1" {:tags ["api.v1"]}
-   user/user-routes])
+   (user/user-routes)])
 
 (defn handlers []
   [(swagger-config)

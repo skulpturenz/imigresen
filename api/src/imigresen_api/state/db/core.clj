@@ -1,6 +1,7 @@
 (ns imigresen-api.state.db.core
   (:require [mount.core :refer [defstate]]
             [next.jdbc :as jdbc]
+            [next.jdbc.date-time :as dt]
             [next.jdbc.connection :as connection]
             [imigresen-api.app.migrations :refer [migrate]]
             [imigresen-api.app.env :refer [env current-env]]
@@ -14,20 +15,30 @@
 
 (def ^:private db-agent (agent {}))
 
+(dt/read-as-local)
+
 ;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/getting-started.md#connection-pooling
 (defn start
-  ([jdbc-connection-string] (start jdbc-connection-string (env :db-migration-dir string?)))
-  ([jdbc-connection-string migrations-dir] (t/log! {:level :debug :data jdbc-connection-string} "db state start")
-                                           ;; supported db types
-                                           ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
-                                           (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-                                           (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
-                                           (await db-agent)
-                                           ;; initialize pool and validate
-                                           (.close (jdbc/get-connection (:ds @db-agent)))
-                                           (migrate (:ds @db-agent) migrations-dir)
-                                           ;; return agent
-                                           db-agent))
+  ([jdbc-connection-string] (start jdbc-connection-string (env :db-migration-dir string?) (env :db-seed-dir string? "")))
+  ([jdbc-connection-string migrations-dir seeds-dir]
+   (t/log! {:level :debug :data jdbc-connection-string} "db state start")
+   ;; supported db types
+   ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
+   (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
+   (let [ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string})
+         opts jdbc/snake-kebab-opts]
+     (send db-agent assoc :ds ds)
+     (send db-agent assoc :ds-opts (jdbc/with-options ds opts))
+     (send db-agent assoc :opts opts))
+   (await db-agent)
+   ;; initialize pool and validate
+   (.close (jdbc/get-connection (:ds @db-agent)))
+   (migrate (:ds @db-agent) (env :db-init-script string?) migrations-dir (env :db-migration-table-name string?))
+   ;; seed db
+   (when (and (not= seeds-dir "") (not (nil? seeds-dir)))
+     (migrate (:ds @db-agent) nil seeds-dir (env :db-seed-migration-table-name string?)))
+   ;; return agent
+   db-agent))
 
 (defn stop []
   (t/log! {:level :debug :data (:jdbc-connection-string @db-agent)} "db state stop")
@@ -50,12 +61,12 @@
                 "prefer")}))
 
 ;; https://jdbc.postgresql.org/documentation/use/
-(defn- create-jdbc-connection-string [connection-string]
+(defn create-jdbc-connection-string [connection-string]
   (let [parsed (parse-connection-string connection-string)]
     (str "jdbc:postgresql://" (:host parsed) ":" (:port parsed) "/" (:database parsed) "?" (form-encode {:user (:user parsed)
                                                                                                          :password (:password parsed)
                                                                                                          :sslmode (:sslmode parsed)}))))
 
 (defstate db
-  :start (start (create-jdbc-connection-string (when (contains? ["production" "development"] (current-env)) (env :pg-connection-string string?))))
+  :start (start (create-jdbc-connection-string (when (contains? #{"production" "development"} current-env) (env :pg-connection-string string?))))
   :stop (stop))
