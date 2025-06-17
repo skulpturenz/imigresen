@@ -8,6 +8,6 @@ RUN lein build
 
 FROM eclipse-temurin:24-jre-alpine
 
-COPY --from=build /build/imigresen-api-0.1.0-SNAPSHOT-standalone /imigresen-api-0.1.0-SNAPSHOT-standalone
+COPY --from=build /build/target/uberjar/imigresen-api-0.1.0-SNAPSHOT-standalone /imigresen-api-0.1.0-SNAPSHOT-standalone
 
 ENTRYPOINT ["java", "-showversion", "-jar", "/imigresen-api-0.1.0-SNAPSHOT-standalone"]
