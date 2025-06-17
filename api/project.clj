@@ -35,7 +35,9 @@
                  [jumblerg/ring-cors "3.0.0"]]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all
+  :profiles {:bin {:aot [imigresen-api.app.core]
+                   :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+             :uberjar {:aot [imigresen-api.app.core]
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
              :test {:env {:java-env "test"}}}
   :test-paths ["src"]

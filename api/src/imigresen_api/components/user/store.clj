@@ -10,16 +10,16 @@
             [java-time.api :as jt]
             [imigresen-api.components.user.spec :as s]))
 
-(def ^:private kc-client (keycloak-client (create-kc-client-conf) (env :kc-secret string?)))
+(def ^:private kc-client (delay (keycloak-client (create-kc-client-conf) (env :kc-secret string?))))
 
-(def ^:private realm (env :kc-realm string?))
+(def ^:private realm (delay (env :kc-realm string?)))
 
 (defn find-by-kc-id [kc-id]
   (let [query {:select [:kc_id :uuid :email :updated_at :created_at :deleted]
                :from [:users]
                :where [:and [:is-not :deleted true] [:= :kc_id kc-id]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
-        kc-user (kcu/get-user kc-client realm (:kc_id result))]
+        kc-user (kcu/get-user @kc-client @realm (:kc_id result))]
     (when (not (nil? result))
       (s/user
        (:uuid result)
@@ -34,7 +34,7 @@
                :from [:users]
                :where [:and [:is-not :deleted true] [:= :email email]]}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
-        kc-user (kcu/get-user-by-username kc-client realm (:email result))]
+        kc-user (kcu/get-user-by-username @kc-client @realm (:email result))]
     (when (not (nil? result))
       (s/user
        (:uuid result)
@@ -50,21 +50,21 @@
                :where [:and [:is-not :deleted true] [:= :email email]]
                :limit 1}
         result (jdbc/execute-one! (:ds @db) (sql/format query))
-        kc-unique (kcu/username-exists? kc-client realm email)]
+        kc-unique (kcu/username-exists? @kc-client @realm email)]
     (and (empty? result) kc-unique)))
 
 (defn create-user-by-email! [{:keys [email first-name last-name password]}]
   (jdbc/with-transaction [tx (:ds @db)]
-    (let [kc-user (kcu/create-user! kc-client realm {:username email
-                                                     :first-name first-name
-                                                     :last-name last-name
-                                                     :password password})
+    (let [kc-user (kcu/create-user! @kc-client @realm {:username email
+                                                       :first-name first-name
+                                                       :last-name last-name
+                                                       :password password})
           query! {:insert-into :users
                   :columns [:kc_id :uuid :email :created_at :updated_at]
                   :values [[(.getId kc-user) (str (uuid/v7)) (.getEmail kc-user) (jt/offset-date-time) (jt/offset-date-time)]]
                   :returning [:uuid :created_at :updated_at]}
           result (jdbc/execute-one! tx (sql/format query!))]
-      (kcu/add-required-actions! kc-client realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
+      (kcu/add-required-actions! @kc-client @realm (.getUsername kc-user) ["VERIFY_EMAIL" "CONFIGURE_TOTP" "UPDATE_PASSWORD"])
       (s/user
        (:uuid result)
        (.getFirstName kc-user)
@@ -87,10 +87,10 @@
                     :from [:users]
                     :where filters})
           result (jdbc/execute-one! tx (sql/format query!))
-          kc-user (kcu/update-user! kc-client realm (:kc_id result) {:username email
-                                                                     :first-name first-name
-                                                                     :last-name last-name
-                                                                     :password password})]
+          kc-user (kcu/update-user! @kc-client @realm (:kc_id result) {:username email
+                                                                       :first-name first-name
+                                                                       :last-name last-name
+                                                                       :password password})]
       (when (not (nil? result))
         (s/user
          (:uuid result)
@@ -112,6 +112,6 @@
                                  :returning [:deleted]}]
     (when result
       (jdbc/with-transaction [tx (:ds @db)]
-        (kcu/logout-user! kc-client realm (:kc_id result))
-        (kcu/delete-user! kc-client realm {:email (:email result)})
+        (kcu/logout-user! @kc-client @realm (:kc_id result))
+        (kcu/delete-user! @kc-client @realm {:email (:email result)})
         (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
