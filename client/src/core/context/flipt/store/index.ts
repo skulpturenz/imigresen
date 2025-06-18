@@ -44,6 +44,8 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 
 					const flags = flipt.listFlags();
 
+					console.log('flags', flags);
+
 					set({ flipt, flags });
 					set({ isInitialLoading: false });
 
