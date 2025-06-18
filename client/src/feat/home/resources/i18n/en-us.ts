@@ -19,4 +19,8 @@ export const resources = {
 	exportFailedDialogDescription: (automergeUrls: string[]) =>
 		automergeUrls.join(", "),
 	doCloseExportFailedDialog: "Ok",
+	v2: {
+		logo: "Imigresen",
+		askMeAnything: "Ask me anything (imigresen related) ...",
+	},
 };
