@@ -1,6 +1,6 @@
 import type { RouteInternalProps, RouteProps } from "core/router/route";
-import type { NavbarItem } from "core/ui/shell/types";
 import { isNil } from "es-toolkit";
+import type { NavbarItem } from "feat/navbar/types";
 
 export const sortNavigationRoutes = (
 	a: RouteProps & RouteInternalProps,
