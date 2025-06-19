@@ -34,7 +34,7 @@ func main() {
 	setupDev := func(ctx *pulumi.Context) error {
 		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
 			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			Region: pulumi.String("australia-southeast1"),
+			Region: pulumi.String("us-central1"),
 		})
 		if err != nil {
 			return err
@@ -63,7 +63,7 @@ func main() {
 					SourceImage: pulumi.String("debian-12-bookworm-v20240515"),
 					AutoDelete:  pulumi.Bool(false),
 					Boot:        pulumi.Bool(true),
-					DiskSizeGb:  pulumi.Int(30),
+					DiskSizeGb:  pulumi.Int(25),
 				},
 			},
 			Scheduling: &compute.InstanceTemplateSchedulingArgs{
@@ -111,9 +111,9 @@ func main() {
 			return err
 		}
 
-		instanceGroupManager, err := compute.NewInstanceGroupManager(ctx, "igm-sr", &compute.InstanceGroupManagerArgs{
-			Name:             pulumi.String("tf-sr-igm"),
-			BaseInstanceName: pulumi.String("tf-sr-igm-instance"),
+		instanceGroupManager, err := compute.NewInstanceGroupManager(ctx, fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceGroupManagerArgs{
+			Name:             pulumi.String(fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value())),
+			BaseInstanceName: pulumi.String(fmt.Sprintf("%s-dev-instance", COMPUTE_INSTANCE_NAME.Value())),
 			Zone:             pulumi.String("us-central1-a"),
 			TargetSize:       pulumi.Int(1),
 			Versions: compute.InstanceGroupManagerVersionArray{
@@ -143,7 +143,7 @@ func main() {
 		}
 
 		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
-			Name:         pulumi.String(""),
+			Name:         pulumi.String(fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value())),
 			Protocol:     pulumi.String("HTTPS"),
 			PortName:     pulumi.String("https"),
 			HealthChecks: instanceGroupManager.SelfLink,
