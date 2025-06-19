@@ -10,7 +10,7 @@
 		".devcontainer/.env"
 	],
 	"containerEnv": {
-		"COMPUTE_INSTANCE_NAME": "landing"
+		"COMPUTE_INSTANCE_NAME": "imigresen"
 		// "GOOGLE_PROJECT": "",
 		// "CLOUDFLARE_ZONE_ID": "",
 		// "CLOUDFLARE_API_TOKEN": ""

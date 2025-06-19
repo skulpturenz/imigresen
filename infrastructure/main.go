@@ -5,7 +5,8 @@ import (
 
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
-	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
+	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/iam"
+	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/compute"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -31,13 +32,119 @@ var (
 )
 
 func main() {
-	setupDev := func(ctx *pulumi.Context) error {
-		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
-			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			Region: pulumi.String("us-central1"),
+	setupNetworking := func(ctx *pulumi.Context) error {
+		imigresenNetwork, err := compute.NewNetwork(ctx, "imigresen-network", &compute.NetworkArgs{
+			Name:        pulumi.String("imigresen-network"),
+			Description: pulumi.String("Allows Cloudflare sources only"),
 		})
 		if err != nil {
 			return err
+		}
+
+		ctx.Export("sharedResourceNetwork", imigresenNetwork.Name)
+
+		_, err = compute.NewFirewall(ctx, "allow-cloudflare", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-cloudflare"),
+			Network:     imigresenNetwork.Name,
+			Description: pulumi.StringPtr("Allow all traffic from Cloudflare"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("0-65535"),
+					},
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"173.245.48.0/20",
+				"103.21.244.0/22",
+				"103.22.200.0/22",
+				"103.31.4.0/22",
+				"141.101.64.0/18",
+				"108.162.192.0/18",
+				"190.93.240.0/20",
+				"188.114.96.0/20",
+				"197.234.240.0/22",
+				"198.41.128.0/17",
+				"162.158.0.0/15",
+				"104.16.0.0/13",
+				"104.24.0.0/14",
+				"172.64.0.0/13",
+				"131.0.72.0/22",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-cloudflare"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = compute.NewFirewall(ctx, "allow-icmp", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-icmp"),
+			Network:     imigresenNetwork.Name,
+			Description: pulumi.StringPtr("Allow ICMP"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("icmp"),
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"0.0.0.0",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-icmp"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = compute.NewFirewall(ctx, "allow-ssh", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-ssh"),
+			Network:     imigresenNetwork.Name,
+			Description: pulumi.StringPtr("Allow SSH"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("22"),
+					},
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"0.0.0.0/0",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-ssh"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	type devResources struct {
+		region               string
+		zone                 string
+		instanceTemplate     *compute.InstanceTemplate
+		instanceGroupManager *compute.InstanceGroupManager
+	}
+	setupDev := func(ctx *pulumi.Context) (*devResources, error) {
+		REGION := "us-central-1"
+		ZONE := "us-central1-a"
+
+		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
+			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+			Region: pulumi.String(REGION),
+		})
+		if err != nil {
+			return nil, err
 		}
 
 		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
@@ -55,7 +162,7 @@ func main() {
 							NatIp: static.Address,
 						},
 					},
-					Network: pulumi.String("shared-resources-network"),
+					Network: pulumi.String("imigresen-network"),
 				},
 			},
 			Disks: compute.InstanceTemplateDiskArray{
@@ -95,7 +202,7 @@ func main() {
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
 				sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
-				sudo certbot certonly -d dev.skulpture.xyz,skulpture.xyz \
+				sudo certbot certonly -d dev.imigresen.skulpture.xyz,imigresen.skulpture.xyz \
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
@@ -108,13 +215,13 @@ func main() {
 			},
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		instanceGroupManager, err := compute.NewInstanceGroupManager(ctx, fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceGroupManagerArgs{
 			Name:             pulumi.String(fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value())),
 			BaseInstanceName: pulumi.String(fmt.Sprintf("%s-dev-instance", COMPUTE_INSTANCE_NAME.Value())),
-			Zone:             pulumi.String("us-central1-a"),
+			Zone:             pulumi.String(ZONE),
 			TargetSize:       pulumi.Int(1),
 			Versions: compute.InstanceGroupManagerVersionArray{
 				&compute.InstanceGroupManagerVersionArgs{
@@ -139,7 +246,7 @@ func main() {
 			},
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
@@ -154,7 +261,7 @@ func main() {
 			},
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		defaultURLMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
@@ -184,7 +291,7 @@ func main() {
 			},
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		defaultTargetHttpProxy, err := compute.NewTargetHttpProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpProxyArgs{
@@ -192,7 +299,7 @@ func main() {
 			UrlMap: defaultURLMap.ID(),
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		globalForwardingRule, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
@@ -202,7 +309,7 @@ func main() {
 			LoadBalancingScheme: pulumi.String("EXTERNAL_MANAGED"),
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ctx.Export("staticAddress", static.Address)
@@ -216,14 +323,84 @@ func main() {
 			Proxied: pulumi.Bool(true),
 		})
 		if err != nil {
+			return nil, err
+		}
+
+		result := devResources{
+			region:               REGION,
+			zone:                 ZONE,
+			instanceTemplate:     instanceTemplate,
+			instanceGroupManager: instanceGroupManager,
+		}
+
+		return &result, nil
+	}
+
+	setupIdentityPool := func(ctx *pulumi.Context, devResources *devResources) error {
+		pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
+			WorkloadIdentityPoolId: pulumi.String("imigresen"),
+		})
+		if err != nil {
 			return err
 		}
+
+		ctx.Export("wifPool", pool.Name)
+
+		githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "imigresen", &iam.WorkloadIdentityPoolProviderArgs{
+			WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
+			WorkloadIdentityPoolProviderId: pulumi.String("github"),
+			DisplayName:                    pulumi.String("Github"),
+			AttributeMapping: pulumi.StringMap{
+				"google.subject":       pulumi.String("assertion.sub"),
+				"attribute.actor":      pulumi.String("assertion.actor"),
+				"attribute.repository": pulumi.String("assertion.repository"),
+				"attribute.ref":        pulumi.String("assertion.ref"),
+			},
+			Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
+				IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("githubWIFProvider", githubProvider.Name)
+
+		const REPOSITORY = "skulpturenz/imigresen"
+		pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
+			principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
+
+			services := []string{"imigresen"}
+
+			for _, service := range services {
+				_, err = compute.NewInstanceTemplateIamBinding(ctx, fmt.Sprintf("%s-compute-admin-dev", service), &compute.InstanceTemplateIamBindingArgs{
+					Name:    pulumi.String(devResources.instanceTemplate.PulumiResourceName()),
+					Role:    pulumi.String("roles/compute.admin"),
+					Members: pulumi.ToStringArray([]string{principalSet}),
+				})
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
 
 		return nil
 	}
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		err := setupDev(ctx)
+		err := setupNetworking(ctx)
+		if err != nil {
+			return err
+		}
+
+		devResources, err := setupDev(ctx)
+		if err != nil {
+			return err
+		}
+
+		err = setupIdentityPool(ctx, devResources)
 		if err != nil {
 			return err
 		}
