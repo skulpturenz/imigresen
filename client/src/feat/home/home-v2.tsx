@@ -1,5 +1,6 @@
 import { A } from "@solidjs/router";
 import { useI18n } from "core/context/i18n";
+import { Button } from "ui/button";
 import { TextArea } from "ui/text-area";
 import { TextFieldRoot } from "ui/text-field";
 import { cn } from "ui/utils";
@@ -24,12 +25,17 @@ export const Home = () => {
 
 				<div class="flex flex-col h-full w-full">
 					<div class="flex-1"></div>
-					<TextFieldRoot class="self-end w-full">
-						<TextArea
-							autofocus
-							placeholder={t("v2.askMeAnything")}
-						/>
-					</TextFieldRoot>
+
+					<div class="flex flex-col gap-4 w-full">
+						<TextFieldRoot class="self-end w-full">
+							<TextArea
+								autofocus
+								placeholder={t("v2.askMeAnything")}
+							/>
+						</TextFieldRoot>
+
+						<Button>{t("v2.doSubmit")}</Button>
+					</div>
 				</div>
 			</div>
 		</>
