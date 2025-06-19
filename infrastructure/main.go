@@ -139,16 +139,16 @@ func main() {
 		REGION := "us-central-1"
 		ZONE := "us-central1-a"
 
-		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
-			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+		static, err := compute.NewAddress(ctx, fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()), &compute.AddressArgs{
+			Name:   pulumi.String(fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value())),
 			Region: pulumi.String(REGION),
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
-			Name:         pulumi.Sprintf("%s-template", COMPUTE_INSTANCE_NAME.Value()),
+		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
+			Name:         pulumi.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()),
 			MachineType:  pulumi.String("e2-micro"),
 			CanIpForward: pulumi.Bool(false),
 			Tags: pulumi.ToStringArray([]string{
@@ -312,8 +312,8 @@ func main() {
 			return nil, err
 		}
 
-		ctx.Export("staticAddress", static.Address)
-		ctx.Export("globalForwardingRuleAddress", globalForwardingRule.IpAddress)
+		ctx.Export("devStaticAddress", static.Address)
+		ctx.Export("devGlobalForwardingRuleAddress", globalForwardingRule.IpAddress)
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
