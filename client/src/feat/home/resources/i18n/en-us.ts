@@ -22,5 +22,6 @@ export const resources = {
 	v2: {
 		logo: "Imigresen",
 		askMeAnything: "Ask me anything (imigresen related) ...",
+		doSubmit: "Submit",
 	},
 };
