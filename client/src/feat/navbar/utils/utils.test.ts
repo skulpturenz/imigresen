@@ -1,5 +1,5 @@
 import type { RouteInternalProps, RouteProps } from "core/router/route";
-import { sortNavigationRoutes } from "core/ui/shell/utils";
+import { sortNavigationRoutes } from "feat/navbar/utils";
 import { describe, expect, it } from "vitest";
 
 describe("sortNavigationRoutes", () => {
