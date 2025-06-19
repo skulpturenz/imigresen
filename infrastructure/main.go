@@ -136,7 +136,7 @@ func main() {
 		instanceGroupManager *compute.InstanceGroupManager
 	}
 	setupDev := func(ctx *pulumi.Context) (*devResources, error) {
-		REGION := "us-central-1"
+		REGION := "us-central1"
 		ZONE := "us-central1-a"
 
 		static, err := compute.NewAddress(ctx, fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()), &compute.AddressArgs{
@@ -177,7 +177,7 @@ func main() {
 				Preemptible:       pulumi.Bool(true),
 				AutomaticRestart:  pulumi.Bool(false),
 				ProvisioningModel: pulumi.String("SPOT"),
-				OnHostMaintenance: pulumi.String("MIGRATE"),
+				OnHostMaintenance: pulumi.String("TERMINATE"),
 			},
 			Metadata: pulumi.ToStringMap(map[string]string{
 				"ssh-keys": GCP_SSH_PUBLIC_KEY.Value(),
@@ -233,10 +233,11 @@ func main() {
 				Mode: pulumi.String("MANUAL"),
 			},
 			UpdatePolicy: &compute.InstanceGroupManagerUpdatePolicyArgs{
-				MinimalAction:     pulumi.String("REPLACE"),
-				Type:              pulumi.String("PROACTIVE"),
-				MaxSurgeFixed:     pulumi.Int(0),
-				ReplacementMethod: pulumi.String("RECREATE"),
+				MinimalAction:       pulumi.String("REPLACE"),
+				Type:                pulumi.String("PROACTIVE"),
+				MaxSurgeFixed:       pulumi.Int(0),
+				MaxUnavailableFixed: pulumi.Int(1),
+				ReplacementMethod:   pulumi.String("RECREATE"),
 			},
 			NamedPorts: compute.InstanceGroupManagerNamedPortArray{
 				&compute.InstanceGroupManagerNamedPortArgs{
@@ -337,51 +338,51 @@ func main() {
 	}
 
 	setupIdentityPool := func(ctx *pulumi.Context, devResources *devResources) error {
-		pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
-			WorkloadIdentityPoolId: pulumi.String("imigresen"),
-		})
-		if err != nil {
-			return err
-		}
+		devResources.instanceTemplate.Name.ApplyT(func(instanceTemplateName string) error {
+			pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
+				WorkloadIdentityPoolId: pulumi.String("imigresen"),
+			})
+			if err != nil {
+				return err
+			}
 
-		ctx.Export("wifPool", pool.Name)
+			ctx.Export("wifPool", pool.Name)
 
-		githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "imigresen", &iam.WorkloadIdentityPoolProviderArgs{
-			WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
-			WorkloadIdentityPoolProviderId: pulumi.String("github"),
-			DisplayName:                    pulumi.String("Github"),
-			AttributeMapping: pulumi.StringMap{
-				"google.subject":       pulumi.String("assertion.sub"),
-				"attribute.actor":      pulumi.String("assertion.actor"),
-				"attribute.repository": pulumi.String("assertion.repository"),
-				"attribute.ref":        pulumi.String("assertion.ref"),
-			},
-			Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
-				IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
-			},
-		})
-		if err != nil {
-			return err
-		}
+			githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "imigresen", &iam.WorkloadIdentityPoolProviderArgs{
+				WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
+				WorkloadIdentityPoolProviderId: pulumi.String("github"),
+				DisplayName:                    pulumi.String("Github"),
+				AttributeMapping: pulumi.StringMap{
+					"google.subject":       pulumi.String("assertion.sub"),
+					"attribute.actor":      pulumi.String("assertion.actor"),
+					"attribute.repository": pulumi.String("assertion.repository"),
+					"attribute.ref":        pulumi.String("assertion.ref"),
+				},
+				Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
+					IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
+				},
+			})
+			if err != nil {
+				return err
+			}
 
-		ctx.Export("githubWIFProvider", githubProvider.Name)
+			ctx.Export("githubWIFProvider", githubProvider.Name)
 
-		const REPOSITORY = "skulpturenz/imigresen"
-		pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
-			principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
+			const REPOSITORY = "skulpturenz/imigresen"
+			pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
+				principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
 
-			services := []string{"imigresen"}
-
-			for _, service := range services {
-				_, err = compute.NewInstanceTemplateIamBinding(ctx, fmt.Sprintf("%s-compute-admin-dev", service), &compute.InstanceTemplateIamBindingArgs{
-					Name:    pulumi.String(devResources.instanceTemplate.PulumiResourceName()),
+				_, err = compute.NewInstanceTemplateIamBinding(ctx, fmt.Sprintf("%s-compute-admin-dev", instanceTemplateName), &compute.InstanceTemplateIamBindingArgs{
+					Name:    pulumi.String(instanceTemplateName),
 					Role:    pulumi.String("roles/compute.admin"),
 					Members: pulumi.ToStringArray([]string{principalSet}),
 				})
 				if err != nil {
 					return err
 				}
-			}
+
+				return nil
+			})
 
 			return nil
 		})
@@ -407,7 +408,7 @@ func main() {
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-client", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-			Name:    pulumi.String("@"),
+			Name:    pulumi.String("imigresen"),
 			Content: pulumi.String("imigresen.pages.dev"),
 			Type:    pulumi.String("CNAME"),
 			Proxied: pulumi.Bool(true),
@@ -418,7 +419,7 @@ func main() {
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-client-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId: pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-			Name:   pulumi.String("dev"),
+			Name:   pulumi.String("dev.imigresen"),
 			// https://developers.cloudflare.com/pages/how-to/custom-branch-aliases/
 			Content: pulumi.String("dev.imigresen.pages.dev"),
 			Type:    pulumi.String("CNAME"),
