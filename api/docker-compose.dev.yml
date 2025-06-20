@@ -90,7 +90,7 @@ services:
       interval: 1m30s
       timeout: 1m
       retries: 1
-      start_period: 30s
+      start_period: 1m
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib
