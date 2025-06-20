@@ -124,6 +124,32 @@ func main() {
 			return err
 		}
 
+		_, err = compute.NewFirewall(ctx, "allow-health-check", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-health-check"),
+			Network:     imigresenNetwork.Name,
+			Description: pulumi.StringPtr("Allow GCP health check"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("80"),
+						pulumi.String("443"),
+					},
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"130.211.0.0/22",
+				"35.191.0.0/16",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-health-check"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -153,6 +179,7 @@ func main() {
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
+				"allow-health-check",
 			}),
 			NetworkInterfaces: &compute.InstanceTemplateNetworkInterfaceArray{
 				&compute.InstanceTemplateNetworkInterfaceArgs{
