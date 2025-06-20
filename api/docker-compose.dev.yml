@@ -70,7 +70,7 @@ services:
       JAVA_ENV: "development"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       labels:
         traefik.enable: "true"
         traefik.http.routers.imigresen-api-dev.rule: Host(`imigresen-api-dev.skulpture.xyz`)
