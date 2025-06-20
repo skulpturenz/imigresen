@@ -163,7 +163,7 @@ jobs:
         if: contains(vars.DEPLOY, env.BRANCH_NAME)
         env:
           STACK_NAME: ${{ matrix.service }}
-          SERVICES_DOCKER_COMPOSE_FILE: docker-compose.yml
+          SERVICES_DOCKER_COMPOSE_FILE: ${{ env.BRANCH_NAME == 'master' && 'docker-compose.yml' || 'docker-compose.dev.yml'}}
           ENV_FILE: ~/.env
         with:
           host: ${{ secrets.GCP_VM_HOST }}
