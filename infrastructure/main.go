@@ -256,7 +256,7 @@ func main() {
 			UnhealthyThreshold: pulumi.Int(10),
 			HttpsHealthCheck: &compute.HealthCheckHttpsHealthCheckArgs{
 				RequestPath: pulumi.String("/ping"),
-				Port:        pulumi.Int(80),
+				Port:        pulumi.Int(443),
 			},
 		})
 		if err != nil {
