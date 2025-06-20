@@ -10,7 +10,7 @@
             [java-time.api :as jt]
             [imigresen-api.components.user.spec :as s]))
 
-(def ^:private kc-client (delay (keycloak-client (create-kc-client-conf) (env :kc-secret string?))))
+(def ^:private kc-client (delay (keycloak-client (create-kc-client-conf) (env :kc-oauth-client-secret string?))))
 
 (def ^:private realm (delay (env :kc-realm string?)))
 
