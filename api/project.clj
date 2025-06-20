@@ -33,6 +33,7 @@
                  [org.threeten/threeten-extra "1.2"]
                  [camel-snake-kebab "0.4.3"]
                  [jumblerg/ring-cors "3.0.0"]]
+  :resource-paths ["migrations"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:bin {:aot [imigresen-api.app.core]
