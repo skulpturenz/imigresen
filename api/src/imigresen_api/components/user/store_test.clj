@@ -31,6 +31,7 @@
                                               :last-name "World"
                                               :password "Test1234"})
               result (store/find-by-kc-id (.getId user))]
+          (println result)
           (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds)))))))
   (t/testing "returns nil otherwise"
     (with-redefs [kcu/get-user (constantly nil)
@@ -161,8 +162,7 @@
               result (store/delete-user! (:uuid created-user))]
           (t/is (not (nil? result)))))))
   (t/testing "user does not exist"
-    (t/testing "user exists"
-      (with-redefs [kcu/logout-user! (constantly nil)
-                    kcu/delete-user! (constantly nil)]
-        (let [result (store/delete-user! (random-uuid))]
-          (t/is (nil? result)))))))
+    (with-redefs [kcu/logout-user! (constantly nil)
+                  kcu/delete-user! (constantly nil)]
+      (let [result (store/delete-user! (random-uuid))]
+        (t/is (nil? result))))))

@@ -17,9 +17,9 @@
 (defn find-by-kc-id [kc-id]
   (let [query {:select [:kc-id :uuid :email :updated-at :created-at :deleted-at]
                :from [:users]
-               :where [:and [:is-not :deleted true] [:= :kc_id kc-id]]}
-        result (jdbc/execute-one! (:ds @db) (sql/format query))
-        kc-user (kcu/get-user @kc-client @realm (:kc_id result))]
+               :where [:and [:= :deleted-at nil] [:= :kc-id kc-id]]}
+        result (jdbc/execute-one! (:ds-opts @db) (sql/format query))
+        kc-user (kcu/get-user @kc-client @realm (:kc-id result))]
     (when (not (nil? result))
       (s/user
        (:users/uuid result)
@@ -32,8 +32,8 @@
 (defn find-by-email [email]
   (let [query {:select [:kc-id :uuid :email :updated-at :created-at :deleted-at]
                :from [:users]
-               :where [:and [:is-not :deleted true] [:= :email email]]}
-        result (jdbc/execute-one! (:ds @db) (sql/format query))
+               :where [:and [:= :deleted-at nil] [:= :email email]]}
+        result (jdbc/execute-one! (:ds-opts @db) (sql/format query))
         kc-user (kcu/get-user-by-username @kc-client @realm (:email result))]
     (when (not (nil? result))
       (s/user
@@ -80,20 +80,20 @@
        (:users/updated-at created-user)))))
 
 (defn update-user-by-uuid! [{:keys [uuid first-name last-name email password]}]
-  (jdbc/with-transaction [tx (:ds @db)]
-    (let [columns [:kc_id :uuid :email :created_at :updated_at]
-          filters [:and [:is-not :deleted true] [:= :uuid (str uuid)]]
+  (jdbc/with-transaction+options [tx (:ds-opts @db)]
+    (let [columns [:kc-id :uuid :email :created-at :updated-at]
+          filters [:and [:= :deleted-at nil] [:= :uuid uuid]]
           query! (if (not (nil? email))
                    {:update :users
                     :set {:email email
-                          :updated_at (jt/offset-date-time)}
+                          :updated-at (jt/offset-date-time)}
                     :where filters
                     :returning columns}
                    {:select columns
                     :from [:users]
                     :where filters})
           result (jdbc/execute-one! tx (sql/format query!))
-          kc-user (kcu/update-user! @kc-client @realm (:kc_id result) {:username email
+          kc-user (kcu/update-user! @kc-client @realm (:kc-id result) {:username email
                                                                        :first-name first-name
                                                                        :last-name last-name
                                                                        :password password})]
@@ -117,7 +117,7 @@
                                  :where filters
                                  :returning [:deleted-at]}]
     (when result
-      (jdbc/with-transaction [tx (:ds @db)]
-        (kcu/logout-user! @kc-client @realm (:kc_id result))
+      (jdbc/with-transaction+options [tx (:ds-opts @db)]
+        (kcu/logout-user! @kc-client @realm (:kc-id result))
         (kcu/delete-user! @kc-client @realm {:email (:email result)})
-        (:deleted (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))
+        (:users/deleted-at (jdbc/execute-one! tx (sql/format soft-delete-user-query!)))))))

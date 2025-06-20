@@ -15,7 +15,10 @@
         user "test"
         password "test"
         database "test"]
-    (start (create-jdbc-connection-string (str "postgresql://" user ":" password "@" host ":" port "/" database)))))
+    (start
+     (create-jdbc-connection-string (str "postgresql://" user ":" password "@" host ":" port "/" database))
+     "migrations/"
+     "seeds/")))
 
 (defn- stop-mock []
   (stop)
