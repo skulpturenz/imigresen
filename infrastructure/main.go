@@ -183,15 +183,13 @@ func main() {
 				ProvisioningModel: pulumi.String("SPOT"),
 				OnHostMaintenance: pulumi.String("TERMINATE"),
 			},
-			Metadata: pulumi.ToStringMap(map[string]string{
-				"ssh-keys": GCP_SSH_PUBLIC_KEY.Value(),
-			}),
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
+			// Enable root login: https://cloud.google.com/compute/docs/connect/root-ssh
 			MetadataStartupScript: pulumi.Sprintf(`#! /bin/bash 
 				curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 				sudo bash add-google-cloud-ops-agent-repo.sh --also-install
-
+				
 				sudo apt update &&
 				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
@@ -210,7 +208,11 @@ func main() {
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
-					--dns-cloudflare-propagation-seconds 60`, CLOUDFLARE_API_TOKEN.Value()),
+					--dns-cloudflare-propagation-seconds 60
+				
+				# Enable root login and reboot
+				sudo sed -i 's/PermitRootLogin no/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config
+				sudo reboot`, CLOUDFLARE_API_TOKEN.Value()),
 			ServiceAccount: &compute.InstanceTemplateServiceAccountArgs{
 				Email: pulumi.StringPtr(GOOGLE_SERVICE_ACCOUNT.Value()),
 				Scopes: pulumi.ToStringArray([]string{
