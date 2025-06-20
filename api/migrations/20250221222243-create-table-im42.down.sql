@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS im42;
---;;
-DROP TRIGGER IF EXISTS im42_modtimestamp;
