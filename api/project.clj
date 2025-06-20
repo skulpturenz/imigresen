@@ -1,6 +1,7 @@
 ;; TODO: configure linting
 ;; TODO: configure otel (sideload with jvm + logging)
 ;; TODO: cleanup deps for envs
+;; https://github.com/technomancy/leiningen/blob/master/sample.project.clj#L177
 
 (defproject imigresen-api "0.1.0-SNAPSHOT"
   :description "Imigresen API"
@@ -36,9 +37,7 @@
   :resource-paths ["migrations"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:bin {:aot [imigresen-api.app.core]
-                   :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
-             :uberjar {:aot [imigresen-api.app.core]
+  :profiles {:uberjar {:aot [imigresen-api.app.core]
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
              :test {:env {:java-env "test"}}}
   :test-paths ["src"]
