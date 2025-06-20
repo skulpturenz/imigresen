@@ -286,8 +286,8 @@ func main() {
 			},
 			NamedPorts: compute.InstanceGroupManagerNamedPortArray{
 				&compute.InstanceGroupManagerNamedPortArgs{
-					Name: pulumi.String("http"),
-					Port: pulumi.Int(80),
+					Name: pulumi.String("https"),
+					Port: pulumi.Int(443),
 				},
 			},
 			AutoHealingPolicies: &compute.InstanceGroupManagerAutoHealingPoliciesArgs{
