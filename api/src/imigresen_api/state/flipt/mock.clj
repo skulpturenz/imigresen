@@ -7,7 +7,7 @@
 (def mock-flipt-url "https://localhost")
 
 (defstate flipt
-  :start (start mock-flipt-url "mock")
+  :start (start mock-flipt-url)
   :stop (stop))
 
 (defn boolean-evaluation [res]
