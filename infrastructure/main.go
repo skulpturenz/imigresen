@@ -256,7 +256,8 @@ func main() {
 			UnhealthyThreshold: pulumi.Int(10),
 			HttpsHealthCheck: &compute.HealthCheckHttpsHealthCheckArgs{
 				RequestPath: pulumi.String("/ping"),
-				Port:        pulumi.Int(443),
+				// traefik ping: https://doc.traefik.io/traefik/reference/install-configuration/observability/healthcheck/
+				Port: pulumi.Int(8080),
 			},
 		})
 		if err != nil {
@@ -304,7 +305,6 @@ func main() {
 			Managed: &compute.ManagedSslCertificateManagedArgs{
 				Domains: pulumi.StringArray{
 					pulumi.String("imigresen-api-dev.skulpture.xyz"),
-					pulumi.String("imigresen.skulpture.xyz"),
 				},
 			},
 		})
@@ -317,6 +317,8 @@ func main() {
 			RequestPath:      pulumi.String("/ping"),
 			CheckIntervalSec: pulumi.Int(30),
 			TimeoutSec:       pulumi.Int(30),
+			// traefik ping: https://doc.traefik.io/traefik/reference/install-configuration/observability/healthcheck/
+			Port: pulumi.Int(8080),
 		})
 		if err != nil {
 			return nil, err
