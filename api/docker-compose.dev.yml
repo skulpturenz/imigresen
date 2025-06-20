@@ -76,7 +76,7 @@ services:
         traefik.http.routers.imigresen-api-dev.rule: Host(`imigresen-api-dev.skulpture.xyz`)
         traefik.http.routers.imigresen-api-dev.tls.domains.main: skulpture.xyz
         traefik.http.routers.imigresen-api-dev.tls.domains.sans: "*.skulpture.xyz"
-        traefik.http.services.imigresen-api-dev-service.loadbalancer.server.port: 80
+        traefik.http.services.imigresen-api-dev-service.loadbalancer.server.port: 3000
         traefik.http.services.imigresen-api-dev-service.loadbalancer.server.scheme: http
         traefik.http.services.imigresen-api-dev-service.loadbalancer.healthcheck.path: /ping
         traefik.http.services.imigresen-api-dev-service.loadbalancer.healthcheck.status: 200
@@ -86,7 +86,7 @@ services:
         soft: 20000
         hard: 20000
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ping || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/ping || exit 1" ]
       interval: 1m30s
       timeout: 1m
       retries: 5
