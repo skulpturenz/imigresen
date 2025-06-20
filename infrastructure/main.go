@@ -7,6 +7,7 @@ import (
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/iam"
 	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/compute"
+	"github.com/pulumi/pulumi-random/sdk/v4/go/random"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -140,7 +141,7 @@ func main() {
 		ZONE := "us-central1-a"
 
 		static, err := compute.NewAddress(ctx, fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()), &compute.AddressArgs{
-			Name:   pulumi.String(fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value())),
+			Name:   pulumi.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()),
 			Region: pulumi.String(REGION),
 		})
 		if err != nil {
@@ -187,7 +188,7 @@ func main() {
 			}),
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
-			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
+			MetadataStartupScript: pulumi.Sprintf(`#! /bin/bash 
 				curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 				sudo bash add-google-cloud-ops-agent-repo.sh --also-install
 
@@ -209,7 +210,7 @@ func main() {
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
-					--dns-cloudflare-propagation-seconds 60`, CLOUDFLARE_API_TOKEN.Value())),
+					--dns-cloudflare-propagation-seconds 60`, CLOUDFLARE_API_TOKEN.Value()),
 			ServiceAccount: &compute.InstanceTemplateServiceAccountArgs{
 				Email: pulumi.StringPtr(GOOGLE_SERVICE_ACCOUNT.Value()),
 				Scopes: pulumi.ToStringArray([]string{
@@ -273,7 +274,7 @@ func main() {
 		}
 
 		defaultHttpHealthCheck, err := compute.NewHttpHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpHealthCheckArgs{
-			Name:             pulumi.String(fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value())),
+			Name:             pulumi.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()),
 			RequestPath:      pulumi.String("/ping"),
 			CheckIntervalSec: pulumi.Int(30),
 			TimeoutSec:       pulumi.Int(30),
@@ -283,7 +284,7 @@ func main() {
 		}
 
 		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
-			Name:         pulumi.String(fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value())),
+			Name:         pulumi.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()),
 			Protocol:     pulumi.String("HTTP"),
 			PortName:     pulumi.String("http"),
 			HealthChecks: defaultHttpHealthCheck.ID(),
@@ -298,7 +299,7 @@ func main() {
 		}
 
 		defaultURLMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
-			Name:           pulumi.String(fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value())),
+			Name:           pulumi.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()),
 			DefaultService: devBackendService.ID(),
 			HostRules: compute.URLMapHostRuleArray{
 				&compute.URLMapHostRuleArgs{
@@ -327,17 +328,17 @@ func main() {
 			return nil, err
 		}
 
-		defaultTargetHttpProxy, err := compute.NewTargetHttpProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpProxyArgs{
-			Name:   pulumi.String(fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value())),
+		devHttpProxy, err := compute.NewTargetHttpProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpProxyArgs{
+			Name:   pulumi.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()),
 			UrlMap: defaultURLMap.ID(),
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		globalForwardingRule, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
-			Name:      pulumi.String(fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value())),
-			Target:    defaultTargetHttpProxy.ID(),
+		devLoadBalancer, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
+			Name:      pulumi.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()),
+			Target:    devHttpProxy.ID(),
 			PortRange: pulumi.String("80"),
 		})
 		if err != nil {
@@ -345,12 +346,12 @@ func main() {
 		}
 
 		ctx.Export("devStaticAddress", static.Address)
-		ctx.Export("devGlobalForwardingRuleAddress", globalForwardingRule.IpAddress)
+		ctx.Export("devGlobalForwardingRuleAddress", devLoadBalancer.IpAddress)
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
 			Name:    pulumi.String("imigresen-api-dev"),
-			Content: globalForwardingRule.IpAddress,
+			Content: devLoadBalancer.IpAddress,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
 		})
@@ -368,9 +369,23 @@ func main() {
 		return &result, nil
 	}
 
-	_ = func(ctx *pulumi.Context, devResources *devResources) error {
+	setupIdentityPool := func(ctx *pulumi.Context, devResources *devResources) error {
+		version, err := random.NewRandomInteger(ctx, "wif-pool-count", &random.RandomIntegerArgs{
+			Min: pulumi.Int(1),
+			Max: pulumi.Int(1000),
+			Keepers: pulumi.StringMap{
+				"version": pulumi.String("1"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
 		pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
-			WorkloadIdentityPoolId: pulumi.String("imigresen-wif-pool"),
+			// workload identity pool ids must be unique and they are soft deleted for 30 days
+			// so if the stack is torn down and brought up again then it results in an error about the id being used
+			// whenever we want to modify the instance group template or what not the stack can be torn down entirely
+			WorkloadIdentityPoolId: pulumi.Sprintf("imigresen-wif-pool-%d", version.Result),
 		})
 		if err != nil {
 			return err
@@ -429,15 +444,15 @@ func main() {
 			return err
 		}
 
-		_, err = setupDev(ctx)
+		devResources, err := setupDev(ctx)
 		if err != nil {
 			return err
 		}
 
-		// err = setupIdentityPool(ctx, devResources)
-		// if err != nil {
-		// 	return err
-		// }
+		err = setupIdentityPool(ctx, devResources)
+		if err != nil {
+			return err
+		}
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-client", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
