@@ -21,7 +21,8 @@
                                            ;; supported db types
                                            ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
                                            (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-                                           (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string}))
+                                           (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string
+                                                                                                         :maximumPoolSize (env :db-pool-max-size int? 2)}))
                                            (await db-agent)
                                            ;; initialize pool and validate
                                            (.close (jdbc/get-connection (:ds @db-agent)))
