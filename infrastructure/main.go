@@ -272,7 +272,20 @@ func main() {
 			return nil, err
 		}
 
-		defaultHttpHealthCheck, err := compute.NewHttpHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpHealthCheckArgs{
+		devManagedSslCertificate, err := compute.NewManagedSslCertificate(ctx, fmt.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()), &compute.ManagedSslCertificateArgs{
+			Name: pulumi.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()),
+			Managed: &compute.ManagedSslCertificateManagedArgs{
+				Domains: pulumi.StringArray{
+					pulumi.String("imigresen-api-dev.skulpture.xyz"),
+					pulumi.String("imigresen.skulpture.xyz"),
+				},
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		devHttpsHealthCheck, err := compute.NewHttpsHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpsHealthCheckArgs{
 			Name:             pulumi.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()),
 			RequestPath:      pulumi.String("/ping"),
 			CheckIntervalSec: pulumi.Int(30),
@@ -284,9 +297,9 @@ func main() {
 
 		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
 			Name:         pulumi.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()),
-			Protocol:     pulumi.String("HTTP"),
-			PortName:     pulumi.String("http"),
-			HealthChecks: defaultHttpHealthCheck.ID(),
+			Protocol:     pulumi.String("HTTPS"),
+			PortName:     pulumi.String("https"),
+			HealthChecks: devHttpsHealthCheck.ID(),
 			Backends: compute.BackendServiceBackendArray{
 				compute.BackendServiceBackendArgs{
 					Group: instanceGroupManager.InstanceGroup,
@@ -297,7 +310,7 @@ func main() {
 			return nil, err
 		}
 
-		defaultURLMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
+		devUrlMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
 			Name:           pulumi.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()),
 			DefaultService: devBackendService.ID(),
 			HostRules: compute.URLMapHostRuleArray{
@@ -327,9 +340,12 @@ func main() {
 			return nil, err
 		}
 
-		devHttpProxy, err := compute.NewTargetHttpProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpProxyArgs{
+		devHttpsProxy, err := compute.NewTargetHttpsProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpsProxyArgs{
 			Name:   pulumi.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()),
-			UrlMap: defaultURLMap.ID(),
+			UrlMap: devUrlMap.ID(),
+			SslCertificates: pulumi.StringArray{
+				devManagedSslCertificate.ID(),
+			},
 		})
 		if err != nil {
 			return nil, err
@@ -337,8 +353,8 @@ func main() {
 
 		devLoadBalancer, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
 			Name:      pulumi.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()),
-			Target:    devHttpProxy.ID(),
-			PortRange: pulumi.String("80"),
+			Target:    devHttpsProxy.ID(),
+			PortRange: pulumi.String("443"),
 		})
 		if err != nil {
 			return nil, err
