@@ -2,6 +2,7 @@ import { createAuthnContext } from "core/context/initializers";
 import { memoize } from "es-toolkit";
 import {
 	mergeProps,
+	onCleanup,
 	onMount,
 	Show,
 	type Accessor,
@@ -30,6 +31,10 @@ export const AuthnProviderMock: Component<
 
 	onMount(() => {
 		withDefaultProps.svc().actions.init();
+	});
+
+	onCleanup(() => {
+		withDefaultProps.svc().actions.cleanup();
 	});
 
 	return (

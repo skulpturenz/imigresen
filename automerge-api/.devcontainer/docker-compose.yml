@@ -1,0 +1,25 @@
+services:
+    automerge-api:
+        build:
+            context: ..
+            dockerfile: .devcontainer/Dockerfile
+
+        volumes:
+            - ../..:/workspaces:cached
+
+        # Overrides default command so things don't shut down after the process ends.
+        command: sleep infinity
+
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:alpine
+        restart: unless-stopped
+        env_file:
+            - .env.pg
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+
+volumes:
+    postgres-data:

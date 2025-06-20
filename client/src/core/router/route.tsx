@@ -16,6 +16,7 @@ import { spreadProps } from "core/utils";
 import {
 	createEffect,
 	createResource,
+	onCleanup,
 	Show,
 	Suspense,
 	type Component,
@@ -23,6 +24,7 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { PageLoading } from "ui/page-loading";
+import { toPath } from "./utils";
 
 export interface CoreContext {
 	user: UserSvc;
@@ -152,7 +154,7 @@ export const Route: Component<
 					}
 				/>
 
-				<Suspense>
+				<Suspense fallback={<div>Loading...</div>}>
 					<Show
 						when={
 							typeof isAllowed() !== "undefined" &&
@@ -218,15 +220,13 @@ export const Route: Component<
 	);
 };
 
-export const toPath = (...paths: string[]) => `/${paths.join("/")}`;
-
 export const addRoutes = (...routes: RouteProps[]) => {
+	const getRouteContext = useContext(RouterContext);
+
 	const addRoutesWithParentPath = (
 		parentPath: string | null,
 		routes: RouteProps[],
 	) => {
-		const getRouteContext = useContext(RouterContext);
-
 		const InternalRoute = Route as Component<
 			ParentProps<RouteProps & RouteInternalProps>
 		>;
@@ -272,6 +272,10 @@ export const addRoutes = (...routes: RouteProps[]) => {
 			);
 		});
 	};
+
+	onCleanup(() => {
+		getRouteContext().actions.reset();
+	});
 
 	return addRoutesWithParentPath(null, routes);
 };

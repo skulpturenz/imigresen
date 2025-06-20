@@ -1,6 +1,7 @@
 ;; TODO: configure linting
 ;; TODO: configure otel (sideload with jvm + logging)
 ;; TODO: cleanup deps for envs
+;; https://github.com/technomancy/leiningen/blob/master/sample.project.clj#L177
 
 
 (defproject imigresen-api "0.1.0-SNAPSHOT"
@@ -37,9 +38,10 @@
                  [clj-test-containers/clj-test-containers "0.7.4"]
                  [org.testcontainers/postgresql "1.20.5"]
                  [pdfboxing "0.1.14"]]
+  :resource-paths ["migrations" "seeds"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all
+  :profiles {:uberjar {:aot [imigresen-api.app.core]
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
@@ -61,17 +63,17 @@
   :test-selectors {:default (complement :integration)
                    :unit (fn
                            ([m] (:unit m))
-                           ([m s] 
-                            (and 
-                             (:unit m) 
-                             (or 
-                              (clojure.string/includes? (str (:ns m)) (name s)) 
+                           ([m s]
+                            (and
+                             (:unit m)
+                             (or
+                              (clojure.string/includes? (str (:ns m)) (name s))
                               (clojure.string/includes? (str (:name m)) (name s))))))
                    :integration (fn
                                   ([m] (:integration m))
                                   ([m s]
                                    (and
                                     (:integration m)
-                                    (or 
-                                     (clojure.string/includes? (str (:ns m)) (name s)) 
+                                    (or
+                                     (clojure.string/includes? (str (:ns m)) (name s))
                                      (clojure.string/includes? (str (:name m)) (name s))))))})

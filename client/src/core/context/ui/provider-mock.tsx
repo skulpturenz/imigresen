@@ -1,5 +1,8 @@
 import { I18nProvider } from "@kobalte/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
+import { AuthnContext } from "core/context/authn";
+import { useContext } from "core/context/utils";
+import { RepoContext } from "solid-automerge";
 import {
 	createEffect,
 	mergeProps,
@@ -10,6 +13,7 @@ import {
 	type ParentProps,
 } from "solid-js";
 import { ToastList, ToastRegion } from "ui/toast";
+import { network, repo } from "./automerge";
 import { UiContext } from "./provider";
 import { useStore, type UiSvc } from "./store";
 
@@ -21,6 +25,8 @@ export const UiProviderMock: Component<
 	ParentProps<UiProviderMockProps>
 > = props => {
 	const value = useStore();
+	const authnContext = useContext(AuthnContext);
+
 	const withDefaultProps = mergeProps(
 		{
 			svc: value,
@@ -56,21 +62,31 @@ export const UiProviderMock: Component<
 
 	onMount(() => {
 		withDefaultProps.svc().actions.init();
+
+		if (!authnContext().keycloak?.authenticated) {
+			return;
+		}
+
+		repo.networkSubsystem.addNetworkAdapter(network);
 	});
 
 	return (
 		<UiContext.Provider value={withDefaultProps.svc}>
 			<Show when={!withDefaultProps.svc().isInitialLoading()}>
-				<QueryClientProvider
-					client={withDefaultProps.svc().queryClient as QueryClient}>
-					<I18nProvider locale={withDefaultProps.svc().locale}>
-						{withDefaultProps.children}
+				<RepoContext.Provider value={repo}>
+					<QueryClientProvider
+						client={
+							withDefaultProps.svc().queryClient as QueryClient
+						}>
+						<I18nProvider locale={withDefaultProps.svc().locale}>
+							{withDefaultProps.children}
 
-						<ToastRegion>
-							<ToastList />
-						</ToastRegion>
-					</I18nProvider>
-				</QueryClientProvider>
+							<ToastRegion>
+								<ToastList />
+							</ToastRegion>
+						</I18nProvider>
+					</QueryClientProvider>
+				</RepoContext.Provider>
 			</Show>
 		</UiContext.Provider>
 	);

@@ -1,3 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* TODO: migrate for tw v4 */
+@config "../../../tailwind.config.mjs";
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/container-queries";
+@plugin "@tailwindcss/forms";

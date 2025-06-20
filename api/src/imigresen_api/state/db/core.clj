@@ -9,7 +9,8 @@
             [clojure.walk :refer [keywordize-keys]]
             [ring.util.codec :refer [form-decode form-encode]]
             [imigresen-api.app.utils :refer [caught exception?]]
-            [taoensso.telemere :as t])
+            [taoensso.telemere :as t]
+            [clojure.spec.alpha :as s])
   (:import (com.zaxxer.hikari HikariDataSource)
            (java.net URI)))
 
@@ -25,7 +26,11 @@
    ;; supported db types
    ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
    (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-   (let [ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string})
+   (let [schema (s/and string? (s/conformer #(Integer/parseInt %)) int?)
+         ds (connection/->pool
+             HikariDataSource
+             {:jdbcUrl jdbc-connection-string
+              :maximumPoolSize (env :db-pool-max-size schema "2")})
          opts jdbc/snake-kebab-opts]
      (send db-agent assoc :ds ds)
      (send db-agent assoc :ds-opts (jdbc/with-options ds opts))
@@ -42,9 +47,10 @@
 
 (defn stop []
   (t/log! {:level :debug :data (:jdbc-connection-string @db-agent)} "db state stop")
-  (.close ^HikariDataSource (:ds @db-agent))
-  (send db-agent dissoc :ds)
-  (await db-agent)
+  (when (:ds @db-agent)
+    (.close ^HikariDataSource (:ds @db-agent))
+    (send db-agent dissoc :ds)
+    (await db-agent))
   ;; return agent
   db-agent)
 

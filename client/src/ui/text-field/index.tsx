@@ -1,15 +1,18 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import {
+	TextField as TextFieldPrimitive,
+	type TextFieldLabelProps as KbTextFieldLabelProps,
 	type TextFieldDescriptionProps,
 	type TextFieldErrorMessageProps,
 	type TextFieldInputProps,
-	type TextFieldLabelProps,
 	type TextFieldRootProps,
-	TextField as TextFieldPrimitive,
 } from "@kobalte/core/text-field";
+import { styles } from "core/constants/styles";
 import { spreadProps } from "core/utils";
-import type { ValidComponent } from "solid-js";
+import { Info } from "lucide-solid";
+import { Show, type ValidComponent } from "solid-js";
 import { label } from "ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { cn } from "ui/utils";
 
 export const TextFieldRoot = <T extends ValidComponent = "div">(
@@ -18,18 +21,41 @@ export const TextFieldRoot = <T extends ValidComponent = "div">(
 	<TextFieldPrimitive
 		{...spreadProps(props)}
 		ref={props.ref}
-		class={cn("space-y-1", props.class)}
+		class={cn("flex flex-col space-y-4", props.class)}
 	/>
 );
+
+export interface TextFieldLabelProps<T extends ValidComponent = "label">
+	extends KbTextFieldLabelProps<T> {
+	info?: string;
+}
 
 export const TextFieldLabel = <T extends ValidComponent = "label">(
 	props: PolymorphicProps<T, TextFieldLabelProps<T>>,
 ) => (
-	<TextFieldPrimitive.Label
-		{...spreadProps(props)}
-		ref={props.ref}
-		class={cn(label(), props.class)}
-	/>
+	<div class="flex gap-4 items-center">
+		<div>
+			<TextFieldPrimitive.Label
+				{...spreadProps<any>(props)}
+				ref={props.ref}
+				class={cn(label(), props.class)}
+			/>
+		</div>
+
+		<Show when={props.info && styles.device.hasHover()}>
+			<div class="text-foreground">
+				<Tooltip>
+					<TooltipTrigger>
+						<Info class="size-[0.875rem]" />
+					</TooltipTrigger>
+
+					<TooltipContent class="max-w-sm text-wrap break-all">
+						<p>{props.info}</p>
+					</TooltipContent>
+				</Tooltip>
+			</div>
+		</Show>
+	</div>
 );
 
 export const TextFieldErrorMessage = <T extends ValidComponent = "div">(

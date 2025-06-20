@@ -11,17 +11,19 @@ export const createAuthnContext = (): AuthnSvc => ({
 	isActionsLoading: false,
 	keycloak: null,
 	profile: null,
+	userId: "",
 	actions: {
 		init: noop,
 		login: noop,
 		register: noop,
 		logout: noop,
+		cleanup: noop,
 	},
 });
 
 export const createUiContext = (): UiSvc => ({
 	isInitialLoading: () => true,
-	locale: "en-US",
+	locale: "en-NZ",
 	theme: "dark",
 	mode: "default",
 	queryClient: null,
@@ -49,6 +51,7 @@ export const createRouterContext = (): RouterSvc => ({
 	isInitialLoading: () => true,
 	routes: Object.create(null),
 	actions: {
+		reset: noop as any,
 		getNextMask: noop as any,
 		appendRoute: noop,
 		getRoute: noop as any,
@@ -60,5 +63,6 @@ export const createUserContext = (): UserSvc => ({
 	profile: null,
 	actions: {
 		init: noop,
+		completeSync: noop,
 	},
 });

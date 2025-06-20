@@ -2,8 +2,17 @@ export const createRedirectUrl = (
 	authRedirectUri: string,
 	redirectPath?: string,
 ) => {
+	const getRedirectPath = (redirectPath?: string) => {
+		if (!redirectPath) {
+			return window.location.hash;
+		}
+
+		return [redirectPath, window.location.hash].join("");
+	};
+
 	const params = new URLSearchParams({
-		redirectPath: redirectPath ?? "",
+		...Object.fromEntries(new URLSearchParams(window.location.search)),
+		redirectPath: getRedirectPath(redirectPath),
 	});
 
 	params.forEach((value, key) => {

@@ -1,6 +1,7 @@
 import { createAuthnContext } from "core/context/initializers";
 import {
 	createContext,
+	onCleanup,
 	onMount,
 	Show,
 	type Accessor,
@@ -17,6 +18,10 @@ export const AuthnProvider: Component<ParentProps> = props => {
 
 	onMount(() => {
 		value().actions.init();
+	});
+
+	onCleanup(() => {
+		value().actions.cleanup();
 	});
 
 	return (
