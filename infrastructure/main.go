@@ -174,7 +174,7 @@ func main() {
 		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
 			// see: https://github.com/pulumi/pulumi-gcp/issues/680#issuecomment-1405680098
 			NamePrefix:   pulumi.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()),
-			MachineType:  pulumi.String("e2-micro"),
+			MachineType:  pulumi.String("e2-custom-micro-2048"),
 			CanIpForward: pulumi.Bool(false),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
