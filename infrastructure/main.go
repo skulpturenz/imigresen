@@ -229,7 +229,7 @@ func main() {
 			UnhealthyThreshold: pulumi.Int(10),
 			HttpsHealthCheck: &compute.HealthCheckHttpsHealthCheckArgs{
 				RequestPath: pulumi.String("/ping"),
-				Port:        pulumi.Int(443),
+				Port:        pulumi.Int(80),
 			},
 		})
 		if err != nil {
@@ -259,8 +259,8 @@ func main() {
 			},
 			NamedPorts: compute.InstanceGroupManagerNamedPortArray{
 				&compute.InstanceGroupManagerNamedPortArgs{
-					Name: pulumi.String("https"),
-					Port: pulumi.Int(443),
+					Name: pulumi.String("http"),
+					Port: pulumi.Int(80),
 				},
 			},
 			AutoHealingPolicies: &compute.InstanceGroupManagerAutoHealingPoliciesArgs{
