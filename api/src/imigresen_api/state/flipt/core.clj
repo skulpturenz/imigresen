@@ -9,10 +9,9 @@
 
 (def ^:private flipt-agent (agent {}))
 
-(defn start [url client-token]
+(defn start [url]
   (t/log! :debug "flipt state start")
   (let [options {:url url
-                 :headers {"Authorization" (str "Bearer" " " client-token)}
                  :as :auto}
         ;; TODO: remove duplicate slashes
         client #(http/request (conj options % {:url (str (:url options) "/" (:path %))}) identity)]
@@ -29,7 +28,7 @@
   flipt-agent)
 
 (defstate flipt
-  :start (start (env :rollout-url string?) (env :rollout-token string?))
+  :start (start (env :rollout-url string?))
   :stop (stop))
 
 (defn enabled?
