@@ -8,9 +8,6 @@
 		"--env-file",
 		".devcontainer/.env"
 	],
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
-	},
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
 		"JAVA_ENV": "development"
@@ -31,5 +28,12 @@
 		// "DB_INIT_IN_TRANSACTION": "",
 		// "DB_MIGRATION_TABLE_NAME": ""
 	},
-	"postStartCommand": "java -version"
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": {
+		// "configure-docker": "sudo chown $(whoami) /var/run/docker.sock",
+		"go-version": "java -version"
+	}
 }
