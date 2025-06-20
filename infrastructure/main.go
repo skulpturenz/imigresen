@@ -314,8 +314,8 @@ func main() {
 		devHttpsHealthCheck, err := compute.NewHttpsHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpsHealthCheckArgs{
 			Name:             pulumi.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()),
 			RequestPath:      pulumi.String("/ping"),
-			CheckIntervalSec: pulumi.Int(30),
-			TimeoutSec:       pulumi.Int(30),
+			CheckIntervalSec: pulumi.Int(5),
+			TimeoutSec:       pulumi.Int(5),
 			Host:             pulumi.String("imigresen-api-dev.skulpture.xyz"),
 		})
 		if err != nil {
