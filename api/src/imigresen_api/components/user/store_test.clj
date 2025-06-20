@@ -16,7 +16,7 @@
 
 (t/use-fixtures :once fixture)
 
-(t/deftest ?find-by-kc-id
+(t/deftest ^:unit ?find-by-kc-id
   (t/testing "returns user"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -31,6 +31,7 @@
                                               :last-name "World"
                                               :password "Test1234"})
               result (store/find-by-kc-id (.getId user))]
+          (println result)
           (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds)))))))
   (t/testing "returns nil otherwise"
     (with-redefs [kcu/get-user (constantly nil)
@@ -39,7 +40,7 @@
       (let [result (store/find-by-kc-id (str (random-uuid)))]
         (t/is (nil? result))))))
 
-(t/deftest ?find-by-email
+(t/deftest ^:unit ?find-by-email
   (t/testing "returns user"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -67,7 +68,7 @@
         (let [result (store/find-by-email (str (random-uuid) "@world.com"))]
           (t/is (nil? result)))))))
 
-(t/deftest ?unique-email?
+(t/deftest ^:unit ?unique-email?
   (t/testing "true if no active user"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -99,7 +100,7 @@
               result (store/unique-email? (.getEmail user))]
           (t/is (false? result)))))))
 
-(t/deftest ?create-user-by-email!
+(t/deftest ^:unit ?create-user-by-email!
   (t/testing "creates user"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -115,7 +116,7 @@
                                                    :password "Test1234"})]
           (t/is (= 0 (jt/time-between (:created-at result) (jt/offset-date-time) :seconds))))))))
 
-(t/deftest ?update-user-by-uuid!
+(t/deftest ^:unit ?update-user-by-uuid!
   (t/testing "updates user if exists and returns"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -140,10 +141,10 @@
                  (.setEmail (str (random-uuid) "@world.com")))]
       (with-redefs [kcu/get-user (constantly user)
                     kcu/update-user! (constantly user)]
-        (let [result (store/update-user-by-uuid! {:uuid (str (random-uuid)) :email (str (random-uuid) "@world.com")})]
+        (let [result (store/update-user-by-uuid! {:uuid (random-uuid) :email (str (random-uuid) "@world.com")})]
           (t/is (nil? result)))))))
 
-(t/deftest ?delete-user!
+(t/deftest ^:unit ?delete-user!
   (t/testing "user exists"
     (let [user (doto (UserRepresentation.)
                  (.setId (str (random-uuid)))
@@ -161,8 +162,7 @@
               result (store/delete-user! (:uuid created-user))]
           (t/is (not (nil? result)))))))
   (t/testing "user does not exist"
-    (t/testing "user exists"
-      (with-redefs [kcu/logout-user! (constantly nil)
-                    kcu/delete-user! (constantly nil)]
-        (let [result (store/delete-user! (random-uuid))]
-          (t/is (nil? result)))))))
+    (with-redefs [kcu/logout-user! (constantly nil)
+                  kcu/delete-user! (constantly nil)]
+      (let [result (store/delete-user! (random-uuid))]
+        (t/is (nil? result))))))

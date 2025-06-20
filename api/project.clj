@@ -3,6 +3,7 @@
 ;; TODO: cleanup deps for envs
 ;; https://github.com/technomancy/leiningen/blob/master/sample.project.clj#L177
 
+
 (defproject imigresen-api "0.1.0-SNAPSHOT"
   :description "Imigresen API"
   :url "https://skulpture.xyz"
@@ -15,7 +16,6 @@
                  [com.github.seancorfield/next.jdbc "1.3.981"]
                  [org.postgresql/postgresql "42.7.5"]
                  [com.zaxxer/HikariCP "6.2.1"]
-                 [org.duckdb/duckdb_jdbc "1.1.3"]
                  [environ "1.2.0"]
                  [metosin/reitit "0.7.2"]
                  [metosin/ring-swagger-ui "5.18.2"]
@@ -34,12 +34,15 @@
                  [org.threeten/threeten-extra "1.2"]
                  [camel-snake-kebab "0.4.3"]
                  [jumblerg/ring-cors "3.0.0"]]
-  :resource-paths ["migrations"]
+  :resource-paths ["migrations" "seeds"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot [imigresen-api.app.core]
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
-             :test {:env {:java-env "test"}}}
+             :test {:env {:timbre-level "ERROR"
+                          :log-level "ERROR"}
+                    :dependencies [[clj-test-containers/clj-test-containers "0.7.4"]
+                                   [org.testcontainers/postgresql "1.20.5"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6" :auto-refresh? true]
@@ -49,9 +52,28 @@
          :destroy imigresen-api.app.core/destroy
          :handler imigresen-api.app.core/app
          :nrepl {:start true :port 3001}}
+  ;; uncomment to seed database
+  ;; :migratus {:migration-dir "seeds"}
   :aliases {"dev" ["ring" "server-headless"]
             "build" ["ring" "uberjar"]
             "build.watch" ["auto" "ring" "uberjar"]
             "test" ["test"]
             "test.watch" ["auto" "test"]
-            "repl" ["repl"]})
+            "repl" ["repl"]}
+  :test-selectors {:default (complement :integration)
+                   :unit (fn
+                           ([m] (:unit m))
+                           ([m s]
+                            (and
+                             (:unit m)
+                             (or
+                              (clojure.string/includes? (str (:ns m)) (name s))
+                              (clojure.string/includes? (str (:name m)) (name s))))))
+                   :integration (fn
+                                  ([m] (:integration m))
+                                  ([m s]
+                                   (and
+                                    (:integration m)
+                                    (or
+                                     (clojure.string/includes? (str (:ns m)) (name s))
+                                     (clojure.string/includes? (str (:name m)) (name s))))))})

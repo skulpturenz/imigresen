@@ -4,6 +4,7 @@
 		"dockerfile": "Dockerfile"
 	},
 	"runArgs": [
+		"--init",
 		"--env-file",
 		".devcontainer/.env"
 	],
@@ -21,9 +22,18 @@
 		//// db
 		// "PG_CONNECTION_STRING": "",
 		// "DB_MIGRATION_DIR": "",
+		// "DB_SEED_DIR": "",
+		// "DB_SEED_MIGRATION_TABLE_NAME": "",
 		// "DB_INIT_SCRIPT": "",
 		// "DB_INIT_IN_TRANSACTION": "",
 		// "DB_MIGRATION_TABLE_NAME": ""
 	},
-	"postStartCommand": "java -version"
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": {
+		// "configure-docker": "sudo chown $(whoami) /var/run/docker.sock",
+		"go-version": "java -version"
+	}
 }

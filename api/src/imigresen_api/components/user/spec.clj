@@ -15,8 +15,8 @@
 (s/def :user/first-name string?)
 (s/def :user/last-name string?)
 (s/def :user/email string?)
-(s/def :user/updated-at jt/offset-date-time?)
-(s/def :user/created-at jt/offset-date-time?)
+(s/def :user/updated-at jt/local-date-time?)
+(s/def :user/created-at jt/local-date-time?)
 (s/def :user/user (s/keys :req [:user/uuid
                                 :user/first-name
                                 :user/last-name

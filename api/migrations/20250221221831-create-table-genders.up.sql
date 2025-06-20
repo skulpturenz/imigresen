@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS genders (
+    code TEXT NOT NULL UNIQUE,
+    gender TEXT NOT NULL UNIQUE,
+    CONSTRAINT pk_genders PRIMARY KEY(code)
+);
