@@ -147,7 +147,7 @@ jobs:
 
       - name: Copy files to GCP (${{ matrix.branch }})
         uses: appleboy/scp-action@master
-        # if: env.BRANCH_NAME == matrix.branch
+        if: env.BRANCH_NAME == matrix.branch
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
@@ -160,7 +160,7 @@ jobs:
 
       - name: Deploy imigresen (${{ matrix.branch }})
         uses: appleboy/ssh-action@master
-        if: contains(vars.DEPLOY, env.BRANCH_NAME)
+        if: contains(vars.DEPLOY, env.BRANCH_NAME) && env.BRANCH_NAME == matrix.branch
         env:
           STACK_NAME: ${{ matrix.service }}
           SERVICES_DOCKER_COMPOSE_FILE: ${{ env.BRANCH_NAME == 'master' && 'docker-compose.yml' || 'docker-compose.dev.yml'}}
