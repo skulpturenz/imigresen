@@ -207,9 +207,9 @@ func main() {
 					--register-unsafely-without-email \
 					--dns-cloudflare-propagation-seconds 60
 				
-				# Enable root login and reboot
+				# Enable root login and restart sshd
 				sudo sed -i 's/PermitRootLogin no/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config
-				sudo reboot`, CLOUDFLARE_API_TOKEN.Value()),
+				sudo systemctl restart sshd`, CLOUDFLARE_API_TOKEN.Value()),
 			ServiceAccount: &compute.InstanceTemplateServiceAccountArgs{
 				Email: pulumi.StringPtr(GOOGLE_SERVICE_ACCOUNT.Value()),
 				Scopes: pulumi.ToStringArray([]string{
