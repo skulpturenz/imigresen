@@ -8,7 +8,8 @@
             [clojure.walk :refer [keywordize-keys]]
             [ring.util.codec :refer [form-decode form-encode]]
             [imigresen-api.app.utils :refer [caught exception?]]
-            [taoensso.telemere :as t])
+            [taoensso.telemere :as t]
+            [clojure.spec.alpha :as s])
   (:import (com.zaxxer.hikari HikariDataSource)
            (java.net URI)))
 
@@ -21,8 +22,11 @@
                                            ;; supported db types
                                            ;; https://github.com/seancorfield/next-jdbc/blob/develop/src/next/jdbc/connection.clj
                                            (send db-agent assoc :jdbc-connection-string jdbc-connection-string)
-                                           (send db-agent assoc :ds (connection/->pool HikariDataSource {:jdbcUrl jdbc-connection-string
-                                                                                                         :maximumPoolSize (env :db-pool-max-size int? 2)}))
+                                           (send db-agent assoc :ds (let [schema (s/and string? (s/conformer #(Integer/parseInt %)) int?)]
+                                                                      (connection/->pool
+                                                                       HikariDataSource
+                                                                       {:jdbcUrl jdbc-connection-string
+                                                                        :maximumPoolSize (env :db-pool-max-size schema "2")})))
                                            (await db-agent)
                                            ;; initialize pool and validate
                                            (.close (jdbc/get-connection (:ds @db-agent)))
