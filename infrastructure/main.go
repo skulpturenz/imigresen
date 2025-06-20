@@ -304,7 +304,6 @@ func main() {
 			Managed: &compute.ManagedSslCertificateManagedArgs{
 				Domains: pulumi.StringArray{
 					pulumi.String("imigresen-api-dev.skulpture.xyz"),
-					pulumi.String("imigresen.skulpture.xyz"),
 				},
 			},
 		})
