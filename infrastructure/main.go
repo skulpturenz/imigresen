@@ -27,9 +27,6 @@ var (
 	CLOUDFLARE_API_TOKEN = ferrite.
 				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
 				Required()
-	GCP_SSH_PUBLIC_KEY = ferrite.
-				String("GCP_SSH_PUBLIC_KEY", "SSH key for this instance").
-				Required()
 )
 
 func main() {
