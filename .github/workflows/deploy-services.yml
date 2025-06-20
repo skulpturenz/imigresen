@@ -89,7 +89,7 @@ jobs:
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
-          context: "{{defaultContext}}:api"
+          context: "{{defaultContext}}:api/imigresen-api"
           platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           tags: |
