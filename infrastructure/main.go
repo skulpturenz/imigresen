@@ -148,7 +148,8 @@ func main() {
 		}
 
 		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
-			Name:         pulumi.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()),
+			// see: https://github.com/pulumi/pulumi-gcp/issues/680#issuecomment-1405680098
+			NamePrefix:   pulumi.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()),
 			MachineType:  pulumi.String("e2-micro"),
 			CanIpForward: pulumi.Bool(false),
 			Tags: pulumi.ToStringArray([]string{
@@ -167,6 +168,8 @@ func main() {
 			},
 			Disks: compute.InstanceTemplateDiskArray{
 				&compute.InstanceTemplateDiskArgs{
+					// we want to reuse the same disk if an instance is replaced
+					DiskName:    pulumi.Sprintf("%s-dev-disk", COMPUTE_INSTANCE_NAME.Value()),
 					SourceImage: pulumi.String("debian-12-bookworm-v20240515"),
 					AutoDelete:  pulumi.Bool(false),
 					Boot:        pulumi.Bool(true),
@@ -218,6 +221,21 @@ func main() {
 			return nil, err
 		}
 
+		autohealing, err := compute.NewHealthCheck(ctx, fmt.Sprintf("%s-dev-autohealing", COMPUTE_INSTANCE_NAME.Value()), &compute.HealthCheckArgs{
+			Name:               pulumi.Sprintf("%s-dev-autohealing", COMPUTE_INSTANCE_NAME.Value()),
+			CheckIntervalSec:   pulumi.Int(5),
+			TimeoutSec:         pulumi.Int(5),
+			HealthyThreshold:   pulumi.Int(2),
+			UnhealthyThreshold: pulumi.Int(10),
+			HttpsHealthCheck: &compute.HealthCheckHttpsHealthCheckArgs{
+				RequestPath: pulumi.String("/ping"),
+				Port:        pulumi.Int(443),
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+
 		instanceGroupManager, err := compute.NewInstanceGroupManager(ctx, fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceGroupManagerArgs{
 			Name:             pulumi.String(fmt.Sprintf("%s-dev-igm", COMPUTE_INSTANCE_NAME.Value())),
 			BaseInstanceName: pulumi.String(fmt.Sprintf("%s-dev-instance", COMPUTE_INSTANCE_NAME.Value())),
@@ -225,7 +243,7 @@ func main() {
 			TargetSize:       pulumi.Int(1),
 			Versions: compute.InstanceGroupManagerVersionArray{
 				&compute.InstanceGroupManagerVersionArgs{
-					InstanceTemplate: instanceTemplate.SelfLink,
+					InstanceTemplate: instanceTemplate.SelfLinkUnique,
 					Name:             pulumi.String("primary"),
 				},
 			},
@@ -245,6 +263,20 @@ func main() {
 					Port: pulumi.Int(443),
 				},
 			},
+			AutoHealingPolicies: &compute.InstanceGroupManagerAutoHealingPoliciesArgs{
+				HealthCheck:     autohealing.ID(),
+				InitialDelaySec: pulumi.Int(300),
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		defaultHttpHealthCheck, err := compute.NewHttpHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpHealthCheckArgs{
+			Name:             pulumi.String(fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value())),
+			RequestPath:      pulumi.String("/ping"),
+			CheckIntervalSec: pulumi.Int(30),
+			TimeoutSec:       pulumi.Int(30),
 		})
 		if err != nil {
 			return nil, err
@@ -252,12 +284,12 @@ func main() {
 
 		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
 			Name:         pulumi.String(fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value())),
-			Protocol:     pulumi.String("HTTPS"),
-			PortName:     pulumi.String("https"),
-			HealthChecks: instanceGroupManager.SelfLink,
+			Protocol:     pulumi.String("HTTP"),
+			PortName:     pulumi.String("http"),
+			HealthChecks: defaultHttpHealthCheck.ID(),
 			Backends: compute.BackendServiceBackendArray{
 				compute.BackendServiceBackendArgs{
-					Group: instanceGroupManager.SelfLink,
+					Group: instanceGroupManager.InstanceGroup,
 				},
 			},
 		})
@@ -304,10 +336,9 @@ func main() {
 		}
 
 		globalForwardingRule, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
-			Name:                pulumi.String(fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value())),
-			Target:              defaultTargetHttpProxy.ID(),
-			PortRange:           pulumi.String("443"),
-			LoadBalancingScheme: pulumi.String("EXTERNAL_MANAGED"),
+			Name:      pulumi.String(fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value())),
+			Target:    defaultTargetHttpProxy.ID(),
+			PortRange: pulumi.String("80"),
 		})
 		if err != nil {
 			return nil, err
@@ -337,38 +368,40 @@ func main() {
 		return &result, nil
 	}
 
-	setupIdentityPool := func(ctx *pulumi.Context, devResources *devResources) error {
+	_ = func(ctx *pulumi.Context, devResources *devResources) error {
+		pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
+			WorkloadIdentityPoolId: pulumi.String("imigresen-wif-pool"),
+		})
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("devWifPool", pool.Name)
+
+		githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "imigresen-wif-provider-gh", &iam.WorkloadIdentityPoolProviderArgs{
+			WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
+			WorkloadIdentityPoolProviderId: pulumi.String("github"),
+			DisplayName:                    pulumi.String("Github"),
+			AttributeMapping: pulumi.StringMap{
+				"google.subject":       pulumi.String("assertion.sub"),
+				"attribute.actor":      pulumi.String("assertion.actor"),
+				"attribute.repository": pulumi.String("assertion.repository"),
+				"attribute.ref":        pulumi.String("assertion.ref"),
+			},
+			Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
+				IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
+			},
+			AttributeCondition: pulumi.String("attribute.repository==assertion.repository"),
+		})
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("devGithubWIFProvider", githubProvider.Name)
+
+		const REPOSITORY = "skulpturenz/imigresen"
+
 		devResources.instanceTemplate.Name.ApplyT(func(instanceTemplateName string) error {
-			pool, err := iam.NewWorkloadIdentityPool(ctx, "imigresen-wif-pool", &iam.WorkloadIdentityPoolArgs{
-				WorkloadIdentityPoolId: pulumi.String("imigresen"),
-			})
-			if err != nil {
-				return err
-			}
-
-			ctx.Export("wifPool", pool.Name)
-
-			githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "imigresen", &iam.WorkloadIdentityPoolProviderArgs{
-				WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
-				WorkloadIdentityPoolProviderId: pulumi.String("github"),
-				DisplayName:                    pulumi.String("Github"),
-				AttributeMapping: pulumi.StringMap{
-					"google.subject":       pulumi.String("assertion.sub"),
-					"attribute.actor":      pulumi.String("assertion.actor"),
-					"attribute.repository": pulumi.String("assertion.repository"),
-					"attribute.ref":        pulumi.String("assertion.ref"),
-				},
-				Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
-					IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
-				},
-			})
-			if err != nil {
-				return err
-			}
-
-			ctx.Export("githubWIFProvider", githubProvider.Name)
-
-			const REPOSITORY = "skulpturenz/imigresen"
 			pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
 				principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
 
@@ -396,15 +429,15 @@ func main() {
 			return err
 		}
 
-		devResources, err := setupDev(ctx)
+		_, err = setupDev(ctx)
 		if err != nil {
 			return err
 		}
 
-		err = setupIdentityPool(ctx, devResources)
-		if err != nil {
-			return err
-		}
+		// err = setupIdentityPool(ctx, devResources)
+		// if err != nil {
+		// 	return err
+		// }
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-client", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
