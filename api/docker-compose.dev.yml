@@ -73,7 +73,7 @@ services:
       replicas: 1
       labels:
         traefik.enable: "true"
-        traefik.http.routers.imigresen-api-dev.rule: Host(`imigresen-api-dev.skulpture.xyz`)
+        traefik.http.routers.imigresen-api-dev.rule: PathPrefix(`/`)
         traefik.http.routers.imigresen-api-dev.tls.domains.main: skulpture.xyz
         traefik.http.routers.imigresen-api-dev.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.imigresen-api-dev-service.loadbalancer.server.port: 3000
