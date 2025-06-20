@@ -18,7 +18,7 @@ services:
         published: 443
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
           - node.role == manager
@@ -52,7 +52,7 @@ services:
       KC_AUTH_SERVER_URL: ${KC_AUTH_SERVER_URL}
       KC_REALM: ${KC_REALM}
       KC_OAUTH_CLIENT_ID: ${KC_OAUTH_CLIENT_ID}
-      KC_SECRET: ${KC_SECRET}
+      KC_OAUTH_CLIENT_SECRET: ${KC_SECRET}
       PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
       DB_MIGRATION_DIR: ${DB_MIGRATION_DIR}
       DB_SEED_DIR: ${DB_SEED_DIR}
@@ -70,7 +70,7 @@ services:
       JAVA_ENV: "development"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       labels:
         traefik.enable: "true"
         traefik.http.routers.imigresen-api-dev.rule: Host(`imigresen-api-dev.skulpture.xyz`)
