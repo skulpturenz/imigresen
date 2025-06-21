@@ -6,8 +6,9 @@
    "version++" ["version+"]}
 
   :plugins
-  [[lein-monolith "1.10.1"]
-   [lein-pprint "1.2.0"]]
+  [[lein-monolith "LATEST"]
+   [lein-pprint "LATEST"]
+   [lein-ancient "LATEST"]]
 
   :dependencies
   [[org.clojure/clojure "1.10.1"]]
@@ -45,7 +46,7 @@
 
    :project-selectors
    {:deployable :deployable
-    :unstable #(= (first (:version %)) \0)}
+    :lib :lib}
 
    :project-dirs
    ["imigresen-api"
