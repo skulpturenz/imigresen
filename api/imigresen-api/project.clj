@@ -17,7 +17,7 @@
                  [camel-snake-kebab "0.4.3"]
                  ;; comment when dev - use checkout
                  [imigresen/common "SNAPSHOT"]]
-  :resource-paths ["migrations" "seeds"]
+  :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot [imigresen-api.app.core]
