@@ -29,28 +29,35 @@
                  [org.slf4j/slf4j-log4j12 "2.0.17"]
                  [com.taoensso/telemere "1.0.1"]
                  [http-kit "2.8.0"]
-                 [http-kit.fake "0.2.2"]
                  [danlentz/clj-uuid "0.2.0"]
                  [clojure.java-time "1.4.3"]
                  [org.threeten/threeten-extra "1.8.0"]
                  [camel-snake-kebab "0.4.3"]
-                 [jumblerg/ring-cors "3.0.0"]]
+                 [jumblerg/ring-cors "3.0.0"]
+                 ;; uncomment when dev - use checkout
+                 [imigresen/common "SNAPSHOT"]]
   :resource-paths ["migrations" "seeds"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot [imigresen-api.app.core]
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+                       ;; checkout for dev
+                       :dependencies [[imigresen/common "SNAPSHOT"]]}
              :test {:env {:timbre-level "ERROR"
                           :log-level "ERROR"}
-                    :dependencies [[clj-test-containers/clj-test-containers "0.7.4"]
-                                   [org.testcontainers/postgresql "1.21.2"]]}}
+                    :dependencies [[http-kit.fake "0.2.2"]
+                                   [clj-test-containers/clj-test-containers "0.7.4"]
+                                   [org.testcontainers/postgresql "1.21.2"]
+                                   ;; checkout for dev
+                                   [imigresen/common "SNAPSHOT"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "LATEST"]
             [lein-ring "LATEST" :auto-refresh? true]
             [lein-auto "LATEST"]
             [migratus-lein "0.7.3"]
             [lein-ancient "LATEST"]
-            [dev.weavejester/lein-cljfmt "LATEST"]]
+            [dev.weavejester/lein-cljfmt "LATEST"]
+            [lein-monolith "LATEST"]]
   :ring {:init imigresen-api.app.core/init
          :destroy imigresen-api.app.core/destroy
          :handler imigresen-api.app.core/app

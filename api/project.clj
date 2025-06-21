@@ -1,9 +1,12 @@
+;; https://github.com/amperity/lein-monolith/blob/main/example/project.clj
+
 (defproject imigresen.api/all "MONOLITH"
   :description "Overarching example project."
 
   :aliases
   {"version+" ["version"]
-   "version++" ["version+"]}
+   "version++" ["version+"]
+   "install" ["monolith" "each" ":select" ":lib" "install"]}
 
   :plugins
   [[lein-monolith "LATEST"]
