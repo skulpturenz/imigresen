@@ -1,3 +1,6 @@
 [submodule "api/imigresen-common"]
 	path = api/imigresen-common
 	url = https://github.com/skulpturenz/imigresen-common.git
+[submodule "api/imigresen-mcp-api"]
+	path = api/imigresen-mcp-api
+	url = https://github.com/skulpturenz/imigresen-mcp-api.git
