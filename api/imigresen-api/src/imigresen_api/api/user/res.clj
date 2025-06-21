@@ -1,6 +1,6 @@
 (ns imigresen-api.api.user.res
   (:require  [ring.util.response :refer [created response status]]
-             [imigresen-api.app.routes :refer [status-codes]]))
+             [imigresen-common.app.routes :refer [status-codes]]))
 
 (defn GET [user]
   (-> (response user)
