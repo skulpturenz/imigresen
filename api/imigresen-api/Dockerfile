@@ -5,8 +5,9 @@ WORKDIR /build
 COPY --from=common . ./imigresen-common
 COPY . ./imigresen-api
 
-RUN cd imigresen-common && lein build
+RUN cd imigresen-common && lein install
 RUN cd imigresen-api && lein build
+RUN cd imigresen-common && lein build
 
 FROM eclipse-temurin:24-jre-alpine
 
