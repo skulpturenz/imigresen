@@ -2,9 +2,11 @@ FROM clojure AS build
 
 WORKDIR /build
 
-COPY . .
+COPY --from=common . ./imigresen-common
+COPY . ./imigresen-api
 
-RUN lein build
+RUN cd imigresen-common && lein install
+RUN cd imigresen-api && lein build
 
 FROM eclipse-temurin:24-jre-alpine
 
