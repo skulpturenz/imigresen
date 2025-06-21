@@ -16,7 +16,8 @@
                  [mount "0.1.23"]
                  [camel-snake-kebab "0.4.3"]
                  ;; comment when dev - use checkout
-                 [imigresen/common "SNAPSHOT"]]
+                 ;;    [imigresen/common "SNAPSHOT"]
+                 ]
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
