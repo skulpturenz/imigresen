@@ -34,7 +34,7 @@
                  [org.threeten/threeten-extra "1.8.0"]
                  [camel-snake-kebab "0.4.3"]
                  [jumblerg/ring-cors "3.0.0"]
-                 ;; uncomment when dev - use checkout
+                 ;; comment when dev - use checkout
                  [imigresen/common "SNAPSHOT"]]
   :resource-paths ["migrations" "seeds"]
   :main ^:skip-aot imigresen-api.app.core
