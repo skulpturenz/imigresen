@@ -1,5 +1,5 @@
 (ns imigresen-api.api.core
-  (:require [imigresen-api.app.routes :refer [status-codes]]
+  (:require [imigresen-common.app.routes :refer [status-codes]]
             [reitit.swagger :refer [create-swagger-handler]]
             [imigresen-api.api.user.core :as user]))
 

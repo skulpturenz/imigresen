@@ -12,21 +12,21 @@
             [reitit.ring.middleware.multipart]
             [mount.core :as mount]
             [imigresen-api.api.core :refer [handlers]]
-            [imigresen-api.state.db.core]
-            [imigresen-api.state.flipt.core]
+            [imigresen-common.state.db.core]
+            [imigresen-common.state.flipt.core]
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
-            [imigresen-api.app.routes :refer [content-types]]
-            [imigresen-api.app.middleware.cors :refer [cors-middleware]]
-            [imigresen-api.app.middleware.query-string :refer [query-string-middleware]]))
+            [imigresen-common.app.routes :refer [content-types]]
+            [imigresen-common.app.middleware.cors :refer [cors-middleware]]
+            [imigresen-common.app.middleware.query-string :refer [query-string-middleware]]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
-  (mount/start #'imigresen-api.state.db.core/db
-               #'imigresen-api.state.flipt.core/flipt))
+  (mount/start #'imigresen-common.state.db.core/db
+               #'imigresen-common.state.flipt.core/flipt))
 
 (defn destroy []
-  (mount/stop #'imigresen-api.state.db.core/db
-              #'imigresen-api.state.flipt.core/flipt))
+  (mount/stop #'imigresen-common.state.db.core/db
+              #'imigresen-common.state.flipt.core/flipt))
 
 (def serialize
   (m/create

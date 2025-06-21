@@ -1,5 +1,5 @@
 (ns imigresen-api.api.user.core
-  (:require [imigresen-api.components.user.interface :as user]
+  (:require [imigresen-common.components.user.interface :as user]
             [imigresen-api.api.user.req :as req]
             [imigresen-api.api.user.res :as res]))
 
