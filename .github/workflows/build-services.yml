@@ -38,7 +38,7 @@ jobs:
           # https://github.com/docker/build-push-action/issues/638#issuecomment-1268196131
           context: ./api/imigresen-api
           build-contexts: >-
-            common=../imigresen-common
+            common=./api/imigresen-common
           platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: false
           tags: |
