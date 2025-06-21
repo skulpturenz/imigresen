@@ -8,6 +8,3 @@ RUN apt update && \
     echo ". /etc/bash_completion" >> /etc/bash.bashrc
 
 FROM base
-
-RUN git clone https://github.com/ingydotnet/git-subrepo /git-subrepo && \
-    echo 'source /git-subrepo/.rc' >> ~/.bashrc
