@@ -49,8 +49,8 @@
 
    :project-dirs
    ["imigresen-api"
-    "mcp-api"
-    "common"]
+    "imigresen-mcp-api"
+    "imigresen-common"]
 
    :dependency-sets
    {:set-outdated
