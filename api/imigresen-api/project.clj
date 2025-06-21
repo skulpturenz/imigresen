@@ -1,8 +1,6 @@
 ;; TODO: configure linting
 ;; TODO: configure otel (sideload with jvm + logging)
-;; TODO: cleanup deps for envs
 ;; https://github.com/technomancy/leiningen/blob/master/sample.project.clj#L177
-
 
 (defproject imigresen/api "0.1.0-SNAPSHOT"
   :description "Imigresen API"
