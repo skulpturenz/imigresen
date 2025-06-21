@@ -35,7 +35,8 @@ jobs:
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
-          context: "{{defaultContext}}:api/imigresen-api"
+          # https://github.com/docker/build-push-action/issues/638#issuecomment-1268196131
+          context: ./api/imigresen-api
           platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: false
           tags: |
