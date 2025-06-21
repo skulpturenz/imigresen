@@ -16,4 +16,4 @@ COPY --from=build /build/imigresen-api/target/uberjar/api-0.1.0-SNAPSHOT-standal
 
 # Common uberjar includes migrations which are otherwise not included if we were to just do a `lein install`
 # (because it uses thin jars) and build the API
-ENTRYPOINT ["java", "-showversion", "-cp", "common-standalone.jar:api-standalone.jar", "imigresen_api.app.core.main"]
+ENTRYPOINT ["java", "-showversion", "-cp", "/app/common-standalone.jar:/app/api-standalone.jar", "imigresen_api.app.core.main"]
