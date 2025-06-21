@@ -34,6 +34,8 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": {
 		// "configure-docker": "sudo chown $(whoami) /var/run/docker.sock",
+		"init-submodules": "git submodule update --init --recursive",
+		"include-gitconfig": "git config --local include.path ../.gitconfig",
 		"go-version": "java -version"
 	}
 }
