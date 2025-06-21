@@ -1,13 +1,17 @@
+;; https://github.com/amperity/lein-monolith/blob/main/example/project.clj
+
 (defproject imigresen.api/all "MONOLITH"
   :description "Overarching example project."
 
   :aliases
   {"version+" ["version"]
-   "version++" ["version+"]}
+   "version++" ["version+"]
+   "install" ["monolith" "each" ":select" ":lib" "install"]}
 
   :plugins
-  [[lein-monolith "1.10.1"]
-   [lein-pprint "1.2.0"]]
+  [[lein-monolith "LATEST"]
+   [lein-pprint "LATEST"]
+   [lein-ancient "LATEST"]]
 
   :dependencies
   [[org.clojure/clojure "1.10.1"]]
@@ -45,7 +49,7 @@
 
    :project-selectors
    {:deployable :deployable
-    :unstable #(= (first (:version %)) \0)}
+    :lib :lib}
 
    :project-dirs
    ["imigresen-api"
