@@ -1,12 +1,24 @@
 (ns imigresen-api.api.core
   (:require [imigresen-common.app.routes :refer [status-codes]]
             [reitit.swagger :refer [create-swagger-handler]]
+            [reitit.swagger-ui :refer [create-swagger-ui-handler]]
             [imigresen-api.api.user.core :as user]))
 
 (defn swagger-config []
-  ["/docs/swagger.json" {:get {:handler (create-swagger-handler)
-                               :no-doc true
-                               :swagger {:info {:title "imigresen-api"}}}}])
+  ["" {:no-doc true}
+   ["/swagger.json" {:get {:handler (create-swagger-handler)
+                           :no-doc true
+                           :swagger {:info {:title "Imigresen"}
+                                     :securityDefinitions {:oauth2 {:type "oauth2"
+                                                                    ;; TODO use `authorizationCode` flow but not sure how to specify the client id
+                                                                    :flow "authorizationCode"
+                                                                    :authorizationUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/auth"
+                                                                    :tokenUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token"
+                                                                    :clientId "swagger"
+                                                                    :scopes {:test "test scope"}}}}}}]
+   ["/docs/*" {:get {:handler (create-swagger-ui-handler {:config {:showRequestHeaders true
+                                                                   :jsonEditor true}})
+                     :no-doc true}}]])
 
 (defn ping []
   ["/ping" ["" {:get {:handler (fn [_req] {:status (:ok status-codes)
