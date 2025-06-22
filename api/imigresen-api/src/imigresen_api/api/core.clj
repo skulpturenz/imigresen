@@ -4,8 +4,7 @@
             [imigresen-api.api.user.core :as user]))
 
 (defn swagger-config []
-  ["/swagger.json" {:no-doc true
-                    :get {:handler (create-swagger-handler)
+  ["/swagger.json" {:get {:handler (create-swagger-handler)
                           :no-doc true
                           :swagger {:info {:title "Imigresen"}
                                     :securityDefinitions {:oauth2 {:type "oauth2"
