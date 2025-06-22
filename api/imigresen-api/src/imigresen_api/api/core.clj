@@ -10,11 +10,9 @@
                            :no-doc true
                            :swagger {:info {:title "Imigresen"}
                                      :securityDefinitions {:oauth2 {:type "oauth2"
-                                                                    ;; TODO use `authorizationCode` flow but not sure how to specify the client id
                                                                     :flow "authorizationCode"
                                                                     :authorizationUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/auth"
                                                                     :tokenUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token"
-                                                                    :clientId "swagger"
                                                                     :scopes {:test "test scope"}}}}}}]
    ["/docs/*" {:get {:handler (create-swagger-ui-handler {:config {:showRequestHeaders true
                                                                    :jsonEditor true}})
