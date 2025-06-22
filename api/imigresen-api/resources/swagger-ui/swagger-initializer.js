@@ -18,7 +18,7 @@ window.onload = function () {
         layout: "StandaloneLayout"
     });
 
-    window.ui.initOauth({
+    window.ui.initOAuth({
         clientId: "swagger",
         usePkceWithAuthorizationCodeGrant: true
     })
