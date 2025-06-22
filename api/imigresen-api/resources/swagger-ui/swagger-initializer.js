@@ -20,7 +20,8 @@ window.onload = function () {
 
     window.ui.initOAuth({
         clientId: "swagger",
-        usePkceWithAuthorizationCodeGrant: true
+        usePkceWithAuthorizationCodeGrant: true,
+        scopes: ["openid", "roles", "profile", "email"],
     })
 
     //</editor-fold>

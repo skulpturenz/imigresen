@@ -158,11 +158,12 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 					await keycloak.init({
 						onLoad: "check-sso",
 						silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
-						scope: "openid roles profile email address",
+						scope: "openid roles profile email",
 						redirectUri: createRedirectUrl(
 							loginRedirectUri,
 							location.pathname,
 						).href,
+						pkceMethod: "S256"
 					});
 
 					set({ refreshMapboxTokenInterval: initMapbox() });

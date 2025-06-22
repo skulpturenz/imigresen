@@ -13,7 +13,10 @@
                                                                     :flow "authorizationCode"
                                                                     :authorizationUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/auth"
                                                                     :tokenUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token"
-                                                                    :scopes {:test "test scope"}}}}}}]
+                                                                    :scopes {:openid "openid"
+                                                                             :roles "roles"
+                                                                             :profile "profile"
+                                                                             :email "email"}}}}}}]
    ["/docs/*" {:get {:handler (create-swagger-ui-handler {:config {:showRequestHeaders true
                                                                    :jsonEditor true}})
                      :no-doc true}}]])
