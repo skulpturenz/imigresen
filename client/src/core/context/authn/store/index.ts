@@ -163,7 +163,7 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 							loginRedirectUri,
 							location.pathname,
 						).href,
-						pkceMethod: "S256"
+						pkceMethod: "S256",
 					});
 
 					set({ refreshMapboxTokenInterval: initMapbox() });
