@@ -250,8 +250,8 @@ func main() {
 
 		autohealing, err := compute.NewHealthCheck(ctx, fmt.Sprintf("%s-dev-autohealing", COMPUTE_INSTANCE_NAME.Value()), &compute.HealthCheckArgs{
 			Name:               pulumi.Sprintf("%s-dev-autohealing", COMPUTE_INSTANCE_NAME.Value()),
-			CheckIntervalSec:   pulumi.Int(120),
-			TimeoutSec:         pulumi.Int(10),
+			CheckIntervalSec:   pulumi.Int(5),
+			TimeoutSec:         pulumi.Int(5),
 			HealthyThreshold:   pulumi.Int(2),
 			UnhealthyThreshold: pulumi.Int(10),
 			HttpsHealthCheck: &compute.HealthCheckHttpsHealthCheckArgs{
