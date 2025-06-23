@@ -11,7 +11,23 @@ window.onload = function () {
             SwaggerUIStandalonePreset
         ],
         plugins: [
-            SwaggerUIBundle.plugins.DownloadUrl
+            SwaggerUIBundle.plugins.DownloadUrl,
+            // fix: clearing authorization code when logging out
+            // https://github.com/swagger-api/swagger-ui/issues/6034
+            function () {
+                return {
+                    statePlugins: {
+                        auth: {
+                            wrapActions: {
+                                authorizeOauth2: (oriAction, system) => (payload) => {
+                                    payload.auth.code = ""
+                                    return oriAction(payload)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         ],
         // Provided by ring-swagger
         configUrl: "./config.json",
