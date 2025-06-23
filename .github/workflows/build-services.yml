@@ -3,6 +3,8 @@ name: Build services
 on:
   pull_request:
     branches: [master, staging, dev]
+  pull_request_target:
+    branches: [master, staging, dev]
   workflow_dispatch:
 
 env:
