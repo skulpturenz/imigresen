@@ -2,7 +2,8 @@
   (:require [imigresen-common.components.user.interface :as user]
             [imigresen-api.api.user.req :as req]
             [imigresen-api.api.user.res :as res]
-            [imigresen-common.app.routes :refer [with-authnz]]))
+            [imigresen-common.app.routes :refer [with-authnz]]
+            [buddy.auth :refer [authenticated? throw-unauthorized]]))
 
 (defn GET [req]
   (-> (req/->GET req)
@@ -15,15 +16,23 @@
       (res/POST)))
 
 (defn PATCH! [req]
-  (-> (req/->PATCH req)
-      (user/update!)
-      (res/PATCH)))
+  ;; exception middleware: https://github.com/metosin/reitit/blob/master/doc/ring/exceptions.md
+  ;; wrap-authentication doesn't throw it just sets an identity key on the req, see:
+  ;; - https://github.com/duct-framework/module.ataraxy/issues/6#issuecomment-389847751
+  (if-not (authenticated? req)
+    (throw-unauthorized)
+    (-> (req/->PATCH req)
+        (user/update!)
+        (res/PATCH))))
 
 (defn DELETE! [req]
   (-> (req/->DELETE req)
       (user/delete!)
       (res/DELETE)))
 
+;; TODO: with-authnz logic moves up to app level
+;; update with-authnz so it just does the throwing part as in PATCH
+;; TODO: swagger set auth token cookie?
 (defn user-routes []
   ["/user"
    ["" {:post {:handler POST!

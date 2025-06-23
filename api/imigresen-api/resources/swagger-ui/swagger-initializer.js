@@ -10,6 +10,13 @@ window.onload = function () {
             SwaggerUIBundle.presets.apis,
             SwaggerUIStandalonePreset
         ],
+        persistAuthorization: true,
+        responseInterceptor: async (response) => {
+            console.log(response); // TODO: remove
+
+
+            return response;
+        },
         plugins: [
             SwaggerUIBundle.plugins.DownloadUrl,
             // fix: clearing authorization code when logging out
