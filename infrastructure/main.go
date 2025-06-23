@@ -299,101 +299,104 @@ func main() {
 			return nil, err
 		}
 
-		devManagedSslCertificate, err := compute.NewManagedSslCertificate(ctx, fmt.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()), &compute.ManagedSslCertificateArgs{
-			Name: pulumi.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()),
-			Managed: &compute.ManagedSslCertificateManagedArgs{
-				Domains: pulumi.StringArray{
-					pulumi.String("imigresen-api-dev.skulpture.xyz"),
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
+		// EXPENSIVE
+		// https://cloud.google.com/vpc/network-pricing?hl=en#section-2
 
-		devHttpsHealthCheck, err := compute.NewHttpsHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpsHealthCheckArgs{
-			Name:             pulumi.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()),
-			RequestPath:      pulumi.String("/ping"),
-			CheckIntervalSec: pulumi.Int(5),
-			TimeoutSec:       pulumi.Int(5),
-			Host:             pulumi.String("imigresen-api-dev.skulpture.xyz"),
-		})
-		if err != nil {
-			return nil, err
-		}
+		// devManagedSslCertificate, err := compute.NewManagedSslCertificate(ctx, fmt.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()), &compute.ManagedSslCertificateArgs{
+		// 	Name: pulumi.Sprintf("%s-dev-managed-ssl-cert", COMPUTE_INSTANCE_NAME.Value()),
+		// 	Managed: &compute.ManagedSslCertificateManagedArgs{
+		// 		Domains: pulumi.StringArray{
+		// 			pulumi.String("imigresen-api-dev.skulpture.xyz"),
+		// 		},
+		// 	},
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
-			Name:         pulumi.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()),
-			Protocol:     pulumi.String("HTTPS"),
-			PortName:     pulumi.String("https"),
-			HealthChecks: devHttpsHealthCheck.ID(),
-			Backends: compute.BackendServiceBackendArray{
-				compute.BackendServiceBackendArgs{
-					Group: instanceGroupManager.InstanceGroup,
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
+		// devHttpsHealthCheck, err := compute.NewHttpsHealthCheck(ctx, fmt.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()), &compute.HttpsHealthCheckArgs{
+		// 	Name:             pulumi.Sprintf("%s-dev-backend-healthcheck", COMPUTE_INSTANCE_NAME.Value()),
+		// 	RequestPath:      pulumi.String("/ping"),
+		// 	CheckIntervalSec: pulumi.Int(5),
+		// 	TimeoutSec:       pulumi.Int(5),
+		// 	Host:             pulumi.String("imigresen-api-dev.skulpture.xyz"),
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		devUrlMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
-			Name:           pulumi.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()),
-			DefaultService: devBackendService.ID(),
-			HostRules: compute.URLMapHostRuleArray{
-				&compute.URLMapHostRuleArgs{
-					Hosts: pulumi.StringArray{
-						pulumi.String("*"),
-					},
-					PathMatcher: pulumi.String("allpaths"),
-				},
-			},
-			PathMatchers: compute.URLMapPathMatcherArray{
-				&compute.URLMapPathMatcherArgs{
-					Name:           pulumi.String("allpaths"),
-					DefaultService: devBackendService.ID(),
-					PathRules: compute.URLMapPathMatcherPathRuleArray{
-						&compute.URLMapPathMatcherPathRuleArgs{
-							Paths: pulumi.StringArray{
-								pulumi.String("/*"),
-							},
-							Service: devBackendService.ID(),
-						},
-					},
-				},
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
+		// devBackendService, err := compute.NewBackendService(ctx, fmt.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()), &compute.BackendServiceArgs{
+		// 	Name:         pulumi.Sprintf("%s-dev-backend", COMPUTE_INSTANCE_NAME.Value()),
+		// 	Protocol:     pulumi.String("HTTPS"),
+		// 	PortName:     pulumi.String("https"),
+		// 	HealthChecks: devHttpsHealthCheck.ID(),
+		// 	Backends: compute.BackendServiceBackendArray{
+		// 		compute.BackendServiceBackendArgs{
+		// 			Group: instanceGroupManager.InstanceGroup,
+		// 		},
+		// 	},
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		devHttpsProxy, err := compute.NewTargetHttpsProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpsProxyArgs{
-			Name:   pulumi.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()),
-			UrlMap: devUrlMap.ID(),
-			SslCertificates: pulumi.StringArray{
-				devManagedSslCertificate.ID(),
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
+		// devUrlMap, err := compute.NewURLMap(ctx, fmt.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()), &compute.URLMapArgs{
+		// 	Name:           pulumi.Sprintf("%s-dev-url-map", COMPUTE_INSTANCE_NAME.Value()),
+		// 	DefaultService: devBackendService.ID(),
+		// 	HostRules: compute.URLMapHostRuleArray{
+		// 		&compute.URLMapHostRuleArgs{
+		// 			Hosts: pulumi.StringArray{
+		// 				pulumi.String("*"),
+		// 			},
+		// 			PathMatcher: pulumi.String("allpaths"),
+		// 		},
+		// 	},
+		// 	PathMatchers: compute.URLMapPathMatcherArray{
+		// 		&compute.URLMapPathMatcherArgs{
+		// 			Name:           pulumi.String("allpaths"),
+		// 			DefaultService: devBackendService.ID(),
+		// 			PathRules: compute.URLMapPathMatcherPathRuleArray{
+		// 				&compute.URLMapPathMatcherPathRuleArgs{
+		// 					Paths: pulumi.StringArray{
+		// 						pulumi.String("/*"),
+		// 					},
+		// 					Service: devBackendService.ID(),
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		devLoadBalancer, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
-			Name:      pulumi.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()),
-			Target:    devHttpsProxy.ID(),
-			PortRange: pulumi.String("443"),
-		})
-		if err != nil {
-			return nil, err
-		}
+		// devHttpsProxy, err := compute.NewTargetHttpsProxy(ctx, fmt.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()), &compute.TargetHttpsProxyArgs{
+		// 	Name:   pulumi.Sprintf("%s-dev-proxy", COMPUTE_INSTANCE_NAME.Value()),
+		// 	UrlMap: devUrlMap.ID(),
+		// 	SslCertificates: pulumi.StringArray{
+		// 		devManagedSslCertificate.ID(),
+		// 	},
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// devLoadBalancer, err := compute.NewGlobalForwardingRule(ctx, fmt.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()), &compute.GlobalForwardingRuleArgs{
+		// 	Name:      pulumi.Sprintf("%s-dev-lb", COMPUTE_INSTANCE_NAME.Value()),
+		// 	Target:    devHttpsProxy.ID(),
+		// 	PortRange: pulumi.String("443"),
+		// })
+		// if err != nil {
+		// 	return nil, err
+		// }
 
 		ctx.Export("devStaticAddress", static.Address)
-		ctx.Export("devGlobalForwardingRuleAddress", devLoadBalancer.IpAddress)
+		// ctx.Export("devGlobalForwardingRuleAddress", devLoadBalancer.IpAddress)
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
 			Name:    pulumi.String("imigresen-api-dev"),
-			Content: devLoadBalancer.IpAddress,
+			Content: static.Address, // devLoadBalancer.IpAddress,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
 		})
