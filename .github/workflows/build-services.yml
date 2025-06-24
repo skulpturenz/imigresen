@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
           token: ${{ secrets.GH_ACCESS_TOKEN }}
 
