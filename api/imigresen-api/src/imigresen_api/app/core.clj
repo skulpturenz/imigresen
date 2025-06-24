@@ -52,7 +52,7 @@
 (def exception-middleware
   (reitit.ring.middleware.exception/create-exception-middleware
    (merge reitit.ring.middleware.exception/default-handlers
-          {:imigresen-common.app.routes/unauthorized unauthorized-exception-handler
+          {:imigresen-common.app.auth/unauthorized unauthorized-exception-handler
            :reitit.ring.middleware.exception/default default-exception-handler
            :reitit.ring.middleware.exception/wrap always-exception-handler})))
 
