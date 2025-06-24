@@ -16,14 +16,9 @@
       (res/POST)))
 
 (defn PATCH! [req]
-  ;; exception middleware: https://github.com/metosin/reitit/blob/master/doc/ring/exceptions.md
-  ;; wrap-authentication doesn't throw it just sets an identity key on the req, see:
-  ;; - https://github.com/duct-framework/module.ataraxy/issues/6#issuecomment-389847751
-  (if-not (authenticated? req)
-    (throw-unauthorized)
-    (-> (req/->PATCH req)
-        (user/update!)
-        (res/PATCH))))
+  (-> (req/->PATCH req)
+      (user/update!)
+      (res/PATCH)))
 
 (defn DELETE! [req]
   (-> (req/->DELETE req)
