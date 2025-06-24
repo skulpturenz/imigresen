@@ -7,7 +7,7 @@
             [reitit.ring.middleware.parameters]
             [reitit.ring.middleware.muuntaja]
             [reitit.ring.coercion]
-            [reitit.ring.middleware.exception :as exception]
+            [reitit.ring.middleware.exception]
             [muuntaja.core :as m]
             [reitit.ring.middleware.multipart]
             [mount.core :as mount]
@@ -18,8 +18,7 @@
             [imigresen-common.app.routes :refer [content-types with-authnz status-codes]]
             [imigresen-common.app.middleware.cors :refer [cors-middleware]]
             [imigresen-common.app.middleware.query-string :refer [query-string-middleware]]
-            [ring.util.response :refer [status]]
-            [buddy.auth :as bauth]))
+            [ring.util.response :refer [status]]))
 
 ;; TODO: configure `telemere` and otel
 (defn init []
@@ -36,20 +35,25 @@
        (assoc-in [:formats (:json content-types) :encoder-opts] {:encode-key-fn (comp ->camelCase name) :strip-nils true}) ;; clojure -> json
        (assoc-in [:formats (:json content-types) :decoder-opts] {:decode-key-fn (comp keyword ->kebab-case)})))) ;; json -> clojure
 
+(def unauthorized-exception-handler (constantly (status (:unauthorized status-codes))))
+
+(defn default-exception-handler [ex _req]
+  {:status (:internal-server-error status-codes)
+   :body {:message (ex-message ex)
+          :exception (.getClass ex)
+          :data (ex-data ex)}})
+
+(defn always-exception-handler [handler ex req]
+  ;; TODO: go through proper logger
+  (println "ERROR" (ex-message ex) (ex-cause ex) (ex-data ex) (pr-str (:uri req)))
+  (handler ex req))
+
 (def exception-middleware
   (reitit.ring.middleware.exception/create-exception-middleware
    (merge reitit.ring.middleware.exception/default-handlers
-          {;; TODO: not matching against this for some reason
-           ::bauth/unauthorized (constantly (status (:unauthorized status-codes)))
-           ::exception/default (fn [e _request]
-                                 {:status (:internal-server-error status-codes)
-                                  :body {:message (ex-message e)
-                                         :exception (.getClass e)
-                                         :data (ex-data e)}})
-           ::exception/wrap (fn [handler e request]
-                              ;; TODO: go through logger
-                              (println "ERROR" (ex-message e) (ex-cause e) (ex-data e) (pr-str (:uri request)))
-                              (handler e request))})))
+          {:imigresen-common.app.routes/unauthorized unauthorized-exception-handler
+           :reitit.ring.middleware.exception/default default-exception-handler
+           :reitit.ring.middleware.exception/wrap always-exception-handler})))
 
 (def app
   (with-authnz (ring-handler
