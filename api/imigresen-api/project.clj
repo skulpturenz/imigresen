@@ -20,6 +20,7 @@
                  ]
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
+  :target-path "target/%s"
   :profiles {:dev {:dependencies [[keycloak-clojure/keycloak-clojure "1.31.5"]
                                   [com.github.seancorfield/honeysql "2.7.1310"]
                                   [com.github.seancorfield/next.jdbc "1.3.1048"]
