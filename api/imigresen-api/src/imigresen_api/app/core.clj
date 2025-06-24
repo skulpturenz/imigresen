@@ -15,7 +15,7 @@
             [imigresen-common.state.db.core]
             [imigresen-common.state.flipt.core]
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
-            [imigresen-common.app.routes :refer [content-types]]
+            [imigresen-common.app.routes :refer [content-types with-authnz]]
             [imigresen-common.app.middleware.cors :refer [cors-middleware]]
             [imigresen-common.app.middleware.query-string :refer [query-string-middleware]]))
 
@@ -35,30 +35,30 @@
        (assoc-in [:formats (:json content-types) :decoder-opts] {:decode-key-fn (comp keyword ->kebab-case)})))) ;; json -> clojure
 
 (def app
-  (ring-handler
-   (router (handlers) {:exception reitit.dev.pretty/exception
-                       :data {:coercion reitit.coercion.spec/coercion
-                              :muuntaja serialize
-                              :middleware [reitit.swagger/swagger-feature ;; swagger feature 
-                                           reitit.ring.middleware.parameters/parameters-middleware ;; query-params & form-params
-                                           reitit.ring.middleware.muuntaja/format-negotiate-middleware ;; content-negotiation
-                                           reitit.ring.middleware.muuntaja/format-response-middleware ;; encoding response body
-                                           reitit.ring.middleware.exception/exception-middleware ;; exception handling
-                                           reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
-                                           reitit.ring.coercion/coerce-response-middleware ;; coercing response body
-                                           reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
-                                           reitit.ring.middleware.multipart/multipart-middleware ;; multipart
-                                           cors-middleware ;; cors
-                                           ;; query string
-                                           query-string-middleware]}})
+  (with-authnz (ring-handler
+                (router (handlers) {:exception reitit.dev.pretty/exception
+                                    :data {:coercion reitit.coercion.spec/coercion
+                                           :muuntaja serialize
+                                           :middleware [reitit.swagger/swagger-feature ;; swagger feature 
+                                                        reitit.ring.middleware.parameters/parameters-middleware ;; query-params & form-params
+                                                        reitit.ring.middleware.muuntaja/format-negotiate-middleware ;; content-negotiation
+                                                        reitit.ring.middleware.muuntaja/format-response-middleware ;; encoding response body
+                                                        reitit.ring.middleware.exception/exception-middleware ;; exception handling
+                                                        reitit.ring.middleware.muuntaja/format-request-middleware ;; decoding request body
+                                                        reitit.ring.coercion/coerce-response-middleware ;; coercing response body
+                                                        reitit.ring.coercion/coerce-request-middleware ;; coercing request parameters
+                                                        reitit.ring.middleware.multipart/multipart-middleware ;; multipart
+                                                        cors-middleware ;; cors
+                                                        ;; query string
+                                                        query-string-middleware]}})
 
-   (routes (redirect-trailing-slash-handler)
-           (create-swagger-ui-handler
-            {:path "/docs"
-             :config {:validatorUrl nil
-                      :urls [{:name "swagger" :url "/swagger.json"}]
-                      :urls.primaryName "swagger"
-                      :operationsSorter "alpha"
-                      :showRequestHeaders true
-                      :jsonEditor true}})
-           (create-default-handler))))
+                (routes (redirect-trailing-slash-handler)
+                        (create-swagger-ui-handler
+                         {:path "/docs"
+                          :config {:validatorUrl nil
+                                   :urls [{:name "swagger" :url "/swagger.json"}]
+                                   :urls.primaryName "swagger"
+                                   :operationsSorter "alpha"
+                                   :showRequestHeaders true
+                                   :jsonEditor true}})
+                        (create-default-handler)))))
