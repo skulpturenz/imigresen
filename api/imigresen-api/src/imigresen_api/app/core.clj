@@ -15,7 +15,8 @@
             [imigresen-common.state.db.core]
             [imigresen-common.state.flipt.core]
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
-            [imigresen-common.app.routes :refer [content-types with-authnz status-codes]]
+            [imigresen-common.app.routes :refer [content-types status-codes]]
+            [imigresen-common.app.auth :refer [with-authnz]]
             [imigresen-common.app.middleware.cors :refer [cors-middleware]]
             [imigresen-common.app.middleware.query-string :refer [query-string-middleware]]
             [ring.util.response :refer [status]]))
