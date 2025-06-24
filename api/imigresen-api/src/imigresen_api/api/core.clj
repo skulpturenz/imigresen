@@ -1,20 +1,15 @@
 (ns imigresen-api.api.core
   (:require [imigresen-common.app.routes :refer [status-codes]]
-            [reitit.swagger :refer [create-swagger-handler]]
-            [imigresen-api.api.user.core :as user]))
+            [imigresen-api.api.user.core :as user]
+            [reitit.openapi :as openapi :refer [create-openapi-handler]]))
 
 (defn swagger-config []
-  ["/swagger.json" {:get {:handler (create-swagger-handler)
+  ["/swagger.json" {:get {:handler (create-openapi-handler)
                           :no-doc true
-                          :swagger {:info {:title "Imigresen"}
-                                    :securityDefinitions {:oauth2 {:type "oauth2"
-                                                                   :flow "authorizationCode"
-                                                                   :authorizationUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/auth"
-                                                                   :tokenUrl "https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token"
-                                                                   :scopes {:openid "openid"
-                                                                            :roles "roles"
-                                                                            :profile "profile"
-                                                                            :email "email"}}}}}}])
+                          :openapi {:info {:title "Imigresen"}
+                                    :components {:securitySchemes
+                                                 {:openIdConnect {:type "openIdConnect"
+                                                                  :openIdConnectUrl "https://authnz.skulpture.xyz/realms/imigresen/.well-known/openid-configuration"}}}}}}])
 
 (defn ping []
   ["/ping" ["" {:get {:handler (fn [_req] {:status (:ok status-codes)
