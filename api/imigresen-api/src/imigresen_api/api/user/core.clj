@@ -2,8 +2,7 @@
   (:require [imigresen-common.components.user.interface :as user]
             [imigresen-api.api.user.req :as req]
             [imigresen-api.api.user.res :as res]
-            [imigresen-common.app.auth :refer [protect]]
-            [buddy.auth :refer [authenticated? throw-unauthorized]]))
+            [imigresen-common.app.auth :refer [protect]]))
 
 (defn GET [req]
   (-> (req/->GET req)
