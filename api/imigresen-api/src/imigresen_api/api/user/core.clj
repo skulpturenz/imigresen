@@ -1,7 +1,8 @@
 (ns imigresen-api.api.user.core
   (:require [imigresen-common.components.user.interface :as user]
             [imigresen-api.api.user.req :as req]
-            [imigresen-api.api.user.res :as res]))
+            [imigresen-api.api.user.res :as res]
+            [imigresen-common.app.auth :refer [protect]]))
 
 (defn GET [req]
   (-> (req/->GET req)
@@ -28,8 +29,11 @@
    ["" {:post {:handler POST!
                :swagger {:summary "Register a user"}}
         :patch {:handler PATCH!
+                :middleware [protect]
                 :swagger {:summary "Update a user"}}}]
    ["/:id" {:get {:handler GET
+                  :middleware [protect]
                   :swagger {:summary "Find user by Keycloak ID"}}
             :delete {:handler DELETE!
+                     :middleware [protect]
                      :swagger {:summary "Delete a user"}}}]])
