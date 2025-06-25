@@ -2,7 +2,8 @@
   (:require [imigresen-common.components.user.interface :as user]
             [imigresen-api.api.user.req :as req]
             [imigresen-api.api.user.res :as res]
-            [imigresen-common.app.auth :refer [protect]]))
+            [imigresen-common.app.auth :refer [protect]]
+            [java-time.api :as jt]))
 
 (defn GET [req]
   (-> (req/->GET req)
@@ -27,7 +28,17 @@
 (defn user-routes []
   ["/user"
    ["" {:post {:handler POST!
-               :swagger {:summary "Register a user"}}
+               :swagger {:summary "Register a user"}
+               :parameters {:body {:email string? ;; TODO: kebab-case automatically
+                                   :firstName string?
+                                   :lastName string?
+                                   :password string?}}
+               :responses {200 {:body {:uuid string?
+                                       :firstName string?
+                                       :lastName string?
+                                       :email string?
+                                       :updatedAt jt/local-date-time?
+                                       :createdAt jt/local-date-time?}}}}
         :patch {:handler PATCH!
                 :middleware [protect]
                 :swagger {:summary "Update a user"}}}]
