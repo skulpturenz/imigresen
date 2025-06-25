@@ -48,9 +48,9 @@
 (def exception-middleware
   (reitit.ring.middleware.exception/create-exception-middleware
    (merge reitit.ring.middleware.exception/default-handlers
-          {:imigresen-common.app.auth/unauthorized unauthorized-exception-handler
-           :reitit.ring.middleware.exception/default default-exception-handler
-           :reitit.ring.middleware.exception/wrap always-exception-handler
+          {::imi-auth/unauthorized unauthorized-exception-handler
+           ::reitit-exception/default default-exception-handler
+           ::reitit-exception/wrap always-exception-handler
            :reitit.coercion/request-coercion (coercion-error-handler 400)
            :reitit.coercion/response-coercion (coercion-error-handler 500)})))
 
