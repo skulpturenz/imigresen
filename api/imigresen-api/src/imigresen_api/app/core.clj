@@ -3,9 +3,10 @@
             [reitit.swagger]
             [reitit.swagger-ui :as reitit-swagger]
             [reitit.dev.pretty]
-            [reitit.coercion.spec]
-            [reitit.ring.middleware.parameters]
-            [reitit.ring.middleware.muuntaja]
+            [reitit.coercion]
+            [reitit.coercion.spec :as reitit-coercion]
+            [reitit.ring.middleware.parameters :as parameters]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
@@ -18,7 +19,8 @@
             [imigresen-common.app.auth :as imi-auth]
             [ring.util.response :as ring-res]
             [expound.alpha :as expound]
-            [imigresen-common.app.env :as imi-env]))
+            [imigresen-common.app.env :as imi-env]
+            [muuntaja.core :as m]))
 
 (defn init []
   (mount/start #'imigresen-common.state.db.core/db
@@ -59,13 +61,27 @@
 (def app
   (let [global-middleware [;; exception handling
                            exception-middleware
+                           ;; query-params & form-params
+                           parameters/parameters-middleware
                            ;; authnz
-                           imi-auth/with-authnz]
+                           imi-auth/with-authnz
+                           ;; content type negotiation
+                           ;; decoding request body (json -> clj)
+                           ;; encoding response body (clj -> json)
+                           muuntaja/format-middleware
+                           ;; coercing request parameters (json -> clj, correct types)
+                           reitit.ring.coercion/coerce-request-middleware
+                           ;; coercing response body (clj -> json, correct types)
+                           reitit.ring.coercion/coerce-response-middleware
+                           ;; swagger feature
+                           reitit.swagger/swagger-feature]
         dev-middleware [;; reload namespaces
                         reload/wrap-reload]]
     (reitit-ring/ring-handler
      (reitit-ring/router (imi-core/handlers) {:exception reitit.dev.pretty/exception
-                                              :data {:middleware (if (imi-env/development? (imi-env/current-env))
+                                              :data {:coercion reitit-coercion/coercion
+                                                     :muuntaja m/instance
+                                                     :middleware (if (imi-env/development? (imi-env/current-env))
                                                                    (conj global-middleware dev-middleware)
                                                                    global-middleware)}})
      (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
