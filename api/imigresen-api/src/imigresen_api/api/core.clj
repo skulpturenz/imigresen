@@ -1,6 +1,7 @@
 (ns imigresen-api.api.core
   (:require [imigresen-common.app.routes :as imi-routes]
-            [reitit.openapi :as reitit-openapi]))
+            [reitit.openapi :as reitit-openapi]
+            [ring.util.response :as res]))
 
 (defn swagger-config []
   ["/openapi.json" {:get {:handler (reitit-openapi/create-openapi-handler)
@@ -11,7 +12,8 @@
                                                                   :openIdConnectUrl "https://authnz.skulpture.xyz/realms/imigresen/.well-known/openid-configuration"}}}}}}])
 
 (defn ping []
-  ["/ping" ["" {:get {:handler (constantly {:status (:ok imi-routes/status-codes) :body "."})
+  ["/ping" ["" {:get {:handler (constantly (-> (res/response ".")
+                                               (res/content-type "text/plain")))
                       :no-doc true}}]])
 
 (defn api-v1 []
