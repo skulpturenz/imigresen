@@ -3,7 +3,7 @@
             [reitit.openapi :as reitit-openapi]))
 
 (defn swagger-config []
-  ["/swagger.json" {:get {:handler (reitit-openapi/create-openapi-handler)
+  ["/openapi.json" {:get {:handler (reitit-openapi/create-openapi-handler)
                           :no-doc true
                           :openapi {:info {:title "Imigresen"}
                                     :components {:securitySchemes
@@ -16,15 +16,13 @@
 
 (defn api-v1 []
   ["/api/v1" {:tags ["api.v1"]}
-   ["/test/:test" {:get {:summary "test route"
-                         ;; TODO: content type negotiation is not working
-                         :handler (constantly {:status (:ok imi-routes/status-codes)
-                                               :body "HELLO WORLD"
-                                               ;; TODO: remove when content type negotiation works
-                                               :headers {"Content-Type" "text/plain"}})
-                         :parameters {:path {:test-path-param int?}
-                                      :query {:test-search-param string?}}
-                         :responses {200 {:body string?}}}}]])
+   ["/test/:test-path-param" {:get {:summary "test route"
+                                    :handler (constantly {:status (:ok imi-routes/status-codes)
+                                                          :body {:hello "world"}})
+                                    :parameters {:path {:test-path-param int?}
+                                                 :query {:test-search-param string?}}
+                                    :responses {200 {:description "Success!"
+                                                     :body {:hello string?}}}}}]])
 
 (defn handlers []
   [(swagger-config)

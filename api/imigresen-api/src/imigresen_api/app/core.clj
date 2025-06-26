@@ -1,6 +1,6 @@
 (ns imigresen-api.app.core
   (:require [reitit.ring :as reitit-ring]
-            [reitit.swagger]
+            [reitit.openapi :as openapi]
             [reitit.swagger-ui :as reitit-swagger]
             [reitit.dev.pretty]
             [reitit.coercion]
@@ -59,9 +59,7 @@
            :reitit.coercion/response-coercion (coercion-error-handler 500)})))
 
 (def app
-  (let [global-middleware [;; exception handling
-                           exception-middleware
-                           ;; query-params & form-params
+  (let [global-middleware [;; query-params & form-params
                            parameters/parameters-middleware
                            ;; authnz
                            imi-auth/with-authnz
@@ -69,12 +67,14 @@
                            ;; decoding request body (json -> clj)
                            ;; encoding response body (clj -> json)
                            muuntaja/format-middleware
-                           ;; coercing request parameters (json -> clj, correct types)
-                           reitit.ring.coercion/coerce-request-middleware
+                           ;; exception handling
+                           exception-middleware
                            ;; coercing response body (clj -> json, correct types)
                            reitit.ring.coercion/coerce-response-middleware
-                           ;; swagger feature
-                           reitit.swagger/swagger-feature]
+                           ;; coercing request parameters (json -> clj, correct types)
+                           reitit.ring.coercion/coerce-request-middleware
+                           ;; openapi feature
+                           openapi/openapi-feature]
         dev-middleware [;; reload namespaces
                         reload/wrap-reload]]
     (reitit-ring/ring-handler
@@ -88,8 +88,8 @@
                          (reitit-swagger/create-swagger-ui-handler
                           {:path "/docs"
                            :config {:validatorUrl nil
-                                    :urls [{:name "swagger" :url "/swagger.json"}]
-                                    :urls.primaryName "swagger"
+                                    :urls [{:name "openapi" :url "/openapi.json"}]
+                                    :urls.primaryName "openapi"
                                     :operationsSorter "alpha"
                                     :showRequestHeaders true
                                     :jsonEditor true}})
