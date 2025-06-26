@@ -9,6 +9,7 @@
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
+            [ring.middleware.reload :as reload]
             [mount.core :as mount]
             [imigresen-api.api.core :as imi-core]
             [imigresen-common.state.db.core]
@@ -16,7 +17,8 @@
             [imigresen-common.app.routes :as imi-routes]
             [imigresen-common.app.auth :as imi-auth]
             [ring.util.response :as ring-res]
-            [expound.alpha :as expound]))
+            [expound.alpha :as expound]
+            [imigresen-common.app.env :as imi-env]))
 
 (defn init []
   (mount/start #'imigresen-common.state.db.core/db
@@ -46,8 +48,8 @@
       (handler exception request))))
 
 (def exception-middleware
-  (reitit.ring.middleware.exception/create-exception-middleware
-   (merge reitit.ring.middleware.exception/default-handlers
+  (reitit-exception/create-exception-middleware
+   (merge reitit-exception/default-handlers
           {::imi-auth/unauthorized unauthorized-exception-handler
            ::reitit-exception/default default-exception-handler
            ::reitit-exception/wrap always-exception-handler
@@ -55,18 +57,24 @@
            :reitit.coercion/response-coercion (coercion-error-handler 500)})))
 
 (def app
-  (imi-auth/with-authnz (reitit-ring/ring-handler
-                         (reitit-ring/router (imi-core/handlers) {:exception reitit.dev.pretty/exception
-                                                                  :data {:middleware [exception-middleware ;; exception handling
-                                                                                      ]}})
-
-                         (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
-                                             (reitit-swagger/create-swagger-ui-handler
-                                              {:path "/docs"
-                                               :config {:validatorUrl nil
-                                                        :urls [{:name "swagger" :url "/swagger.json"}]
-                                                        :urls.primaryName "swagger"
-                                                        :operationsSorter "alpha"
-                                                        :showRequestHeaders true
-                                                        :jsonEditor true}})
-                                             (reitit-ring/create-default-handler)))))
+  (let [global-middleware [;; exception handling
+                           exception-middleware
+                           ;; authnz
+                           imi-auth/with-authnz]
+        dev-middleware [;; reload namespaces
+                        reload/wrap-reload]]
+    (reitit-ring/ring-handler
+     (reitit-ring/router (imi-core/handlers) {:exception reitit.dev.pretty/exception
+                                              :data {:middleware (if (imi-env/development? (imi-env/current-env))
+                                                                   (conj global-middleware dev-middleware)
+                                                                   global-middleware)}})
+     (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
+                         (reitit-swagger/create-swagger-ui-handler
+                          {:path "/docs"
+                           :config {:validatorUrl nil
+                                    :urls [{:name "swagger" :url "/swagger.json"}]
+                                    :urls.primaryName "swagger"
+                                    :operationsSorter "alpha"
+                                    :showRequestHeaders true
+                                    :jsonEditor true}})
+                         (reitit-ring/create-default-handler)))))

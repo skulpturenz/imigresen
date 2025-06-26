@@ -21,7 +21,9 @@
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:dev {:dependencies [[keycloak-clojure/keycloak-clojure "1.31.5"]
+  :profiles {:dev {:env {:java-env "development"}
+                   :dependencies [[ring/ring-devel "1.14.1"]
+                                  [keycloak-clojure/keycloak-clojure "1.31.5"]
                                   [com.github.seancorfield/honeysql "2.7.1310"]
                                   [com.github.seancorfield/next.jdbc "1.3.1048"]
                                   [org.postgresql/postgresql "42.7.7"]
@@ -40,12 +42,14 @@
                                   [clojure.java-time "1.4.3"]
                                   [org.threeten/threeten-extra "1.8.0"]
                                   [jumblerg/ring-cors "3.0.0"]]}
-             :uberjar {:aot [imigresen-api.app.core]
+             :uberjar {:env {:java-env "production"}
+                       :aot [imigresen-api.app.core]
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
                        ;; checkout for dev
                        :dependencies [[imigresen/common "SNAPSHOT"]]}
              :test {:env {:timbre-level "ERROR"
-                          :log-level "ERROR"}
+                          :log-level "ERROR"
+                          :java-env "test"}
                     :dependencies [;; checkout for dev
                                    [imigresen/common "SNAPSHOT"]]}}
   :test-paths ["src"]
