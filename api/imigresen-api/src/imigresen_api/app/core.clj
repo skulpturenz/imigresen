@@ -20,7 +20,8 @@
             [ring.util.response :as ring-res]
             [expound.alpha :as expound]
             [imigresen-common.app.env :as imi-env]
-            [muuntaja.core :as m]))
+            [muuntaja.core :as m]
+            [camel-snake-kebab.core :as csk]))
 
 (defn init []
   (mount/start #'imigresen-common.state.db.core/db
@@ -69,10 +70,14 @@
                            muuntaja/format-middleware
                            ;; exception handling
                            exception-middleware
-                           ;; coercing response body (clj -> json, correct types)
-                           reitit.ring.coercion/coerce-response-middleware
+                           ;; camelCase req
+                           (imi-routes/transform-response csk/->camelCase)
+                           ;; kebab-case res
+                           (imi-routes/transform-request csk/->kebab-case-keyword)
                            ;; coercing request parameters (json -> clj, correct types)
                            reitit.ring.coercion/coerce-request-middleware
+                           ;; coercing response body (clj -> json, correct types)
+                           reitit.ring.coercion/coerce-response-middleware
                            ;; openapi feature
                            openapi/openapi-feature]
         dev-middleware [;; reload namespaces
