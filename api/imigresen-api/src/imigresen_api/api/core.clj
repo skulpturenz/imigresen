@@ -1,7 +1,8 @@
 (ns imigresen-api.api.core
   (:require [imigresen-common.app.routes :as imi-routes]
             [reitit.openapi :as reitit-openapi]
-            [ring.util.response :as res]))
+            [ring.util.response :as res]
+            [imigresen-common.app.auth :as imi-auth]))
 
 (defn swagger-config []
   ["/openapi.json" {:get {:handler (reitit-openapi/create-openapi-handler)
@@ -23,8 +24,10 @@
                                                           :body {:hello "world"}})
                                     :parameters {:path {:test-path-param int?}
                                                  :query {:test-search-param string?}}
-                                    :responses {200 {:description "Success!"
-                                                     :body {:hello string?}}}}}]])
+                                    :responses {(:ok imi-routes/status-codes) {:description "Success!"
+                                                                               :body {:hello string?}}
+                                                (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}}
+                                    :middleware [imi-auth/protect]}}]])
 
 (defn handlers []
   [(swagger-config)
