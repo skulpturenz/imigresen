@@ -2,11 +2,14 @@
   (:require [imigresen-common.app.routes :as imi-routes]
             [reitit.openapi :as reitit-openapi]
             [ring.util.response :as res]
-            [imigresen-common.app.auth :as imi-auth]))
+            [imigresen-common.app.auth :as imi-auth]
+            [imigresen-common.app.swagger :as swagger]
+            [camel-snake-kebab.core :as csk]))
 
 (defn swagger-config []
   ["/openapi.json" {:get {:handler (reitit-openapi/create-openapi-handler)
                           :no-doc true
+                          :middleware [(swagger/create-transform-middleware csk/->camelCase)]
                           :openapi {:info {:title "Imigresen"}
                                     :components {:securitySchemes
                                                  {:openIdConnect {:type "openIdConnect"
