@@ -17,7 +17,7 @@
 
 (defn ping []
   ["/ping" ["" {:get {:handler (constantly (-> (res/response ".")
-                                               (res/content-type "text/plain")))
+                                               (res/content-type (:plain-text imi-routes/content-types))))
                       :no-doc true}}]])
 
 (defn api-v1 []
@@ -30,7 +30,8 @@
                                     :responses {(:ok imi-routes/status-codes) {:description "Success!"
                                                                                :body {:hello string?}}
                                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}}
-                                    :middleware [imi-auth/protect]}}]])
+                                    ;; :middleware [imi-auth/protect] ;;
+                                    }}]])
 
 (defn handlers []
   [(swagger-config)
