@@ -12,8 +12,6 @@
                                                         :parameters {:path {:test-path-param int?}
                                                                      :query {:test-search-param string?}
                                                                      :body {:hello-world string?}}
-                                                        :responses {(:ok imi-routes/status-codes) {:description "Success!"
-                                                                                                   :body {:hello string?}}}
                                                         :handler (constantly {:body {:some-return "TEST!!"}})}}]])
           body (m/decode "application/json" (-> (mock/request :post "/parameters/1")
                                                 (mock/query-string {:testSearchParam "TESTING TESTING"})
@@ -29,8 +27,6 @@
                                                         :parameters {:path {:test-path-param int?}
                                                                      :query {:test-search-param string?}
                                                                      :body {:hello-world string?}}
-                                                        :responses {(:ok imi-routes/status-codes) {:description "Success!"
-                                                                                                   :body {:hello string?}}}
                                                         :handler identity}}]])
           res (-> (mock/request :post "/parameters/1")
                   (mock/query-string {:testSearchParam "TESTING TESTING"})
@@ -45,7 +41,16 @@
   (t/testing "with-authnz middleware"))
 
 (t/deftest ^:unit content-type-negotiation
-  (t/testing "content-type negotiation"))
+  (t/testing "content-type negotiation"
+    (let [app (imi-core/create-app
+               [["/content-type" {:post {:description "parameters"
+                                         :responses {(:ok imi-routes/status-codes) {:description "Success!"
+                                                                                    :body {:some-return string?}}}
+                                         :handler (constantly {:body {:some-return "TEST!!"}})}}]])
+          res  (-> (mock/request :post "/content-type")
+                   (mock/json-body {:helloWorld "HELLO WORLD!!!"})
+                   app)]
+      (t/is (= (get-in res [:headers "Content-Type"]) "application/json; charset=utf-8")))))
 
 (t/deftest ^:unit openapi-definitions
   (t/testing "openapi"
@@ -72,12 +77,3 @@
       (t/is (some #(and (= (:in %) "path") (= (:name %) "testPathParam")) params))
       (t/is (some #(and (= (:in %) "query") (= (:name %) "testSearchParam")) params))
       (t/is (not (nil? (:helloWorld req-body)))))))
-
-(t/deftest ^:unit search-params
-  (t/testing "search params"))
-
-(t/deftest ^:unit route-params
-  (t/testing "route params"))
-
-(t/deftest ^:unit form-params
-  (t/testing "form params"))
