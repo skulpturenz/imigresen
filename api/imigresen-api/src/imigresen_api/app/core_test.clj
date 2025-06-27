@@ -18,3 +18,12 @@
 
 (t/deftest ^:unit openapi-definitions
   (t/testing "openapi"))
+
+(t/deftest ^:unit search-params
+  (t/testing "search params"))
+
+(t/deftest ^:unit route-params
+  (t/testing "route params"))
+
+(t/deftest ^:unit form-params
+  (t/testing "form params"))

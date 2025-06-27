@@ -11,6 +11,7 @@
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
             [ring.middleware.reload :as reload]
+            [ring.middleware.lint :as lint]
             [mount.core :as mount]
             [imigresen-api.api.core :as imi-core]
             [imigresen-common.state.db.core]
@@ -96,7 +97,9 @@
                            ;; openapi feature
                            openapi/openapi-feature]
         dev-middleware [;; reload namespaces
-                        reload/wrap-reload]]
+                        reload/wrap-reload
+                        ;; lint
+                        lint/wrap-lint]]
     (reitit-ring/ring-handler
      (reitit-ring/router
       (conj handlers (openapi) (ping))
