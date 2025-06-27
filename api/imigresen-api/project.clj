@@ -51,7 +51,8 @@
                           :log-level "ERROR"
                           :java-env "test"}
                     :dependencies [;; checkout for dev
-                                   [imigresen/common "SNAPSHOT"]]}}
+                                   [imigresen/common "SNAPSHOT"]
+                                   [org.clojure/data.json "2.5.1"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "LATEST"]
             [lein-ring "LATEST" :auto-refresh? true]

@@ -1,5 +1,8 @@
 (ns imigresen-api.app.core-test
-  (:require [clojure.test :as t]))
+  (:require [clojure.test :as t]
+            [imigresen-api.app.core :as imi-core]
+            [imigresen-common.app.routes :as imi-routes]
+            [muuntaja.core :as m]))
 
 (t/deftest ^:unit response->camelCase
   (t/testing "camelCase response keys"))
@@ -17,7 +20,30 @@
   (t/testing "content-type negotiation"))
 
 (t/deftest ^:unit openapi-definitions
-  (t/testing "openapi"))
+  (t/testing "openapi"
+    (let [app (imi-core/create-app
+               [["/parameters" {:post {:description "parameters"
+                                       :parameters {:path {:test-path-param int?}
+                                                    :query {:test-search-param string?}
+                                                    :body {:hello-world string?}}
+                                       :responses {(:ok imi-routes/status-codes) {:description "Success!"
+                                                                                  :body {:hello string?}}}
+                                       :handler identity}}]])
+          spec (->> {:request-method :get :uri "/openapi.json"}
+                    app
+                    :body
+                    (m/decode "application/json"))
+          parameters (get-in spec [:paths (keyword "/parameters") :post :parameters])
+          request-body (get-in spec [:paths
+                                     (keyword "/parameters")
+                                     :post :requestBody
+                                     :content
+                                     (keyword "application/json")
+                                     :schema
+                                     :properties])]
+      (t/is (some #(and (= (:in %) "path") (= (:name %) "testPathParam")) parameters))
+      (t/is (some #(and (= (:in %) "query") (= (:name %) "testSearchParam")) parameters))
+      (t/is (not (nil? (:helloWorld request-body)))))))
 
 (t/deftest ^:unit search-params
   (t/testing "search params"))
