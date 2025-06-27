@@ -21,7 +21,8 @@
             [expound.alpha :as expound]
             [imigresen-common.app.env :as imi-env]
             [muuntaja.core :as m]
-            [camel-snake-kebab.core :as csk]))
+            [camel-snake-kebab.core :as csk]
+            [imigresen-common.app.swagger :as swagger]))
 
 (defn init []
   (mount/start #'imigresen-common.state.db.core/db
@@ -36,7 +37,7 @@
 (defn default-exception-handler [ex _req]
   {:status (:internal-server-error imi-routes/status-codes)
    :body {:message (ex-message ex)
-          :exception (.getClass ex)
+          :exception (class ex)
           :data (ex-data ex)}})
 
 (defn always-exception-handler [handler ex req]
@@ -59,7 +60,21 @@
            :reitit.coercion/request-coercion (coercion-error-handler 400)
            :reitit.coercion/response-coercion (coercion-error-handler 500)})))
 
-(def app
+(defn openapi []
+  ["/openapi.json" {:get {:handler (openapi/create-openapi-handler)
+                          :no-doc true
+                          :middleware [(swagger/create-transform-middleware csk/->camelCase)]
+                          :openapi {:info {:title "Imigresen"}
+                                    :components {:securitySchemes
+                                                 {:openIdConnect {:type "openIdConnect"
+                                                                  :openIdConnectUrl "https://authnz.skulpture.xyz/realms/imigresen/.well-known/openid-configuration"}}}}}}])
+
+(defn ping []
+  ["/ping" ["" {:get {:handler (constantly (-> (ring-res/response ".")
+                                               (ring-res/content-type (:plain-text imi-routes/content-types))))
+                      :no-doc true}}]])
+
+(defn create-app [handlers]
   (let [global-middleware [;; query-params & form-params
                            parameters/parameters-middleware
                            ;; authnz
@@ -83,12 +98,14 @@
         dev-middleware [;; reload namespaces
                         reload/wrap-reload]]
     (reitit-ring/ring-handler
-     (reitit-ring/router (imi-core/handlers) {:exception reitit.dev.pretty/exception
-                                              :data {:coercion reitit-coercion/coercion
-                                                     :muuntaja m/instance
-                                                     :middleware (if (imi-env/development? (imi-env/current-env))
-                                                                   (conj global-middleware dev-middleware)
-                                                                   global-middleware)}})
+     (reitit-ring/router
+      (conj handlers (openapi) (ping))
+      {:exception reitit.dev.pretty/exception
+       :data {:coercion reitit-coercion/coercion
+              :muuntaja m/instance
+              :middleware (if (imi-env/development? (imi-env/current-env))
+                            (conj global-middleware dev-middleware)
+                            global-middleware)}})
      (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
                          (reitit-swagger/create-swagger-ui-handler
                           {:path "/docs"
@@ -99,3 +116,5 @@
                                     :showRequestHeaders true
                                     :jsonEditor true}})
                          (reitit-ring/create-default-handler)))))
+
+(def app (create-app (imi-core/handlers)))
