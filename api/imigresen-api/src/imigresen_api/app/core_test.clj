@@ -2,13 +2,27 @@
   (:require [clojure.test :as t]
             [imigresen-api.app.core :as imi-core]
             [imigresen-common.app.routes :as imi-routes]
-            [muuntaja.core :as m]))
+            [muuntaja.core :as m]
+            [ring.mock.request :as mock]))
 
 (t/deftest ^:unit response->camelCase
   (t/testing "camelCase response keys"))
 
 (t/deftest ^:unit request->kebab-case-keyword
-  (t/testing "kebab-case-keyword request keys"))
+  (t/testing "kebab-case-keyword request keys"
+    (let [app (imi-core/create-app
+               [["/parameters/:test-path-param" {:post {:description "parameters"
+                                                        :parameters {:path {:test-path-param int?}
+                                                                     :query {:test-search-param string?}
+                                                                     :body {:hello-world string?}}
+                                                        :responses {(:ok imi-routes/status-codes) {:description "Success!"
+                                                                                                   :body {:hello string?}}}
+                                                        :handler identity}}]])
+          spec (-> (mock/request :post "/parameters/1")
+                   (mock/query-string {:testSearchParam "TESTING TESTING"})
+                   (mock/json-body {:helloWorld "HELLO WORLD!!!"})
+                   app)]
+      (t/is (not (nil? spec))))))
 
 (t/deftest ^:unit exception-handling
   (t/testing "exception middleware"))
@@ -29,7 +43,7 @@
                                        :responses {(:ok imi-routes/status-codes) {:description "Success!"
                                                                                   :body {:hello string?}}}
                                        :handler identity}}]])
-          spec (->> {:request-method :get :uri "/openapi.json"}
+          spec (->> (mock/request :get "/openapi.json")
                     app
                     :body
                     (m/decode "application/json"))

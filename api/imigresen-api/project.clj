@@ -52,7 +52,8 @@
                           :java-env "test"}
                     :dependencies [;; checkout for dev
                                    [imigresen/common "SNAPSHOT"]
-                                   [org.clojure/data.json "2.5.1"]]}}
+                                   [org.clojure/data.json "2.5.1"]
+                                   [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "LATEST"]
             [lein-ring "LATEST" :auto-refresh? true]
