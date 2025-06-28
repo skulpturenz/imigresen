@@ -27,8 +27,7 @@
             [imigresen-common.app.logging :as imi-logging]
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
-            [sentry-clj.core :as sentry]
-            [clojure.pprint]))
+            [sentry-clj.core :as sentry]))
 
 (defn init []
   (imi-logging/init-logging)
