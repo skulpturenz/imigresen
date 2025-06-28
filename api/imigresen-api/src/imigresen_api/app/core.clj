@@ -27,7 +27,8 @@
             [imigresen-common.app.logging :as imi-logging]
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
-            [sentry-clj.core :as sentry]))
+            [sentry-clj.core :as sentry]
+            [clojure.pprint]))
 
 (defn init []
   (imi-logging/init-logging)
@@ -47,13 +48,13 @@
           :data (ex-data ex)}})
 
 (defn always-exception-handler [handler ex req]
-  (let [formatted-ex-message (pexceptions/format-exception* ex)]
+  (let [formatted-ex-message (pexceptions/format-exception ex)]
     (tel/log! {:level :error :msg formatted-ex-message :data {:ex ex}})
     (sentry/send-event {:message {:message (ex-message ex) :formatted formatted-ex-message}
                         :throwable ex
                         :level :error
                         :request {:url (:uri req)
-                                  :method (:request-method req)
+                                  :method (name (:request-method req))
                                   :query-string (:query-string req)
                                   :headers (:headers req)}}))
   (handler ex req))
