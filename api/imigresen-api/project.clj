@@ -15,6 +15,8 @@
                  [metosin/muuntaja "0.6.11"]
                  [mount "0.1.23"]
                  [camel-snake-kebab "0.4.3"]
+                 [com.taoensso/truss "2.1.0"]
+                 [com.taoensso/telemere "1.0.1"]
                  ;; comment when dev - use checkout
                  ;;    [imigresen/common "SNAPSHOT"] ;;
                  ]

@@ -23,9 +23,11 @@
             [imigresen-common.app.env :as imi-env]
             [muuntaja.core :as m]
             [camel-snake-kebab.core :as csk]
-            [imigresen-common.app.swagger :as swagger]))
+            [imigresen-common.app.swagger :as imi-swagger]
+            [imigresen-common.app.logging :as imi-logging]))
 
 (defn init []
+  (imi-logging/init-logging)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt))
 
@@ -64,7 +66,7 @@
 (defn openapi []
   ["/openapi.json" {:get {:handler (openapi/create-openapi-handler)
                           :no-doc true
-                          :middleware [(swagger/create-transform-middleware csk/->camelCase)]
+                          :middleware [(imi-swagger/create-transform-middleware csk/->camelCase)]
                           :openapi {:info {:title "Imigresen"}
                                     :components {:securitySchemes
                                                  {:openIdConnect {:type "openIdConnect"
@@ -86,9 +88,9 @@
                            muuntaja/format-middleware
                            ;; exception handling
                            exception-middleware
-                           ;; camelCase req
+                           ;; camelCase res
                            (imi-routes/transform-response csk/->camelCase)
-                           ;; kebab-case res
+                           ;; kebab-case req
                            (imi-routes/transform-request csk/->kebab-case-keyword)
                            ;; coercing request parameters (json -> clj, correct types)
                            reitit.ring.coercion/coerce-request-middleware
