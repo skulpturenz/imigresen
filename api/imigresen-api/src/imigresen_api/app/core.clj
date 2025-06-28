@@ -49,7 +49,13 @@
 (defn always-exception-handler [handler ex req]
   (let [formatted-ex-message (pexceptions/format-exception* ex)]
     (tel/log! {:level :error :msg formatted-ex-message :data {:ex ex}})
-    (sentry/send-event {:message {:message (ex-message ex) :formatted formatted-ex-message} :throwable ex}))
+    (sentry/send-event {:message {:message (ex-message ex) :formatted formatted-ex-message}
+                        :throwable ex
+                        :level :error
+                        :request {:url (:uri req)
+                                  :method (:request-method req)
+                                  :query-string (:query-string req)
+                                  :headers (:headers req)}}))
   (handler ex req))
 
 (defn coercion-error-handler [status]
