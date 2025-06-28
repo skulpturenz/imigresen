@@ -24,7 +24,9 @@
             [muuntaja.core :as m]
             [camel-snake-kebab.core :as csk]
             [imigresen-common.app.swagger :as imi-swagger]
-            [imigresen-common.app.logging :as imi-logging]))
+            [imigresen-common.app.logging :as imi-logging]
+            [clj-commons.format.exceptions :as pexceptions]
+            [taoensso.telemere :as tel]))
 
 (defn init []
   (imi-logging/init-logging)
@@ -44,7 +46,7 @@
           :data (ex-data ex)}})
 
 (defn always-exception-handler [handler ex req]
-  ;; TODO: go through proper logger
+  (tel/log! {:level :error :msg (pexceptions/format-exception* ex) :data {:ex ex}})
   (handler ex req))
 
 (defn coercion-error-handler [status]
