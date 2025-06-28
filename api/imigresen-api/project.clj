@@ -17,6 +17,7 @@
                  [camel-snake-kebab "0.4.3"]
                  [com.taoensso/truss "2.1.0"]
                  [com.taoensso/telemere "1.0.1"]
+                 [io.opentelemetry/opentelemetry-api "1.50.0"]
                  ;; comment when dev - use checkout
                  ;;    [imigresen/common "SNAPSHOT"] ;;
                  ]
@@ -43,10 +44,12 @@
                                   [danlentz/clj-uuid "0.2.0"]
                                   [clojure.java-time "1.4.3"]
                                   [org.threeten/threeten-extra "1.8.0"]
-                                  [jumblerg/ring-cors "3.0.0"]]}
+                                  [jumblerg/ring-cors "3.0.0"]
+                                  [org.clojure/tools.logging "1.3.0"]]}
              :uberjar {:env {:java-env "production"}
                        :aot [imigresen-api.app.core]
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+                       ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]
                        ;; checkout for dev
                        :dependencies [[imigresen/common "SNAPSHOT"]]}
              :test {:env {:timbre-level "ERROR"
