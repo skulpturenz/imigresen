@@ -24,7 +24,8 @@
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:dev {:env {:java-env "development"}
+  :profiles {:dev {:env {:java-env "development"
+                         :taoensso-telemere-rt-min-level ":debug"}
                    :dependencies [[ring/ring-devel "1.14.1"]
                                   [keycloak-clojure/keycloak-clojure "1.31.5"]
                                   [com.github.seancorfield/honeysql "2.7.1310"]
