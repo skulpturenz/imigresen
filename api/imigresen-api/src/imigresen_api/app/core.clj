@@ -26,7 +26,8 @@
             [imigresen-common.app.swagger :as imi-swagger]
             [imigresen-common.app.logging :as imi-logging]
             [clj-commons.format.exceptions :as pexceptions]
-            [taoensso.telemere :as tel]))
+            [taoensso.telemere :as tel]
+            [sentry-clj.core :as sentry]))
 
 (defn init []
   (imi-logging/init-logging)
@@ -46,7 +47,9 @@
           :data (ex-data ex)}})
 
 (defn always-exception-handler [handler ex req]
-  (tel/log! {:level :error :msg (pexceptions/format-exception* ex) :data {:ex ex}})
+  (let [formatted-ex-message (pexceptions/format-exception* ex)]
+    (tel/log! {:level :error :msg formatted-ex-message :data {:ex ex}})
+    (sentry/send-event {:message {:message (ex-message ex) :formatted formatted-ex-message} :throwable ex}))
   (handler ex req))
 
 (defn coercion-error-handler [status]

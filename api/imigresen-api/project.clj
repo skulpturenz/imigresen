@@ -47,7 +47,8 @@
                                   [org.threeten/threeten-extra "1.8.0"]
                                   [jumblerg/ring-cors "3.0.0"]
                                   [org.clojure/tools.logging "1.3.0"]
-                                  [org.clj-commons/pretty "3.4.1"]]}
+                                  [org.clj-commons/pretty "3.4.1"]
+                                  [io.sentry/sentry-clj "7.22.227"]]}
              :uberjar {:env {:java-env "production"}
                        :aot [imigresen-api.app.core]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
