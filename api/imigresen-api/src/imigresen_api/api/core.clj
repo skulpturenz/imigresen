@@ -15,10 +15,11 @@
                                     ;; :middleware [imi-auth/protect] ;;
                                     }
                               :post {:summary "with body params"
-                                     ;; :handler (constantly {:status (:ok imi-routes/status-codes)})
-                                     :handler (fn [_] (throw (ex-info "TEST!!" {})))
+                                     :handler (constantly {:status (:ok imi-routes/status-codes)
+                                                           :body {:hello "WORLD!!"}})
+                                     ;;  :handler (fn [_] (throw (ex-info "TEST!!" {})))
                                      :parameters {:path {:test-path-param int?}
-                                                  :query {:test-search-param string?}
+                                                  :query {(ds/opt :test-search-param) string?}
                                                   :body (ds/spec {:name ::test
                                                                   :spec {:id integer?
                                                                          (ds/opt :optional) string?
