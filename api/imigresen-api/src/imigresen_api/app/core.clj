@@ -27,10 +27,12 @@
             [imigresen-common.app.logging :as imi-logging]
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
-            [sentry-clj.core :as sentry]))
+            [sentry-clj.core :as sentry]
+            [imigresen-api.app.eventing :as imi-eventing]))
 
 (defn init []
   (imi-logging/init-logging)
+  (imi-eventing/init)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt))
 
