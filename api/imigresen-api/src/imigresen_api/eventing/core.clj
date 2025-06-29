@@ -1,4 +1,4 @@
-(ns imigresen-api.app.eventing
+(ns imigresen-api.eventing.core
   (:require [imigresen-common.eventing.store :as imi-eventing-store]
             [spec-tools.data-spec :as ds]))
 
