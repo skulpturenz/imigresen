@@ -71,8 +71,8 @@
           {::imi-auth/unauthorized unauthorized-exception-handler
            ::reitit-exception/default default-exception-handler
            ::reitit-exception/wrap always-exception-handler
-           :reitit.coercion/request-coercion (coercion-error-handler 400)
-           :reitit.coercion/response-coercion (coercion-error-handler 500)})))
+           :reitit.coercion/request-coercion (coercion-error-handler (:bad-request imi-routes/status-codes))
+           :reitit.coercion/response-coercion (coercion-error-handler (:internal-server-error imi-routes/status-codes))})))
 
 (defn openapi []
   ["/openapi.json" {:get {:handler (openapi/create-openapi-handler)
