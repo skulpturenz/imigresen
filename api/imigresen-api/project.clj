@@ -1,5 +1,4 @@
 ;; TODO: configure linting
-;; TODO: configure otel (sideload with jvm + logging)
 ;; https://github.com/technomancy/leiningen/blob/master/sample.project.clj#L177
 
 (defproject imigresen/api "0.1.0-SNAPSHOT"
@@ -15,13 +14,22 @@
                  [metosin/muuntaja "0.6.11"]
                  [mount "0.1.23"]
                  [camel-snake-kebab "0.4.3"]
+                 [com.taoensso/truss "2.1.0"]
+                 [com.taoensso/telemere "1.0.1"]
+                 [io.opentelemetry/opentelemetry-api "1.50.0"]
+                 [metosin/spec-tools "0.10.7"]
+                 [org.clj-commons/pretty "3.4.1"]
                  ;; comment when dev - use checkout
-                 [imigresen/common "SNAPSHOT"] ;;
+                 ;;      [imigresen/common "SNAPSHOT"] ;;
                  ]
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
   :target-path "target/%s"
-  :profiles {:dev {:dependencies [[keycloak-clojure/keycloak-clojure "1.31.5"]
+  :profiles {:dev {:env {:java-env "development"
+                         :taoensso-telemere-rt-min-level ":debug"}
+                   :dependencies [[ring/ring-devel "1.14.1"]
+                                  ;; imigresen-common deps for checkout
+                                  [keycloak-clojure/keycloak-clojure "1.31.5"]
                                   [com.github.seancorfield/honeysql "2.7.1310"]
                                   [com.github.seancorfield/next.jdbc "1.3.1048"]
                                   [org.postgresql/postgresql "42.7.7"]
@@ -30,6 +38,7 @@
                                   [metosin/reitit "0.9.1"]
                                   [metosin/ring-swagger-ui "5.20.0"]
                                   [metosin/muuntaja "0.6.11"]
+                                  [mount "0.1.23"]
                                   [buddy/buddy-auth "3.0.323"]
                                   [org.clojure/core.match "1.1.0"]
                                   [migratus "1.6.4"]
@@ -39,15 +48,30 @@
                                   [danlentz/clj-uuid "0.2.0"]
                                   [clojure.java-time "1.4.3"]
                                   [org.threeten/threeten-extra "1.8.0"]
-                                  [jumblerg/ring-cors "3.0.0"]]}
-             :uberjar {:aot [imigresen-api.app.core]
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+                                  [camel-snake-kebab "0.4.3"]
+                                  [jumblerg/ring-cors "3.0.0"]
+                                  [com.taoensso/truss "2.1.0"]
+                                  [io.opentelemetry/opentelemetry-api "1.50.0"]
+                                  [org.clojure/tools.logging "1.3.0"]
+                                  [io.sentry/sentry-clj "7.22.227"]
+                                  [metosin/spec-tools "0.10.7"]
+                                  [metosin/jsonista "0.3.13"]
+                                  ;; not required for dev, its only used in tests but
+                                  ;; hmr throws without it
+                                  [ring/ring-mock "0.6.1"]]}
+             :uberjar {:env {:java-env "production"}
+                       :aot [imigresen-api.app.core]
+                       ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]
                        ;; checkout for dev
                        :dependencies [[imigresen/common "SNAPSHOT"]]}
              :test {:env {:timbre-level "ERROR"
-                          :log-level "ERROR"}
+                          :log-level "ERROR"
+                          :java-env "test"}
                     :dependencies [;; checkout for dev
-                                   [imigresen/common "SNAPSHOT"]]}}
+                                   [imigresen/common "SNAPSHOT"]
+                                   [org.clojure/data.json "2.5.1"]
+                                   [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "LATEST"]
             [lein-ring "LATEST" :auto-refresh? true]
