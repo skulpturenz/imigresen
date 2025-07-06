@@ -28,7 +28,7 @@
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
             [sentry-clj.core :as sentry]
-            [imigresen-api.app.eventing :as imi-eventing]))
+            [imigresen-api.eventing.core :as imi-eventing]))
 
 (defn init []
   (imi-logging/init-logging)
