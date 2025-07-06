@@ -38,7 +38,11 @@
                                                             :first-name string?
                                                             :last-name string?
                                                             :password string?}})}
-                        :responses {(:created imi-routes/status-codes) {:description "Created"}
+                        :responses {(:created imi-routes/status-codes) {:description "Created"
+                                                                        :body {:uuid uuid?
+                                                                               :email string?
+                                                                               :first-name string?
+                                                                               :last-name string?}}
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]])
 
