@@ -3,14 +3,15 @@
             [spec-tools.data-spec :as ds]
             [imigresen-common.components.user.store :as imi-user]
             [imigresen-common.components.user.spec :as imi-user-spec]
-            [imigresen-common.app.auth :as imi-auth]))
+            [imigresen-common.app.auth :as imi-auth]
+            [ring.util.response :as ring-res]))
 
 (defn api-v1 []
   ["/api/v1" {:tags ["api.v1"]}
    ["/user" {:get {:summary "Get user details by email"
                    :handler (fn [{:keys [parameters] :as _req}]
-                              {:status (:ok imi-routes/status-codes)
-                               :body (imi-user/get-user-by-email (get-in parameters [:query :email]))})
+                              (-> (ring-res/response (imi-user/get-user-by-email (get-in parameters [:query :email])))
+                                  (ring-res/status (:ok imi-routes/status-codes))))
                    :parameters {:query {:email ::imi-user-spec/email}}
                    :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                               :body imi-user-spec/user}
@@ -20,8 +21,8 @@
                    :middleware [imi-auth/protect]}
              :post {:summary "Create a new user"
                     :handler (fn [{:keys [parameters] :as _req}]
-                               {:status (:created imi-routes/status-codes)
-                                :body (imi-user/create-user-by-email! (:body parameters))})
+                               (-> (ring-res/response (imi-user/create-user-by-email! (:body parameters)))
+                                   (ring-res/status (:created imi-routes/status-codes))))
                     :parameters {:body (ds/spec {:name ::post-user
                                                  :spec {:email ::imi-user-spec/email
                                                         :first-name ::imi-user-spec/first-name
@@ -33,8 +34,8 @@
                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
    ["/user/:uuid" {:get {:summary "Get user details by UUID"
                          :handler (fn [{:keys [parameters] :as _req}]
-                                    {:status (:ok imi-routes/status-codes)
-                                     :body (imi-user/get-user-by-uuid (get-in parameters [:path :uuid]))})
+                                    (-> (ring-res/response (imi-user/get-user-by-uuid (get-in parameters [:path :uuid])))
+                                        (ring-res/status (:ok imi-routes/status-codes))))
                          :parameters {:path {:uuid ::imi-user-spec/uuid}}
                          :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                     :body imi-user-spec/user}
