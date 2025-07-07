@@ -20,7 +20,7 @@
                  [metosin/spec-tools "0.10.7"]
                  [org.clj-commons/pretty "3.4.1"]
                  ;; comment when dev - use checkout
-                 ;;      [imigresen/common "SNAPSHOT"] ;;
+                 [imigresen/common "SNAPSHOT"] ;;
                  ]
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
