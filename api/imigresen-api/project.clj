@@ -56,6 +56,10 @@
                                   [io.sentry/sentry-clj "7.22.227"]
                                   [metosin/spec-tools "0.10.7"]
                                   [metosin/jsonista "0.3.13"]
+                                  ;; imigresen-common test deps for checkout
+                                  ;; hmr fails otherwise
+                                  [clj-test-containers/clj-test-containers "0.7.4"]
+                                  [org.testcontainers/postgresql "1.21.2"]
                                   ;; not required for dev, its only used in tests but
                                   ;; hmr throws without it
                                   [ring/ring-mock "0.6.1"]]}
