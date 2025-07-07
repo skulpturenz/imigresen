@@ -28,7 +28,8 @@
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
             [sentry-clj.core :as sentry]
-            [imigresen-api.eventing.core :as imi-eventing]))
+            [imigresen-api.eventing.core :as imi-eventing]
+            [reitit.spec :as rs]))
 
 (defn init []
   (imi-logging/init-logging)
@@ -119,6 +120,7 @@
      (reitit-ring/router
       (conj handlers (openapi) (ping))
       {:exception reitit.dev.pretty/exception
+       :validate rs/validate
        :data {:coercion reitit-coercion/coercion
               :muuntaja m/instance
               :middleware (if (imi-env/development? (imi-env/current-env))
