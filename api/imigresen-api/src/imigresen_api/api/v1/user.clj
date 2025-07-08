@@ -55,7 +55,8 @@
                          :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                      (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                      (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
+                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                         :middleware [imi-auth/protect]}
                    :delete {:summary "Delete user by UUID"
                             :handler (fn [{:keys [identity parameters] :as _req}]
                                        (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
@@ -65,4 +66,5 @@
                             :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                         (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                         (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]])
+                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                            :middleware [imi-auth/protect]}}]])
