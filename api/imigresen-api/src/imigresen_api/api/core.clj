@@ -47,9 +47,7 @@
                             :handler (fn [{:keys [identity parameters] :as _req}]
                                        (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
                                        (-> (ring-res/response nil)
-                                           (ring-res/status (:no-content imi-routes/status-codes))
-                                           ;; otherwise shows as an error in swagger
-                                           (ring-res/content-type (:json imi-routes/content-types))))
+                                           (ring-res/status (:no-content imi-routes/status-codes))))
                             :parameters {:path {:uuid ::imi-user-spec/uuid}}
                             :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                         (:bad-request imi-routes/status-codes) {:description "Bad request"}
