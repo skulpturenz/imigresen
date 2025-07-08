@@ -7,7 +7,7 @@
             [ring.util.response :as ring-res]))
 
 (defn user-routes []
-  [""
+  ["" {:tags ["user.v1"]}
    ["/user" {:get {:summary "Get user details by email"
                    :handler (fn [{:keys [parameters] :as _req}]
                               (-> (ring-res/response (imi-user/get-user-by-email (get-in parameters [:query :email])))
