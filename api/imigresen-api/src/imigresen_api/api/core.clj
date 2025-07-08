@@ -25,8 +25,8 @@
                                    (ring-res/status (:created imi-routes/status-codes))))
                     :parameters {:body (ds/spec {:name ::post-user
                                                  :spec {:email ::imi-user-spec/email
-                                                        :first-name ::imi-user-spec/first-name
-                                                        :last-name ::imi-user-spec/last-name
+                                                        :first-name ::imi-user-spec/name
+                                                        :last-name ::imi-user-spec/name
                                                         :password ::imi-user-spec/password}})}
                     :responses {(:created imi-routes/status-codes) {:description "Created"
                                                                     :body imi-user-spec/user}
@@ -42,7 +42,19 @@
                                      (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                      (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                      (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                         :middleware [imi-auth/protect]}}]])
+                         :middleware [imi-auth/protect]}
+                   :delete {:summary "Delete user by UUID"
+                            :handler (fn [{:keys [identity parameters] :as _req}]
+                                       (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
+                                       (-> (ring-res/response nil)
+                                           (ring-res/status (:no-content imi-routes/status-codes))
+                                           ;; otherwise shows as an error in swagger
+                                           (ring-res/content-type (:json imi-routes/content-types))))
+                            :parameters {:path {:uuid ::imi-user-spec/uuid}}
+                            :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                                        (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                                        (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]])
 
 (defn handlers []
   [(api-v1)])
