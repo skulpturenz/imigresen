@@ -48,10 +48,11 @@
                                     (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters))
                                     (-> (ring-res/response nil)
                                         (ring-res/status (:no-content imi-routes/status-codes))))
-                         :parameters {:body (ds/spec {:name ::put-user
-                                                      :spec {(ds/opt :email) ::imi-user-spec/email
-                                                             (ds/opt :first-name) ::imi-user-spec/name
-                                                             (ds/opt :last-name) ::imi-user-spec/name}})}
+                         :parameters {:path {:uuid ::imi-user-spec/uuid}
+                                      :body (ds/spec {:name ::put-user
+                                                      :spec {:email ::imi-user-spec/email
+                                                             :first-name ::imi-user-spec/name
+                                                             :last-name ::imi-user-spec/name}})}
                          :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                      (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                      (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
