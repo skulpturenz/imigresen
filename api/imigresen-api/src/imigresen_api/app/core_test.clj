@@ -64,20 +64,20 @@
 (t/deftest ^:unit openapi-definitions
   (t/testing "openapi"
     (let [app (imi-core/create-app
-               [["/parameters" {:post {:description "parameters"
-                                       :parameters {:path {:test-path-param int?}
-                                                    :query {:test-search-param string?}
-                                                    :body {:hello-world string?}}
-                                       :responses {(:ok imi-routes/status-codes) {:description "Success!"
-                                                                                  :body {:hello string?}}}
-                                       :handler identity}}]])
+               [["/para-meters/:test-path-param" {:post {:description "parameters"
+                                                         :parameters {:path {:test-path-param int?}
+                                                                      :query {:test-search-param string?}
+                                                                      :body {:hello-world string?}}
+                                                         :responses {(:ok imi-routes/status-codes) {:description "Success!"
+                                                                                                    :body {:hello string?}}}
+                                                         :handler identity}}]])
           res (->> (mock/request :get "/openapi.json")
                    app
                    :body
                    (m/decode "application/json"))
-          params (get-in res [:paths (keyword "/parameters") :post :parameters])
+          params (get-in res [:paths (keyword "/para-meters/{testPathParam}") :post :parameters])
           req-body (get-in res [:paths
-                                (keyword "/parameters")
+                                (keyword "/para-meters/{testPathParam}")
                                 :post :requestBody
                                 :content
                                 (keyword "application/json")
