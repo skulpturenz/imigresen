@@ -14,7 +14,7 @@
                              (ring-res/status (:ok imi-routes/status-codes))))
               :parameters {:query {:email ::imi-user-spec/email}}
               :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                         :body imi-user-spec/user}
+                                                         :body (ds/spec imi-user-spec/user)}
                           (:bad-request imi-routes/status-codes) {:description "Bad request"}
                           (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                           (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -29,7 +29,7 @@
                                       (assoc :name ::post-user)
                                       (ds/spec))}
                :responses {(:created imi-routes/status-codes) {:description "Created"
-                                                               :body imi-user-spec/user}
+                                                               :body (ds/spec imi-user-spec/user)}
                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
    ["/:uuid" {:get {:summary "Get user details by UUID"
@@ -38,7 +38,7 @@
                                    (ring-res/status (:ok imi-routes/status-codes))))
                     :parameters {:path {:uuid ::imi-user-spec/uuid}}
                     :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                               :body imi-user-spec/user}
+                                                               :body (ds/spec imi-user-spec/user)}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
