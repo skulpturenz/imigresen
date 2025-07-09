@@ -14,7 +14,6 @@ window.onload = function () {
     //<editor-fold desc="Changeable Configuration Block">
 
     const AUTH_COOKIE_KEY = "IMIGRESEN_AUTH_COOKIE";
-    const millisecondsInSecond = 1000;
 
     const setAuthCookie = (tokenParsed) => {
         if (!tokenParsed) {
@@ -26,9 +25,6 @@ window.onload = function () {
             tokenParsed.access_token,
             {
                 domain: `.${window.location.hostname}`,
-                expires: new Date(
-                    Date.now() + ((tokenParsed.expires_in ?? 0) * millisecondsInSecond),
-                ),
                 secure: false,
                 sameSite: "Strict",
             },
@@ -50,7 +46,6 @@ window.onload = function () {
             SwaggerUIBundle.presets.apis,
             SwaggerUIStandalonePreset
         ],
-        persistAuthorization: true,
         responseInterceptor: async (response) => {
             if (response.body.token_type !== "Bearer") {
                 return response;
