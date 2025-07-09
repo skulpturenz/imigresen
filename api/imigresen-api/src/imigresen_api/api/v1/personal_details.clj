@@ -21,7 +21,10 @@
                                         (ring-res/status (:no-content imi-routes/status-codes))))
                          :parameters {:path {:user-uuid ::imi-user-spec/uuid}
                                       :body (ds/spec {:name ::put-user-personal-details
-                                                      :spec imi-personal-details-spec/personal-details})}
+                                                      :spec (-> imi-personal-details-spec/personal-details
+                                                                (update-in [:spec] dissoc :uuid)
+                                                                (assoc :name ::put-personal-details)
+                                                                (ds/spec))})}
                          :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                      (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                      (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}

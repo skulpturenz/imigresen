@@ -23,11 +23,11 @@
                :handler (fn [{:keys [parameters] :as _req}]
                           (-> (ring-res/response (imi-user/create-user-by-email! (:body parameters)))
                               (ring-res/status (:created imi-routes/status-codes))))
-               :parameters {:body (ds/spec {:name ::post-user
-                                            :spec {:email ::imi-user-spec/email
-                                                   :first-name ::imi-user-spec/name
-                                                   :last-name ::imi-user-spec/name
-                                                   :password ::imi-user-spec/password}})}
+               :parameters {:body (-> imi-user-spec/user
+                                      (update-in [:spec] dissoc :uuid)
+                                      (update-in [:spec] assoc :password ::imi-user-spec/password)
+                                      (assoc :name ::post-user)
+                                      (ds/spec))}
                :responses {(:created imi-routes/status-codes) {:description "Created"
                                                                :body imi-user-spec/user}
                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
@@ -49,10 +49,10 @@
                                (-> (ring-res/response nil)
                                    (ring-res/status (:no-content imi-routes/status-codes))))
                     :parameters {:path {:uuid ::imi-user-spec/uuid}
-                                 :body (ds/spec {:name ::put-user
-                                                 :spec {:email ::imi-user-spec/email
-                                                        :first-name ::imi-user-spec/name
-                                                        :last-name ::imi-user-spec/name}})}
+                                 :body (-> imi-user-spec/user
+                                           (update-in [:spec] dissoc :uuid)
+                                           (assoc :name ::put-user)
+                                           (ds/spec))}
                     :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
