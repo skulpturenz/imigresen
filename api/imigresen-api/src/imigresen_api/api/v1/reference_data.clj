@@ -12,7 +12,7 @@
                                     (-> (ring-res/response (imi-rd-im42/get-countries))
                                         (ring-res/status (:ok imi-routes/status-codes))))
                          :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                    :body map?}
+                                                                    :body seq?}
                                      (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
                    :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
     ["/genders" {:get {:summary "Get genders"
@@ -20,7 +20,7 @@
                                   (-> (ring-res/response (imi-rd-im42/get-genders))
                                       (ring-res/status (:ok imi-routes/status-codes))))
                        :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                  :body map?}
+                                                                  :body seq?}
                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
                  :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
     ["/relationship-statuses" {:get {:summary "Get relationship statuses"
@@ -28,6 +28,6 @@
                                                 (-> (ring-res/response (imi-rd-im42/get-relationship-statuses))
                                                     (ring-res/status (:ok imi-routes/status-codes))))
                                      :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                                :body map?}
+                                                                                :body seq?}
                                                  (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
                                :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]]])
