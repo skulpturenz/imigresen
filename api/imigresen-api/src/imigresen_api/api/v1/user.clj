@@ -43,6 +43,21 @@
                                      (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                      (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                          :middleware [imi-auth/protect]}
+                   :put {:summary "Update user by UUID"
+                         :handler (fn [{:keys [identity parameters] :as _req}]
+                                    (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters))
+                                    (-> (ring-res/response nil)
+                                        (ring-res/status (:no-content imi-routes/status-codes))))
+                         :parameters {:path {:uuid ::imi-user-spec/uuid}
+                                      :body (ds/spec {:name ::put-user
+                                                      :spec {:email ::imi-user-spec/email
+                                                             :first-name ::imi-user-spec/name
+                                                             :last-name ::imi-user-spec/name}})}
+                         :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                         :middleware [imi-auth/protect]}
                    :delete {:summary "Delete user by UUID"
                             :handler (fn [{:keys [identity parameters] :as _req}]
                                        (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
@@ -52,4 +67,5 @@
                             :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                         (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                         (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]])
+                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                            :middleware [imi-auth/protect]}}]])
