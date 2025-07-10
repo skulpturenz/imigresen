@@ -16,6 +16,7 @@
               :parameters {:query {:email ::imi-user-spec/email}}
               :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                          :body (ds/spec imi-user-spec/user)}
+                          (:not-found imi-routes/status-codes) {:description "Not found"}
                           (:bad-request imi-routes/status-codes) {:description "Bad request"}
                           (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                           (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -40,6 +41,7 @@
                     :parameters {:path {:uuid ::imi-user-spec/uuid}}
                     :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                :body (ds/spec imi-user-spec/user)}
+                                (:not-found imi-routes/status-codes) {:description "Not found"}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -55,6 +57,7 @@
                                            (assoc :name ::put-user)
                                            (ds/spec))}
                     :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                                (:not-found imi-routes/status-codes) {:description "Not found"}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -66,6 +69,7 @@
                                       (ring-res/status (:no-content imi-routes/status-codes))))
                        :parameters {:path {:uuid ::imi-user-spec/uuid}}
                        :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                                   (:not-found imi-routes/status-codes) {:description "Not found"}
                                    (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                    (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
