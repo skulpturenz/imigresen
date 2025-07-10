@@ -4,7 +4,8 @@
             [imigresen-common.components.user.store :as imi-user]
             [imigresen-common.components.user.spec :as imi-user-spec]
             [imigresen-common.app.auth :as imi-auth]
-            [ring.util.response :as ring-res]))
+            [ring.util.response :as ring-res]
+            [taoensso.truss :as truss]))
 
 (defn user-routes []
   ["/user" {:tags ["user.v1"]}
@@ -14,7 +15,7 @@
                              (ring-res/status (:ok imi-routes/status-codes))))
               :parameters {:query {:email ::imi-user-spec/email}}
               :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                         :body imi-user-spec/user}
+                                                         :body (ds/spec imi-user-spec/user)}
                           (:bad-request imi-routes/status-codes) {:description "Bad request"}
                           (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                           (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -23,13 +24,13 @@
                :handler (fn [{:keys [parameters] :as _req}]
                           (-> (ring-res/response (imi-user/create-user-by-email! (:body parameters)))
                               (ring-res/status (:created imi-routes/status-codes))))
-               :parameters {:body (ds/spec {:name ::post-user
-                                            :spec {:email ::imi-user-spec/email
-                                                   :first-name ::imi-user-spec/name
-                                                   :last-name ::imi-user-spec/name
-                                                   :password ::imi-user-spec/password}})}
+               :parameters {:body (-> imi-user-spec/user
+                                      (update-in [:spec] dissoc :uuid)
+                                      (update-in [:spec] assoc :password ::imi-user-spec/password)
+                                      (assoc :name ::post-user)
+                                      (ds/spec))}
                :responses {(:created imi-routes/status-codes) {:description "Created"
-                                                               :body imi-user-spec/user}
+                                                               :body (ds/spec imi-user-spec/user)}
                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
    ["/:uuid" {:get {:summary "Get user details by UUID"
@@ -38,21 +39,21 @@
                                    (ring-res/status (:ok imi-routes/status-codes))))
                     :parameters {:path {:uuid ::imi-user-spec/uuid}}
                     :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                               :body imi-user-spec/user}
+                                                               :body (ds/spec imi-user-spec/user)}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                     :middleware [imi-auth/protect]}
               :put {:summary "Update user by UUID"
                     :handler (fn [{:keys [identity parameters] :as _req}]
-                               (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters))
+                               (truss/have (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters)))
                                (-> (ring-res/response nil)
                                    (ring-res/status (:no-content imi-routes/status-codes))))
                     :parameters {:path {:uuid ::imi-user-spec/uuid}
-                                 :body (ds/spec {:name ::put-user
-                                                 :spec {:email ::imi-user-spec/email
-                                                        :first-name ::imi-user-spec/name
-                                                        :last-name ::imi-user-spec/name}})}
+                                 :body (-> imi-user-spec/user
+                                           (update-in [:spec] dissoc :uuid)
+                                           (assoc :name ::put-user)
+                                           (ds/spec))}
                     :responses {(:no-content imi-routes/status-codes) {:description "No content"}
                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
@@ -60,7 +61,7 @@
                     :middleware [imi-auth/protect]}
               :delete {:summary "Delete user by UUID"
                        :handler (fn [{:keys [identity parameters] :as _req}]
-                                  (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
+                                  (truss/have (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid])))
                                   (-> (ring-res/response nil)
                                       (ring-res/status (:no-content imi-routes/status-codes))))
                        :parameters {:path {:uuid ::imi-user-spec/uuid}}
