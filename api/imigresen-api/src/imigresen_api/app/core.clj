@@ -43,11 +43,19 @@
 
 (def unauthorized-exception-handler (constantly (ring-res/status (:unauthorized imi-routes/status-codes))))
 
+(def not-found-exception-handler (constantly (ring-res/status (:not-found imi-routes/status-codes))))
+
 (defn default-exception-handler [ex _req]
   {:status (:internal-server-error imi-routes/status-codes)
    :body {:message (ex-message ex)
           :exception (class ex)
           :data (ex-data ex)}})
+
+(defn generic-exception-handler [ex req]
+  (let [data (ex-data ex)]
+    (cond
+      (= (get-in data [:data :type]) :not-found) (not-found-exception-handler req)
+      :else (default-exception-handler ex req))))
 
 (defn always-exception-handler [handler ex req]
   (let [formatted-ex-message (pexceptions/format-exception ex)]
@@ -71,7 +79,9 @@
 (def exception-middleware
   (reitit-exception/create-exception-middleware
    (merge reitit-exception/default-handlers
-          {::imi-auth/unauthorized unauthorized-exception-handler
+          {clojure.lang.ExceptionInfo generic-exception-handler ;; exceptions from truss otherwise default
+           :not-found not-found-exception-handler
+           ::imi-auth/unauthorized unauthorized-exception-handler
            ::reitit-exception/default default-exception-handler
            ::reitit-exception/wrap always-exception-handler
            :reitit.coercion/request-coercion (coercion-error-handler (:bad-request imi-routes/status-codes))
