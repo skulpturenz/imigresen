@@ -4,7 +4,8 @@
             [imigresen-common.components.user.store :as imi-user]
             [imigresen-common.components.user.spec :as imi-user-spec]
             [imigresen-common.app.auth :as imi-auth]
-            [ring.util.response :as ring-res]))
+            [ring.util.response :as ring-res]
+            [taoensso.truss :as truss]))
 
 (defn user-routes []
   ["/user" {:tags ["user.v1"]}
@@ -45,7 +46,7 @@
                     :middleware [imi-auth/protect]}
               :put {:summary "Update user by UUID"
                     :handler (fn [{:keys [identity parameters] :as _req}]
-                               (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters))
+                               (truss/have (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters)))
                                (-> (ring-res/response nil)
                                    (ring-res/status (:no-content imi-routes/status-codes))))
                     :parameters {:path {:uuid ::imi-user-spec/uuid}
@@ -60,7 +61,7 @@
                     :middleware [imi-auth/protect]}
               :delete {:summary "Delete user by UUID"
                        :handler (fn [{:keys [identity parameters] :as _req}]
-                                  (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid]))
+                                  (truss/have (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid])))
                                   (-> (ring-res/response nil)
                                       (ring-res/status (:no-content imi-routes/status-codes))))
                        :parameters {:path {:uuid ::imi-user-spec/uuid}}

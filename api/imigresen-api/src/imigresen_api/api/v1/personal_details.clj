@@ -16,7 +16,8 @@
                                     (-> (:body parameters)
                                         (assoc :user-uuid
                                                (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])))
-                                        ((partial imi-personal-details/upsert-by-user-uuid! identity)))
+                                        ((partial imi-personal-details/upsert-by-user-uuid! identity))
+                                        (truss/have))
                                     (-> (ring-res/response nil)
                                         (ring-res/status (:no-content imi-routes/status-codes))))
                          :parameters {:path {:user-uuid ::imi-user-spec/uuid}

@@ -56,6 +56,7 @@
                                   [io.sentry/sentry-clj "7.22.227"]
                                   [metosin/spec-tools "0.10.7"]
                                   [metosin/jsonista "0.3.13"]
+                                  [io.randomseed/phone-number "8.13.6-3"]
                                   ;; imigresen-common test deps for checkout
                                   ;; hmr fails otherwise
                                   [clj-test-containers/clj-test-containers "0.7.4"]
