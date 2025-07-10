@@ -13,7 +13,7 @@
   ["/personal-details" {:tags ["personal-details.v1"]}
    ["/:user-uuid" {:get {:summary "Get personal details by user UUID"
                          :handler (fn [{:keys [parameters] :as _req}]
-                                    (-> (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid]))
+                                    (-> (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid]) :data {:type :not-found})
                                         (imi-pd/get-personal-details-by-user-uuid)
                                         (ring-res/response)
                                         (ring-res/status (:ok imi-routes/status-codes))))
@@ -29,7 +29,7 @@
                          :handler (fn [{:keys [identity parameters] :as _req}]
                                     (-> (:body parameters)
                                         (assoc :user-uuid
-                                               (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])))
+                                               (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])) :data {:type :not-found})
                                         ((partial imi-pd/upsert-by-user-uuid! identity))
                                         (truss/have))
                                     (-> (ring-res/response nil)
