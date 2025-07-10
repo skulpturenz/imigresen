@@ -5,24 +5,35 @@
             [imigresen-common.components.user.spec :as imi-user-spec]
             [imigresen-common.app.auth :as imi-auth]
             [ring.util.response :as ring-res]
-            [imigresen-common.components.personal-details.store :as imi-personal-details]
-            [imigresen-common.components.personal-details.spec :as imi-personal-details-spec]
+            [imigresen-common.components.personal-details.store :as imi-pd]
+            [imigresen-common.components.personal-details.spec :as imi-pd-spec]
             [taoensso.truss :as truss]))
 
 (defn personal-details []
   ["/personal-details" {:tags ["personal-details.v1"]}
-   ["/:user-uuid" {:put {:summary "Update personal details by user UUID"
+   ["/:user-uuid" {:get {:summary "Get personal details by user UUID"
+                         :handler (fn [{:keys [parameters] :as _req}]
+                                    (-> (ring-res/response (imi-pd/get-personal-details-by-user-uuid (get-in parameters [:path :user-uuid])))
+                                        (ring-res/status (:ok imi-routes/status-codes))))
+                         :parameters {:path {:user-uuid ::imi-user-spec/uuid}}
+                         :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                    :body (ds/spec imi-pd-spec/personal-details)}
+                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                         :middleware [imi-auth/protect]}
+                   :put {:summary "Update personal details by user UUID"
                          :handler (fn [{:keys [identity parameters] :as _req}]
                                     (-> (:body parameters)
                                         (assoc :user-uuid
                                                (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])))
-                                        ((partial imi-personal-details/upsert-by-user-uuid! identity))
+                                        ((partial imi-pd/upsert-by-user-uuid! identity))
                                         (truss/have))
                                     (-> (ring-res/response nil)
                                         (ring-res/status (:no-content imi-routes/status-codes))))
                          :parameters {:path {:user-uuid ::imi-user-spec/uuid}
                                       :body (ds/spec {:name ::put-user-personal-details
-                                                      :spec (-> imi-personal-details-spec/personal-details
+                                                      :spec (-> imi-pd-spec/personal-details
                                                                 (update-in [:spec] dissoc :uuid)
                                                                 (assoc :name ::put-personal-details)
                                                                 (ds/spec))})}
