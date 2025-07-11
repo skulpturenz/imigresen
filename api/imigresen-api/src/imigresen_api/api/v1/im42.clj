@@ -14,9 +14,8 @@
                           (-> (ring-res/response (imi-im42/register-im42-form! identity))
                               (ring-res/content-type (:plain-text imi-routes/content-types))
                               (ring-res/status (:created imi-routes/status-codes))))
-               :parameters {:path {:uuid ::imi-im42-spec/uuid}}
-               :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                          :body uuid?}
+               :responses {(:created imi-routes/status-codes) {:description "Created"
+                                                               :body uuid?}
                            (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                :middleware [imi-auth/protect]}}]

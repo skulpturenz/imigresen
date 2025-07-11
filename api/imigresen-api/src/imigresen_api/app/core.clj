@@ -29,7 +29,11 @@
             [taoensso.telemere :as tel]
             [sentry-clj.core :as sentry]
             [imigresen-api.eventing.core :as imi-eventing]
-            [reitit.spec :as rs]))
+            [reitit.spec :as rs]
+            [ring.core.protocols :as ring-protocols]
+            [clojure.java.io :as io])
+  (:import (java.util UUID)
+           (java.io Writer)))
 
 (defn init []
   (imi-logging/init-logging)
@@ -40,6 +44,19 @@
 (defn destroy []
   (mount/stop #'imigresen-common.state.db.core/db
               #'imigresen-common.state.flipt.core/flipt))
+
+(defn- response-writer ^Writer [response output-stream]
+  (if-let [charset (ring-res/get-charset response)]
+    (io/writer output-stream :encoding charset)
+    (io/writer output-stream)))
+
+;; see: https://github.com/ring-clojure/ring/blob/1.11.0-RC1/ring-core/src/ring/core/protocols.clj#L8
+(extend UUID
+  ring-protocols/StreamableResponseBody
+  {:write-body-to-stream (fn [body response output-stream]
+                           (doto (response-writer response output-stream)
+                             (.write (str body))
+                             (.close)))})
 
 (def unauthorized-exception-handler (constantly (ring-res/status (:unauthorized imi-routes/status-codes))))
 
