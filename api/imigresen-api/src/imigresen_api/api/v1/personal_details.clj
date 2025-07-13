@@ -9,7 +9,7 @@
             [imigresen-common.components.personal-details.spec :as imi-pd-spec]
             [taoensso.truss :as truss]))
 
-(defn personal-details []
+(defn personal-details-routes []
   ["/personal-details" {:tags ["personal-details.v1"]}
    ["/:user-uuid" {:get {:summary "Get personal details by user UUID"
                          :handler (fn [{:keys [parameters] :as _req}]
