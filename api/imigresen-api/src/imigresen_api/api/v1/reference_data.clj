@@ -9,7 +9,7 @@
    ["/im42" {:tags ["reference-data.im42.v1"]}
     ["/countries" {:get {:summary "Get countries"
                          :handler (fn [{:keys [_parameters] :as _req}]
-                                    (-> (ring-res/response (imi-rd-im42/get-countries))
+                                    (-> (ring-res/response (imi-rd-im42/get-country-codes))
                                         (ring-res/status (:ok imi-routes/status-codes))))
                          :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                     :body seq?}
@@ -17,7 +17,7 @@
                    :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
     ["/genders" {:get {:summary "Get genders"
                        :handler (fn [{:keys [_parameters] :as _req}]
-                                  (-> (ring-res/response (imi-rd-im42/get-genders))
+                                  (-> (ring-res/response (imi-rd-im42/get-gender-codes))
                                       (ring-res/status (:ok imi-routes/status-codes))))
                        :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                   :body seq?}
@@ -25,7 +25,7 @@
                  :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
     ["/relationship-statuses" {:get {:summary "Get relationship statuses"
                                      :handler (fn [{:keys [_parameters] :as _req}]
-                                                (-> (ring-res/response (imi-rd-im42/get-relationship-statuses))
+                                                (-> (ring-res/response (imi-rd-im42/get-relationship-status-codes))
                                                     (ring-res/status (:ok imi-routes/status-codes))))
                                      :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                                 :body seq?}
