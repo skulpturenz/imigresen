@@ -22,7 +22,7 @@
    which have been applied to determine the current state. Expects a vector when events to apply are specified as
    order is important"
   ([connectable entity entity-id transformer]
-   {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
+   {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
                (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
                (truss/have? fn? transformer))]}
@@ -33,11 +33,11 @@
          (when (truss/have (partial s/valid? schema) current-state :data {:type :validation-error :explain (s/explain schema current-state)})
            {:aggregate current-state :events committed-events :uncommitted-events []})))))
   ([connectable entity entity-id-or-aggregate transformer events]
-   {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
-               (truss/have keyword? entity)
-               (truss/have #(or (string? %) (number? %) (uuid? %) (es/aggregate? %)) entity-id-or-aggregate)
-               (truss/have fn? transformer)
-               (truss/have #(and (vector? %) (every? es/event? %)) events))]}
+   {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
+               (truss/have? keyword? entity)
+               (truss/have? #(or (string? %) (number? %) (uuid? %) (es/aggregate? %)) entity-id-or-aggregate)
+               (truss/have? fn? transformer)
+               (truss/have? #(and (vector? %) (every? es/event? %)) events))]}
    (if (es/aggregate? entity-id-or-aggregate)
      (let [committed-events (:events entity-id-or-aggregate)
            uncommitted-events (:uncommitted-events entity-id-or-aggregate)
@@ -58,7 +58,7 @@
 
 (defn commit!
   "Commit uncommitted events in an aggregate"
-  [connectable entity aggregate] {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
+  [connectable entity aggregate] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                              (truss/have? keyword? entity)
                                              (truss/have? es/aggregate? aggregate))]}
   (let [schema ((keyword entity) @schema-registry)]
@@ -80,7 +80,7 @@
      (when (truss/have (partial s/valid? schema) (:aggregate aggregate))
        (apply/next-revision (:aggregate aggregate)))))
   ([connectable entity entity-id transformer]
-   {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
+   {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
                (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
                (truss/have? fn? transformer))]}
@@ -94,7 +94,7 @@
    
    Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
    starting point when events are loaded"
-  [connectable entity entity-id transformer] {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
+  [connectable entity entity-id transformer] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                                          (truss/have? keyword? entity)
                                                          (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
                                                          (truss/have? fn? transformer))]}
