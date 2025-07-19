@@ -28,7 +28,6 @@
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
             [sentry-clj.core :as sentry]
-            [imigresen-api.eventing.core :as imi-eventing]
             [reitit.spec :as rs]
             [ring.core.protocols :as ring-protocols]
             [clojure.java.io :as io])
@@ -37,7 +36,6 @@
 
 (defn init []
   (imi-logging/init-logging)
-  (imi-eventing/init)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt))
 
