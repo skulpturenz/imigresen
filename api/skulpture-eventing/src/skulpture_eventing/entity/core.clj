@@ -9,11 +9,18 @@
             [next.jdbc.protocols :as jdbc-protocols]))
 
 (def schema-registry
-  "Used to ensure that the the reduced state of the entity is valid"
+  "Used to ensure that the reduced state of the entity is valid.
+   
+   An entity can only be loaded if a schema is defined for it"
   (atom {}))
 
 (defn aggregate
-  "Get the current state of the entity or apply uncommitted events to an aggregate or an entity's current state"
+  "Gets the events associated with the entity id and determines the current state of the event,
+   applying any additional events if specified. Additional events are not committed, to do so invoke `commit!`.
+   
+   An aggregate is composed of: the current state of the entity, events which have been committed and uncommitted events
+   which have been applied to determine the current state. Expects a vector when events to apply are specified as
+   order is important"
   ([connectable entity entity-id transformer]
    {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
@@ -62,7 +69,10 @@
          :uncommitted-events []}))))
 
 (defn next-revision
-  "Determine the next revision of the entity from an aggregate or the current state"
+  "Determine the next revision of the entity from an aggregate or the current state.
+   
+   The latest revision of events for an entity is also the revision of the current state of the entity
+   so revisions should only increase as more events are associated with an entity"
   ([entity aggregate]
    {:pre [(and (truss/have? keyword? entity)
                (truss/have? es/aggregate? aggregate))]}
@@ -80,7 +90,10 @@
        (apply/next-revision (:aggregate aggregate))))))
 
 (defn snapshot
-  "Create a snapshot event of the current state of the entity"
+  "Create a snapshot event of the current state of the entity. The event is not committed, to do so invoke `commit!`.
+   
+   Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
+   starting point when events are loaded"
   [connectable entity entity-id transformer] {:pre [(and (truss/have #(satisfies? jdbc-protocols/Connectable %) connectable)
                                                          (truss/have? keyword? entity)
                                                          (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
