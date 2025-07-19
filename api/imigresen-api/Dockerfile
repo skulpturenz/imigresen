@@ -3,6 +3,7 @@ FROM clojure AS build
 WORKDIR /build
 
 COPY --from=common . ./imigresen-common
+COPY --from=eventing . ./skulpture-eventing
 COPY . ./imigresen-api
 
 RUN cd skulpture-eventing && lein install
