@@ -54,7 +54,8 @@
    :project-dirs
    ["imigresen-api"
     "imigresen-mcp-api"
-    "imigresen-common"]
+    "imigresen-common"
+    "skulpture-eventing"]
 
    :dependency-sets
    {:set-outdated
