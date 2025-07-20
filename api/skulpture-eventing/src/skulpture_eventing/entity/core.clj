@@ -24,13 +24,15 @@
   ([entity transformer {:keys [committed-events uncommitted-events] :as _opts}]
    {:pre [(and (truss/have? keyword? entity)
                (truss/have? #(or (nil? %)
-                                 (empty %)
+                                 (empty? %)
                                  (and (seq %)
+                                      (vector? %)
                                       (apply/valid-stream? %))) committed-events)
                (truss/have? #(or (nil? %)
-                                 (empty %)
+                                 (empty? %)
                                  (and (seq %)
-                                      (apply/valid-stream? %))) uncommitted-events)
+                                      (vector? %)
+                                      (every? es/event? %))) uncommitted-events)
                (truss/have? fn? transformer))]}
    (when (or (and (some? committed-events) (not-empty committed-events))
              (and (some? uncommitted-events) (not-empty uncommitted-events)))

@@ -60,7 +60,23 @@
                      (entity/aggregate (:ds-opts @db-mock/db) ::test (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer) transformer []))))
         (t/testing "vector uncommitted events"
           (t/is (and (truss/throws? (entity/aggregate (:ds-opts @db-mock/db) ::test (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer) transformer '()))
-                     (entity/aggregate (:ds-opts @db-mock/db) ::test (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer) transformer [])))))))
+                     (entity/aggregate (:ds-opts @db-mock/db) ::test (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer) transformer []))))
+        (t/testing "from specified event stream options"
+          (t/testing "committed events"
+            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events '((create-event {:type :a :a 1} 1)) ;; must be a vector
+                                                                            :uncommitted-events [(create-event {:type :b :b -1} 2)]}))
+                       (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 2)] ;; invalid stream
+                                                                            :uncommitted-events [{:type :b :b -1}]}))
+                       (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)] ;; valid
+                                                             :uncommitted-events [(create-event {:type :b :b -1} 2)]}))))
+          (t/testing "uncommitted events"
+            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+                                                                            :uncommitted-events '((create-event {:type :b :b -1} 2))})) ;; must be a vector
+                       (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+                                                                            :uncommitted-events [{:type :b :b -1}]})) ;; invalid event
+                       ;; valid
+                       (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+                                                             :uncommitted-events [(create-event {:type :b :b -1} 2)]}))))))))
   (t/testing "returns current state"
     (with-redefs [store/load-by-entity-id (constantly [(create-event {:type :a :a 1} 1)
                                                        (create-event {:type :b :b -1} 2)
