@@ -108,8 +108,8 @@
      (when (truss/have (partial s/valid? schema) (:aggregate aggregate))
        (apply/next-revision (:aggregate aggregate))))))
 
-(defn snapshot
-  "Create a snapshot event of the current state of the entity. The event is not committed, to do so invoke `commit!`.
+(defn snapshot!
+  "Creates and persists a snapshot event of the current state of the entity.
    
    Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
    starting point when events are loaded"

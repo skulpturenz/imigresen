@@ -243,7 +243,7 @@
                              :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))]
         (t/is (= (entity/next-revision (:ds-opts @db-mock/db) ::test 1 transformer) 5))))))
 
-(t/deftest ^:unit snapshot
+(t/deftest ^:unit snapshot!
   (t/testing "preconditions"
     (with-redefs [store/load-by-entity-id (constantly [(create-event {:type :a :a 1} 1)
                                                        (create-event {:type :b :b -1} 2)
@@ -258,18 +258,18 @@
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
                              :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))]
         (t/testing "keyword entity"
-          (t/is (and (truss/throws? (entity/snapshot (:ds-opts @db-mock/db) "test" 1 transformer))
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test 1 transformer)))
-          (t/is (and (truss/throws? (entity/snapshot (:ds-opts @db-mock/db) "test" 1 transformer))
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test 1 transformer))))
+          (t/is (and (truss/throws? (entity/snapshot! (:ds-opts @db-mock/db) "test" 1 transformer))
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test 1 transformer)))
+          (t/is (and (truss/throws? (entity/snapshot! (:ds-opts @db-mock/db) "test" 1 transformer))
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test 1 transformer))))
         (t/testing "string, number, uuid entity id"
-          (t/is (and (truss/throws? (entity/snapshot (:ds-opts @db-mock/db) ::test :1234 transformer))
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test 1234 transformer)
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test "1234" transformer)
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test (uuid/v7) transformer))))
+          (t/is (and (truss/throws? (entity/snapshot! (:ds-opts @db-mock/db) ::test :1234 transformer))
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test 1234 transformer)
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test "1234" transformer)
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test (uuid/v7) transformer))))
         (t/testing "fn transformer"
-          (t/is (and (truss/throws? (entity/snapshot (:ds-opts @db-mock/db) ::test 1234 "transformer"))
-                     (entity/snapshot (:ds-opts @db-mock/db) ::test 1234 transformer)))))))
+          (t/is (and (truss/throws? (entity/snapshot! (:ds-opts @db-mock/db) ::test 1234 "transformer"))
+                     (entity/snapshot! (:ds-opts @db-mock/db) ::test 1234 transformer)))))))
   (t/testing "creates and persists a snapshot event"
     (with-redefs [store/load-by-entity-id (constantly [(create-event {:type :a :a 1} 1)
                                                        (create-event {:type :b :b -1} 2)
@@ -283,7 +283,7 @@
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
                              :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
-            snapshot (entity/snapshot (:ds-opts @db-mock/db) ::test 1 transformer)]
+            snapshot (entity/snapshot! (:ds-opts @db-mock/db) ::test 1 transformer)]
         (t/is (= (:event-agent snapshot) (:snapshot agents/system-agents)))
         (t/is (= (:entity-id snapshot) 1))
         (t/is (= (:revision snapshot) 5))
