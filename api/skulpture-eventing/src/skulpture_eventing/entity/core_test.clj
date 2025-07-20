@@ -74,7 +74,27 @@
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
                              :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
             aggregate (entity/aggregate (:ds-opts @db-mock/db) ::test 1 transformer)]
-        (t/is (= (:aggregate aggregate) {:a 2 :b 2 :revision 4})))))
+        (t/is (= (:aggregate aggregate) {:a 2 :b 2 :revision 4}))))
+    (t/testing "from specified event stream"
+      (let [committed-events [(create-event {:type :a :a 1} 1)
+                              (create-event {:type :b :b -1} 2)
+                              (create-event {:type :a :a 2} 3)
+                              (create-event {:type :b :b -2} 4)]
+            uncommitted-events [(create-event {:type :a :a 1} 5)
+                                (create-event {:type :b :b -1} 6)
+                                (create-event {:type :a :a 2} 7)
+                                (create-event {:type :b :b -2} 8)]
+            transformer (fn
+                          ([] {})
+                          ([acc] acc)
+                          ([acc {{:keys [type]} :event-data :as event}]
+                           (case type
+                             :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
+                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
+            aggregate (entity/aggregate ::test transformer {:committed-events committed-events
+                                                            :uncommitted-events uncommitted-events})]
+        (t/is (= (:aggregate aggregate) {:a 4 :b 4 :revision 8}))
+        (t/is (= (:uncommitted-events aggregate) uncommitted-events)))))
   (t/testing "applies uncommitted events"
     (with-redefs [store/load-by-entity-id (constantly [(create-event {:type :a :a 1} 1)
                                                        (create-event {:type :b :b -1} 2)
