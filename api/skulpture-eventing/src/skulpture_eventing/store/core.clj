@@ -1,9 +1,8 @@
 (ns skulpture-eventing.store.core
-  (:require [clj-uuid :as uuid]
-            [honey.sql :as sql]
+  (:require [honey.sql :as sql]
             [next.jdbc :as jdbc]
-            [java-time.api :as jt]
-            [skulpture-eventing.store.agents :as agents]))
+            [skulpture-eventing.store.agents :as agents]
+            [skulpture-eventing.store.transformers :as transformers]))
 
 (defn load-by-entity-id
   "Load all events for an entity by its id.
@@ -131,16 +130,10 @@
 (defn persist!
   "Persist a stream of events"
   [connectable events]
-  (let [row-mapper #(vector (:event-agent %)
-                            (str (or (:entity-id %) (uuid/v7)))
-                            (or (:time-occurred %) (jt/instant))
-                            (:time-observed %)
-                            [:lift (:event-data %)]
-                            (:revision %))
-        query! (-> {:insert-into [:event-journal]
+  (let [query! (-> {:insert-into [:event-journal]
                     :columns [:event-agent :entity-id :time-occurred :time-observed :event-data :revision]
-                    :values (map row-mapper events)
+                    :values (map transformers/->sql-value events)
                     :returning :*}
-                   (sql/format {:params {:events events}}))
+                   (sql/format))
         result (jdbc/execute! connectable query!)]
     result))

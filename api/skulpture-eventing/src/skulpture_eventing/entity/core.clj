@@ -21,6 +21,25 @@
    An aggregate is composed of: the current state of the entity, events which have been committed and uncommitted events
    which have been applied to determine the current state. Expects a vector when events to apply are specified as
    order is important"
+  ([entity transformer {:keys [committed-events uncommitted-events] :as _opts}]
+   {:pre [(and (truss/have? keyword? entity)
+               (truss/have? #(or (nil? %)
+                                 (empty? %)
+                                 (and (seq %)
+                                      (vector? %)
+                                      (apply/valid-stream? %))) committed-events)
+               (truss/have? #(or (nil? %)
+                                 (empty? %)
+                                 (and (seq %)
+                                      (vector? %)
+                                      (every? es/event? %))) uncommitted-events)
+               (truss/have? fn? transformer))]}
+   (when (or (and (some? committed-events) (not-empty committed-events))
+             (and (some? uncommitted-events) (not-empty uncommitted-events)))
+     (let [current-state (apply/aggregate transformer (into [] cat [committed-events uncommitted-events]))
+           schema (truss/have ((keyword entity)  @schema-registry))]
+       (when (truss/have (partial s/valid? schema) current-state)
+         {:aggregate current-state :events committed-events :uncommitted-events uncommitted-events}))))
   ([connectable entity entity-id transformer]
    {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
