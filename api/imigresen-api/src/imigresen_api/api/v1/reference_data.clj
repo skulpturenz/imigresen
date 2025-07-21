@@ -30,4 +30,20 @@
                                      :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                                 :body seq?}
                                                  (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
-                               :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]]])
+                               :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
+    ["/document-types" {:get {:summary "Get document types"
+                              :handler (fn [{:keys [_parameters] :as _req}]
+                                         (-> (ring-res/response (imi-rd-im42/get-document-types))
+                                             (ring-res/status (:ok imi-routes/status-codes))))
+                              :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                         :body seq?}
+                                          (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
+                        :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]
+    ["/request-types" {:get {:summary "Get request types"
+                             :handler (fn [{:keys [_parameters] :as _req}]
+                                        (-> (ring-res/response (imi-rd-im42/get-request-types))
+                                            (ring-res/status (:ok imi-routes/status-codes))))
+                             :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                        :body seq?}
+                                         (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}
+                       :middleware [(imi-routes/transform-response csk/->SCREAMING_SNAKE_CASE)]}]]])
