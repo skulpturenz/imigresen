@@ -1,44 +1,60 @@
-import { storageKeys } from "core/constants/storage-keys";
+import { assertEnv } from "core/utils/assert-env";
 import type {
 	DeleteApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
-import { createStorage } from "unstorage";
-import { default as localStorageDriver } from "unstorage/drivers/localstorage";
-import { uuidv7 } from "uuidv7";
+import { default as wretch } from "wretch";
 
-const storage = createStorage({
-	driver: localStorageDriver({
-		base: storageKeys.myPassportFormBase,
-	}),
-});
+assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
+
+const referenceDataApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
+);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const myPassportFormService = (_token?: string) => {
+	// TODO: register needs to take a param for `automergeUrl` and `sub`
+	// also `sub` becomes user uuid (imi not kc)
 	const registerApplication = async ({
 		automergeUrl,
 		sub,
-	}: RegisterApplicationVariables) => {
-		// TODO
-		const uuid = uuidv7();
+	}: RegisterApplicationVariables) =>
+		im42Api.post({ automergeUrl, sub }).text();
 
-		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
-			automergeUrl,
-		);
+	// TODO: `sub` becomes user uuid (imi not kc)
+	const deleteApplication = ({ uuid, sub }: DeleteApplicationVariables) =>
+		im42Api.delete(`${sub}/${uuid}`);
 
-		return uuid;
+	const getReferenceData = async () => {
+		const countryOptions = await referenceDataApi
+			.get("/countries")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const genderOptions = await referenceDataApi
+			.get("/genders")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const relationshipStatusOptions = await referenceDataApi
+			.get("/relationship-statuses")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const requestTypeOptions = await referenceDataApi
+			.get("/request-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const documentTypeOptions = await referenceDataApi
+			.get("/document-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+
+		return {
+			genderOptions,
+			relationshipStatusOptions,
+			countryOptions,
+			requestTypeOptions,
+			documentTypeOptions,
+		};
 	};
-
-	const deleteApplication = async ({
-		uuid,
-		sub,
-	}: DeleteApplicationVariables) => {
-		// TODO
-		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
-	};
-
-	// TODO
-	const getReferenceData = async () => Object.create(null);
 
 	// TODO
 	const getReferenceDataStates = async ({ queryKey: _queryKey }: any) => {

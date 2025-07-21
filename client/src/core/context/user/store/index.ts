@@ -1,7 +1,8 @@
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { once } from "es-toolkit";
+import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
+import { default as wretch } from "wretch";
 
 export interface UserProfile {
 	uuid: string;
@@ -20,27 +21,41 @@ export interface UserSvc {
 	};
 }
 
+const userApi = wretch("/user");
+
 export const useStore = createWithSignal<UserSvc>((set, _get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
 		actions: {
 			init: once(async (profile?: KeycloakProfile | null) => {
-				// TODO: once BE is up remove dependence on KC
-				if (profile) {
-					set({
-						profile: {
-							uuid: profile?.id ?? "",
-							fullName: [profile.firstName, profile.lastName]
-								.filter(Boolean)
-								.join(" "),
-							phoneNumber: "",
-							avatar: "",
-						},
-					});
+				if (!profile) {
+					return;
 				}
 
-				// TODO: BE
+				invariant(profile.email, "No email for keycloak profile");
+
+				const searchParams = new URLSearchParams({
+					email: profile.email,
+				});
+
+				const user = await userApi
+					.get(`?${searchParams.toString()}`)
+					// TODO: types
+					.json<Record<string, any>>();
+
+				set({
+					profile: {
+						uuid: user.uuid,
+						fullName: [profile.firstName, profile.lastName]
+							.filter(Boolean)
+							.join(" "),
+						phoneNumber: "", // TODO
+						avatar: "", // TODO
+					},
+				});
+
+				// TODO: add BE endpoint
 				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
 				if (sub) {
 					set({
@@ -53,7 +68,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 				set({ isInitialLoading: false });
 			}),
 			completeSync: () => {
-				// TODO: BE
+				// TODO: add BE endpoint
 				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
 				if (!sub) {
 					return;

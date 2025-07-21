@@ -1,6 +1,5 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
-import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { flatten, invariant } from "es-toolkit";
 import type {
@@ -12,27 +11,17 @@ import type {
 	RegisteredMyPassportForm,
 } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
-import { createStorage } from "unstorage";
-import { default as localStorageDriver } from "unstorage/drivers/localstorage";
-import { uuidv7 } from "uuidv7";
+import { default as wretch } from "wretch";
 
-const storage = createStorage({
-	driver: localStorageDriver({
-		base: storageKeys.myPassportFormBase,
-	}),
-});
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({ sub }: GetAutomergeUrlsVariables) => {
-		// TODO
-		const localKeys = await storage.getKeys(
-			storageKeys.myPassportFormApplications(sub),
-		);
-		const localItems = await storage.getItems<string>(localKeys);
+	// TODO: need to add this endpoint
+	// TODO: `sub` becomes user uuid (imi not kc)
+	const getAutomergeUrls = ({ sub }: GetAutomergeUrlsVariables) =>
+		im42Api.get(`/${sub}`).json<[string, string][]>();
 
-		return localItems;
-	};
-
+	// TODO: `sub` becomes user uuid (imi not kc)
 	const getPassportApplications = async ({
 		sub,
 	}: GetPassportApplicationsVariables) => {
@@ -45,7 +34,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}
 
 		const documents = await Promise.all(
-			automergeUrls?.map(async ({ key, value }) => {
+			automergeUrls?.map(async ([key, value]) => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
 				>(value as AnyDocumentId);
@@ -117,21 +106,11 @@ export const homeService = (repo: Repo, _token?: string) => {
 		};
 	};
 
-	// same as `registerApplications` in `myPassportFormService`
 	const registerApplication = async ({
 		automergeUrl,
 		sub,
-	}: RegisterApplicationVariables) => {
-		// TODO
-		const uuid = uuidv7();
-
-		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
-			automergeUrl,
-		);
-
-		return uuid;
-	};
+	}: RegisterApplicationVariables) =>
+		im42Api.post({ automergeUrl, sub }).text();
 
 	const importApplications = async ({
 		files,
