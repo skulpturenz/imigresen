@@ -5,7 +5,8 @@
             [imigresen-common.components.user.spec :as imi-user-spec]
             [imigresen-common.app.auth :as imi-auth]
             [ring.util.response :as ring-res]
-            [taoensso.truss :as truss]))
+            [taoensso.truss :as truss]
+            [imigresen-common.app.env :as imi-env]))
 
 (defn user-routes []
   ["/user" {:tags ["user.v1"]}
@@ -34,6 +35,19 @@
                                                                :body (ds/spec imi-user-spec/user)}
                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
+   ["/register" {:post {:summary "Register a new user"
+                        :handler (fn [{:keys [parameters] :as _req}]
+                                   (imi-user/create-user-by-email! (:body parameters))
+                                   (ring-res/redirect (str (imi-env/env :imi-frontend-url string? "https://imigresen.skulpture.xyz") "/register-callback")
+                                                      (:see-other imi-routes/status-codes)))
+                        :parameters {:body (-> imi-user-spec/user
+                                               (update-in [:spec] dissoc :uuid)
+                                               (update-in [:spec] assoc :password ::imi-user-spec/password)
+                                               (assoc :name ::register-user)
+                                               (ds/spec))}
+                        :responses {(:see-other imi-routes/status-codes) {:description "See other"}
+                                    (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
    ["/:uuid" {:get {:summary "Get user details by UUID"
                     :handler (fn [{:keys [parameters] :as _req}]
                                (-> (ring-res/response (imi-user/get-user-by-uuid (get-in parameters [:path :uuid])))
