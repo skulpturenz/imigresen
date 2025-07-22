@@ -48,6 +48,7 @@
    ;; draft forms are stored in automerge repo until submitted
    ;; so all we store is an automerge url no data
    ["/status/draft" {:get {:summary "Get draft IM42 forms"
+                           :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered"
                            :handler (fn [{:keys [parameters] :as _req}]
                                       (-> (imi-im42/get-draft-im42-forms-by-user-uuid
                                            (truss/have imi-user/active-by-uuid?
