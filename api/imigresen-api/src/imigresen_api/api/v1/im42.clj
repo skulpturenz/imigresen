@@ -30,38 +30,38 @@
                            (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                :middleware [imi-auth/protect]}}]
-   ["/synced" {:put {:summary "Mark a user as synced"
-                     :handler (fn [{:keys [identity parameters] :as _req}]
-                                (-> (imi-im42/synced!
-                                     identity (truss/have imi-user/active-by-uuid?
-                                                          (get-in parameters [:path :user-uuid])
-                                                          :data {:type :not-found}))
-                                    (ring-res/response)
-                                    (ring-res/status (:ok imi-routes/status-codes))))
-                     :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
-                     :responses {(:no-content imi-routes/status-codes) {:description "No content"
-                                                                        :body vector?}
-                                 (:not-found imi-routes/status-codes) {:description "Not found"}
-                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                     :middleware [imi-auth/protect]}}]
+   ["/config/synced" {:put {:summary "Mark a user as synced"
+                            :handler (fn [{:keys [identity parameters] :as _req}]
+                                       (-> (imi-im42/synced!
+                                            identity (truss/have imi-user/active-by-uuid?
+                                                                 (get-in parameters [:path :user-uuid])
+                                                                 :data {:type :not-found}))
+                                           (ring-res/response)
+                                           (ring-res/status (:ok imi-routes/status-codes))))
+                            :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
+                            :responses {(:no-content imi-routes/status-codes) {:description "No content"
+                                                                               :body vector?}
+                                        (:not-found imi-routes/status-codes) {:description "Not found"}
+                                        (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                            :middleware [imi-auth/protect]}}]
    ;; draft forms are stored in automerge repo until submitted
    ;; so all we store is an automerge url no data
-   ["/draft" {:get {:summary "Get draft IM42 forms"
-                    :handler (fn [{:keys [parameters] :as _req}]
-                               (-> (imi-im42/get-draft-im42-forms-by-user-uuid
-                                    (truss/have imi-user/active-by-uuid?
-                                                (get-in parameters [:path :user-uuid])
-                                                :data {:type :not-found}))
-                                   (ring-res/response)
-                                   (ring-res/status (:ok imi-routes/status-codes))))
-                    :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
-                    :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                               :body vector?}
-                                (:not-found imi-routes/status-codes) {:description "Not found"}
-                                (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                    :middleware [imi-auth/protect]}}]
+   ["/status/draft" {:get {:summary "Get draft IM42 forms"
+                           :handler (fn [{:keys [parameters] :as _req}]
+                                      (-> (imi-im42/get-draft-im42-forms-by-user-uuid
+                                           (truss/have imi-user/active-by-uuid?
+                                                       (get-in parameters [:path :user-uuid])
+                                                       :data {:type :not-found}))
+                                          (ring-res/response)
+                                          (ring-res/status (:ok imi-routes/status-codes))))
+                           :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
+                           :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                      :body vector?}
+                                       (:not-found imi-routes/status-codes) {:description "Not found"}
+                                       (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                       (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                           :middleware [imi-auth/protect]}}]
    ["/:uuid" {:put {:summary "Update a registered IM42 form"
                     :handler (fn [{:keys [identity parameters] :as _req}]
                                (truss/have
