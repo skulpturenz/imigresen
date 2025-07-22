@@ -103,7 +103,8 @@
                                            (ring-res/status (:ok imi-routes/status-codes))))
                             :parameters {:path {:uuid ::imi-user-spec/uuid}}
                             :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                       :body imi-im42-spec/im42-config}
+                                                                       :body (-> imi-im42-spec/im42-config
+                                                                                 (ds/spec))}
                                         (:not-found imi-routes/status-codes) {:description "Not found"}
                                         (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                         (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
