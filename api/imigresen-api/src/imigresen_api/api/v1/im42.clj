@@ -32,12 +32,12 @@
                :middleware [imi-auth/protect]}}]
    ["/config/synced" {:put {:summary "Mark a user as synced"
                             :handler (fn [{:keys [identity parameters] :as _req}]
-                                       (-> (imi-im42/synced!
-                                            identity (truss/have imi-user/active-by-uuid?
-                                                                 (get-in parameters [:path :user-uuid])
-                                                                 :data {:type :not-found}))
-                                           (ring-res/response)
-                                           (ring-res/status (:ok imi-routes/status-codes))))
+                                       (imi-im42/synced! identity
+                                                         (truss/have imi-user/active-by-uuid?
+                                                                     (get-in parameters [:path :user-uuid])
+                                                                     :data {:type :not-found}))
+                                       (-> (ring-res/response nil)
+                                           (ring-res/status (:no-content imi-routes/status-codes))))
                             :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
                             :responses {(:no-content imi-routes/status-codes) {:description "No content"
                                                                                :body vector?}
