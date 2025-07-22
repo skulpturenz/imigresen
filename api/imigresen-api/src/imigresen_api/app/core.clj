@@ -30,6 +30,7 @@
             [sentry-clj.core :as sentry]
             [reitit.spec :as rs]
             [ring.core.protocols :as ring-protocols]
+            [imigresen-common.app.middleware.cors :as imi-cors]
             [clojure.java.io :as io])
   (:import (java.util UUID)
            (java.io Writer)))
@@ -117,7 +118,9 @@
                       :no-doc true}}]])
 
 (defn create-app [handlers]
-  (let [global-middleware [;; query-params & form-params
+  (let [global-middleware [;; CORS
+                           imi-cors/cors-middleware
+                           ;; query-params & form-params
                            parameters/parameters-middleware
                            ;; authnz
                            imi-auth/with-authnz
