@@ -52,58 +52,59 @@
                                                                 :body (ds/spec imi-user-spec/user)}
                             (:bad-request imi-routes/status-codes) {:description "Bad request"}
                             (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
-    ["/:uuid" {:get {:summary "Get user details by UUID"
-                     :handler (fn [{:keys [parameters] :as _req}]
-                                (-> (ring-res/response (imi-user/get-user-by-uuid (get-in parameters [:path :uuid])))
-                                    (ring-res/status (:ok imi-routes/status-codes))))
-                     :parameters {:path {:uuid ::imi-user-spec/uuid}}
-                     :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                :body (ds/spec imi-user-spec/user)}
-                                 (:not-found imi-routes/status-codes) {:description "Not found"}
-                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
-                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                     :middleware [imi-auth/protect]}
-               :put {:summary "Update user by UUID"
-                     :handler (fn [{:keys [identity parameters] :as _req}]
-                                (truss/have (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters)))
-                                (-> (ring-res/response nil)
-                                    (ring-res/status (:no-content imi-routes/status-codes))))
-                     :parameters {:path {:uuid ::imi-user-spec/uuid}
-                                  :body (-> imi-user-spec/user
-                                            (update-in [:spec] dissoc :uuid)
-                                            (assoc :name ::put-user)
-                                            (ds/spec))}
-                     :responses {(:no-content imi-routes/status-codes) {:description "No content"}
-                                 (:not-found imi-routes/status-codes) {:description "Not found"}
-                                 (:bad-request imi-routes/status-codes) {:description "Bad request"}
-                                 (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                     :middleware [imi-auth/protect]}
-               :delete {:summary "Delete user by UUID"
-                        :handler (fn [{:keys [identity parameters] :as _req}]
-                                   (truss/have (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid])))
-                                   (-> (ring-res/response nil)
-                                       (ring-res/status (:no-content imi-routes/status-codes))))
-                        :parameters {:path {:uuid ::imi-user-spec/uuid}}
-                        :responses {(:no-content imi-routes/status-codes) {:description "No content"}
-                                    (:not-found imi-routes/status-codes) {:description "Not found"}
-                                    (:bad-request imi-routes/status-codes) {:description "Bad request"}
-                                    (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                        :middleware [imi-auth/protect]}}]
-    ["/config/im42" {:get {:summary "Get IM42 config"
-                           :handler (fn [{:keys [parameters] :as _req}]
-                                      (-> (imi-im42/get-im42-config-by-user-uuid
-                                           (truss/have imi-user/active-by-uuid?
-                                                       (get-in parameters [:path :user-uuid])
-                                                       :data {:type :not-found}))
-                                          (ring-res/response)
-                                          (ring-res/status (:ok imi-routes/status-codes))))
-                           :parameters {:path {:uuid ::imi-user-spec/uuid}}
-                           :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                      :body imi-im42-spec/im42-config}
-                                       (:not-found imi-routes/status-codes) {:description "Not found"}
-                                       (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
-                                       (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                           :middleware [imi-auth/protect]}}]]])
+    ["/:uuid"
+     ["" {:get {:summary "Get user details by UUID"
+                :handler (fn [{:keys [parameters] :as _req}]
+                           (-> (ring-res/response (imi-user/get-user-by-uuid (get-in parameters [:path :uuid])))
+                               (ring-res/status (:ok imi-routes/status-codes))))
+                :parameters {:path {:uuid ::imi-user-spec/uuid}}
+                :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                           :body (ds/spec imi-user-spec/user)}
+                            (:not-found imi-routes/status-codes) {:description "Not found"}
+                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                            (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                :middleware [imi-auth/protect]}
+          :put {:summary "Update user by UUID"
+                :handler (fn [{:keys [identity parameters] :as _req}]
+                           (truss/have (imi-user/update-user-by-uuid! identity (get-in parameters [:path :uuid]) (:body parameters)))
+                           (-> (ring-res/response nil)
+                               (ring-res/status (:no-content imi-routes/status-codes))))
+                :parameters {:path {:uuid ::imi-user-spec/uuid}
+                             :body (-> imi-user-spec/user
+                                       (update-in [:spec] dissoc :uuid)
+                                       (assoc :name ::put-user)
+                                       (ds/spec))}
+                :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                            (:not-found imi-routes/status-codes) {:description "Not found"}
+                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                            (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                :middleware [imi-auth/protect]}
+          :delete {:summary "Delete user by UUID"
+                   :handler (fn [{:keys [identity parameters] :as _req}]
+                              (truss/have (imi-user/delete-user-by-uuid! identity (get-in parameters [:path :uuid])))
+                              (-> (ring-res/response nil)
+                                  (ring-res/status (:no-content imi-routes/status-codes))))
+                   :parameters {:path {:uuid ::imi-user-spec/uuid}}
+                   :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                               (:not-found imi-routes/status-codes) {:description "Not found"}
+                               (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                               (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                               (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                   :middleware [imi-auth/protect]}}]
+     ["/config/im42" {:get {:summary "Get IM42 config"
+                            :handler (fn [{:keys [parameters] :as _req}]
+                                       (-> (imi-im42/get-im42-config-by-user-uuid
+                                            (truss/have imi-user/active-by-uuid?
+                                                        (get-in parameters [:path :user-uuid])
+                                                        :data {:type :not-found}))
+                                           (ring-res/response)
+                                           (ring-res/status (:ok imi-routes/status-codes))))
+                            :parameters {:path {:uuid ::imi-user-spec/uuid}}
+                            :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                       :body imi-im42-spec/im42-config}
+                                        (:not-found imi-routes/status-codes) {:description "Not found"}
+                                        (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                        (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                            :middleware [imi-auth/protect]}}]]]])
