@@ -14,7 +14,8 @@
                                 :handler (fn [{:keys [identity parameters] :as _req}]
                                            (-> (imi-im42/synced!
                                                 identity (truss/have imi-user/active-by-uuid?
-                                                                     (get-in parameters [:path :user-uuid]) :data {:type :not-found}))
+                                                                     (get-in parameters [:path :user-uuid])
+                                                                     :data {:type :not-found}))
                                                (ring-res/response)
                                                (ring-res/status (:ok imi-routes/status-codes))))
                                 :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
@@ -30,7 +31,8 @@
                                :handler (fn [{:keys [parameters] :as _req}]
                                           (-> (imi-im42/get-draft-im42-forms-by-user-uuid
                                                (truss/have imi-user/active-by-uuid?
-                                                           (get-in parameters [:path :user-uuid]) :data {:type :not-found}))
+                                                           (get-in parameters [:path :user-uuid])
+                                                           :data {:type :not-found}))
                                               (ring-res/response)
                                               (ring-res/status (:ok imi-routes/status-codes))))
                                :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
@@ -45,7 +47,8 @@
                                      (-> (imi-im42/register-im42-form!
                                           identity
                                           (truss/have imi-user/active-by-uuid?
-                                                      (get-in parameters [:path :user-uuid]) :data {:type :not-found})
+                                                      (get-in parameters [:path :user-uuid])
+                                                      :data {:type :not-found})
                                           (get-in parameters [:body :automerge-url]))
                                          (ring-res/response)
                                          (ring-res/content-type (:plain-text imi-routes/content-types))
@@ -65,9 +68,11 @@
                                  (imi-im42/upsert-im42-form!
                                   identity
                                   (truss/have imi-user/active-by-uuid?
-                                              (get-in parameters [:path :user-uuid]) :data {:type :not-found})
+                                              (get-in parameters [:path :user-uuid])
+                                              :data {:type :not-found})
                                   (truss/have #(imi-im42/creator-by-user-uuid? (get-in parameters [:path :user-uuid]) %)
-                                              (get-in parameters [:path :uuid]) :data {:type :not-found})
+                                              (get-in parameters [:path :uuid])
+                                              :data {:type :not-found})
                                   (:body parameters)))
                                 (-> (ring-res/response nil)
                                     (ring-res/status (:no-content imi-routes/status-codes))))

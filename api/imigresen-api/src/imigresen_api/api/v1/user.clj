@@ -6,7 +6,9 @@
             [imigresen-common.app.auth :as imi-auth]
             [ring.util.response :as ring-res]
             [taoensso.truss :as truss]
-            [imigresen-common.app.env :as imi-env]))
+            [imigresen-common.app.env :as imi-env]
+            [imigresen-common.components.im42-form.spec :as imi-im42-spec]
+            [imigresen-common.components.im42-form.store :as imi-im42]))
 
 (defn user-routes []
   [""
@@ -89,4 +91,19 @@
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                        :middleware [imi-auth/protect]}}]]])
+                        :middleware [imi-auth/protect]}}]
+    ["/config/im42" {:get {:summary "Get IM42 config"
+                           :handler (fn [{:keys [parameters] :as _req}]
+                                      (-> (imi-im42/get-im42-config-by-user-uuid
+                                           (truss/have imi-user/active-by-uuid?
+                                                       (get-in parameters [:path :user-uuid])
+                                                       :data {:type :not-found}))
+                                          (ring-res/response)
+                                          (ring-res/status (:ok imi-routes/status-codes))))
+                           :parameters {:path {:uuid ::imi-user-spec/uuid}}
+                           :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                      :body imi-im42-spec/im42-config}
+                                       (:not-found imi-routes/status-codes) {:description "Not found"}
+                                       (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
+                                       (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
+                           :middleware [imi-auth/protect]}}]]])
