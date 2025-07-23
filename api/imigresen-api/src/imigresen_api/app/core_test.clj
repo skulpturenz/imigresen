@@ -86,3 +86,13 @@
       (t/is (some #(and (= (:in %) "path") (= (:name %) "testPathParam")) params))
       (t/is (some #(and (= (:in %) "query") (= (:name %) "testSearchParam")) params))
       (t/is (not (nil? (:helloWorld req-body)))))))
+
+(t/deftest ^:unit cors
+  (t/testing "cors headers"
+    (let [app (imi-core/create-app [["/test" {:get {:description "Test"
+                                                    :handler identity}}]])
+          res (-> (mock/request :options "/openapi.json")
+                  (mock/header "Access-Control-Request-Method" "GET")
+                  (mock/header "Origin" "https://imigresen.skulpture.xyz")
+                  app)]
+      (t/is (= (get-in res [:headers "Access-Control-Allow-Origin"]) "https://imigresen.skulpture.xyz")))))
