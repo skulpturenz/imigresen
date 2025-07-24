@@ -16,17 +16,14 @@ import { default as wretch } from "wretch";
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const homeService = (repo: Repo, _token?: string) => {
-	// TODO: need to add this endpoint
-	// TODO: `sub` becomes user uuid (imi not kc)
-	const getAutomergeUrls = ({ sub }: GetAutomergeUrlsVariables) =>
-		im42Api.get(`/${sub}`).json<[string, string][]>();
+	const getAutomergeUrls = ({ user }: GetAutomergeUrlsVariables) =>
+		im42Api.get(`/${user}`).json<[string, string][]>();
 
-	// TODO: `sub` becomes user uuid (imi not kc)
 	const getPassportApplications = async ({
-		sub,
+		user,
 	}: GetPassportApplicationsVariables) => {
 		const automergeUrls = await getAutomergeUrls({
-			sub,
+			user,
 		});
 
 		if (!automergeUrls.length) {
@@ -108,13 +105,13 @@ export const homeService = (repo: Repo, _token?: string) => {
 
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
+		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.post({ automergeUrl, sub }).text();
+		im42Api.post({ automergeUrl, user }).text();
 
 	const importApplications = async ({
 		files,
-		sub,
+		user,
 	}: ImportApplicationsVariables) => {
 		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
@@ -142,7 +139,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 			automergeUrls.map(automergeUrl =>
 				registerApplication({
 					automergeUrl,
-					sub,
+					user,
 				}),
 			),
 		);

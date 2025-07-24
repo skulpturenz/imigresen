@@ -1,12 +1,12 @@
 export interface GetAutomergeUrlsVariables {
-	sub?: string;
+	user?: string;
 }
 
 export interface GetPassportApplicationsVariables {
-	sub?: string;
+	user?: string;
 }
 
 export interface ImportApplicationsVariables {
 	files: File[];
-	sub?: string;
+	user?: string;
 }

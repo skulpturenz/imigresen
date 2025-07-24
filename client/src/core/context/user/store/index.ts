@@ -14,7 +14,6 @@ export interface UserSvc {
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		// TODO: once BE is up remove dependence on KC
 		init: (profile?: KeycloakProfile | null) => void;
 		completeSync: () => void;
 	};

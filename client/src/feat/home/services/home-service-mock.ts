@@ -23,10 +23,9 @@ const storage = createStorage({
 });
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({ sub }: GetAutomergeUrlsVariables) => {
-		// TODO
+	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
 		const localKeys = await storage.getKeys(
-			storageKeys.myPassportFormApplications(sub),
+			storageKeys.myPassportFormApplications(user),
 		);
 		const localItems = await storage.getItems<string>(localKeys);
 
@@ -34,10 +33,10 @@ export const homeService = (repo: Repo, _token?: string) => {
 	};
 
 	const getPassportApplications = async ({
-		sub,
+		user,
 	}: GetPassportApplicationsVariables) => {
 		const automergeUrls = await getAutomergeUrls({
-			sub,
+			user,
 		});
 
 		if (!automergeUrls.length) {
@@ -120,13 +119,13 @@ export const homeService = (repo: Repo, _token?: string) => {
 	// same as `registerApplications` in `myPassportFormService`
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
+		user,
 	}: RegisterApplicationVariables) => {
 		// TODO
 		const uuid = uuidv7();
 
 		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
+			storageKeys.myPassportFormApplication(uuid, user),
 			automergeUrl,
 		);
 
@@ -135,7 +134,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 
 	const importApplications = async ({
 		files,
-		sub,
+		user,
 	}: ImportApplicationsVariables) => {
 		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
@@ -163,7 +162,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 			automergeUrls.map(automergeUrl =>
 				registerApplication({
 					automergeUrl,
-					sub,
+					user,
 				}),
 			),
 		);
