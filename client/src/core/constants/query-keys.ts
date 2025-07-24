@@ -17,4 +17,10 @@ export const queryKeys = {
 		"downloadPassportApplications",
 		token,
 	],
+	getReferenceData: (token?: string) => [
+		"feat",
+		"my-passport-form",
+		"getReferenceData",
+		token,
+	],
 };

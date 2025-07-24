@@ -21,7 +21,11 @@ const storage = createStorage({
 		base: storageKeys.myPassportFormBase,
 	}),
 });
+
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const referenceDataApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
+);
 
 export const homeService = (repo: Repo, _token?: string) => {
 	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
@@ -178,10 +182,44 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}, Object.create(null));
 	};
 
+	const getReferenceData = async () => {
+		const countryOptions = await referenceDataApi
+			.get("/countries")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const genderOptions = await referenceDataApi
+			.get("/genders")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const relationshipStatusOptions = await referenceDataApi
+			.get("/relationship-statuses")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const requestTypeOptions = await referenceDataApi
+			.get("/request-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const documentTypeOptions = await referenceDataApi
+			.get("/document-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+
+		return {
+			genderOptions,
+			relationshipStatusOptions,
+			countryOptions,
+			personalDetailsStateOptions: [] as string[], // TODO
+			addressDetailsStateOptions: [] as string[], // TODO
+			requestTypeOptions,
+			documentTypeOptions,
+		};
+	};
+
 	return {
 		getAutomergeUrls,
 		getPassportApplications,
 		downloadApplications,
 		importApplications,
+		getReferenceData,
 	};
 };
