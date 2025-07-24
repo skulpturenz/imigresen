@@ -13,17 +13,18 @@ const referenceDataApi = wretch(
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const myPassportFormService = (_token?: string) => {
-	// TODO: register needs to take a param for `automergeUrl` and `sub`
-	// also `sub` becomes user uuid (imi not kc)
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
+		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.post({ automergeUrl, sub }).text();
+		im42Api.post({ automergeUrl, user }).text();
 
-	// TODO: `sub` becomes user uuid (imi not kc)
-	const deleteApplication = ({ uuid, sub }: DeleteApplicationVariables) =>
-		im42Api.delete(`${sub}/${uuid}`);
+	const deleteApplication = async ({
+		uuid,
+		user,
+	}: DeleteApplicationVariables) => {
+		await im42Api.delete(`${user}/${uuid}`).res();
+	};
 
 	const getReferenceData = async () => {
 		const countryOptions = await referenceDataApi
@@ -51,6 +52,8 @@ export const myPassportFormService = (_token?: string) => {
 			genderOptions,
 			relationshipStatusOptions,
 			countryOptions,
+			personalDetailsStateOptions: [] as string[], // TODO
+			addressDetailsStateOptions: [] as string[], // TODO
 			requestTypeOptions,
 			documentTypeOptions,
 		};

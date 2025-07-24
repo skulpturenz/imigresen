@@ -1,7 +1,9 @@
 export interface DropdownOptions {
-	genderOptions: Record<string, string>;
-	relationshipStatusOptions: Record<string, string>;
-	countryOptions: Record<string, string>;
+	genderOptions: [string, string][];
+	relationshipStatusOptions: [string, string][];
+	countryOptions: [string, string][];
 	personalDetailsStateOptions: string[];
 	addressDetailsStateOptions: string[];
+	requestTypeOptions: [string, string][];
+	documentTypeOptions: [string, string][];
 }

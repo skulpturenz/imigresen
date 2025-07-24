@@ -9,13 +9,15 @@ import type {
 } from "feat/my-passport-form-sync/types";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
-import { uuidv7 } from "uuidv7";
+import { default as wretch } from "wretch";
 
 const storage = createStorage({
 	driver: localStorageDriver({
 		base: storageKeys.myPassportFormBase,
 	}),
 });
+
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 	const getLocalPublicItems = async () => {
@@ -57,31 +59,21 @@ export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 	// same as `registerApplications` in `myPassportFormService`
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
-	}: RegisterApplicationVariables) => {
-		// TODO
-		const uuid = uuidv7();
-
-		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
-			automergeUrl,
-		);
-
-		return uuid;
-	};
+		user,
+	}: RegisterApplicationVariables) =>
+		im42Api.post({ automergeUrl, user }).text();
 
 	// same as `deleteApplication` in `myPassportFormService`
 	const deleteApplication = async ({
 		uuid,
-		sub,
+		user,
 	}: DeleteApplicationVariables) => {
-		// TODO
-		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
+		await im42Api.delete(`${user}/${uuid}`).res();
 	};
 
 	const transferPublicApplications = async ({
 		automergeUrls,
-		sub,
+		user,
 	}: TransferPublicApplicationsVariables) => {
 		const publicApplications = await getLocalPublicItems();
 
@@ -109,7 +101,7 @@ export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 
 		const selectedApplicationsNewUuids = await Promise.all(
 			selectedApplicationsAutomergeUrls.map(automergeUrl =>
-				registerApplication({ automergeUrl, sub }),
+				registerApplication({ automergeUrl, user }),
 			),
 		);
 

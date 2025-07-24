@@ -29,7 +29,10 @@ export const homeService = (repo: Repo, _token?: string) => {
 		);
 		const localItems = await storage.getItems<string>(localKeys);
 
-		return localItems;
+		return localItems.map<[string, string]>(({ key, value }) => [
+			key,
+			value,
+		]);
 	};
 
 	const getPassportApplications = async ({
@@ -44,7 +47,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}
 
 		const documents = await Promise.all(
-			automergeUrls?.map(async ({ key, value }) => {
+			automergeUrls?.map(async ([key, value]) => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
 				>(value as AnyDocumentId);

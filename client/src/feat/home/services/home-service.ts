@@ -17,7 +17,7 @@ const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const homeService = (repo: Repo, _token?: string) => {
 	const getAutomergeUrls = ({ user }: GetAutomergeUrlsVariables) =>
-		im42Api.get(`/${user}`).json<[string, string][]>();
+		im42Api.get(`/status/draft/user/${user}`).json<[string, string][]>();
 
 	const getPassportApplications = async ({
 		user,
