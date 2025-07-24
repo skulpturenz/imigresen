@@ -1,4 +1,3 @@
-import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
 import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
@@ -21,9 +20,15 @@ export interface UserSvc {
 	};
 }
 
-const userApi = wretch("/user");
+export interface IM42Config {
+	user: string;
+	syncedAt?: Date | null;
+}
 
-export const useStore = createWithSignal<UserSvc>((set, _get) => {
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+
+export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
@@ -41,8 +46,7 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 
 				const user = await userApi
 					.get(`?${searchParams.toString()}`)
-					// TODO: types
-					.json<Record<string, any>>();
+					.json<UserProfile>();
 
 				set({
 					profile: {
@@ -55,26 +59,26 @@ export const useStore = createWithSignal<UserSvc>((set, _get) => {
 					},
 				});
 
-				// TODO: add BE endpoint
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (sub) {
-					set({
-						syncComplete:
-							localStorage.getItem(`syncStatus:${sub}`) ===
-							"complete",
-					});
-				}
+				const im42Config = await userApi
+					.get(`/${user.uuid}/config/im42`)
+					.json<IM42Config>(res => ({
+						...res,
+						syncedAt: res.syncedAt ? new Date(res.syncedAt) : null,
+					}));
+
+				set({
+					syncComplete: Boolean(im42Config.syncedAt),
+				});
 
 				set({ isInitialLoading: false });
 			}),
 			completeSync: () => {
-				// TODO: add BE endpoint
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (!sub) {
+				const profile = get().profile;
+				if (!profile?.uuid) {
 					return;
 				}
 
-				localStorage.setItem(`syncStatus:${sub}`, "complete");
+				im42Api.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
 			},
