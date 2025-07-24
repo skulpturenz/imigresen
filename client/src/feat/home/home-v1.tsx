@@ -62,6 +62,7 @@ export const Home = () => {
 		onClickCloseExportApplications,
 		mDownloadApplications,
 		toggleImportDialog,
+		prefetchReferenceData,
 	} = usePassportApplications();
 
 	const [files, setFiles] = createSignal<File[]>([]);
@@ -172,7 +173,10 @@ export const Home = () => {
 					</Show>
 				</Show>
 
-				<Button as="a" href={toPath(MyPassportForm.New)}>
+				<Button
+					as="a"
+					href={toPath(MyPassportForm.New)}
+					onMouseOver={prefetchReferenceData}>
 					{t("doApply")}
 				</Button>
 			</div>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/solid-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
@@ -11,6 +11,7 @@ export const usePassportApplications = () => {
 	const authnContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const homeContext = useContext(HomeContext);
+	const queryClient = useQueryClient();
 
 	const [show, setShow] = createSignal({
 		importDialog: false,
@@ -94,6 +95,16 @@ export const usePassportApplications = () => {
 		toggleImportDialog();
 	};
 
+	const prefetchReferenceData = () => {
+		queryClient.prefetchQuery({
+			queryKey: queryKeys.getReferenceData(
+				authnContext().keycloak?.token,
+			),
+			queryFn: homeContext.getReferenceData,
+			staleTime: Infinity,
+		});
+	};
+
 	return {
 		show,
 		qPassportApplications,
@@ -104,5 +115,6 @@ export const usePassportApplications = () => {
 		onClickCloseExportApplications,
 		toggleImportDialog,
 		toggleFailedToExportDialog,
+		prefetchReferenceData,
 	};
 };

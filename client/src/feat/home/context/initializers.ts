@@ -6,4 +6,5 @@ export const createHomeContext = (): HomeSvc => ({
 	getPassportApplications: noop as any,
 	downloadApplications: noop as any,
 	importApplications: noop as any,
+	getReferenceData: noop as any,
 });

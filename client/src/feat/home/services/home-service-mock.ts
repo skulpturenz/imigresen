@@ -2,7 +2,8 @@ import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
-import { flatten, invariant } from "es-toolkit";
+import { delay, flatten, invariant } from "es-toolkit";
+import { fixture as referenceDataFixture } from "feat/home/chore/reference-data.fixture";
 import type {
 	GetAutomergeUrlsVariables,
 	GetPassportApplicationsVariables,
@@ -180,10 +181,17 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}, Object.create(null));
 	};
 
+	const getReferenceData = async () => {
+		await delay(250);
+
+		return referenceDataFixture;
+	};
+
 	return {
 		getAutomergeUrls,
 		getPassportApplications,
 		downloadApplications,
 		importApplications,
+		getReferenceData,
 	};
 };
