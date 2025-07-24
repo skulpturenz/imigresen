@@ -62,6 +62,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 
 				const im42Config = await userApi
 					.get(`/${user.uuid}/config/im42`)
+					// TODO: deep transform for responses
 					.json<IM42Config>(res => ({
 						...res,
 						syncedAt: res.syncedAt ? new Date(res.syncedAt) : null,
