@@ -45,7 +45,7 @@ export const useMyPassportFormSync = () => {
 			automergeUrls: Object.values(
 				Object.fromEntries(formData),
 			) as string[],
-			sub: authnContext().keycloak?.tokenParsed?.sub,
+			user: userContext().profile?.uuid,
 		});
 
 		await queryClient.refetchQueries({

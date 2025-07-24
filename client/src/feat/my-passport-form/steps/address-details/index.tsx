@@ -126,7 +126,7 @@ export const AddressDetails: Component<StepProps> = props => {
 									placeholder={t(
 										"form.addressDetails.countryCode.placeholder",
 									)}
-									options={Object.keys(
+									options={Object.values<string>(
 										props.dropdownOptions()
 											?.countryOptions ??
 											Object.create(null),

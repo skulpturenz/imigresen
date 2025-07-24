@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
+import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { HomeContext } from "feat/home/context";
 import { exportData } from "feat/home/utils";
@@ -8,6 +9,7 @@ import { createSignal } from "solid-js";
 
 export const usePassportApplications = () => {
 	const authnContext = useContext(AuthnContext);
+	const userContext = useContext(UserContext);
 	const homeContext = useContext(HomeContext);
 
 	const [show, setShow] = createSignal({
@@ -42,7 +44,7 @@ export const usePassportApplications = () => {
 		),
 		queryFn: () =>
 			homeContext.getPassportApplications({
-				sub: authnContext().keycloak?.tokenParsed?.sub,
+				user: userContext().profile?.uuid,
 			}),
 	}));
 
@@ -84,7 +86,7 @@ export const usePassportApplications = () => {
 
 		await mImportApplications.mutateAsync({
 			files,
-			sub: authnContext().keycloak?.tokenParsed?.sub,
+			user: userContext().profile?.uuid,
 		});
 
 		qPassportApplications.refetch();

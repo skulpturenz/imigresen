@@ -1,7 +1,7 @@
-import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { once } from "es-toolkit";
+import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
+import { default as wretch } from "wretch";
 
 export interface UserProfile {
 	uuid: string;
@@ -14,52 +14,73 @@ export interface UserSvc {
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		// TODO: once BE is up remove dependence on KC
 		init: (profile?: KeycloakProfile | null) => void;
 		completeSync: () => void;
 	};
 }
 
-export const useStore = createWithSignal<UserSvc>((set, _get) => {
+export interface IM42Config {
+	user: string;
+	syncedAt?: Date | null;
+}
+
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+
+export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
 		actions: {
 			init: once(async (profile?: KeycloakProfile | null) => {
-				// TODO: once BE is up remove dependence on KC
-				if (profile) {
-					set({
-						profile: {
-							uuid: profile?.id ?? "",
-							fullName: [profile.firstName, profile.lastName]
-								.filter(Boolean)
-								.join(" "),
-							phoneNumber: "",
-							avatar: "",
-						},
-					});
+				if (!profile) {
+					set({ isInitialLoading: false });
+
+					return;
 				}
 
-				// TODO: BE
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (sub) {
-					set({
-						syncComplete:
-							localStorage.getItem(`syncStatus:${sub}`) ===
-							"complete",
-					});
-				}
+				invariant(profile.email, "No email for keycloak profile");
+
+				const searchParams = new URLSearchParams({
+					email: profile.email,
+				});
+
+				const user = await userApi
+					.get(`?${searchParams.toString()}`)
+					.json<UserProfile>();
+
+				set({
+					profile: {
+						uuid: user.uuid,
+						fullName: [profile.firstName, profile.lastName]
+							.filter(Boolean)
+							.join(" "),
+						phoneNumber: "", // TODO
+						avatar: "", // TODO
+					},
+				});
+
+				const im42Config = await userApi
+					.get(`/${user.uuid}/config/im42`)
+					// TODO: deep transform for responses
+					.json<IM42Config>(res => ({
+						...res,
+						syncedAt: res.syncedAt ? new Date(res.syncedAt) : null,
+					}));
+
+				set({
+					syncComplete: Boolean(im42Config.syncedAt),
+				});
 
 				set({ isInitialLoading: false });
 			}),
 			completeSync: () => {
-				// TODO: BE
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (!sub) {
+				const profile = get().profile;
+				if (!profile?.uuid) {
 					return;
 				}
 
-				localStorage.setItem(`syncStatus:${sub}`, "complete");
+				im42Api.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
 			},

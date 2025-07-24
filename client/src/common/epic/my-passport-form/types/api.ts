@@ -1,9 +1,9 @@
 export interface RegisterApplicationVariables {
 	automergeUrl: string;
-	sub?: string;
+	user?: string;
 }
 
 export interface DeleteApplicationVariables {
 	uuid: string;
-	sub?: string;
+	user?: string;
 }

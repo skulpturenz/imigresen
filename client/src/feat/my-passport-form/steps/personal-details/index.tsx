@@ -212,7 +212,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...fieldProps}
 									form={props.form}
 									value={field.value ?? ""}
-									options={Object.keys(
+									options={Object.values<string>(
 										props.dropdownOptions()
 											?.genderOptions ??
 											Object.create(null),
@@ -275,7 +275,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...fieldProps}
 									form={props.form}
 									value={field.value ?? ""}
-									options={Object.keys(
+									options={Object.values<string>(
 										props.dropdownOptions()
 											?.relationshipStatusOptions ??
 											Object.create(null),
@@ -444,7 +444,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									placeholder={t(
 										"form.personalDetails.countryOfBirthCode.placeholder",
 									)}
-									options={Object.keys(
+									options={Object.values<string>(
 										props.dropdownOptions()
 											?.countryOptions ??
 											Object.create(null),
