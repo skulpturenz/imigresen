@@ -1,5 +1,6 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
+import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { flatten, invariant } from "es-toolkit";
 import type {
@@ -11,13 +12,35 @@ import type {
 	RegisteredMyPassportForm,
 } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
+import { createStorage } from "unstorage";
+import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 import { default as wretch } from "wretch";
 
+const storage = createStorage({
+	driver: localStorageDriver({
+		base: storageKeys.myPassportFormBase,
+	}),
+});
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = ({ user }: GetAutomergeUrlsVariables) =>
-		im42Api.get(`/status/draft/user/${user}`).json<[string, string][]>();
+	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
+		if (!user) {
+			const localKeys = await storage.getKeys(
+				storageKeys.myPassportFormApplications(user),
+			);
+			const localItems = await storage.getItems<string>(localKeys);
+
+			return localItems.map<[string, string]>(({ key, value }) => [
+				key,
+				value,
+			]);
+		}
+
+		return im42Api
+			.get(`/status/draft/user/${user}`)
+			.json<[string, string][]>();
+	};
 
 	const getPassportApplications = async ({
 		user,

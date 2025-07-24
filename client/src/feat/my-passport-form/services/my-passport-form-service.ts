@@ -1,9 +1,19 @@
+import { storageKeys } from "core/constants/storage-keys";
 import { assertEnv } from "core/utils/assert-env";
 import type {
 	DeleteApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
+import { createStorage } from "unstorage";
+import { default as localStorageDriver } from "unstorage/drivers/localstorage";
+import { uuidv7 } from "uuidv7";
 import { default as wretch } from "wretch";
+
+const storage = createStorage({
+	driver: localStorageDriver({
+		base: storageKeys.myPassportFormBase,
+	}),
+});
 
 assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
 
@@ -16,13 +26,33 @@ export const myPassportFormService = (_token?: string) => {
 	const registerApplication = async ({
 		automergeUrl,
 		user,
-	}: RegisterApplicationVariables) =>
-		im42Api.post({ automergeUrl, user }).text();
+	}: RegisterApplicationVariables) => {
+		if (!user) {
+			const uuid = uuidv7();
+
+			storage.setItem(
+				storageKeys.myPassportFormApplication(uuid, user),
+				automergeUrl,
+			);
+
+			return uuid;
+		}
+
+		return im42Api.post({ automergeUrl, user }).text();
+	};
 
 	const deleteApplication = async ({
 		uuid,
 		user,
 	}: DeleteApplicationVariables) => {
+		if (!user) {
+			await storage.del(
+				storageKeys.myPassportFormApplication(uuid, user),
+			);
+
+			return;
+		}
+
 		await im42Api.delete(`${user}/${uuid}`).res();
 	};
 

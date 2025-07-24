@@ -21,7 +21,6 @@ export const myPassportFormService = (_token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) => {
-		// TODO
 		const uuid = uuidv7();
 
 		storage.setItem(
@@ -36,7 +35,6 @@ export const myPassportFormService = (_token?: string) => {
 		uuid,
 		user,
 	}: DeleteApplicationVariables) => {
-		// TODO
 		await storage.del(storageKeys.myPassportFormApplication(uuid, user));
 	};
 

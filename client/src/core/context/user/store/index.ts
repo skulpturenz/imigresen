@@ -34,6 +34,8 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 		actions: {
 			init: once(async (profile?: KeycloakProfile | null) => {
 				if (!profile) {
+					set({ isInitialLoading: false });
+
 					return;
 				}
 

@@ -124,7 +124,6 @@ export const homeService = (repo: Repo, _token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) => {
-		// TODO
 		const uuid = uuidv7();
 
 		storage.setItem(
