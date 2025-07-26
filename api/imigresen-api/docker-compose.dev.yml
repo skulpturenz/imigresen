@@ -62,9 +62,9 @@ services:
       replicas: 2
       labels:
         traefik.enable: "true"
-        traefik.http.routers.imigresen-api-dev.rule: Host(`imigresen-api-dev.skulpture.xyz`)
-        traefik.http.routers.imigresen-api-dev.tls.domains.main: skulpture.xyz
-        traefik.http.routers.imigresen-api-dev.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.imigresen-api-dev.rule: Host(`api-dev.imigresen.skulpture.xyz`)
+        traefik.http.routers.imigresen-api-dev.tls.domains.main: imigresen.skulpture.xyz
+        traefik.http.routers.imigresen-api-dev.tls.domains.sans: "*.imigresen.skulpture.xyz"
         traefik.http.services.imigresen-api-dev-service.loadbalancer.server.port: 3000
         traefik.http.services.imigresen-api-dev-service.loadbalancer.server.scheme: http
         traefik.http.services.imigresen-api-dev-service.loadbalancer.healthcheck.path: /ping

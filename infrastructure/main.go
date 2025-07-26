@@ -228,7 +228,7 @@ func main() {
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
 				sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
-				sudo certbot certonly -d imigresen-api-dev.skulpture.xyz,imigresen.skulpture.xyz \
+				sudo certbot certonly -d api-dev.imigresen.skulpture.xyz,api-prod.imigresen.skulpture.xyz,imigresen.skulpture.xyz \
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
@@ -395,7 +395,7 @@ func main() {
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-			Name:    pulumi.String("imigresen-api-dev"),
+			Name:    pulumi.String("api-dev.imigresen"),
 			Content: static.Address, // devLoadBalancer.IpAddress,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
