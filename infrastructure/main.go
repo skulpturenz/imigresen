@@ -395,7 +395,7 @@ func main() {
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-			Name:    pulumi.String("imigresen-api-dev"),
+			Name:    pulumi.String("api-dev.imigresen"),
 			Content: static.Address, // devLoadBalancer.IpAddress,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
