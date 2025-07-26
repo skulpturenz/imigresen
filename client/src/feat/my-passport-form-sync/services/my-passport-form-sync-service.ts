@@ -1,5 +1,6 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { storageKeys } from "core/constants/storage-keys";
+import { assertEnv } from "core/utils/assert-env";
 import { invariant } from "es-toolkit";
 import type {
 	DeleteApplicationVariables,
@@ -17,7 +18,10 @@ const storage = createStorage({
 	}),
 });
 
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
+	credentials: "include",
+});
 
 export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 	const getLocalPublicItems = async () => {

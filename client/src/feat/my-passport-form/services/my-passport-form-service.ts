@@ -19,8 +19,10 @@ assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
 
 const referenceDataApi = wretch(
 	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
-);
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+).options({ credentials: "include" });
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
+	credentials: "include",
+});
 
 export const myPassportFormService = (_token?: string) => {
 	const registerApplication = async ({

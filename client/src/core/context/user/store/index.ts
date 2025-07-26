@@ -24,8 +24,12 @@ export interface IM42Config {
 	syncedAt?: Date | null;
 }
 
-const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`).options({
+	credentials: "include",
+});
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
+	credentials: "include",
+});
 
 export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
