@@ -14,8 +14,8 @@ export interface UserSvc {
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		init: (profile?: KeycloakProfile | null) => void;
-		completeSync: () => void;
+		init: (token?: string, profile?: KeycloakProfile | null) => void;
+		completeSync: (token?: string) => void;
 	};
 }
 
@@ -24,67 +24,71 @@ export interface IM42Config {
 	syncedAt?: Date | null;
 }
 
-const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`).options({
-	credentials: "include",
-});
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
-	credentials: "include",
-});
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
 		actions: {
-			init: once(async (profile?: KeycloakProfile | null) => {
-				if (!profile) {
+			init: once(
+				async (token?: string, profile?: KeycloakProfile | null) => {
+					if (!token || !profile) {
+						set({ isInitialLoading: false });
+
+						return;
+					}
+
+					invariant(profile.email, "No email for keycloak profile");
+
+					const searchParams = new URLSearchParams({
+						email: profile.email,
+					});
+
+					const user = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`?${searchParams.toString()}`)
+						.json<UserProfile>();
+
+					set({
+						profile: {
+							uuid: user.uuid,
+							fullName: [profile.firstName, profile.lastName]
+								.filter(Boolean)
+								.join(" "),
+							phoneNumber: "", // TODO
+							avatar: "", // TODO
+						},
+					});
+
+					const im42Config = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`/${user.uuid}/config/im42`)
+						// TODO: deep transform for responses
+						.json<IM42Config>(res => ({
+							...res,
+							syncedAt: res.syncedAt
+								? new Date(res.syncedAt)
+								: null,
+						}));
+
+					set({
+						syncComplete: Boolean(im42Config.syncedAt),
+					});
+
 					set({ isInitialLoading: false });
-
-					return;
-				}
-
-				invariant(profile.email, "No email for keycloak profile");
-
-				const searchParams = new URLSearchParams({
-					email: profile.email,
-				});
-
-				const user = await userApi
-					.get(`?${searchParams.toString()}`)
-					.json<UserProfile>();
-
-				set({
-					profile: {
-						uuid: user.uuid,
-						fullName: [profile.firstName, profile.lastName]
-							.filter(Boolean)
-							.join(" "),
-						phoneNumber: "", // TODO
-						avatar: "", // TODO
-					},
-				});
-
-				const im42Config = await userApi
-					.get(`/${user.uuid}/config/im42`)
-					// TODO: deep transform for responses
-					.json<IM42Config>(res => ({
-						...res,
-						syncedAt: res.syncedAt ? new Date(res.syncedAt) : null,
-					}));
-
-				set({
-					syncComplete: Boolean(im42Config.syncedAt),
-				});
-
-				set({ isInitialLoading: false });
-			}),
-			completeSync: () => {
+				},
+			),
+			completeSync: (token?: string) => {
 				const profile = get().profile;
-				if (!profile?.uuid) {
+				if (!token || !profile?.uuid) {
 					return;
 				}
 
-				im42Api.put(`/user/${profile.uuid}/config/synced`);
+				im42Api
+					.auth(`Bearer ${token}`)
+					.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
 			},

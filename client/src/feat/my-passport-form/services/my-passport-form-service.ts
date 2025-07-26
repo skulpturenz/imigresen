@@ -24,7 +24,7 @@ const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
 	credentials: "include",
 });
 
-export const myPassportFormService = (_token?: string) => {
+export const myPassportFormService = (token?: string) => {
 	const registerApplication = async ({
 		automergeUrl,
 		user,
@@ -40,7 +40,10 @@ export const myPassportFormService = (_token?: string) => {
 			return uuid;
 		}
 
-		return im42Api.post({ automergeUrl, user }).text();
+		return im42Api
+			.auth(`Bearer ${token}`)
+			.post({ automergeUrl, user })
+			.text();
 	};
 
 	const deleteApplication = async ({
@@ -55,7 +58,7 @@ export const myPassportFormService = (_token?: string) => {
 			return;
 		}
 
-		await im42Api.delete(`${user}/${uuid}`).res();
+		await im42Api.auth(`Bearer ${token}`).delete(`${user}/${uuid}`).res();
 	};
 
 	const getReferenceData = async () => {

@@ -23,7 +23,7 @@ const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
 	credentials: "include",
 });
 
-export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
+export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 	const getLocalPublicItems = async () => {
 		const localKeys = await storage.getKeys(
 			storageKeys.myPassportFormApplications(),
@@ -65,14 +65,14 @@ export const myPassportFormSyncService = (repo: Repo, _token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.post({ automergeUrl, user }).text();
+		im42Api.auth(`Bearer ${token}`).post({ automergeUrl, user }).text();
 
 	// same as `deleteApplication` in `myPassportFormService`
 	const deleteApplication = async ({
 		uuid,
 		user,
 	}: DeleteApplicationVariables) => {
-		await im42Api.delete(`${user}/${uuid}`).res();
+		await im42Api.auth(`Bearer ${token}`).delete(`${user}/${uuid}`).res();
 	};
 
 	const transferPublicApplications = async ({
