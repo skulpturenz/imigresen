@@ -1,41 +1,7 @@
-const loadScript = (url) => {
-    const element = document.createElement("script");
-    element.src = url;
-
-    document.head.appendChild(element);
-}
-
-const scripts = [
-    "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"
-];
-scripts.forEach(loadScript);
-
 window.onload = function () {
     //<editor-fold desc="Changeable Configuration Block">
 
-    const AUTH_COOKIE_KEY = "IMIGRESEN_AUTH_COOKIE";
-
-    const setAuthCookie = (tokenParsed) => {
-        if (!tokenParsed) {
-            return;
-        }
-
-        const cookie = Cookies.set(
-            AUTH_COOKIE_KEY,
-            tokenParsed.access_token,
-            {
-                domain: `.${window.location.hostname}`,
-                secure: false,
-                sameSite: "Strict",
-            },
-        );
-
-        if (!cookie) {
-            return;
-        }
-
-        window.document.cookie = cookie;
-    };
+    let token = "";
 
     // the following lines will be replaced by docker/configurator, when it runs in a docker-container
     window.ui = SwaggerUIBundle({
@@ -46,13 +12,20 @@ window.onload = function () {
             SwaggerUIBundle.presets.apis,
             SwaggerUIStandalonePreset
         ],
+        requestInterceptor: request => {
+            if (token) {
+                request.headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            return request;
+        },
         responseInterceptor: async (response) => {
             if (response.body.token_type !== "Bearer") {
                 return response;
             }
 
             const tokenParsed = response.body;
-            setAuthCookie(tokenParsed);
+            token = tokenParsed.access_token;
 
             return response;
         },
