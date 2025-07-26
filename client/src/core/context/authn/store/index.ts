@@ -17,7 +17,6 @@ assertEnv(
 	import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
 	"Mapbox token not specified",
 );
-assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
 
 export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
 
@@ -77,13 +76,11 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 				return;
 			}
 
-			const api = new URL(import.meta.env.VITE_API_BASE_URL);
-
 			const cookie = Cookies.set(
 				storageKeys.authCookie,
 				get().keycloak?.token ?? "",
 				{
-					domain: api.host,
+					domain: `.${window.location.hostname}`,
 					expires: new Date(
 						secondsToMilliseconds(
 							get().keycloak?.tokenParsed?.exp ?? 0,
@@ -102,12 +99,10 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 		};
 
 		const deleteAuthCookie = () => {
-			const api = new URL(import.meta.env.VITE_API_BASE_URL);
-
 			// https://github.com/js-cookie/js-cookie?tab=readme-ov-file#basic-usage
 			// need to use same attributes for `path`, `domain`, `secure` and `sameSite`
 			Cookies.remove(storageKeys.authCookie, {
-				domain: api.host,
+				domain: `.${window.location.hostname}`,
 				secure: import.meta.env.PROD,
 				sameSite: "Strict",
 			});
