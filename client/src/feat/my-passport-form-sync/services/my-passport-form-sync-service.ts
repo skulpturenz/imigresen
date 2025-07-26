@@ -19,9 +19,7 @@ const storage = createStorage({
 });
 
 assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).options({
-	credentials: "include",
-});
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 
 export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 	const getLocalPublicItems = async () => {
