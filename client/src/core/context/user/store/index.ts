@@ -43,7 +43,9 @@ export interface IM42Config {
 
 const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
-const personalDetailsApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/personal-details`);
+const personalDetailsApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/personal-details`,
+);
 
 export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
