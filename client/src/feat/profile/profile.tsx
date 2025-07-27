@@ -1,5 +1,5 @@
-import { type Component, Fragment } from "solid-js";
+import { type Component } from "solid-js";
 
 export const Profile: Component = () => {
-	return <Fragment />;
+	return <>;</>;
 };
