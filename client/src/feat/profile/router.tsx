@@ -19,7 +19,9 @@ export const Router: Component<RouterProps> = withI18n(_props => {
 				const { ProfileProvider } = await import("./context");
 
 				return import("./profile").then(exports => ({
-					default: withI18n(withParents(ProfileProvider)(exports.Profile)),
+					default: withI18n(
+						withParents(ProfileProvider)(exports.Profile),
+					),
 				}));
 			}),
 			isHidden: true,

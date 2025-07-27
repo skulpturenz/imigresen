@@ -1,3 +1,4 @@
+import { useNavigate } from "@solidjs/router";
 import { FeatureToggles } from "core/constants/feature-toggles.enum";
 import { styles } from "core/constants/styles";
 import { UserRoute } from "core/constants/user-route.enum";
@@ -8,7 +9,6 @@ import { UiContext } from "core/context/ui";
 import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
-import { useNavigate } from "@solidjs/router";
 import { flatMapDeep } from "es-toolkit";
 import {
 	Earth,
@@ -186,7 +186,9 @@ export const Navbar: Component<ParentProps> = () => {
 						{toFullName(userContext().profile as UserProfile)}
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem class="flex gap-2" onClick={handleProfileClick}>
+					<DropdownMenuItem
+						class="flex gap-2"
+						onClick={handleProfileClick}>
 						<User />
 						<span>{resources.avatar.doProfile}</span>
 					</DropdownMenuItem>
