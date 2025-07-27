@@ -143,7 +143,7 @@ export const useMyPassportForm = () => {
 
 		await mDeleteForm.mutateAsync({
 			uuid: routeParams.uuid,
-			user: authnContext().keycloak?.tokenParsed?.sub,
+			user: userContext().profile?.uuid,
 		});
 		reset(form);
 

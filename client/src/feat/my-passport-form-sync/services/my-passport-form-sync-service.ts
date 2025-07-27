@@ -100,7 +100,9 @@ export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 		);
 
 		await Promise.all(
-			selectedApplicationsUuid.map(uuid => deleteApplication({ uuid })),
+			selectedApplicationsUuid.map(uuid =>
+				deleteApplication({ uuid, user }),
+			),
 		);
 
 		const selectedApplicationsAutomergeUrls = selectedApplications.map(
