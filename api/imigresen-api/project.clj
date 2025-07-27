@@ -58,19 +58,19 @@
                                   [metosin/spec-tools "0.10.7"]
                                   [metosin/jsonista "0.3.13"]
                                   [io.randomseed/phone-number "8.13.6-3"]
+                                  ;; AWS dependencies
+                                  [amazonica "0.3.168" :exclusions [com.amazonaws/aws-java-sdk
+                                                                    com.amazonaws/amazon-kinesis-client
+                                                                    com.amazonaws/dynamodb-lock-client]]
+                                  [com.amazonaws/aws-java-sdk-s3 "1.12.788"]
+                                  [com.amazonaws/aws-java-sdk-core "1.12.788"]
                                   ;; imigresen-common test deps for checkout
                                   ;; hmr fails otherwise
                                   [clj-test-containers/clj-test-containers "0.7.4"]
                                   [org.testcontainers/postgresql "1.21.2"]
                                   ;; not required for dev, its only used in tests but
                                   ;; hmr throws without it
-                                  [ring/ring-mock "0.6.1"]
-                                  ;; AWS dependencies
-                                  [amazonica "0.3.168" :exclusions [com.amazonaws/aws-java-sdk
-                                                                     com.amazonaws/amazon-kinesis-client
-                                                                     com.amazonaws/dynamodb-lock-client]]
-                                  [com.amazonaws/aws-java-sdk-s3 "1.12.788"]
-                                  [com.amazonaws/aws-java-sdk-core "1.12.788"]]}
+                                  [ring/ring-mock "0.6.1"]]}
              :uberjar {:env {:java-env "production"}
                        :aot [imigresen-api.app.core]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
