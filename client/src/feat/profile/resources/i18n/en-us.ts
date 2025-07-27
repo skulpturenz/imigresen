@@ -5,15 +5,12 @@ export const resources = {
 	form: {
 		email: {
 			label: "Email",
-			placeholder: "",
 		},
 		firstName: {
 			label: "First name",
-			placeholder: "",
 		},
 		lastName: {
 			label: "Last name",
-			placeholder: "",
 		},
 	},
 };
