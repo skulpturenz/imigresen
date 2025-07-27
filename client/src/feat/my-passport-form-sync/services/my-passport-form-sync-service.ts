@@ -73,7 +73,10 @@ export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 		uuid,
 		user,
 	}: DeleteApplicationVariables) => {
-		await im42Api.auth(`Bearer ${token}`).delete(`${user}/${uuid}`).res();
+		await im42Api
+			.auth(`Bearer ${token}`)
+			.delete(`/${uuid}/user/${user}`)
+			.res();
 	};
 
 	const transferPublicApplications = async ({
@@ -97,7 +100,9 @@ export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 		);
 
 		await Promise.all(
-			selectedApplicationsUuid.map(uuid => deleteApplication({ uuid })),
+			selectedApplicationsUuid.map(uuid =>
+				deleteApplication({ uuid, user }),
+			),
 		);
 
 		const selectedApplicationsAutomergeUrls = selectedApplications.map(
