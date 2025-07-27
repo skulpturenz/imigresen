@@ -1,5 +1,6 @@
 import { FeatureToggles } from "core/constants/feature-toggles.enum";
 import { styles } from "core/constants/styles";
+import { UserRoute } from "core/constants/user-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { FliptContext } from "core/context/flipt";
 import { RouterContext } from "core/context/router";
@@ -179,7 +180,10 @@ export const Navbar: Component<ParentProps> = () => {
 						{toFullName(userContext().profile as UserProfile)}
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem class="flex gap-2">
+					<DropdownMenuItem
+						as="a"
+						class="flex gap-2"
+						href={`/${UserRoute.Profile}`}>
 						<User />
 						<span>{resources.avatar.doProfile}</span>
 					</DropdownMenuItem>
