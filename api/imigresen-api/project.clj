@@ -58,6 +58,12 @@
                                   [metosin/spec-tools "0.10.7"]
                                   [metosin/jsonista "0.3.13"]
                                   [io.randomseed/phone-number "8.13.6-3"]
+                                  ;; AWS dependencies
+                                  [amazonica "0.3.168" :exclusions [com.amazonaws/aws-java-sdk
+                                                                    com.amazonaws/amazon-kinesis-client
+                                                                    com.amazonaws/dynamodb-lock-client]]
+                                  [com.amazonaws/aws-java-sdk-s3 "1.12.788"]
+                                  [com.amazonaws/aws-java-sdk-core "1.12.788"]
                                   ;; imigresen-common test deps for checkout
                                   ;; hmr fails otherwise
                                   [clj-test-containers/clj-test-containers "0.7.4"]
