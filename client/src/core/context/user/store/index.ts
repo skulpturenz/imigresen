@@ -12,6 +12,20 @@ export interface UserProfile {
 	phoneNumber: string; // TODO
 }
 
+export interface UserPersonalDetails {
+	uuid: string;
+	relationshipStatusCode: string;
+	genderCode: string;
+	mobileNumber: string;
+	currentAddress: {
+		streetAddress: string;
+		countryCode: string;
+		state: string;
+		city: string;
+	};
+	nationalityCountryCode: string;
+}
+
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
@@ -29,6 +43,7 @@ export interface IM42Config {
 
 const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const personalDetailsApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/personal-details`);
 
 export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
@@ -54,8 +69,21 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 						.get(`?${searchParams.toString()}`)
 						.json<UserProfile>();
 
+					// Fetch personal details to get phone number
+					const personalDetails = await personalDetailsApi
+						.auth(`Bearer ${token}`)
+						.get(`/user/${user.uuid}`)
+						.notFound(() => null)
+						.json<UserPersonalDetails | null>();
+
+					// Update user profile with phone number from personal details
+					const userWithPhone = {
+						...user,
+						phoneNumber: personalDetails?.mobileNumber || "",
+					};
+
 					set({
-						profile: user,
+						profile: userWithPhone,
 					});
 
 					const im42Config = await userApi
