@@ -2,6 +2,7 @@ import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
+import { assertEnv } from "core/utils/assert-env";
 import { flatten, invariant } from "es-toolkit";
 import type {
 	GetAutomergeUrlsVariables,
@@ -22,12 +23,13 @@ const storage = createStorage({
 	}),
 });
 
+assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
 const referenceDataApi = wretch(
 	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
 );
 
-export const homeService = (repo: Repo, _token?: string) => {
+export const homeService = (repo: Repo, token?: string) => {
 	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
 		if (!user) {
 			const localKeys = await storage.getKeys(
@@ -42,6 +44,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}
 
 		return im42Api
+			.auth(`Bearer ${token}`)
 			.get(`/status/draft/user/${user}`)
 			.json<[string, string][]>();
 	};
@@ -134,7 +137,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.post({ automergeUrl, user }).text();
+		im42Api.auth(`Bearer ${token}`).post({ automergeUrl, user }).text();
 
 	const importApplications = async ({
 		files,

@@ -26,7 +26,7 @@ export const UserProvider: Component<ParentProps> = props => {
 
 		const profile = authnContext().profile;
 
-		value().actions.init(profile);
+		value().actions.init(authnContext().keycloak?.token, profile);
 	});
 
 	return (

@@ -4,7 +4,7 @@ import { AuthnContext } from "core/context/authn";
 import { FliptContext } from "core/context/flipt";
 import { RouterContext } from "core/context/router";
 import { UiContext } from "core/context/ui";
-import { UserContext } from "core/context/user";
+import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
 import { flatMapDeep } from "es-toolkit";
@@ -79,6 +79,9 @@ export const Navbar: Component<ParentProps> = () => {
 	const uiContext = useContext(UiContext);
 	const routerContext = useContext(RouterContext);
 	const fliptContext = useContext(FliptContext);
+
+	const toFullName = (profile: UserProfile) =>
+		[profile.firstName, profile.lastName].filter(Boolean).join(" ");
 
 	const toInitials = (fullName: string) => {
 		const split = fullName.split(" ");
@@ -160,10 +163,12 @@ export const Navbar: Component<ParentProps> = () => {
 				<Avatar class="size-8 sm:size-10">
 					<AvatarImage
 						src={userContext().profile?.avatar}
-						alt={userContext().profile?.fullName}
+						alt={toFullName(userContext().profile as UserProfile)}
 					/>
 					<AvatarFallback>
-						{toInitials(userContext().profile?.fullName as string)}
+						{toInitials(
+							toFullName(userContext().profile as UserProfile),
+						)}
 					</AvatarFallback>
 				</Avatar>
 			</DropdownMenuTrigger>
@@ -171,7 +176,7 @@ export const Navbar: Component<ParentProps> = () => {
 			<DropdownMenuContent class="mt-4 w-56">
 				<DropdownMenuGroup>
 					<DropdownMenuGroupLabel>
-						{userContext().profile?.fullName}
+						{toFullName(userContext().profile as UserProfile)}
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem class="flex gap-2">

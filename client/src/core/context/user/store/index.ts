@@ -5,17 +5,20 @@ import { default as wretch } from "wretch";
 
 export interface UserProfile {
 	uuid: string;
-	avatar: string;
-	fullName: string;
-	phoneNumber: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	avatar: string; // TODO
+	phoneNumber: string; // TODO
 }
+
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		init: (profile?: KeycloakProfile | null) => void;
-		completeSync: () => void;
+		init: (token?: string, profile?: KeycloakProfile | null) => void;
+		completeSync: (token?: string) => void;
 	};
 }
 
@@ -32,55 +35,56 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 		isInitialLoading: true,
 		profile: null,
 		actions: {
-			init: once(async (profile?: KeycloakProfile | null) => {
-				if (!profile) {
+			init: once(
+				async (token?: string, profile?: KeycloakProfile | null) => {
+					if (!token || !profile) {
+						set({ isInitialLoading: false });
+
+						return;
+					}
+
+					invariant(profile.email, "No email for keycloak profile");
+
+					const searchParams = new URLSearchParams({
+						email: profile.email,
+					});
+
+					const user = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`?${searchParams.toString()}`)
+						.json<UserProfile>();
+
+					set({
+						profile: user,
+					});
+
+					const im42Config = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`/${user.uuid}/config/im42`)
+						// TODO: deep transform for responses
+						.json<IM42Config>(res => ({
+							...res,
+							syncedAt: res.syncedAt
+								? new Date(res.syncedAt)
+								: null,
+						}));
+
+					set({
+						syncComplete: Boolean(im42Config.syncedAt),
+					});
+
 					set({ isInitialLoading: false });
-
-					return;
-				}
-
-				invariant(profile.email, "No email for keycloak profile");
-
-				const searchParams = new URLSearchParams({
-					email: profile.email,
-				});
-
-				const user = await userApi
-					.get(`?${searchParams.toString()}`)
-					.json<UserProfile>();
-
-				set({
-					profile: {
-						uuid: user.uuid,
-						fullName: [profile.firstName, profile.lastName]
-							.filter(Boolean)
-							.join(" "),
-						phoneNumber: "", // TODO
-						avatar: "", // TODO
-					},
-				});
-
-				const im42Config = await userApi
-					.get(`/${user.uuid}/config/im42`)
-					// TODO: deep transform for responses
-					.json<IM42Config>(res => ({
-						...res,
-						syncedAt: res.syncedAt ? new Date(res.syncedAt) : null,
-					}));
-
-				set({
-					syncComplete: Boolean(im42Config.syncedAt),
-				});
-
-				set({ isInitialLoading: false });
-			}),
-			completeSync: () => {
+				},
+			),
+			completeSync: (token?: string) => {
 				const profile = get().profile;
-				if (!profile?.uuid) {
+				if (!token || !profile?.uuid) {
 					return;
 				}
 
-				im42Api.put(`/user/${profile.uuid}/config/synced`);
+				im42Api
+					.auth(`Bearer ${token}`)
+					.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
 			},
