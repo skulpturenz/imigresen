@@ -36,7 +36,7 @@ export const UserProviderMock: Component<
 					firstName: randFirstName(),
 					lastName: randLastName(),
 					email: randEmail(),
-					avatar: randAvatar(),
+					avatarHref: randAvatar(),
 					phoneNumber: randPhoneNumber(),
 				},
 			})),
