@@ -1,4 +1,3 @@
-import { useNavigate } from "@solidjs/router";
 import { FeatureToggles } from "core/constants/feature-toggles.enum";
 import { styles } from "core/constants/styles";
 import { UserRoute } from "core/constants/user-route.enum";
@@ -81,7 +80,6 @@ export const Navbar: Component<ParentProps> = () => {
 	const uiContext = useContext(UiContext);
 	const routerContext = useContext(RouterContext);
 	const fliptContext = useContext(FliptContext);
-	const navigate = useNavigate();
 
 	const toFullName = (profile: UserProfile) =>
 		[profile.firstName, profile.lastName].filter(Boolean).join(" ");
@@ -110,9 +108,6 @@ export const Navbar: Component<ParentProps> = () => {
 		}
 	};
 
-	const handleProfileClick = () => {
-		navigate(`/${UserRoute.Profile}`);
-	};
 
 	const MobileMenuTrigger = () => (
 		<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -187,8 +182,9 @@ export const Navbar: Component<ParentProps> = () => {
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
+						as="a"
 						class="flex gap-2"
-						onClick={handleProfileClick}>
+						href={`/${UserRoute.Profile}`}>
 						<User />
 						<span>{resources.avatar.doProfile}</span>
 					</DropdownMenuItem>
