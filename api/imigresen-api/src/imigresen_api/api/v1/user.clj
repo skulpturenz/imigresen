@@ -112,10 +112,11 @@
      ["/avatar" {:post {:summary "Upsert user avatar"
                         :handler (fn [{:keys [identity parameters] :as _req}]
                                    (-> (ring-res/response (imi-user/generate-avatar-presigned-url! identity (get-in parameters [:path :uuid])))
-                                       (ring-res/status (:ok imi-routes/status-codes))))
+                                       (ring-res/content-type (:plain-text imi-routes/content-types))
+                                       (ring-res/status (:created imi-routes/status-codes))))
                         :parameters {:path {:uuid ::imi-user-spec/uuid}}
-                        :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                                   :body string?}
+                        :responses {(:created imi-routes/status-codes) {:description "Created"
+                                                                        :body string?}
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
