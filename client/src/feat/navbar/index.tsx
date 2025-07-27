@@ -1,5 +1,6 @@
 import { FeatureToggles } from "core/constants/feature-toggles.enum";
 import { styles } from "core/constants/styles";
+import { UserRoute } from "core/constants/user-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { FliptContext } from "core/context/flipt";
 import { RouterContext } from "core/context/router";
@@ -7,6 +8,7 @@ import { UiContext } from "core/context/ui";
 import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
+import { useNavigate } from "@solidjs/router";
 import { flatMapDeep } from "es-toolkit";
 import {
 	Earth,
@@ -79,6 +81,7 @@ export const Navbar: Component<ParentProps> = () => {
 	const uiContext = useContext(UiContext);
 	const routerContext = useContext(RouterContext);
 	const fliptContext = useContext(FliptContext);
+	const navigate = useNavigate();
 
 	const toFullName = (profile: UserProfile) =>
 		[profile.firstName, profile.lastName].filter(Boolean).join(" ");
@@ -179,7 +182,7 @@ export const Navbar: Component<ParentProps> = () => {
 						{toFullName(userContext().profile as UserProfile)}
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem class="flex gap-2">
+					<DropdownMenuItem class="flex gap-2" onClick={() => navigate(`/${UserRoute.Profile}`)}>
 						<User />
 						<span>{resources.avatar.doProfile}</span>
 					</DropdownMenuItem>
