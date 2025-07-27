@@ -109,7 +109,7 @@
                                         (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                         (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                             :middleware [imi-auth/protect]}}]
-     ["/avatar" {:post {:summary "[TODO] Upsert user avatar"
+     ["/avatar" {:post {:summary "Upsert user avatar"
                         :handler (fn [{:keys [identity parameters] :as _req}]
                                    (-> (ring-res/response (imi-user/generate-avatar-presigned-url! identity (get-in parameters [:path :uuid])))
                                        (ring-res/status (:ok imi-routes/status-codes))))
