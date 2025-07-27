@@ -8,8 +8,8 @@ export interface UserProfile {
 	email: string;
 	firstName: string;
 	lastName: string;
-	avatar: string; // TODO
-	phoneNumber: string; // TODO
+	avatarHref?: string;
+	phoneNumber?: string;
 }
 
 export interface UserPersonalDetails {

@@ -162,7 +162,7 @@ export const Navbar: Component<ParentProps> = () => {
 				)}>
 				<Avatar class="size-8 sm:size-10">
 					<AvatarImage
-						src={userContext().profile?.avatar}
+						src={userContext().profile?.avatarHref}
 						alt={toFullName(userContext().profile as UserProfile)}
 					/>
 					<AvatarFallback>
