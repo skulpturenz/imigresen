@@ -77,13 +77,11 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 						.json<UserPersonalDetails | null>();
 
 					// Update user profile with phone number from personal details
-					const userWithPhone = {
-						...user,
-						phoneNumber: personalDetails?.mobileNumber || "",
-					};
-
 					set({
-						profile: userWithPhone,
+						profile: {
+							...user,
+							phoneNumber: personalDetails?.mobileNumber || "",
+						},
 					});
 
 					const im42Config = await userApi
