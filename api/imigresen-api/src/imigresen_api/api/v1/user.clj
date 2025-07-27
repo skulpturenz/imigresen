@@ -97,7 +97,7 @@
                             :handler (fn [{:keys [parameters] :as _req}]
                                        (-> (imi-im42/get-im42-config-by-user-uuid
                                             (truss/have imi-user/active-by-uuid?
-                                                        (get-in parameters [:path :user-uuid])
+                                                        (get-in parameters [:path :uuid])
                                                         :data {:type :not-found}))
                                            (ring-res/response)
                                            (ring-res/status (:ok imi-routes/status-codes))))
