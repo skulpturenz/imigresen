@@ -117,6 +117,7 @@
                         :parameters {:path {:uuid ::imi-user-spec/uuid}}
                         :responses {(:created imi-routes/status-codes) {:description "Created"
                                                                         :body string?}
+                                    (:not-found imi-routes/status-codes) {:description "Not found"}
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
