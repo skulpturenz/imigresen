@@ -137,7 +137,10 @@ export const homeService = (repo: Repo, token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.auth(`Bearer ${token}`).post({ automergeUrl, user }).text();
+		im42Api
+			.auth(`Bearer ${token}`)
+			.post({ automergeUrl, user }, `/user/${user}`)
+			.text();
 
 	const importApplications = async ({
 		files,
