@@ -1,4 +1,5 @@
 import type { Component } from "solid-js";
+import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
@@ -18,7 +19,7 @@ export const Profile: Component = () => {
 
 	return (
 		<>
-			<Components.Form of={form}>
+			<Form of={form}>
 				<div class={constants.grid}>
 					<Components.Field name="email">
 						{(field, props) => (
@@ -77,7 +78,7 @@ export const Profile: Component = () => {
 						)}
 					</Components.Field>
 				</div>
-			</Components.Form>
+			</Form>
 		</>
 	);
 };
