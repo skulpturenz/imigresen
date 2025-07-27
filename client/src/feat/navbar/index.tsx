@@ -108,7 +108,6 @@ export const Navbar: Component<ParentProps> = () => {
 		}
 	};
 
-
 	const MobileMenuTrigger = () => (
 		<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
 			<Button size="icon" variant="ghost" onClick={toggleMobileMenu}>
