@@ -111,11 +111,11 @@
                             :middleware [imi-auth/protect]}}]
      ["/avatar" {:post {:summary "[TODO] Upsert user avatar"
                         :handler (fn [{:keys [identity parameters] :as _req}]
-                                   (imi-user/generate-avatar-presigned-url! identity (get-in parameters [:path :uuid]))
-                                   (-> (ring-res/response nil)
-                                       (ring-res/status (:no-content imi-routes/status-codes))))
+                                   (-> (ring-res/response (imi-user/generate-avatar-presigned-url! identity (get-in parameters [:path :uuid])))
+                                       (ring-res/status (:ok imi-routes/status-codes))))
                         :parameters {:path {:uuid ::imi-user-spec/uuid}}
-                        :responses {(:no-content imi-routes/status-codes) {:description "No content"}
+                        :responses {(:ok imi-routes/status-codes) {:description "Ok"
+                                                                   :body string?}
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
