@@ -5,10 +5,13 @@ import { default as wretch } from "wretch";
 
 export interface UserProfile {
 	uuid: string;
-	avatar: string;
-	fullName: string;
-	phoneNumber: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	avatar: string; // TODO
+	phoneNumber: string; // TODO
 }
+
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
@@ -52,14 +55,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 						.json<UserProfile>();
 
 					set({
-						profile: {
-							uuid: user.uuid,
-							fullName: [profile.firstName, profile.lastName]
-								.filter(Boolean)
-								.join(" "),
-							phoneNumber: "", // TODO
-							avatar: "", // TODO
-						},
+						profile: user,
 					});
 
 					const im42Config = await userApi
