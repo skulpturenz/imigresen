@@ -1,7 +1,9 @@
 import type { Component } from "solid-js";
+import { useI18n } from "core/context/i18n";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { useProfileForm } from "feat/profile/hooks/use-profile-form";
+import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
 import {
 	TextField,
@@ -10,6 +12,7 @@ import {
 } from "ui/text-field";
 
 export const Profile: Component = () => {
+	const t = useI18n<typeof resources>();
 	const userContext = useContext(UserContext);
 	const { form, Components } = useProfileForm();
 
@@ -23,7 +26,7 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>Email</TextFieldLabel>
+								<TextFieldLabel>{t("form.email.label")}</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
@@ -42,7 +45,7 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>First name</TextFieldLabel>
+								<TextFieldLabel>{t("form.firstName.label")}</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
@@ -61,7 +64,7 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>Last name</TextFieldLabel>
+								<TextFieldLabel>{t("form.lastName.label")}</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
