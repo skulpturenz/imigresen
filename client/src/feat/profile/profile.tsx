@@ -1,4 +1,3 @@
-import type { Component } from "solid-js";
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import { UserContext } from "core/context/user";
@@ -6,11 +5,8 @@ import { useContext } from "core/context/utils";
 import { useProfileForm } from "feat/profile/hooks/use-profile-form";
 import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
-import {
-	TextField,
-	TextFieldLabel,
-	TextFieldRoot,
-} from "ui/text-field";
+import type { Component } from "solid-js";
+import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
@@ -27,12 +23,16 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>{t("form.email.label")}</TextFieldLabel>
+								<TextFieldLabel>
+									{t("form.email.label")}
+								</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
 									value={field.value ?? ""}
-									placeholder={userContext().profile?.email ?? ""}
+									placeholder={
+										userContext().profile?.email ?? ""
+									}
 									type="text"
 									autocomplete="email"
 								/>
@@ -46,12 +46,16 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>{t("form.firstName.label")}</TextFieldLabel>
+								<TextFieldLabel>
+									{t("form.firstName.label")}
+								</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
 									value={field.value ?? ""}
-									placeholder={userContext().profile?.firstName ?? ""}
+									placeholder={
+										userContext().profile?.firstName ?? ""
+									}
 									type="text"
 									autocomplete="given-name"
 								/>
@@ -65,12 +69,16 @@ export const Profile: Component = () => {
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<TextFieldLabel>{t("form.lastName.label")}</TextFieldLabel>
+								<TextFieldLabel>
+									{t("form.lastName.label")}
+								</TextFieldLabel>
 								<TextField
 									{...props}
 									name={field.name}
 									value={field.value ?? ""}
-									placeholder={userContext().profile?.lastName ?? ""}
+									placeholder={
+										userContext().profile?.lastName ?? ""
+									}
 									type="text"
 									autocomplete="family-name"
 								/>
