@@ -73,7 +73,10 @@ export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 		uuid,
 		user,
 	}: DeleteApplicationVariables) => {
-		await im42Api.auth(`Bearer ${token}`).delete(`${user}/${uuid}`).res();
+		await im42Api
+			.auth(`Bearer ${token}`)
+			.delete(`/${uuid}/user/${user}`)
+			.res();
 	};
 
 	const transferPublicApplications = async ({

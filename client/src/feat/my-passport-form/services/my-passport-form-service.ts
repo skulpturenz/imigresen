@@ -56,7 +56,10 @@ export const myPassportFormService = (token?: string) => {
 			return;
 		}
 
-		await im42Api.auth(`Bearer ${token}`).delete(`${user}/${uuid}`).res();
+		await im42Api
+			.auth(`Bearer ${token}`)
+			.delete(`/${uuid}/user/${user}`)
+			.res();
 	};
 
 	const getReferenceData = async () => {
