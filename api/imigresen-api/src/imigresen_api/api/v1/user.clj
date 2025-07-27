@@ -119,4 +119,4 @@
                                     (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                     (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                     (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                        :middleware [imi-auth/protect]}}]]])
+                        :middleware [imi-auth/protect]}}]])
