@@ -110,6 +110,10 @@ export const Navbar: Component<ParentProps> = () => {
 		}
 	};
 
+	const handleProfileClick = () => {
+		navigate(`/${UserRoute.Profile}`);
+	};
+
 	const MobileMenuTrigger = () => (
 		<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
 			<Button size="icon" variant="ghost" onClick={toggleMobileMenu}>
@@ -182,7 +186,7 @@ export const Navbar: Component<ParentProps> = () => {
 						{toFullName(userContext().profile as UserProfile)}
 					</DropdownMenuGroupLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem class="flex gap-2" onClick={() => navigate(`/${UserRoute.Profile}`)}>
+					<DropdownMenuItem class="flex gap-2" onClick={handleProfileClick}>
 						<User />
 						<span>{resources.avatar.doProfile}</span>
 					</DropdownMenuItem>
