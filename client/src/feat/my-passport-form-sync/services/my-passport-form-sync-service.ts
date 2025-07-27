@@ -63,7 +63,10 @@ export const myPassportFormSyncService = (repo: Repo, token?: string) => {
 		automergeUrl,
 		user,
 	}: RegisterApplicationVariables) =>
-		im42Api.auth(`Bearer ${token}`).post({ automergeUrl, user }).text();
+		im42Api
+			.auth(`Bearer ${token}`)
+			.post({ automergeUrl, user }, `/user/${user}`)
+			.text();
 
 	// same as `deleteApplication` in `myPassportFormService`
 	const deleteApplication = async ({

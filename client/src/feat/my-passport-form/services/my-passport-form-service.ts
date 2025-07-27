@@ -40,7 +40,7 @@ export const myPassportFormService = (token?: string) => {
 
 		return im42Api
 			.auth(`Bearer ${token}`)
-			.post({ automergeUrl, user })
+			.post({ automergeUrl, user }, `/user/${user}`)
 			.text();
 	};
 
