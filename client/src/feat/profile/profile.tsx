@@ -6,8 +6,8 @@ import { useProfileForm } from "feat/profile/hooks/use-profile-form";
 import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
 import type { Component } from "solid-js";
-import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
 import { Button } from "ui/button";
+import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
