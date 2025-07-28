@@ -1,5 +1,7 @@
 export type ProfileForm = {
-	email: string;
-	firstName: string;
-	lastName: string;
+	userDetails: {
+		email: string;
+		firstName: string;
+		lastName: string;
+	};
 };

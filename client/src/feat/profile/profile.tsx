@@ -23,14 +23,14 @@ export const Profile: Component = () => {
 		<>
 			<Form of={form}>
 				<div class={constants.grid}>
-					<Components.Field name="firstName">
+					<Components.Field name="userDetails.firstName">
 						{(field, props) => (
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.firstName.label")}
+									{t("form.userDetails.firstName.label")}
 								</TextFieldLabel>
 								<TextField
 									{...props}
@@ -49,14 +49,14 @@ export const Profile: Component = () => {
 						)}
 					</Components.Field>
 
-					<Components.Field name="lastName">
+					<Components.Field name="userDetails.lastName">
 						{(field, props) => (
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.lastName.label")}
+									{t("form.userDetails.lastName.label")}
 								</TextFieldLabel>
 								<TextField
 									{...props}
@@ -76,14 +76,14 @@ export const Profile: Component = () => {
 					</Components.Field>
 
 					<div class="col-span-full">
-						<Components.Field name="email">
+						<Components.Field name="userDetails.email">
 							{(field, props) => (
 								<TextFieldRoot
 									validationState={
 										field.error ? "invalid" : "valid"
 									}>
 									<TextFieldLabel>
-										{t("form.email.label")}
+										{t("form.userDetails.email.label")}
 									</TextFieldLabel>
 									<TextField
 										{...props}
