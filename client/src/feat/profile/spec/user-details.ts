@@ -1,7 +1,9 @@
 import { object, string } from "yup";
+import { VALIDATION_REGEX } from "./constants";
+import { resources } from "feat/profile/resources/i18n/en-us";
 
 export const userDetailsSchema = object({
 	email: string().email(),
-	firstName: string().min(1).max(60).matches(/^[a-zA-Z0-9]+$/, "First name must be alphanumeric"),
-	lastName: string().min(1).max(60).matches(/^[a-zA-Z0-9]+$/, "Last name must be alphanumeric"),
+	firstName: string().min(1).max(60).matches(VALIDATION_REGEX.ALPHANUMERIC, resources.form.firstName.error),
+	lastName: string().min(1).max(60).matches(VALIDATION_REGEX.ALPHANUMERIC, resources.form.lastName.error),
 });

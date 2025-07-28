@@ -8,9 +8,11 @@ export const resources = {
 		},
 		firstName: {
 			label: "First name",
+			error: "First name must be alphanumeric",
 		},
 		lastName: {
 			label: "Last name",
+			error: "Last name must be alphanumeric",
 		},
 	},
 	buttons: {
