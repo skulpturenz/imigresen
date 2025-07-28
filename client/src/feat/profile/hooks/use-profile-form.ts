@@ -1,7 +1,7 @@
 import { createForm } from "@modular-forms/solid";
-import type { ProfileForm } from "feat/profile/types";
 import { yupForm } from "core/data/yup/yup-form";
 import { profileSchema } from "feat/profile/spec";
+import type { ProfileForm } from "feat/profile/types";
 
 export const useProfileForm = () => {
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({

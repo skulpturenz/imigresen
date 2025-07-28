@@ -5,5 +5,5 @@ export const constants = {
 	fieldConstraints: {
 		nameMinChars: 1,
 		nameMaxChars: 60,
-	}
+	},
 };
