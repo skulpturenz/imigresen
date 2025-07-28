@@ -7,9 +7,15 @@ export const userDetailsSchema = object({
 	firstName: string()
 		.min(constants.fieldConstraints.nameMinChars)
 		.max(constants.fieldConstraints.nameMaxChars)
-		.matches(constants.regex.alphanumeric, resources.form.userDetails.firstName.error),
+		.matches(
+			constants.regex.alphanumeric,
+			resources.form.userDetails.firstName.error,
+		),
 	lastName: string()
 		.min(constants.fieldConstraints.nameMinChars)
 		.max(constants.fieldConstraints.nameMaxChars)
-		.matches(constants.regex.alphanumeric, resources.form.userDetails.lastName.error),
+		.matches(
+			constants.regex.alphanumeric,
+			resources.form.userDetails.lastName.error,
+		),
 });
