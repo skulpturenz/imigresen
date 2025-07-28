@@ -7,7 +7,7 @@ import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
 import type { Component } from "solid-js";
 import { Button } from "ui/button";
-import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
+import { TextField, TextFieldErrorMessage, TextFieldLabel, TextFieldRoot } from "ui/text-field";
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
@@ -37,6 +37,7 @@ export const Profile: Component = () => {
 									type="text"
 									autocomplete="given-name"
 								/>
+								<TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
 							</TextFieldRoot>
 						)}
 					</Components.Field>
@@ -60,6 +61,7 @@ export const Profile: Component = () => {
 									type="text"
 									autocomplete="family-name"
 								/>
+								<TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
 							</TextFieldRoot>
 						)}
 					</Components.Field>
@@ -84,6 +86,7 @@ export const Profile: Component = () => {
 										type="text"
 										autocomplete="email"
 									/>
+									<TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
 								</TextFieldRoot>
 							)}
 						</Components.Field>
