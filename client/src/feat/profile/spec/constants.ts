@@ -3,7 +3,7 @@ export const constants = {
 		alphanumeric: /^[a-zA-Z0-9]+$/,
 	},
 	fieldConstraints: {
-		minValue: 1,
-		maxValue: 60,
+		nameMinChars: 1,
+		nameMaxChars: 60,
 	}
 };
