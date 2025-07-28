@@ -4,7 +4,7 @@ import type {
 	ValidateForm,
 } from "@modular-forms/solid";
 import { invariant } from "es-toolkit";
-import type { Schema, ValidationError } from "yup";
+import { type Schema, type ValidationError } from "yup";
 import type { ValidateOptions } from "./types";
 
 // see: https://github.com/fabian-hiller/modular-forms/blob/main/packages/solid/src/adapters/zodForm.ts

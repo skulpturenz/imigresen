@@ -1,13 +1,11 @@
-import type { Flatten } from "@solid-primitives/i18n";
 import { isNil } from "es-toolkit";
 import { get } from "es-toolkit/compat";
 import type { Schema } from "yup";
 
-// TODO: options types
 export const whenOptions =
 	<T extends Schema, U extends Schema>(
 		predicate: (options: any) => boolean,
-		fn: (schema: T, options: any) => U,
+		fn: (schema: T, options: ResolveOptions) => U,
 	) =>
 	(_values: any, schema: T, options: any) => {
 		if (predicate(options)) {
@@ -17,30 +15,32 @@ export const whenOptions =
 		return schema;
 	};
 
-export const toRequired = <T extends Schema>(schema: T, _options: any) =>
-	schema.required();
+export const toRequired = <T extends Schema>(
+	schema: T,
+	_options: ResolveOptions,
+) => schema.required();
 
-export const toNullish = <T extends Schema>(schema: T, _options: any) =>
-	schema.nullable().optional().default(null);
+export const toNullish = <T extends Schema>(
+	schema: T,
+	_options: ResolveOptions,
+) => schema.nullable().optional().default(null);
 
-// TODO: options types
 export const hasEveryParentField =
 	(...paths: string[]) =>
-	(options: any) =>
+	(options: ResolveOptions) =>
 		paths.every(path => !isNil(get(options.parent, path)));
 
-// TODO: options types
 export const hasSomeParentField =
 	(...paths: string[]) =>
-	(options: any) =>
+	(options: ResolveOptions) =>
 		paths.some(path => !isNil(get(options.parent, path)));
 
-// TODO: types
-// TODO: don't depend on i18n
 export const isParentFieldEqual =
-	<T extends Record<string, any> = Record<string, any>>(
-		path: keyof Flatten<T>,
-		value: any,
-	) =>
-	(options: any) =>
+	(path: string, value: any) => (options: ResolveOptions) =>
 		get(options.parent, path) === value;
+
+type ResolveOptions<TContext = any> = {
+	value?: any;
+	parent?: any;
+	context?: TContext;
+};
