@@ -1,8 +1,8 @@
 import { useLocale } from "@kobalte/core";
 import { styles } from "core/constants/styles";
+import { Navbar } from "feat/navbar";
 import { type Component, type ParentProps } from "solid-js";
 import { cn } from "ui/utils";
-import { Navbar } from "./navbar";
 
 export const Shell: Component<ParentProps> = props => {
 	const { locale, direction } = useLocale();

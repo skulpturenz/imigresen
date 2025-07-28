@@ -13,6 +13,7 @@ import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types"
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
+import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/utils";
 import { flattenObject, invariant } from "es-toolkit";
@@ -38,6 +39,7 @@ export const useMyPassportForm = () => {
 	const repo = useRepo();
 	const queryClient = useQueryClient();
 	const authnContext = useContext(AuthnContext);
+	const userContext = useContext(UserContext);
 	const myPassportFormContext = useContext(MyPassportFormContext);
 
 	const navigate = useNavigate();
@@ -141,7 +143,7 @@ export const useMyPassportForm = () => {
 
 		await mDeleteForm.mutateAsync({
 			uuid: routeParams.uuid,
-			sub: authnContext().keycloak?.tokenParsed?.sub,
+			user: userContext().profile?.uuid,
 		});
 		reset(form);
 
@@ -245,7 +247,7 @@ export const useMyPassportForm = () => {
 
 			await mRegister.mutateAsync({
 				automergeUrl: automergeUrl,
-				sub: authnContext().keycloak?.tokenParsed?.sub,
+				user: userContext().profile?.uuid,
 			});
 
 			queryClient.refetchQueries({

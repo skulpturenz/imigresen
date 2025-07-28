@@ -1,0 +1,5 @@
+[submodule]
+    recurse = true
+
+[core]
+    hooksPath = "./.git-hooks"

@@ -57,13 +57,13 @@ export const myPassportFormSyncServiceMock = (repo: Repo, _token?: string) => {
 	// same as `registerApplications` in `myPassportFormService`
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
+		user,
 	}: RegisterApplicationVariables) => {
 		// TODO
 		const uuid = uuidv7();
 
 		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
+			storageKeys.myPassportFormApplication(uuid, user),
 			automergeUrl,
 		);
 
@@ -73,15 +73,15 @@ export const myPassportFormSyncServiceMock = (repo: Repo, _token?: string) => {
 	// same as `deleteApplication` in `myPassportFormService`
 	const deleteApplication = async ({
 		uuid,
-		sub,
+		user,
 	}: DeleteApplicationVariables) => {
 		// TODO
-		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
+		await storage.del(storageKeys.myPassportFormApplication(uuid, user));
 	};
 
 	const transferPublicApplications = async ({
 		automergeUrls,
-		sub,
+		user,
 	}: TransferPublicApplicationsVariables) => {
 		const publicApplications = await getLocalPublicItems();
 
@@ -109,7 +109,7 @@ export const myPassportFormSyncServiceMock = (repo: Repo, _token?: string) => {
 
 		const selectedApplicationsNewUuids = await Promise.all(
 			selectedApplicationsAutomergeUrls.map(automergeUrl =>
-				registerApplication({ automergeUrl, sub }),
+				registerApplication({ automergeUrl, user }),
 			),
 		);
 

@@ -2,6 +2,7 @@ import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
+import { assertEnv } from "core/utils/assert-env";
 import { flatten, invariant } from "es-toolkit";
 import type {
 	GetAutomergeUrlsVariables,
@@ -14,7 +15,7 @@ import type {
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
-import { uuidv7 } from "uuidv7";
+import { default as wretch } from "wretch";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -22,22 +23,37 @@ const storage = createStorage({
 	}),
 });
 
-export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({ sub }: GetAutomergeUrlsVariables) => {
-		// TODO
-		const localKeys = await storage.getKeys(
-			storageKeys.myPassportFormApplications(sub),
-		);
-		const localItems = await storage.getItems<string>(localKeys);
+assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const referenceDataApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
+);
 
-		return localItems;
+export const homeService = (repo: Repo, token?: string) => {
+	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
+		if (!user) {
+			const localKeys = await storage.getKeys(
+				storageKeys.myPassportFormApplications(user),
+			);
+			const localItems = await storage.getItems<string>(localKeys);
+
+			return localItems.map<[string, string]>(({ key, value }) => [
+				key,
+				value,
+			]);
+		}
+
+		return im42Api
+			.auth(`Bearer ${token}`)
+			.get(`/status/draft/user/${user}`)
+			.json<[string, string][]>();
 	};
 
 	const getPassportApplications = async ({
-		sub,
+		user,
 	}: GetPassportApplicationsVariables) => {
 		const automergeUrls = await getAutomergeUrls({
-			sub,
+			user,
 		});
 
 		if (!automergeUrls.length) {
@@ -45,7 +61,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}
 
 		const documents = await Promise.all(
-			automergeUrls?.map(async ({ key, value }) => {
+			automergeUrls?.map(async ([key, value]) => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
 				>(value as AnyDocumentId);
@@ -117,25 +133,18 @@ export const homeService = (repo: Repo, _token?: string) => {
 		};
 	};
 
-	// same as `registerApplications` in `myPassportFormService`
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
-	}: RegisterApplicationVariables) => {
-		// TODO
-		const uuid = uuidv7();
-
-		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
-			automergeUrl,
-		);
-
-		return uuid;
-	};
+		user,
+	}: RegisterApplicationVariables) =>
+		im42Api
+			.auth(`Bearer ${token}`)
+			.post({ automergeUrl, user }, `/user/${user}`)
+			.text();
 
 	const importApplications = async ({
 		files,
-		sub,
+		user,
 	}: ImportApplicationsVariables) => {
 		const data = flatten(await Promise.all(files.map(readJson)), Infinity);
 
@@ -163,7 +172,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 			automergeUrls.map(automergeUrl =>
 				registerApplication({
 					automergeUrl,
-					sub,
+					user,
 				}),
 			),
 		);
@@ -179,10 +188,44 @@ export const homeService = (repo: Repo, _token?: string) => {
 		}, Object.create(null));
 	};
 
+	const getReferenceData = async () => {
+		const countryOptions = await referenceDataApi
+			.get("/countries")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const genderOptions = await referenceDataApi
+			.get("/genders")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const relationshipStatusOptions = await referenceDataApi
+			.get("/relationship-statuses")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const requestTypeOptions = await referenceDataApi
+			.get("/request-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+		const documentTypeOptions = await referenceDataApi
+			.get("/document-types")
+			.json<[string, string][]>()
+			.then(Object.fromEntries);
+
+		return {
+			genderOptions,
+			relationshipStatusOptions,
+			countryOptions,
+			personalDetailsStateOptions: [] as string[], // TODO
+			addressDetailsStateOptions: [] as string[], // TODO
+			requestTypeOptions,
+			documentTypeOptions,
+		};
+	};
+
 	return {
 		getAutomergeUrls,
 		getPassportApplications,
 		downloadApplications,
 		importApplications,
+		getReferenceData,
 	};
 };

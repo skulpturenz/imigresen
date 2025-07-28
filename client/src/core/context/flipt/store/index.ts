@@ -21,11 +21,9 @@ export interface FliptSvcInternal {
 export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 	(set, get) => {
 		const fliptUrl = import.meta.env.VITE_FLIPT_URL;
-		const fliptClientToken = import.meta.env.VITE_FLIPT_CLIENT_TOKEN;
 		const fliptNamespace = import.meta.env.VITE_FLIPT_NAMESPACE;
 
 		assertEnv(fliptUrl, "Flipt URL not specified");
-		assertEnv(fliptClientToken, "Flipt client token not specified");
 		assertEnv(fliptNamespace, "Flipt namespace not specified");
 
 		const interval = secondsToMilliseconds(120);
@@ -41,9 +39,6 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 					const flipt = await FliptClient.init({
 						namespace: fliptNamespace,
 						url: fliptUrl,
-						authentication: {
-							clientToken: fliptClientToken,
-						},
 						reference: import.meta.env.MODE,
 					});
 

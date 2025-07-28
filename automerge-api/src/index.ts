@@ -1,6 +1,9 @@
 import { Repo } from "@automerge/automerge-repo";
 import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
+/* eslint-disable-next-line */
+import * as Sentry from "@sentry/cloudflare";
 import { env } from "cloudflare:workers";
+import { consola } from "consola";
 import { invariant } from "es-toolkit";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -15,11 +18,14 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import type { default as postgres } from "postgres";
 import { CfWebSocketNetworkAdapter } from "./cf-websocket-network-adapter";
 import { HttpHeaders, HttpMethod, StatusCode } from "./enums";
+import { ParseableReporter } from "./parseable-reporter";
 import {
 	createPgClient,
 	PgStorageAdapter,
 	warmupConnectionPool,
 } from "./pg-storage-adapter";
+
+consola.wrapAll();
 
 invariant(env.ALLOWED_ORIGINS, 'env "ALLOWED_ORIGINS" not defined');
 const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
@@ -29,11 +35,14 @@ const ALLOWED_ORIGINS = env.ALLOWED_ORIGINS.split(",").map(origin =>
 interface ApiEnv {
 	Variables: {
 		pg: postgres.Sql;
+		parseableReporter: ParseableReporter;
 	};
 }
 
 const api = new Hono<ApiEnv>()
 	.get("/", async c => {
+		const parseableReporter = c.get("parseableReporter");
+
 		if (c.req.header(HttpHeaders.Upgrade) !== "websocket") {
 			return new Response("Expected Upgrade: websocket", {
 				status: StatusCode.UpgradeRequired,
@@ -55,6 +64,7 @@ const api = new Hono<ApiEnv>()
 		});
 
 		server.accept();
+		server.addEventListener("close", () => parseableReporter.close());
 
 		return new Response(null, {
 			status: StatusCode.SwitchingProtocols,
@@ -89,18 +99,49 @@ interface AppEnv {
 	};
 	Bindings: {
 		AUTOMERGE_RATE_LIMIT: RateLimit;
+		CF_VERSION_METADATA: WorkerVersionMetadata;
 	};
 }
 
 invariant(env.AUTHNZ_JWK_URL, "JWK url not specified");
 
 const app = new Hono<AppEnv>()
+	.onError((err, c) => {
+		// Report _all_ unhandled errors.
+		Sentry.captureException(err);
+		consola.error(err);
+		if (err instanceof HTTPException) {
+			return err.getResponse();
+		}
+
+		return c.json({ error: "Internal server error" }, 500);
+	})
 	.get("/ping", c => c.text("."))
 	.use(
 		"*",
 		jwk({
 			jwks_uri: env.AUTHNZ_JWK_URL,
 			cookie: "IMIGRESEN_AUTH_COOKIE",
+		}),
+	)
+	.use(
+		createMiddleware((c, next) => {
+			Sentry.setUser({
+				id: c.get("jwtPayload").sub,
+			});
+
+			const parseableReporter = new ParseableReporter(
+				env.OTEL_EXPORTER_OTLP_ENDPOINT,
+				env.OTEL_EXPORTER_OTLP_AUTH_TOKEN,
+				"imigresen",
+				c,
+			);
+
+			consola.addReporter(parseableReporter);
+
+			c.set("parseableReporter", parseableReporter);
+
+			return next();
 		}),
 	)
 	.use(
@@ -136,7 +177,36 @@ const app = new Hono<AppEnv>()
 			await next();
 		}),
 	)
+	// want the routes to run then flush
+	// see: https://hono.dev/docs/guides/middleware#execution-order
+	.use(
+		createMiddleware(async (c, next) => {
+			await next();
+
+			const parseableReporter: ParseableReporter =
+				c.get("parseableReporter");
+
+			await parseableReporter.flush();
+			consola.removeReporter(parseableReporter);
+		}),
+	)
 	.route("/api/v1", api);
 
+// Sentry setup: https://docs.sentry.io/platforms/javascript/guides/cloudflare/frameworks/hono/
 // eslint-disable-next-line import/no-default-export
-export default app;
+export default Sentry.withSentry(env => {
+	invariant(env, "Misconfiguration");
+
+	const versionMetadata = (env as AppEnv["Bindings"]).CF_VERSION_METADATA;
+
+	invariant(versionMetadata, "Misconfiguration");
+
+	return {
+		dsn: "https://141811b132a84088aa15384e72d5156a@triage.skulpture.xyz/1",
+		release: versionMetadata.id,
+		sendDefaultPii: true,
+		// Enable logs to be sent to Sentry
+		_experiments: { enableLogs: true },
+		tracesSampleRate: 0.5,
+	};
+}, app);

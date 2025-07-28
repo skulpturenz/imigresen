@@ -1,65 +1,118 @@
-import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { once } from "es-toolkit";
+import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
+import { default as wretch } from "wretch";
 
 export interface UserProfile {
 	uuid: string;
-	avatar: string;
-	fullName: string;
-	phoneNumber: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	avatarHref?: string;
+	phoneNumber?: string;
 }
+
+export interface UserPersonalDetails {
+	uuid: string;
+	relationshipStatusCode: string;
+	genderCode: string;
+	mobileNumber: string;
+	currentAddress: {
+		streetAddress: string;
+		countryCode: string;
+		state: string;
+		city: string;
+	};
+	nationalityCountryCode: string;
+}
+
 export interface UserSvc {
 	isInitialLoading: boolean;
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		// TODO: once BE is up remove dependence on KC
-		init: (profile?: KeycloakProfile | null) => void;
-		completeSync: () => void;
+		init: (token?: string, profile?: KeycloakProfile | null) => void;
+		completeSync: (token?: string) => void;
 	};
 }
 
-export const useStore = createWithSignal<UserSvc>((set, _get) => {
+export interface IM42Config {
+	user: string;
+	syncedAt?: Date | null;
+}
+
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const personalDetailsApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/personal-details`,
+);
+
+export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
 		isInitialLoading: true,
 		profile: null,
 		actions: {
-			init: once(async (profile?: KeycloakProfile | null) => {
-				// TODO: once BE is up remove dependence on KC
-				if (profile) {
+			init: once(
+				async (token?: string, profile?: KeycloakProfile | null) => {
+					if (!token || !profile) {
+						set({ isInitialLoading: false });
+
+						return;
+					}
+
+					invariant(profile.email, "No email for keycloak profile");
+
+					const searchParams = new URLSearchParams({
+						email: profile.email,
+					});
+
+					const user = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`?${searchParams.toString()}`)
+						.json<UserProfile>();
+
+					// Fetch personal details to get phone number
+					const personalDetails = await personalDetailsApi
+						.auth(`Bearer ${token}`)
+						.get(`/user/${user.uuid}`)
+						.notFound(() => null)
+						.json<UserPersonalDetails | null>();
+
+					// Update user profile with phone number from personal details
 					set({
 						profile: {
-							uuid: profile?.id ?? "",
-							fullName: [profile.firstName, profile.lastName]
-								.filter(Boolean)
-								.join(" "),
-							phoneNumber: "",
-							avatar: "",
+							...user,
+							phoneNumber: personalDetails?.mobileNumber || "",
 						},
 					});
-				}
 
-				// TODO: BE
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (sub) {
+					const im42Config = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`/${user.uuid}/config/im42`)
+						// TODO: deep transform for responses
+						.json<IM42Config>(res => ({
+							...res,
+							syncedAt: res.syncedAt
+								? new Date(res.syncedAt)
+								: null,
+						}));
+
 					set({
-						syncComplete:
-							localStorage.getItem(`syncStatus:${sub}`) ===
-							"complete",
+						syncComplete: Boolean(im42Config.syncedAt),
 					});
-				}
 
-				set({ isInitialLoading: false });
-			}),
-			completeSync: () => {
-				// TODO: BE
-				const sub = localStorage.getItem(AUTHN_SVC_SUB_CONFIG_KEY);
-				if (!sub) {
+					set({ isInitialLoading: false });
+				},
+			),
+			completeSync: (token?: string) => {
+				const profile = get().profile;
+				if (!token || !profile?.uuid) {
 					return;
 				}
 
-				localStorage.setItem(`syncStatus:${sub}`, "complete");
+				im42Api
+					.auth(`Bearer ${token}`)
+					.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
 			},

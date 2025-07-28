@@ -1,6 +1,8 @@
 import {
 	randAvatar,
-	randFullName,
+	randEmail,
+	randFirstName,
+	randLastName,
 	randPhoneNumber,
 	randUuid,
 } from "@ngneat/falso";
@@ -31,8 +33,10 @@ export const UserProviderMock: Component<
 				isInitialLoading: false,
 				profile: {
 					uuid: randUuid(),
-					avatar: randAvatar(),
-					fullName: randFullName(),
+					firstName: randFirstName(),
+					lastName: randLastName(),
+					email: randEmail(),
+					avatarHref: randAvatar(),
 					phoneNumber: randPhoneNumber(),
 				},
 			})),

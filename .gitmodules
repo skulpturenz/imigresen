@@ -1,0 +1,8 @@
+[submodule "api/imigresen-common"]
+	path = api/imigresen-common
+	# https://stackoverflow.com/a/79573044
+	url = ../imigresen-common.git
+[submodule "api/imigresen-mcp-api"]
+	path = api/imigresen-mcp-api
+	# https://stackoverflow.com/a/79573044
+	url = ../imigresen-mcp-api.git

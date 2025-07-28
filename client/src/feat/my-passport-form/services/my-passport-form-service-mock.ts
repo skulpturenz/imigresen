@@ -19,13 +19,12 @@ const storage = createStorage({
 export const myPassportFormService = (_token?: string) => {
 	const registerApplication = async ({
 		automergeUrl,
-		sub,
+		user,
 	}: RegisterApplicationVariables) => {
-		// TODO
 		const uuid = uuidv7();
 
 		storage.setItem(
-			storageKeys.myPassportFormApplication(uuid, sub),
+			storageKeys.myPassportFormApplication(uuid, user),
 			automergeUrl,
 		);
 
@@ -34,10 +33,9 @@ export const myPassportFormService = (_token?: string) => {
 
 	const deleteApplication = async ({
 		uuid,
-		sub,
+		user,
 	}: DeleteApplicationVariables) => {
-		// TODO
-		await storage.del(storageKeys.myPassportFormApplication(uuid, sub));
+		await storage.del(storageKeys.myPassportFormApplication(uuid, user));
 	};
 
 	const getReferenceData = async () => {

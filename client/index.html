@@ -8,6 +8,27 @@
 		<link
 			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Manrope:wght@200..800&display=swap"
 			rel="stylesheet" />
+		<script type="text/javascript">
+			!(function () {
+				var t = document.createElement("script");
+				((t.type = "text/javascript"),
+					(t.async = !0),
+					(t.src =
+						"https://app.formbricks.com/js/formbricks.umd.cjs"),
+					(t.onload = function () {
+						window.formbricks
+							? window.formbricks.setup({
+									environmentId: "cmbx5octc9mtnuk01gev48yb0",
+									appUrl: "https://app.formbricks.com",
+								})
+							: console.error(
+									"Formbricks library failed to load properly. The formbricks object is not available.",
+								);
+					}));
+				var e = document.getElementsByTagName("script")[0];
+				e.parentNode.insertBefore(t, e);
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>
