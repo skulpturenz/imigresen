@@ -91,8 +91,8 @@ export const Profile: Component = () => {
 				</div>
 			</Form>
 			<div class="flex justify-end gap-2 mt-4">
-				<Button variant="destructive">Cancel</Button>
-				<Button variant="default">Submit</Button>
+				<Button variant="destructive">{t("buttons.cancel")}</Button>
+				<Button variant="default">{t("buttons.submit")}</Button>
 			</div>
 		</>
 	);

@@ -13,4 +13,8 @@ export const resources = {
 			label: "Last name",
 		},
 	},
+	buttons: {
+		cancel: "Cancel",
+		submit: "Submit",
+	},
 };
