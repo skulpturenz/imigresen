@@ -17,29 +17,6 @@ export const Profile: Component = () => {
 		<>
 			<Form of={form}>
 				<div class={constants.grid}>
-					<Components.Field name="email">
-						{(field, props) => (
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
-									{t("form.email.label")}
-								</TextFieldLabel>
-								<TextField
-									{...props}
-									name={field.name}
-									value={field.value ?? ""}
-									placeholder={
-										userContext().profile?.email ?? ""
-									}
-									type="text"
-									autocomplete="email"
-								/>
-							</TextFieldRoot>
-						)}
-					</Components.Field>
-
 					<Components.Field name="firstName">
 						{(field, props) => (
 							<TextFieldRoot
@@ -85,6 +62,31 @@ export const Profile: Component = () => {
 							</TextFieldRoot>
 						)}
 					</Components.Field>
+
+					<div class="col-span-full">
+						<Components.Field name="email">
+							{(field, props) => (
+								<TextFieldRoot
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
+									<TextFieldLabel>
+										{t("form.email.label")}
+									</TextFieldLabel>
+									<TextField
+										{...props}
+										name={field.name}
+										value={field.value ?? ""}
+										placeholder={
+											userContext().profile?.email ?? ""
+										}
+										type="text"
+										autocomplete="email"
+									/>
+								</TextFieldRoot>
+							)}
+						</Components.Field>
+					</div>
 				</div>
 			</Form>
 		</>
