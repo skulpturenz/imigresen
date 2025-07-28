@@ -15,11 +15,13 @@ import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import { yupForm } from "core/data/yup/yup-form";
 import { toPath } from "core/router/utils";
 import { flattenObject, invariant } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
+import { myPassportForm } from "feat/my-passport-form/spec";
 import type {
 	DropdownOptions,
 	MyPassportForm,
@@ -56,7 +58,12 @@ export const useMyPassportForm = () => {
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
+	const [formContext, _setFormContext] = createSignal(Object.create(null));
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
+		validate: yupForm(myPassportForm, {
+			context: formContext,
+		}),
 		validateOn: "change",
 		revalidateOn: "change",
 	});
