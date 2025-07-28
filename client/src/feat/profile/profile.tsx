@@ -7,7 +7,12 @@ import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
 import type { Component } from "solid-js";
 import { Button } from "ui/button";
-import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
+import {
+	TextField,
+	TextFieldErrorMessage,
+	TextFieldLabel,
+	TextFieldRoot,
+} from "ui/text-field";
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
@@ -18,14 +23,14 @@ export const Profile: Component = () => {
 		<>
 			<Form of={form}>
 				<div class={constants.grid}>
-					<Components.Field name="firstName">
+					<Components.Field name="userDetails.firstName">
 						{(field, props) => (
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.firstName.label")}
+									{t("form.userDetails.firstName.label")}
 								</TextFieldLabel>
 								<TextField
 									{...props}
@@ -37,18 +42,21 @@ export const Profile: Component = () => {
 									type="text"
 									autocomplete="given-name"
 								/>
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						)}
 					</Components.Field>
 
-					<Components.Field name="lastName">
+					<Components.Field name="userDetails.lastName">
 						{(field, props) => (
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.lastName.label")}
+									{t("form.userDetails.lastName.label")}
 								</TextFieldLabel>
 								<TextField
 									{...props}
@@ -60,19 +68,22 @@ export const Profile: Component = () => {
 									type="text"
 									autocomplete="family-name"
 								/>
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						)}
 					</Components.Field>
 
 					<div class="col-span-full">
-						<Components.Field name="email">
+						<Components.Field name="userDetails.email">
 							{(field, props) => (
 								<TextFieldRoot
 									validationState={
 										field.error ? "invalid" : "valid"
 									}>
 									<TextFieldLabel>
-										{t("form.email.label")}
+										{t("form.userDetails.email.label")}
 									</TextFieldLabel>
 									<TextField
 										{...props}
@@ -84,6 +95,9 @@ export const Profile: Component = () => {
 										type="text"
 										autocomplete="email"
 									/>
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
 								</TextFieldRoot>
 							)}
 						</Components.Field>
