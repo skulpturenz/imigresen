@@ -1,5 +1,5 @@
-import { isNil } from "es-toolkit";
 import { get } from "es-toolkit/compat";
+import { isNil } from "es-toolkit/predicate";
 import type { Schema } from "yup";
 
 export const whenOptions =
