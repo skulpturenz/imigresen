@@ -1,0 +1,85 @@
+import {
+	createFormStore,
+	getValue,
+	setValue,
+	validate,
+} from "@modular-forms/solid";
+import { createRoot, createSignal } from "solid-js";
+import { describe, expect, it } from "vitest";
+import { type InferType, object, string } from "yup";
+import { yupForm } from "./yup-form";
+
+describe("yupForm", () => {
+	it("validates the form against the schema", async () => {
+		const schema = object({
+			hello: string().required(),
+		});
+
+		const form = createFormStore<InferType<typeof schema>>({
+			/// @ts-expect-error: TODO: type error
+			validate: yupForm(schema),
+		});
+
+		expect(getValue(form, "hello", { shouldActive: false })).toBeFalsy();
+
+		setValue(form, "hello", "");
+		await expect(
+			validate(form, { shouldActive: false }),
+		).resolves.toBeFalsy();
+
+		setValue(form, "hello", "world");
+		await expect(
+			validate(form, { shouldActive: false }),
+		).resolves.toBeTruthy();
+	});
+
+	it("allows passing a context", () =>
+		createRoot(async dispose => {
+			const [context, setContext] = createSignal({
+				hello: "world",
+			});
+			const schema = object({
+				hello: string()
+					.optional()
+					.when((_, schema, { context }) => {
+						if (context.hello === "world") {
+							return schema.required();
+						}
+
+						return schema;
+					}),
+			});
+
+			const options = {
+				context,
+			};
+
+			const form = createFormStore<InferType<typeof schema>>({
+				/// @ts-expect-error: TODO: type error
+				validate: yupForm(schema, options),
+			});
+
+			expect(
+				getValue(form, "hello", { shouldActive: false }),
+			).toBeFalsy();
+
+			setValue(form, "hello", "");
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toBeFalsy();
+
+			setValue(form, "hello", "world");
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toBeTruthy();
+
+			setContext({ hello: "world!!!" });
+
+			setValue(form, "hello", "");
+			await expect(
+				validate(form, { shouldActive: false }),
+			).resolves.toBeTruthy();
+
+			dispose();
+		}));
+});
