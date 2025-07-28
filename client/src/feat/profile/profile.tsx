@@ -7,6 +7,7 @@ import type { resources } from "feat/profile/resources/i18n/en-us";
 import { constants } from "feat/profile/ui/constants";
 import type { Component } from "solid-js";
 import { TextField, TextFieldLabel, TextFieldRoot } from "ui/text-field";
+import { Button } from "ui/button";
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
@@ -89,6 +90,10 @@ export const Profile: Component = () => {
 					</div>
 				</div>
 			</Form>
+			<div class="flex justify-end gap-2 mt-4">
+				<Button variant="destructive">Cancel</Button>
+				<Button variant="default">Submit</Button>
+			</div>
 		</>
 	);
 };
