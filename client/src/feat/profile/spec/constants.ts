@@ -1,3 +1,5 @@
-export const VALIDATION_REGEX = {
-	ALPHANUMERIC: /^[a-zA-Z0-9]+$/,
+export const constants = {
+	regex: {
+		alphanumeric: /^[a-zA-Z0-9]+$/,
+	}
 };
