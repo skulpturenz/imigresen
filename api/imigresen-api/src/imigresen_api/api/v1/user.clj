@@ -72,7 +72,7 @@
                                (ring-res/status (:no-content imi-routes/status-codes))))
                 :parameters {:path {:uuid ::imi-user-spec/uuid}
                              :body (-> imi-user-spec/user
-                                       (update-in [:spec] dissoc :uuid)
+                                       (update-in [:spec] dissoc :uuid :avatarHref)
                                        (assoc :name ::put-user)
                                        (ds/spec))}
                 :responses {(:no-content imi-routes/status-codes) {:description "No content"}
