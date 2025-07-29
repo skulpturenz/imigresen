@@ -5,8 +5,8 @@ import type { ProfileForm } from "feat/profile/types";
 
 export const useProfileForm = () => {
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
-		validateOn: "change",
-		revalidateOn: "change",
+		validateOn: "input",
+		revalidateOn: "input",
 		/// @ts-expect-error - Type mismatch between Yup schema and form validation interface
 		validate: yupForm(profileSchema),
 	});
