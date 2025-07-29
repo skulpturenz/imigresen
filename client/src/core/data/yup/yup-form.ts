@@ -3,7 +3,6 @@ import type {
 	PartialValues,
 	ValidateForm,
 } from "@modular-forms/solid";
-import { invariant } from "es-toolkit";
 import { type Schema, type ValidationError } from "yup";
 import type { ValidateOptions } from "./types";
 
@@ -20,6 +19,9 @@ export const yupForm = <
 		const error: ValidationError | null = await schema
 			.validate(values, {
 				...options,
+				// if `abortEarly` then errors on only 1 field will show
+				// default behaviour: show all errors
+				abortEarly: options?.abortEarly ?? false,
 				get context() {
 					return options?.context();
 				},
@@ -37,10 +39,30 @@ export const yupForm = <
 			return Object.create(null);
 		}
 
-		invariant(error.path, "undefined path");
+		const getAllErrors = () => {
+			const aggregateErrors = error.inner.reduce((acc, error) => {
+				if (!error.path || (error.path && acc[error.path])) {
+					return acc;
+				}
 
-		return Object.fromEntries(
-			error.errors.map(message => [error.path, message]),
-		);
+				return {
+					...acc,
+					[error.path]: error.errors.at(0),
+				};
+			}, Object.create(null));
+
+			if (error.errors.length > 0 && error.path) {
+				return {
+					[error.path]: error.errors.at(0),
+					...aggregateErrors,
+				};
+			}
+
+			return aggregateErrors;
+		};
+
+		const errors = getAllErrors();
+
+		return errors;
 	};
 };
