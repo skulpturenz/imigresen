@@ -3,6 +3,7 @@ import type {
 	PartialValues,
 	ValidateForm,
 } from "@modular-forms/solid";
+import { getOwner, runWithOwner } from "solid-js";
 import { type Schema, type ValidationError } from "yup";
 import type { ValidateOptions } from "./types";
 
@@ -15,25 +16,29 @@ export const yupForm = <
 	schema: Schema<TType, TContext, TFieldValues>,
 	options?: ValidateOptions<TContext>,
 ): ValidateForm<TFieldValues> => {
-	return async (values: PartialValues<TFieldValues>) => {
-		const error: ValidationError | null = await schema
-			.validate(values, {
-				...options,
-				// if `abortEarly` then errors on only 1 field will show
-				// default behaviour: show all errors
-				abortEarly: options?.abortEarly ?? false,
-				get context() {
-					return options?.context();
-				},
-			})
-			.then(() => null)
-			.catch(error => {
-				if (options?.debug) {
-					console.error(error);
-				}
+	const owner = getOwner();
 
-				return error;
-			});
+	return async (values: PartialValues<TFieldValues>) => {
+		const error: ValidationError | null = await runWithOwner(owner, () =>
+			schema
+				.validate(values, {
+					...options,
+					// if `abortEarly` then errors on only 1 field will show
+					// default behaviour: show all errors
+					abortEarly: options?.abortEarly ?? false,
+					get context() {
+						return options?.context();
+					},
+				})
+				.then(() => null)
+				.catch(error => {
+					if (options?.debug) {
+						console.error(error);
+					}
+
+					return error;
+				}),
+		);
 
 		if (!error) {
 			return Object.create(null);
