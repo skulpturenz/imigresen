@@ -34,10 +34,6 @@ export const useProfileForm = () => {
 
 	const submitHandler: SubmitHandler<ProfileForm> = async (values) => {
 		const profile = userContext().profile;
-		
-		if (!profile?.uuid) {
-			throw new Error("No user profile available");
-		}
 
 		await profileContext.updateProfile(values, profile.uuid);
 	};
