@@ -1,9 +1,17 @@
-import { createForm } from "@modular-forms/solid";
+import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
+import { useMutation } from "@tanstack/solid-query";
+import { UserContext } from "core/context/user";
+import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
+import { ProfileContext } from "feat/profile/context";
 import { profileSchema } from "feat/profile/spec";
-import type { ProfileForm } from "feat/profile/types";
+import type { ProfileForm, UpdateProfilePayload } from "feat/profile/types";
+import { createEffect } from "solid-js";
 
 export const useProfileForm = () => {
+	const profileContext = useContext(ProfileContext);
+	const userContext = useContext(UserContext);
+
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
 		validateOn: "input",
 		revalidateOn: "input",
@@ -11,8 +19,40 @@ export const useProfileForm = () => {
 		validate: yupForm(profileSchema),
 	});
 
+	const mUpdateProfile = useMutation(() => ({
+		mutationFn: ({ values, uuid }: UpdateProfilePayload) =>
+			profileContext.updateProfile(values, uuid),
+	}));
+
+	// Set default values when user profile is available
+	createEffect(() => {
+		const profile = userContext().profile;
+		if (profile) {
+			reset(form, {
+				initialValues: {
+					userDetails: {
+						firstName: profile.firstName,
+						lastName: profile.lastName,
+						email: profile.email,
+					},
+				},
+			});
+		}
+	});
+
+	const submitHandler: SubmitHandler<ProfileForm> = async values => {
+		const profile = userContext().profile;
+
+		await mUpdateProfile.mutateAsync({
+			values: values.userDetails,
+			uuid: profile?.uuid ?? "",
+		});
+	};
+
 	return {
 		form,
+		submitHandler,
+		isMutating: () => form.submitting || mUpdateProfile.isPending,
 		Components: {
 			Form,
 			Field,
