@@ -1,4 +1,5 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
+import { useMutation } from "@tanstack/solid-query";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
@@ -17,6 +18,11 @@ export const useProfileForm = () => {
 		/// @ts-expect-error - Type mismatch between Yup schema and form validation interface
 		validate: yupForm(profileSchema),
 	});
+
+	const mUpdateProfile = useMutation(() => ({
+		mutationFn: ({ values, uuid }: { values: ProfileForm; uuid: string }) =>
+			profileContext.updateProfile(values, uuid),
+	}));
 
 	// Set default values when user profile is available
 	createEffect(() => {
@@ -37,12 +43,16 @@ export const useProfileForm = () => {
 	const submitHandler: SubmitHandler<ProfileForm> = async (values) => {
 		const profile = userContext().profile;
 
-		await profileContext.updateProfile(values, profile?.uuid ?? "");
+		await mUpdateProfile.mutateAsync({
+			values,
+			uuid: profile?.uuid ?? "",
+		});
 	};
 
 	return {
 		form,
 		submitHandler,
+		isMutating: () => form.submitting || mUpdateProfile.isPending,
 		Components: {
 			Form,
 			Field,
