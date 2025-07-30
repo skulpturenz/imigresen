@@ -14,7 +14,7 @@ import {
 
 export const Profile: Component = () => {
 	const t = useI18n<typeof resources>();
-	const { form, submitHandler, Components } = useProfileForm();
+	const { form, submitHandler, isMutating, Components } = useProfileForm();
 
 	return (
 		<Form of={form} onSubmit={submitHandler}>
@@ -94,8 +94,8 @@ export const Profile: Component = () => {
 				</div>
 			</div>
 			<div class="flex justify-end gap-2 mt-4">
-				<Button variant="destructive">{t("buttons.cancel")}</Button>
-				<Button type="submit" variant="default">{t("buttons.submit")}</Button>
+				<Button variant="destructive" disabled={isMutating()}>{t("buttons.cancel")}</Button>
+				<Button type="submit" variant="default" disabled={isMutating()}>{t("buttons.submit")}</Button>
 			</div>
 		</Form>
 	);
