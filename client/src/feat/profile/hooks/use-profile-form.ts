@@ -37,7 +37,7 @@ export const useProfileForm = () => {
 	const submitHandler: SubmitHandler<ProfileForm> = async (values) => {
 		const profile = userContext().profile;
 
-		await profileContext.updateProfile(values, profile.uuid);
+		await profileContext.updateProfile(values, profile?.uuid ?? "");
 	};
 
 	return {
