@@ -44,7 +44,7 @@ export const useProfileForm = () => {
 		const profile = userContext().profile;
 
 		await mUpdateProfile.mutateAsync({
-			values,
+			values: values.userDetails,
 			uuid: profile?.uuid ?? "",
 		});
 	};
