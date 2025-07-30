@@ -90,10 +90,15 @@ export const Profile: Component = () => {
 				</div>
 			</div>
 			<div class="flex justify-end gap-2 mt-4">
-				<Button variant="destructive" disabled={isMutating() || form.invalid}>
+				<Button
+					variant="destructive"
+					disabled={isMutating() || form.invalid}>
 					{t("buttons.cancel")}
 				</Button>
-				<Button type="submit" variant="default" disabled={isMutating() || form.invalid}>
+				<Button
+					type="submit"
+					variant="default"
+					disabled={isMutating() || form.invalid}>
 					{t("buttons.submit")}
 				</Button>
 			</div>

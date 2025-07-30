@@ -1,6 +1,6 @@
 import type { ProfileForm } from "./form";
 
 export type UpdateProfilePayload = {
-	values: ProfileForm['userDetails'];
+	values: ProfileForm["userDetails"];
 	uuid: string;
 };
