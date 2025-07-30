@@ -5,7 +5,7 @@ import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
 import { ProfileContext } from "feat/profile/context";
 import { profileSchema } from "feat/profile/spec";
-import type { ProfileForm } from "feat/profile/types";
+import type { ProfileForm, UpdateProfilePayload } from "feat/profile/types";
 import { createEffect } from "solid-js";
 
 export const useProfileForm = () => {
@@ -20,7 +20,7 @@ export const useProfileForm = () => {
 	});
 
 	const mUpdateProfile = useMutation(() => ({
-		mutationFn: ({ values, uuid }: { values: ProfileForm; uuid: string }) =>
+		mutationFn: ({ values, uuid }: UpdateProfilePayload) =>
 			profileContext.updateProfile(values, uuid),
 	}));
 
