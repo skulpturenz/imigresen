@@ -23,10 +23,12 @@ export const useProfileForm = () => {
 		const profile = userContext().profile;
 		if (profile) {
 			reset(form, {
-				userDetails: {
-					firstName: profile.firstName,
-					lastName: profile.lastName,
-					email: profile.email,
+				initialValues: {
+					userDetails: {
+						firstName: profile.firstName,
+						lastName: profile.lastName,
+						email: profile.email,
+					},
 				},
 			});
 		}
