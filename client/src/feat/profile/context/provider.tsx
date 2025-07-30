@@ -9,11 +9,11 @@ export type ProfileSvc = ReturnType<typeof profileService>;
 export const ProfileContext = createContext<ProfileSvc>(createProfileContext());
 
 export const ProfileProvider: Component<ParentProps> = props => {
-	const authContext = useContext(AuthnContext);
+	const authnContext = useContext(AuthnContext);
 
 	return (
 		<ProfileContext.Provider
-			value={profileService(authContext().token)}>
+			value={profileService(authnContext().keycloak?.token)}>
 			{props.children}
 		</ProfileContext.Provider>
 	);

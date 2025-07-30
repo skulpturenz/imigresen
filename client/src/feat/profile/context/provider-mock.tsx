@@ -5,11 +5,11 @@ import { type Component, type ParentProps } from "solid-js";
 import { ProfileContext } from "./provider";
 
 export const ProfileProviderMock: Component<ParentProps> = props => {
-	const authContext = useContext(AuthnContext);
+	const authnContext = useContext(AuthnContext);
 
 	return (
 		<ProfileContext.Provider
-			value={profileService(authContext().token)}>
+			value={profileService(authnContext().keycloak?.token)}>
 			{props.children}
 		</ProfileContext.Provider>
 	);
