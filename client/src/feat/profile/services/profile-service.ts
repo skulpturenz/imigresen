@@ -7,10 +7,6 @@ const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 
 export const profileService = (token?: string) => {
 	const updateProfile = async (values: ProfileForm, userUuid: string) => {
-		if (!token) {
-			throw new Error("No authentication token available");
-		}
-
 		await userApi
 			.auth(`Bearer ${token}`)
 			.put(values, `/${userUuid}`)
