@@ -40,7 +40,7 @@ export const useProfileForm = () => {
 		}
 	});
 
-	const submitHandler: SubmitHandler<ProfileForm> = async (values) => {
+	const submitHandler: SubmitHandler<ProfileForm> = async values => {
 		const profile = userContext().profile;
 
 		await mUpdateProfile.mutateAsync({

@@ -7,10 +7,7 @@ const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 
 export const profileService = (token?: string) => {
 	const updateProfile = async (values: ProfileForm, userUuid: string) => {
-		await userApi
-			.auth(`Bearer ${token}`)
-			.put(values, `/${userUuid}`)
-			.res();
+		await userApi.auth(`Bearer ${token}`).put(values, `/${userUuid}`).res();
 	};
 
 	return {

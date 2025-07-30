@@ -22,9 +22,7 @@ export const Profile: Component = () => {
 				<Components.Field name="userDetails.firstName">
 					{(field, props) => (
 						<TextFieldRoot
-							validationState={
-								field.error ? "invalid" : "valid"
-							}>
+							validationState={field.error ? "invalid" : "valid"}>
 							<TextFieldLabel>
 								{t("form.userDetails.firstName.label")}
 							</TextFieldLabel>
@@ -46,9 +44,7 @@ export const Profile: Component = () => {
 				<Components.Field name="userDetails.lastName">
 					{(field, props) => (
 						<TextFieldRoot
-							validationState={
-								field.error ? "invalid" : "valid"
-							}>
+							validationState={field.error ? "invalid" : "valid"}>
 							<TextFieldLabel>
 								{t("form.userDetails.lastName.label")}
 							</TextFieldLabel>
@@ -94,8 +90,12 @@ export const Profile: Component = () => {
 				</div>
 			</div>
 			<div class="flex justify-end gap-2 mt-4">
-				<Button variant="destructive" disabled={isMutating()}>{t("buttons.cancel")}</Button>
-				<Button type="submit" variant="default" disabled={isMutating()}>{t("buttons.submit")}</Button>
+				<Button variant="destructive" disabled={isMutating()}>
+					{t("buttons.cancel")}
+				</Button>
+				<Button type="submit" variant="default" disabled={isMutating()}>
+					{t("buttons.submit")}
+				</Button>
 			</div>
 		</Form>
 	);
