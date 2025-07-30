@@ -1,19 +1,14 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
-import { AuthContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import { assertEnv } from "core/utils/assert-env";
 import { yupForm } from "core/data/yup/yup-form";
+import { ProfileContext } from "feat/profile/context";
 import { profileSchema } from "feat/profile/spec";
 import type { ProfileForm } from "feat/profile/types";
 import { createEffect } from "solid-js";
-import { default as wretch } from "wretch";
-
-assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
-const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 
 export const useProfileForm = () => {
-	const authContext = useContext(AuthContext);
+	const profileContext = useContext(ProfileContext);
 	const userContext = useContext(UserContext);
 
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
@@ -39,16 +34,12 @@ export const useProfileForm = () => {
 
 	const submitHandler: SubmitHandler<ProfileForm> = async (values) => {
 		const profile = userContext().profile;
-		const token = authContext().token;
 		
-		if (!profile?.uuid || !token) {
-			throw new Error("No user profile or authentication token available");
+		if (!profile?.uuid) {
+			throw new Error("No user profile available");
 		}
 
-		await userApi
-			.auth(`Bearer ${token}`)
-			.put(values, `/${profile.uuid}`)
-			.res();
+		await profileContext.updateProfile(values, profile.uuid);
 	};
 
 	return {
