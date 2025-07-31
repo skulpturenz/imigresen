@@ -1,16 +1,20 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
-import { useMutation } from "@tanstack/solid-query";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
+import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
 import { ProfileContext } from "feat/profile/context";
 import { profileSchema } from "feat/profile/spec";
 import type { ProfileForm, UpdateProfilePayload } from "feat/profile/types";
-import { createEffect } from "solid-js";
+import { onMount } from "solid-js";
 
 export const useProfileForm = () => {
 	const profileContext = useContext(ProfileContext);
 	const userContext = useContext(UserContext);
+	const queryClient = useQueryClient();
+	const authnContext = useContext(AuthnContext);
 
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
 		validateOn: "input",
@@ -22,11 +26,25 @@ export const useProfileForm = () => {
 	const mUpdateProfile = useMutation(() => ({
 		mutationFn: ({ values, uuid }: UpdateProfilePayload) =>
 			profileContext.updateProfile(values, uuid),
+		onSuccess: async () => {
+			queryClient.invalidateQueries({
+				queryKey: globalQueryKeys.getUserDetails(
+					authnContext().keycloak?.token,
+				),
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: globalQueryKeys.getPersonalDetails(
+					authnContext().keycloak?.token,
+				),
+			});
+		},
 	}));
 
 	// Set default values when user profile is available
-	createEffect(() => {
+	onMount(() => {
 		const profile = userContext().profile;
+
 		if (profile) {
 			reset(form, {
 				initialValues: {

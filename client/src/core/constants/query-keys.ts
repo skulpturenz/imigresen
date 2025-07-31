@@ -23,4 +23,18 @@ export const queryKeys = {
 		"getReferenceData",
 		token,
 	],
+	getUserDetails: (token?: string) => [
+		"core",
+		"context",
+		"user",
+		"getUserDetails",
+		token,
+	],
+	getPersonalDetails: (token?: string) => [
+		"core",
+		"context",
+		"user",
+		"getPersonalDetails",
+		token,
+	],
 };

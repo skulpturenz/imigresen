@@ -26,7 +26,6 @@ export const createUiContext = (): UiSvc => ({
 	locale: "en-NZ",
 	theme: "dark",
 	mode: "default",
-	queryClient: null,
 	actions: {
 		init: noop,
 		setTheme: noop,

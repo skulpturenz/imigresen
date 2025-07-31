@@ -1,5 +1,4 @@
 import { I18nProvider } from "@kobalte/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { RepoContext } from "solid-automerge";
@@ -74,18 +73,13 @@ export const UiProviderMock: Component<
 		<UiContext.Provider value={withDefaultProps.svc}>
 			<Show when={!withDefaultProps.svc().isInitialLoading()}>
 				<RepoContext.Provider value={repo}>
-					<QueryClientProvider
-						client={
-							withDefaultProps.svc().queryClient as QueryClient
-						}>
-						<I18nProvider locale={withDefaultProps.svc().locale}>
-							{withDefaultProps.children}
+					<I18nProvider locale={withDefaultProps.svc().locale}>
+						{withDefaultProps.children}
 
-							<ToastRegion>
-								<ToastList />
-							</ToastRegion>
-						</I18nProvider>
-					</QueryClientProvider>
+						<ToastRegion>
+							<ToastList />
+						</ToastRegion>
+					</I18nProvider>
 				</RepoContext.Provider>
 			</Show>
 		</UiContext.Provider>

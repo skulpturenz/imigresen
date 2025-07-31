@@ -1,6 +1,5 @@
 import { default as formbricks } from "@formbricks/js";
 import { I18nProvider } from "@kobalte/core/i18n";
-import { QueryClientProvider, type QueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { createUiContext } from "core/context/initializers";
 import { useContext } from "core/context/utils";
@@ -90,16 +89,13 @@ export const UiProvider: Component<ParentProps> = props => {
 		<UiContext.Provider value={value}>
 			<Show when={!value().isInitialLoading()}>
 				<RepoContext.Provider value={repo}>
-					<QueryClientProvider
-						client={value().queryClient as QueryClient}>
-						<I18nProvider locale={value().locale}>
-							{props.children}
+					<I18nProvider locale={value().locale}>
+						{props.children}
 
-							<ToastRegion>
-								<ToastList />
-							</ToastRegion>
-						</I18nProvider>
-					</QueryClientProvider>
+						<ToastRegion>
+							<ToastList />
+						</ToastRegion>
+					</I18nProvider>
 				</RepoContext.Provider>
 			</Show>
 		</UiContext.Provider>
