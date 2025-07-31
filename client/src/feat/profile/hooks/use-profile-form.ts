@@ -1,5 +1,6 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
-import { useMutation } from "@tanstack/solid-query";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
@@ -12,6 +13,7 @@ import { createEffect } from "solid-js";
 export const useProfileForm = () => {
 	const profileContext = useContext(ProfileContext);
 	const userContext = useContext(UserContext);
+	const queryClient = useQueryClient();
 	const authnContext = useContext(AuthnContext);
 
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
@@ -25,13 +27,17 @@ export const useProfileForm = () => {
 		mutationFn: ({ values, uuid }: UpdateProfilePayload) =>
 			profileContext.updateProfile(values, uuid),
 		onSuccess: async () => {
-			const token = authnContext().keycloak?.token;
-			const profile = authnContext().profile;
-			
-			// Refresh user profile data after successful update
-			if (token && profile?.email) {
-				await userContext().actions.refreshProfile(token, profile.email);
-			}
+			queryClient.invalidateQueries({
+				queryKey: globalQueryKeys.getUserDetails(
+					authnContext().keycloak?.token,
+				),
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: globalQueryKeys.getPersonalDetails(
+					authnContext().keycloak?.token,
+				),
+			});
 		},
 	}));
 
