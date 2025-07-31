@@ -1,5 +1,6 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
 import { useMutation } from "@tanstack/solid-query";
+import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
@@ -11,6 +12,7 @@ import { createEffect } from "solid-js";
 export const useProfileForm = () => {
 	const profileContext = useContext(ProfileContext);
 	const userContext = useContext(UserContext);
+	const authnContext = useContext(AuthnContext);
 
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
 		validateOn: "input",
@@ -22,6 +24,15 @@ export const useProfileForm = () => {
 	const mUpdateProfile = useMutation(() => ({
 		mutationFn: ({ values, uuid }: UpdateProfilePayload) =>
 			profileContext.updateProfile(values, uuid),
+		onSuccess: async () => {
+			const token = authnContext().keycloak?.token;
+			const profile = authnContext().profile;
+			
+			// Refresh user profile data after successful update
+			if (token && profile?.email) {
+				await userContext().actions.refreshProfile(token, profile.email);
+			}
+		},
 	}));
 
 	// Set default values when user profile is available

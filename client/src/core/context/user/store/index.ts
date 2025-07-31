@@ -33,6 +33,7 @@ export interface UserSvc {
 	actions: {
 		init: (token?: string, profile?: KeycloakProfile | null) => void;
 		completeSync: (token?: string) => void;
+		refreshProfile: (token?: string, email?: string) => Promise<void>;
 	};
 }
 
@@ -115,6 +116,35 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 					.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
+			},
+			refreshProfile: async (token?: string, email?: string) => {
+				if (!token || !email) {
+					return;
+				}
+
+				const searchParams = new URLSearchParams({
+					email,
+				});
+
+				const user = await userApi
+					.auth(`Bearer ${token}`)
+					.get(`?${searchParams.toString()}`)
+					.json<UserProfile>();
+
+				// Fetch personal details to get phone number
+				const personalDetails = await personalDetailsApi
+					.auth(`Bearer ${token}`)
+					.get(`/user/${user.uuid}`)
+					.notFound(() => null)
+					.json<UserPersonalDetails | null>();
+
+				// Update user profile with phone number from personal details
+				set({
+					profile: {
+						...user,
+						phoneNumber: personalDetails?.mobileNumber || "",
+					},
+				});
 			},
 		},
 	};
