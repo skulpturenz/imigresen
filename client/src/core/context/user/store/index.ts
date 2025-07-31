@@ -106,7 +106,11 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 					}));
 
 					createEffect(() => {
-						if (!qUser.data || !qPersonalDetails.data) {
+						if (
+							qUser.isLoading ||
+							qPersonalDetails.isLoading ||
+							!qUser.data
+						) {
 							return;
 						}
 
@@ -131,9 +135,9 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 
 					createEffect(() => {
 						if (
-							!qUser.data ||
-							!qPersonalDetails.data ||
-							!qIm42Config.data
+							qUser.isLoading ||
+							qPersonalDetails.isLoading ||
+							qIm42Config.isLoading
 						) {
 							return;
 						}
