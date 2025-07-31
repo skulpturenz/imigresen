@@ -1,10 +1,7 @@
-import { QueryClient } from "@tanstack/solid-query";
 import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createWithSignal } from "solid-zustand";
 import { default as wretch } from "wretch";
-import { queryKeys } from "core/constants/query-keys";
-import { profileService } from "feat/profile/services/profile-service";
 
 export interface UserProfile {
 	uuid: string;
@@ -34,8 +31,9 @@ export interface UserSvc {
 	profile?: UserProfile | null;
 	syncComplete?: boolean;
 	actions: {
-		init: (token?: string, profile?: KeycloakProfile | null, queryClient?: QueryClient) => void;
+		init: (token?: string, profile?: KeycloakProfile | null) => void;
 		completeSync: (token?: string) => void;
+		refreshProfile: (token?: string, email?: string) => Promise<void>;
 	};
 }
 
@@ -44,7 +42,11 @@ export interface IM42Config {
 	syncedAt?: Date | null;
 }
 
+const userApi = wretch(`${import.meta.env.VITE_API_BASE_URL}/user`);
 const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const personalDetailsApi = wretch(
+	`${import.meta.env.VITE_API_BASE_URL}/personal-details`,
+);
 
 export const useStore = createWithSignal<UserSvc>((set, get) => {
 	return {
@@ -52,7 +54,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 		profile: null,
 		actions: {
 			init: once(
-				async (token?: string, profile?: KeycloakProfile | null, queryClient?: QueryClient) => {
+				async (token?: string, profile?: KeycloakProfile | null) => {
 					if (!token || !profile) {
 						set({ isInitialLoading: false });
 
@@ -61,23 +63,21 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 
 					invariant(profile.email, "No email for keycloak profile");
 
-					const service = profileService(token);
+					const searchParams = new URLSearchParams({
+						email: profile.email,
+					});
 
-					// Use @tanstack/solid-query to fetch user profile
-					const user = queryClient 
-						? await queryClient.fetchQuery({
-							queryKey: queryKeys.getUserProfile(token, profile.email),
-							queryFn: () => service.getUserProfile(profile.email!),
-						})
-						: await service.getUserProfile(profile.email);
+					const user = await userApi
+						.auth(`Bearer ${token}`)
+						.get(`?${searchParams.toString()}`)
+						.json<UserProfile>();
 
-					// Use @tanstack/solid-query to fetch personal details
-					const personalDetails = queryClient
-						? await queryClient.fetchQuery({
-							queryKey: queryKeys.getUserPersonalDetails(token, user.uuid),
-							queryFn: () => service.getUserPersonalDetails(user.uuid),
-						})
-						: await service.getUserPersonalDetails(user.uuid);
+					// Fetch personal details to get phone number
+					const personalDetails = await personalDetailsApi
+						.auth(`Bearer ${token}`)
+						.get(`/user/${user.uuid}`)
+						.notFound(() => null)
+						.json<UserPersonalDetails | null>();
 
 					// Update user profile with phone number from personal details
 					set({
@@ -87,7 +87,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 						},
 					});
 
-					const im42Config = await im42Api
+					const im42Config = await userApi
 						.auth(`Bearer ${token}`)
 						.get(`/${user.uuid}/config/im42`)
 						// TODO: deep transform for responses
@@ -116,6 +116,35 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 					.put(`/user/${profile.uuid}/config/synced`);
 
 				set({ syncComplete: true });
+			},
+			refreshProfile: async (token?: string, email?: string) => {
+				if (!token || !email) {
+					return;
+				}
+
+				const searchParams = new URLSearchParams({
+					email,
+				});
+
+				const user = await userApi
+					.auth(`Bearer ${token}`)
+					.get(`?${searchParams.toString()}`)
+					.json<UserProfile>();
+
+				// Fetch personal details to get phone number
+				const personalDetails = await personalDetailsApi
+					.auth(`Bearer ${token}`)
+					.get(`/user/${user.uuid}`)
+					.notFound(() => null)
+					.json<UserPersonalDetails | null>();
+
+				// Update user profile with phone number from personal details
+				set({
+					profile: {
+						...user,
+						phoneNumber: personalDetails?.mobileNumber || "",
+					},
+				});
 			},
 		},
 	};
