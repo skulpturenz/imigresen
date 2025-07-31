@@ -1,4 +1,5 @@
 import { AuthnContext } from "core/context/authn";
+import { UiContext } from "core/context/ui";
 import { createUserContext } from "core/context/initializers";
 import { useContext } from "core/context/utils";
 import {
@@ -16,6 +17,7 @@ export const UserContext = createContext<Accessor<UserSvc>>(createUserContext);
 export const UserProvider: Component<ParentProps> = props => {
 	const value = useStore();
 	const authnContext = useContext(AuthnContext);
+	const uiContext = useContext(UiContext);
 
 	// TODO: once BE is up properly this should not be dependent on `authn`
 	// `authn` just authenticates
@@ -25,8 +27,9 @@ export const UserProvider: Component<ParentProps> = props => {
 		}
 
 		const profile = authnContext().profile;
+		const queryClient = uiContext().queryClient;
 
-		value().actions.init(authnContext().keycloak?.token, profile);
+		value().actions.init(authnContext().keycloak?.token, profile, queryClient);
 	});
 
 	return (

@@ -1,5 +1,6 @@
 import { createForm, reset, type SubmitHandler } from "@modular-forms/solid";
-import { useMutation } from "@tanstack/solid-query";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { queryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
@@ -13,6 +14,7 @@ export const useProfileForm = () => {
 	const profileContext = useContext(ProfileContext);
 	const userContext = useContext(UserContext);
 	const authnContext = useContext(AuthnContext);
+	const queryClient = useQueryClient();
 
 	const [form, { Form, Field, FieldArray }] = createForm<ProfileForm>({
 		validateOn: "input",
@@ -27,10 +29,18 @@ export const useProfileForm = () => {
 		onSuccess: async () => {
 			const token = authnContext().keycloak?.token;
 			const profile = authnContext().profile;
+			const userProfile = userContext().profile;
 			
-			// Refresh user profile data after successful update
+			// Invalidate user profile queries to trigger refetch
 			if (token && profile?.email) {
-				await userContext().actions.refreshProfile(token, profile.email);
+				await queryClient.invalidateQueries({
+					queryKey: queryKeys.getUserProfile(token, profile.email),
+				});
+			}
+			if (token && userProfile?.uuid) {
+				await queryClient.invalidateQueries({
+					queryKey: queryKeys.getUserPersonalDetails(token, userProfile.uuid),
+				});
 			}
 		},
 	}));
