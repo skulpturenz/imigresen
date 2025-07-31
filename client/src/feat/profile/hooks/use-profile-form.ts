@@ -8,7 +8,7 @@ import { yupForm } from "core/data/yup/yup-form";
 import { ProfileContext } from "feat/profile/context";
 import { profileSchema } from "feat/profile/spec";
 import type { ProfileForm, UpdateProfilePayload } from "feat/profile/types";
-import { createEffect } from "solid-js";
+import { onMount } from "solid-js";
 
 export const useProfileForm = () => {
 	const profileContext = useContext(ProfileContext);
@@ -42,8 +42,9 @@ export const useProfileForm = () => {
 	}));
 
 	// Set default values when user profile is available
-	createEffect(() => {
+	onMount(() => {
 		const profile = userContext().profile;
+
 		if (profile) {
 			reset(form, {
 				initialValues: {
