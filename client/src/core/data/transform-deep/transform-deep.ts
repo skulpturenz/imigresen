@@ -89,38 +89,95 @@ export const transformDeep = <T extends Transformable, U>(
 
 		// Handle arrays
 		if (Array.isArray(value)) {
+			// Check if there's a predicate-based transform that matches this array
+			if (transforms) {
+				for (const predicateTransform of transforms) {
+					if (predicateTransform.predicate(value, key, parent)) {
+						return predicateTransform.transform(value, key, parent);
+					}
+				}
+			}
+			
+			// Check if there's a single transform function (backward compatibility)
+			if (transform) {
+				return transform(value, key, parent);
+			}
+			
+			// Otherwise, recursively transform the array elements
 			const transformedArray = value.map((item, index) =>
 				deepTransform(item, index, value, currentDepth + 1)
 			);
-			const transformFn = getTransformFunction(transformedArray, key, parent);
-			return transformFn(transformedArray, key, parent);
+			return transformedArray;
 		}
 
 		// Handle Sets
 		if (value instanceof Set) {
+			// Check if there's a predicate-based transform that matches this Set
+			if (transforms) {
+				for (const predicateTransform of transforms) {
+					if (predicateTransform.predicate(value, key, parent)) {
+						return predicateTransform.transform(value, key, parent);
+					}
+				}
+			}
+			
+			// Check if there's a single transform function (backward compatibility)
+			if (transform) {
+				return transform(value, key, parent);
+			}
+			
+			// Otherwise, recursively transform the Set elements
 			const transformedSet = new Set();
 			let index = 0;
 			for (const item of value) {
 				transformedSet.add(deepTransform(item, index++, value, currentDepth + 1));
 			}
-			const transformFn = getTransformFunction(transformedSet, key, parent);
-			return transformFn(transformedSet, key, parent);
+			return transformedSet;
 		}
 
 		// Handle Maps
 		if (value instanceof Map) {
+			// Check if there's a predicate-based transform that matches this Map
+			if (transforms) {
+				for (const predicateTransform of transforms) {
+					if (predicateTransform.predicate(value, key, parent)) {
+						return predicateTransform.transform(value, key, parent);
+					}
+				}
+			}
+			
+			// Check if there's a single transform function (backward compatibility)
+			if (transform) {
+				return transform(value, key, parent);
+			}
+			
+			// Otherwise, recursively transform the Map entries
 			const transformedMap = new Map();
 			for (const [mapKey, mapValue] of value) {
 				const transformedKey = deepTransform(mapKey, "key", value, currentDepth + 1);
 				const transformedValue = deepTransform(mapValue, mapKey, value, currentDepth + 1);
 				transformedMap.set(transformedKey, transformedValue);
 			}
-			const transformFn = getTransformFunction(transformedMap, key, parent);
-			return transformFn(transformedMap, key, parent);
+			return transformedMap;
 		}
 
 		// Handle plain objects
 		if (isPlainObject(value)) {
+			// Check if there's a predicate-based transform that matches this object
+			if (transforms) {
+				for (const predicateTransform of transforms) {
+					if (predicateTransform.predicate(value, key, parent)) {
+						return predicateTransform.transform(value, key, parent);
+					}
+				}
+			}
+			
+			// Check if there's a single transform function (backward compatibility)
+			if (transform) {
+				return transform(value, key, parent);
+			}
+			
+			// Otherwise, recursively transform the object properties
 			const transformedObject: Record<string, any> = {};
 			for (const [objKey, objValue] of Object.entries(value)) {
 				transformedObject[objKey] = deepTransform(
@@ -130,8 +187,7 @@ export const transformDeep = <T extends Transformable, U>(
 					currentDepth + 1
 				);
 			}
-			const transformFn = getTransformFunction(transformedObject, key, parent);
-			return transformFn(transformedObject, key, parent);
+			return transformedObject;
 		}
 
 		// For other object types (Date, RegExp, etc.), just transform as-is
