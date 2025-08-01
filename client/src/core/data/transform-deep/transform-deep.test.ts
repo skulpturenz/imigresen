@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { transformDeep } from "./transform-deep";
-import type { TransformFn } from "./types";
+import type { TransformFn, PredicateTransform } from "./types";
 
 describe("transformDeep", () => {
 	describe("primitive values", () => {
@@ -300,6 +300,212 @@ describe("transformDeep", () => {
 			expect(result.data[0].user.profile.bio).toBe("softwareDeveloper");
 			expect(result.data[0].posts[0].title).toBe("myFirstPost");
 			expect(result.meta.status).toBe("success");
+		});
+	});
+
+	describe("predicate-based transformations", () => {
+		it("should apply different transforms based on predicates", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value) => typeof value === "string" && value.startsWith("user_"),
+					transform: (value) => value.replace("user_", "USER-")
+				},
+				{
+					predicate: (value) => typeof value === "string" && value.startsWith("role_"),
+					transform: (value) => value.replace("role_", "ROLE-")
+				},
+				{
+					predicate: (value) => typeof value === "number",
+					transform: (value) => value * 10
+				}
+			];
+
+			const data = {
+				id: "user_123",
+				permission: "role_admin",
+				count: 5,
+				name: "john"
+			};
+
+			const result = transformDeep(data, { transforms });
+
+			expect(result).toEqual({
+				id: "USER-123",
+				permission: "ROLE-admin",
+				count: 50,
+				name: "john" // No matching predicate, unchanged
+			});
+		});
+
+		it("should use defaultTransform when no predicate matches", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value) => typeof value === "number",
+					transform: (value) => value * 2
+				}
+			];
+
+			const defaultTransform: TransformFn<any, any> = (value) => 
+				typeof value === "string" ? value.toUpperCase() : value;
+
+			const data = {
+				count: 5,
+				name: "alice",
+				active: true
+			};
+
+			const result = transformDeep(data, { transforms, defaultTransform });
+
+			expect(result).toEqual({
+				count: 10, // Number transformed by predicate
+				name: "ALICE", // String transformed by default
+				active: true // Boolean transformed by default (no change)
+			});
+		});
+
+		it("should work with complex data structures and predicates", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value, key) => key === "email",
+					transform: (value) => value.toLowerCase()
+				},
+				{
+					predicate: (value, key, parent) => 
+						Array.isArray(parent) && typeof value === "object" && value.type === "user",
+					transform: (value) => ({ ...value, category: "USER_PROFILE" })
+				},
+				{
+					predicate: (value) => value instanceof Date,
+					transform: (value) => value.toISOString()
+				}
+			];
+
+			const data = {
+				users: [
+					{
+						type: "user",
+						email: "ALICE@EXAMPLE.COM",
+						createdAt: new Date("2023-01-01")
+					},
+					{
+						type: "admin",
+						email: "BOB@EXAMPLE.COM",
+						createdAt: new Date("2023-01-02")
+					}
+				],
+				lastUpdated: new Date("2023-01-03")
+			};
+
+			const result = transformDeep(data, { transforms });
+
+			expect(result.users[0]).toEqual({
+				type: "user",
+				email: "alice@example.com",
+				createdAt: "2023-01-01T00:00:00.000Z",
+				category: "USER_PROFILE"
+			});
+
+			expect(result.users[1]).toEqual({
+				type: "admin",
+				email: "bob@example.com",
+				createdAt: "2023-01-02T00:00:00.000Z"
+				// No category added since type !== "user"
+			});
+
+			expect(result.lastUpdated).toBe("2023-01-03T00:00:00.000Z");
+		});
+
+		it("should work with Maps having any key types", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value) => value instanceof Map,
+					transform: (value) => {
+						const newMap = new Map();
+						for (const [k, v] of value) {
+							// Transform the map by prefixing string values
+							newMap.set(k, typeof v === "string" ? `transformed_${v}` : v);
+						}
+						return newMap;
+					}
+				}
+			];
+
+			// Create a Map with various key types
+			const complexKey = { id: 1 };
+			const dateKey = new Date("2023-01-01");
+			const numberKey = 42;
+			
+			const data = new Map([
+				[complexKey, "value1"],
+				[dateKey, "value2"],
+				[numberKey, 100],
+				["stringKey", "value3"]
+			]);
+
+			const result = transformDeep(data, { transforms });
+
+			expect(result).toBeInstanceOf(Map);
+			expect(result.get(complexKey)).toBe("transformed_value1");
+			expect(result.get(dateKey)).toBe("transformed_value2");
+			expect(result.get(numberKey)).toBe(100); // Number unchanged
+			expect(result.get("stringKey")).toBe("transformed_value3");
+		});
+
+		it("should maintain backward compatibility with single transform", () => {
+			const transform: TransformFn<any, any> = (value) => 
+				typeof value === "string" ? value.toUpperCase() : value;
+
+			const data = { name: "alice", age: 30 };
+			const result = transformDeep(data, { transform });
+
+			expect(result).toEqual({ name: "ALICE", age: 30 });
+		});
+
+		it("should handle nested structures with predicate context", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value, key, parent) => 
+						key === "name" && parent && parent.type === "premium",
+					transform: (value) => `⭐ ${value}`
+				},
+				{
+					predicate: (value, key, parent) => 
+						key === "name" && parent && parent.type === "basic",
+					transform: (value) => `• ${value}`
+				}
+			];
+
+			const data = {
+				users: [
+					{ type: "premium", name: "alice", email: "alice@example.com" },
+					{ type: "basic", name: "bob", email: "bob@example.com" },
+					{ type: "guest", name: "charlie", email: "charlie@example.com" }
+				]
+			};
+
+			const result = transformDeep(data, { transforms });
+
+			expect(result.users[0].name).toBe("⭐ alice");
+			expect(result.users[1].name).toBe("• bob");
+			expect(result.users[2].name).toBe("charlie"); // No matching predicate
+		});
+
+		it("should handle predicate order priority (first match wins)", () => {
+			const transforms: PredicateTransform<any, any>[] = [
+				{
+					predicate: (value) => typeof value === "string",
+					transform: (value) => `FIRST: ${value}`
+				},
+				{
+					predicate: (value) => typeof value === "string" && value.length > 5,
+					transform: (value) => `SECOND: ${value}`
+				}
+			];
+
+			const result = transformDeep("hello world", { transforms });
+			
+			// Should use first transform since it matches first
+			expect(result).toBe("FIRST: hello world");
 		});
 	});
 });

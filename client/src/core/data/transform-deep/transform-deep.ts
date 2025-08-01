@@ -1,4 +1,4 @@
-import type { TransformFn, TransformOptions, Transformable } from "./types";
+import type { TransformFn, TransformOptions, Transformable, PredicateTransform } from "./types";
 
 const isPrimitive = (value: any): boolean => {
 	return (
@@ -26,8 +26,41 @@ export const transformDeep = <T extends Transformable, U>(
 	data: T,
 	options: TransformOptions<any, U>
 ): any => {
-	const { transform, maxDepth = Infinity, preserveReferences = false } = options;
+	const { 
+		transform, 
+		transforms, 
+		defaultTransform, 
+		maxDepth = Infinity, 
+		preserveReferences = false 
+	} = options;
+	
 	const visited = preserveReferences ? new WeakSet() : null;
+	
+	// Helper function to find and apply the appropriate transform
+	const getTransformFunction = (
+		value: any, 
+		key?: string | number, 
+		parent?: any
+	): TransformFn<any, any> => {
+		// If transforms array is provided, find the first matching predicate
+		if (transforms) {
+			for (const predicateTransform of transforms) {
+				if (predicateTransform.predicate(value, key, parent)) {
+					return predicateTransform.transform;
+				}
+			}
+			// If no predicate matches, use defaultTransform or identity function
+			return defaultTransform || ((v) => v);
+		}
+		
+		// Fallback to single transform (backward compatibility)
+		if (transform) {
+			return transform;
+		}
+		
+		// If neither transforms nor transform is provided, use identity
+		return (v) => v;
+	};
 
 	const deepTransform = (
 		value: any,
@@ -50,7 +83,8 @@ export const transformDeep = <T extends Transformable, U>(
 
 		// Transform primitive values directly
 		if (isPrimitive(value)) {
-			return transform(value, key, parent);
+			const transformFn = getTransformFunction(value, key, parent);
+			return transformFn(value, key, parent);
 		}
 
 		// Handle arrays
@@ -58,7 +92,8 @@ export const transformDeep = <T extends Transformable, U>(
 			const transformedArray = value.map((item, index) =>
 				deepTransform(item, index, value, currentDepth + 1)
 			);
-			return transform(transformedArray, key, parent);
+			const transformFn = getTransformFunction(transformedArray, key, parent);
+			return transformFn(transformedArray, key, parent);
 		}
 
 		// Handle Sets
@@ -68,7 +103,8 @@ export const transformDeep = <T extends Transformable, U>(
 			for (const item of value) {
 				transformedSet.add(deepTransform(item, index++, value, currentDepth + 1));
 			}
-			return transform(transformedSet, key, parent);
+			const transformFn = getTransformFunction(transformedSet, key, parent);
+			return transformFn(transformedSet, key, parent);
 		}
 
 		// Handle Maps
@@ -79,7 +115,8 @@ export const transformDeep = <T extends Transformable, U>(
 				const transformedValue = deepTransform(mapValue, mapKey, value, currentDepth + 1);
 				transformedMap.set(transformedKey, transformedValue);
 			}
-			return transform(transformedMap, key, parent);
+			const transformFn = getTransformFunction(transformedMap, key, parent);
+			return transformFn(transformedMap, key, parent);
 		}
 
 		// Handle plain objects
@@ -93,11 +130,13 @@ export const transformDeep = <T extends Transformable, U>(
 					currentDepth + 1
 				);
 			}
-			return transform(transformedObject, key, parent);
+			const transformFn = getTransformFunction(transformedObject, key, parent);
+			return transformFn(transformedObject, key, parent);
 		}
 
 		// For other object types (Date, RegExp, etc.), just transform as-is
-		return transform(value, key, parent);
+		const transformFn = getTransformFunction(value, key, parent);
+		return transformFn(value, key, parent);
 	};
 
 	return deepTransform(data);
