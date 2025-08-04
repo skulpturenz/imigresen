@@ -43,7 +43,7 @@
 		"lucide-solid": "^0.527.0",
 		"motion": "^12.23.9",
 		"pluralize": "^8.0.0",
-		"solid-automerge": "^1.0.10",
+		"solid-automerge": "^1.1.0",
 		"solid-js": "^1.9.7",
 		"solid-transition-group": "^0.3.0",
 		"solid-zustand": "^1.8.1",
