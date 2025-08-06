@@ -25,6 +25,10 @@ export const transformDeep: Transform = (value, conformer): any => {
 			);
 		}
 
+		if (conformer.match && !conformer.match(value)) {
+			return identity;
+		}
+
 		return conformer ?? identity;
 	};
 
