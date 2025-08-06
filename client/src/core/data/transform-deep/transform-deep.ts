@@ -29,7 +29,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			return identity;
 		}
 
-		return conformer ?? identity;
+		return conformer;
 	};
 
 	const deepTransform = (value: any): any => {
