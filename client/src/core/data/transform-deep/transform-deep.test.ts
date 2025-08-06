@@ -412,11 +412,11 @@ describe("transformDeep", () => {
 		it("should work with complex data structures and predicates", () => {
 			const transforms: PredicateTransform<any, any>[] = [
 				{
-					predicate: (value, key) => key === "email",
+					predicate: (_value, key) => key === "email",
 					transform: value => value.toLowerCase(),
 				},
 				{
-					predicate: (value, key, parent) =>
+					predicate: (value, _key, parent) =>
 						Array.isArray(parent) &&
 						typeof value === "object" &&
 						value.type === "user",
@@ -489,7 +489,7 @@ describe("transformDeep", () => {
 			const dateKey = new Date("2023-01-01");
 			const numberKey = 42;
 
-			const data = new Map([
+			const data = new Map<any, any>([
 				[complexKey, "value1"],
 				[dateKey, "value2"],
 				[numberKey, 100],
@@ -518,12 +518,12 @@ describe("transformDeep", () => {
 		it("should handle nested structures with predicate context", () => {
 			const transforms: PredicateTransform<any, any>[] = [
 				{
-					predicate: (value, key, parent) =>
+					predicate: (_value, key, parent) =>
 						key === "name" && parent && parent.type === "premium",
 					transform: value => `⭐ ${value}`,
 				},
 				{
-					predicate: (value, key, parent) =>
+					predicate: (_value, key, parent) =>
 						key === "name" && parent && parent.type === "basic",
 					transform: value => `• ${value}`,
 				},
