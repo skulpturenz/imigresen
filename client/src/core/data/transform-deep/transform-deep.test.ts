@@ -269,4 +269,25 @@ describe("transformDeep", () => {
 			expect(result).toEqual(new Map(Object.entries({ x: 1 })));
 		});
 	});
+
+	it("throws if circular reference", () => {
+		const record: Record<string, any> = { a: "b" };
+		record.self = record;
+
+		expect(() =>
+			transformDeep(record, [
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					value => !isPlainObject(value),
+				),
+				createConformer((value: Record<string, any>) => {
+					if (value.acc) {
+						return value.acc;
+					}
+
+					return value;
+				}, isPlainObject),
+			]),
+		).toThrowError();
+	});
 });
