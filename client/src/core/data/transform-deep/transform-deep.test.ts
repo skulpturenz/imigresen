@@ -213,8 +213,8 @@ describe("transformDeep", () => {
 
 			expect(result).toBeInstanceOf(Map);
 			const resultMap = result as Map<string, string>;
-			expect(resultMap.get("KEY1")).toBe("VALUE1");
-			expect(resultMap.get("KEY2")).toBe("VALUE2");
+			expect(resultMap.get("key1")).toBe("VALUE1");
+			expect(resultMap.get("key2")).toBe("VALUE2");
 		});
 	});
 

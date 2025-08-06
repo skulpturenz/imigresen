@@ -116,19 +116,13 @@ export const transformDeep = <T extends Transformable, U>(
 		if (value instanceof Map) {
 			const transformedMap = new Map();
 			for (const [mapKey, mapValue] of value) {
-				const transformedKey = deepTransform(
-					mapKey,
-					"key",
-					value,
-					currentDepth + 1,
-				);
 				const transformedValue = deepTransform(
 					mapValue,
 					mapKey,
 					value,
 					currentDepth + 1,
 				);
-				transformedMap.set(transformedKey, transformedValue);
+				transformedMap.set(mapKey, transformedValue);
 			}
 			const transformFn = getTransformFunction(
 				transformedMap,
