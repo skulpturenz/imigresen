@@ -1,7 +1,17 @@
 import { camelCase } from "es-toolkit";
 import { describe, expect, it } from "vitest";
 import { createConformer, transformDeep } from "./transform-deep";
-import type { PredicateTransform, TransformFn } from "./types";
+
+export interface PredicateTransform<T, U> {
+	predicate: (value: any, key?: string | number, parent?: any) => boolean;
+	transform: TransformFn<T, U>;
+}
+
+export type TransformFn<T, U> = (
+	value: T,
+	key?: string | number,
+	parent?: any,
+) => U;
 
 describe("transformDeep", () => {
 	describe("primitive values", () => {

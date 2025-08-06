@@ -1,27 +1,5 @@
-import { identity } from "es-toolkit";
-import type { Transform, TransformFn } from "./types";
-
-const isPrimitive = (value: any): boolean => {
-	return (
-		value === null ||
-		value === undefined ||
-		typeof value === "string" ||
-		typeof value === "number" ||
-		typeof value === "boolean"
-	);
-};
-
-const isPlainObject = (value: any): value is Record<string, any> => {
-	return (
-		value !== null &&
-		typeof value === "object" &&
-		!Array.isArray(value) &&
-		!(value instanceof Date) &&
-		!(value instanceof RegExp) &&
-		!(value instanceof Set) &&
-		!(value instanceof Map)
-	);
-};
+import { identity, isPlainObject, isPrimitive } from "es-toolkit";
+import type { Conformer, Transform } from "./types";
 
 export const createConformer = (
 	conformFn: (value: any) => any,
@@ -37,25 +15,13 @@ export const createConformer = (
 };
 
 export const transformDeep: Transform = (value, conformer): any => {
-	// const {
-	// 	transform,
-	// 	transforms,
-	// 	defaultTransform,
-	// 	maxDepth = Infinity,
-	// 	preserveReferences = false,
-	// } = options;
-
 	const maxDepth = Infinity; // TODO
 	const preserveReferences = false; // TODO
 
 	const visited = preserveReferences ? new WeakSet() : null;
 
 	// Helper function to find and apply the appropriate transform
-	const getTransformFunction = (
-		value: any,
-		_key?: string | number,
-		_parent?: any,
-	): TransformFn<any, any> => {
+	const getConformer = (value: any): Conformer<any, any> => {
 		if (Array.isArray(conformer)) {
 			return (
 				conformer.find(conformer => conformer.match?.(value)) ??
@@ -66,12 +32,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 		return conformer ?? identity;
 	};
 
-	const deepTransform = (
-		value: any,
-		key?: string | number,
-		parent?: any,
-		currentDepth = 0,
-	): any => {
+	const deepTransform = (value: any, currentDepth = 0): any => {
 		// Check depth limit
 		if (currentDepth >= maxDepth) {
 			return value;
@@ -92,21 +53,17 @@ export const transformDeep: Transform = (value, conformer): any => {
 
 		// Transform primitive values directly
 		if (isPrimitive(value)) {
-			const transformFn = getTransformFunction(value, key, parent);
-			return transformFn(value, key, parent);
+			const transformFn = getConformer(value);
+			return transformFn(value);
 		}
 
 		// Handle arrays
 		if (Array.isArray(value)) {
 			const transformedArray = value.map((item, index) =>
-				deepTransform(item, index, value, currentDepth + 1),
+				deepTransform(item, index),
 			);
-			const transformFn = getTransformFunction(
-				transformedArray,
-				key,
-				parent,
-			);
-			return transformFn(transformedArray, key, parent);
+			const transformFn = getConformer(transformedArray);
+			return transformFn(transformedArray);
 		}
 
 		// Handle Sets
@@ -114,60 +71,36 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const transformedSet = new Set();
 			let index = 0;
 			for (const item of value) {
-				transformedSet.add(
-					deepTransform(item, index++, value, currentDepth + 1),
-				);
+				transformedSet.add(deepTransform(item, index++));
 			}
-			const transformFn = getTransformFunction(
-				transformedSet,
-				key,
-				parent,
-			);
-			return transformFn(transformedSet, key, parent);
+			const transformFn = getConformer(transformedSet);
+			return transformFn(transformedSet);
 		}
 
 		// Handle Maps
 		if (value instanceof Map) {
 			const transformedMap = new Map();
 			for (const [mapKey, mapValue] of value) {
-				const transformedValue = deepTransform(
-					mapValue,
-					mapKey,
-					value,
-					currentDepth + 1,
-				);
+				const transformedValue = deepTransform(mapValue, mapKey);
 				transformedMap.set(mapKey, transformedValue);
 			}
-			const transformFn = getTransformFunction(
-				transformedMap,
-				key,
-				parent,
-			);
-			return transformFn(transformedMap, key, parent);
+			const transformFn = getConformer(transformedMap);
+			return transformFn(transformedMap);
 		}
 
 		// Handle plain objects
 		if (isPlainObject(value)) {
 			const transformedObject: Record<string, any> = {};
 			for (const [objKey, objValue] of Object.entries(value)) {
-				transformedObject[objKey] = deepTransform(
-					objValue,
-					objKey,
-					value,
-					currentDepth + 1,
-				);
+				transformedObject[objKey] = deepTransform(objValue);
 			}
-			const transformFn = getTransformFunction(
-				transformedObject,
-				key,
-				parent,
-			);
-			return transformFn(transformedObject, key, parent);
+			const transformFn = getConformer(transformedObject);
+			return transformFn(transformedObject);
 		}
 
 		// For other object types (Date, RegExp, etc.), just transform as-is
-		const transformFn = getTransformFunction(value, key, parent);
-		return transformFn(value, key, parent);
+		const transformFn = getConformer(value);
+		return transformFn(value);
 	};
 
 	return deepTransform(value);
