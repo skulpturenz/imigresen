@@ -298,24 +298,19 @@ describe("transformDeep", () => {
 	// 	});
 	// });
 
-	// TODO: throw, not necessary
-	// describe("preserveReferences option", () => {
-	// 	it("should handle circular references when preserveReferences is true", () => {
-	// 		const obj: any = { name: "test" };
-	// 		obj.self = obj;
+	describe("preserveReferences option", () => {
+		it("should handle circular references when preserveReferences is true", () => {
+			const obj: any = { name: "test" };
+			obj.self = obj;
 
-	// 		const transform: TransformFn<any, any> = value =>
-	// 			typeof value === "string" ? value.toUpperCase() : value;
+			const transform: TransformFn<any, any> = value =>
+				typeof value === "string" ? value.toUpperCase() : value;
 
-	// 		const result = transformDeep(obj, {
-	// 			transform,
-	// 			preserveReferences: true,
-	// 		});
-
-	// 		expect(result.name).toBe("TEST");
-	// 		expect(result.self).toBe(obj); // Should maintain circular reference
-	// 	});
-	// });
+			expect(() =>
+				transformDeep(obj, createConformer(transform)),
+			).toThrowError();
+		});
+	});
 
 	describe("complex API response scenarios", () => {
 		it("should handle typical API response structure", () => {
