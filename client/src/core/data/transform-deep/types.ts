@@ -1,8 +1,12 @@
-export type TransformFn<T, U> = (value: T, key?: string | number, parent?: any) => U;
+export type TransformFn<T, U> = (
+	value: T,
+	key?: string | number,
+	parent?: any,
+) => U;
 
 export type PrimitiveValue = string | number | boolean | null | undefined;
 
-export type Transformable = 
+export type Transformable =
 	| PrimitiveValue
 	| Record<string, any>
 	| Array<any>

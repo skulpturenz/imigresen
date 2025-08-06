@@ -1,4 +1,4 @@
-import type { TransformFn, TransformOptions, Transformable, PredicateTransform } from "./types";
+import type { TransformFn, TransformOptions, Transformable } from "./types";
 
 const isPrimitive = (value: any): boolean => {
 	return (
@@ -24,23 +24,23 @@ const isPlainObject = (value: any): value is Record<string, any> => {
 
 export const transformDeep = <T extends Transformable, U>(
 	data: T,
-	options: TransformOptions<any, U>
+	options: TransformOptions<any, U>,
 ): any => {
-	const { 
-		transform, 
-		transforms, 
-		defaultTransform, 
-		maxDepth = Infinity, 
-		preserveReferences = false 
+	const {
+		transform,
+		transforms,
+		defaultTransform,
+		maxDepth = Infinity,
+		preserveReferences = false,
 	} = options;
-	
+
 	const visited = preserveReferences ? new WeakSet() : null;
-	
+
 	// Helper function to find and apply the appropriate transform
 	const getTransformFunction = (
-		value: any, 
-		key?: string | number, 
-		parent?: any
+		value: any,
+		key?: string | number,
+		parent?: any,
 	): TransformFn<any, any> => {
 		// If transforms array is provided, find the first matching predicate
 		if (transforms) {
@@ -50,23 +50,23 @@ export const transformDeep = <T extends Transformable, U>(
 				}
 			}
 			// If no predicate matches, use defaultTransform or identity function
-			return defaultTransform || ((v) => v);
+			return defaultTransform || (v => v);
 		}
-		
+
 		// Fallback to single transform (backward compatibility)
 		if (transform) {
 			return transform;
 		}
-		
+
 		// If neither transforms nor transform is provided, use identity
-		return (v) => v;
+		return v => v;
 	};
 
 	const deepTransform = (
 		value: any,
 		key?: string | number,
 		parent?: any,
-		currentDepth = 0
+		currentDepth = 0,
 	): any => {
 		// Check depth limit
 		if (currentDepth >= maxDepth) {
@@ -74,7 +74,12 @@ export const transformDeep = <T extends Transformable, U>(
 		}
 
 		// Handle circular references
-		if (preserveReferences && visited && typeof value === "object" && value !== null) {
+		if (
+			preserveReferences &&
+			visited &&
+			typeof value === "object" &&
+			value !== null
+		) {
 			if (visited.has(value)) {
 				return value; // Return as-is to avoid infinite recursion
 			}
@@ -90,9 +95,13 @@ export const transformDeep = <T extends Transformable, U>(
 		// Handle arrays
 		if (Array.isArray(value)) {
 			const transformedArray = value.map((item, index) =>
-				deepTransform(item, index, value, currentDepth + 1)
+				deepTransform(item, index, value, currentDepth + 1),
 			);
-			const transformFn = getTransformFunction(transformedArray, key, parent);
+			const transformFn = getTransformFunction(
+				transformedArray,
+				key,
+				parent,
+			);
 			return transformFn(transformedArray, key, parent);
 		}
 
@@ -101,9 +110,15 @@ export const transformDeep = <T extends Transformable, U>(
 			const transformedSet = new Set();
 			let index = 0;
 			for (const item of value) {
-				transformedSet.add(deepTransform(item, index++, value, currentDepth + 1));
+				transformedSet.add(
+					deepTransform(item, index++, value, currentDepth + 1),
+				);
 			}
-			const transformFn = getTransformFunction(transformedSet, key, parent);
+			const transformFn = getTransformFunction(
+				transformedSet,
+				key,
+				parent,
+			);
 			return transformFn(transformedSet, key, parent);
 		}
 
@@ -111,11 +126,25 @@ export const transformDeep = <T extends Transformable, U>(
 		if (value instanceof Map) {
 			const transformedMap = new Map();
 			for (const [mapKey, mapValue] of value) {
-				const transformedKey = deepTransform(mapKey, "key", value, currentDepth + 1);
-				const transformedValue = deepTransform(mapValue, mapKey, value, currentDepth + 1);
+				const transformedKey = deepTransform(
+					mapKey,
+					"key",
+					value,
+					currentDepth + 1,
+				);
+				const transformedValue = deepTransform(
+					mapValue,
+					mapKey,
+					value,
+					currentDepth + 1,
+				);
 				transformedMap.set(transformedKey, transformedValue);
 			}
-			const transformFn = getTransformFunction(transformedMap, key, parent);
+			const transformFn = getTransformFunction(
+				transformedMap,
+				key,
+				parent,
+			);
 			return transformFn(transformedMap, key, parent);
 		}
 
@@ -127,10 +156,14 @@ export const transformDeep = <T extends Transformable, U>(
 					objValue,
 					objKey,
 					value,
-					currentDepth + 1
+					currentDepth + 1,
 				);
 			}
-			const transformFn = getTransformFunction(transformedObject, key, parent);
+			const transformFn = getTransformFunction(
+				transformedObject,
+				key,
+				parent,
+			);
 			return transformFn(transformedObject, key, parent);
 		}
 
