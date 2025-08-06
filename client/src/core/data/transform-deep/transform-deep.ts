@@ -1,5 +1,5 @@
 import { identity } from "es-toolkit";
-import type { TransformFn, TransformOptions, Transformable } from "./types";
+import type { Transform, TransformFn } from "./types";
 
 const isPrimitive = (value: any): boolean => {
 	return (
@@ -23,33 +23,47 @@ const isPlainObject = (value: any): value is Record<string, any> => {
 	);
 };
 
-export const transformDeep = <T extends Transformable, U>(
-	data: T,
-	options: TransformOptions<any, U>,
-): any => {
-	const {
-		transform,
-		transforms,
-		defaultTransform,
-		maxDepth = Infinity,
-		preserveReferences = false,
-	} = options;
+export const createConformer = (
+	conformFn: (value: any) => any,
+	predicateFn?: (value: any) => boolean,
+) => {
+	const result = (value: any) => conformFn(value);
+
+	Object.assign(result, {
+		match: predicateFn,
+	});
+
+	return result;
+};
+
+export const transformDeep: Transform = (value, conformer): any => {
+	// const {
+	// 	transform,
+	// 	transforms,
+	// 	defaultTransform,
+	// 	maxDepth = Infinity,
+	// 	preserveReferences = false,
+	// } = options;
+
+	const maxDepth = Infinity; // TODO
+	const preserveReferences = false; // TODO
 
 	const visited = preserveReferences ? new WeakSet() : null;
 
 	// Helper function to find and apply the appropriate transform
 	const getTransformFunction = (
 		value: any,
-		key?: string | number,
-		parent?: any,
+		_key?: string | number,
+		_parent?: any,
 	): TransformFn<any, any> => {
-		return (
-			transforms?.find(({ predicate }) => predicate(value, key, parent))
-				?.transform ??
-			defaultTransform ??
-			transform ??
-			identity
-		);
+		if (Array.isArray(conformer)) {
+			return (
+				conformer.find(conformer => conformer.match?.(value)) ??
+				identity
+			);
+		}
+
+		return conformer ?? identity;
 	};
 
 	const deepTransform = (
@@ -156,5 +170,5 @@ export const transformDeep = <T extends Transformable, U>(
 		return transformFn(value, key, parent);
 	};
 
-	return deepTransform(data);
+	return deepTransform(value);
 };
