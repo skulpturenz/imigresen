@@ -1,3 +1,4 @@
+import { camelCase } from "es-toolkit";
 import { describe, expect, it } from "vitest";
 import { transformDeep } from "./transform-deep";
 import type { PredicateTransform, TransformFn } from "./types";
@@ -326,12 +327,9 @@ describe("transformDeep", () => {
 			};
 
 			// Transform to camelCase
-			const toCamelCase = (str: string): string =>
-				str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-
 			const transform: TransformFn<any, any> = value => {
 				if (typeof value === "string") {
-					return toCamelCase(value);
+					return camelCase(value);
 				}
 				return value;
 			};
