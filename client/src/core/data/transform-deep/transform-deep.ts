@@ -1,3 +1,4 @@
+import { identity } from "es-toolkit";
 import type { TransformFn, TransformOptions, Transformable } from "./types";
 
 const isPrimitive = (value: any): boolean => {
@@ -42,24 +43,13 @@ export const transformDeep = <T extends Transformable, U>(
 		key?: string | number,
 		parent?: any,
 	): TransformFn<any, any> => {
-		// If transforms array is provided, find the first matching predicate
-		if (transforms) {
-			for (const predicateTransform of transforms) {
-				if (predicateTransform.predicate(value, key, parent)) {
-					return predicateTransform.transform;
-				}
-			}
-			// If no predicate matches, use defaultTransform or identity function
-			return defaultTransform || (v => v);
-		}
-
-		// Fallback to single transform (backward compatibility)
-		if (transform) {
-			return transform;
-		}
-
-		// If neither transforms nor transform is provided, use identity
-		return v => v;
+		return (
+			transforms?.find(({ predicate }) => predicate(value, key, parent))
+				?.transform ??
+			defaultTransform ??
+			transform ??
+			identity
+		);
 	};
 
 	const deepTransform = (
