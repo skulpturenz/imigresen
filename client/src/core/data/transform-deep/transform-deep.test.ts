@@ -1,6 +1,12 @@
 import { isPlainObject } from "es-toolkit";
 import { describe, expect, it } from "vitest";
-import { createConformer, transformDeep } from "./transform-deep";
+import {
+	createConformer,
+	isCircularReference,
+	transformDeep,
+	unwrap,
+} from "./transform-deep";
+import type { CircularReferentialResult } from "./types";
 
 describe("transformDeep", () => {
 	describe("primitive values", () => {
@@ -389,12 +395,17 @@ describe("transformDeep", () => {
 
 				return value;
 			}, isPlainObject),
-		]) as typeof record;
+		]) as CircularReferentialResult<Record<string, any>>;
 
-		expect(result.self.ref).toEqual(result);
-		expect(result.self.ref).toBe(result);
+		expect(result.__meta__?.hasCircularReference).toBeTruthy();
+		expect(isCircularReference(result.self)).toBeTruthy();
 
-		expect(result.c.self.ref).toEqual(result.c);
-		expect(result.c.self.ref).toBe(result.c);
+		expect(unwrap(result)).toBe(result);
+
+		expect(unwrap(result.self)).toEqual(result);
+		expect(unwrap(result.self)).toBe(result);
+
+		expect(unwrap(result.c.self)).toEqual(result.c);
+		expect(unwrap(result.c.self)).toBe(result.c);
 	});
 });

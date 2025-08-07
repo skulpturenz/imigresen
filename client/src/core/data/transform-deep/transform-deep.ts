@@ -134,5 +134,27 @@ export const transformDeep: Transform = (value, conformer): any => {
 		value.ref = visited.get(key);
 	});
 
+	if (typeof result === "object" && circularReferences.size) {
+		Object.defineProperty(result, "__meta__", {
+			value: {
+				hasCircularReference: Boolean(circularReferences.size),
+			},
+			enumerable: false,
+		});
+	}
+
 	return result;
+};
+
+const isRef = (x: unknown) => Boolean((x as Record<string, any>)?.ref);
+
+export const isCircularReference = (x: unknown) =>
+	isRef(x) && (x as Record<string, any>)?.__type === "circular";
+
+export const unwrap = (node: Record<string, any>) => {
+	if (!isRef(node)) {
+		return node;
+	}
+
+	return node.ref;
 };
