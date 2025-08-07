@@ -356,9 +356,10 @@ describe("transformDeep", () => {
 		});
 	});
 
-	it("throws if circular reference", () => {
-		const record: Record<string, any> = { a: "b" };
+	it("circular references", () => {
+		const record: Record<string, any> = { a: "b", c: { d: "e" } };
 		record.self = record;
+		record.c.self = record.c;
 
 		expect(() =>
 			transformDeep(record, [
@@ -374,6 +375,26 @@ describe("transformDeep", () => {
 					return value;
 				}, isPlainObject),
 			]),
-		).toThrowError();
+		).not.toThrowError();
+
+		const result = transformDeep(record, [
+			createConformer(
+				(value: string) => value.toUpperCase(),
+				value => !isPlainObject(value),
+			),
+			createConformer((value: Record<string, any>) => {
+				if (value.acc) {
+					return value.acc;
+				}
+
+				return value;
+			}, isPlainObject),
+		]) as typeof record;
+
+		expect(result.self.ref).toEqual(result);
+		expect(result.self.ref).toBe(result);
+
+		expect(result.c.self.ref).toEqual(result.c);
+		expect(result.c.self.ref).toBe(result.c);
 	});
 });

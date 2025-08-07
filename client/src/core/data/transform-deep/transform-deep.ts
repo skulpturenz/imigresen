@@ -1,4 +1,4 @@
-import { identity, isPlainObject, isPrimitive, partialRight } from "es-toolkit";
+import { identity, isPlainObject, partialRight } from "es-toolkit";
 import type { Conformer, ConformerContext, Transform } from "./types";
 
 export const createConformer = (
@@ -16,7 +16,8 @@ export const createConformer = (
 };
 
 export const transformDeep: Transform = (value, conformer): any => {
-	const visited = new Set();
+	const visited = new Map();
+	const circularReferences = new Map();
 
 	const getConformer = (
 		value: any,
@@ -45,40 +46,47 @@ export const transformDeep: Transform = (value, conformer): any => {
 	};
 
 	const deepTransform = (value: any, context?: ConformerContext): any => {
-		if (typeof value === "object" && value !== null) {
-			if (visited.has(value)) {
-				throw new Error("Circular reference detected");
-			}
-
-			visited.add(value);
-		}
-
 		const conform = getConformer(value, context);
 
-		if (isPrimitive(value)) {
-			return conform(value, context);
+		if (typeof value === "object" && value !== null) {
+			if (visited.has(value)) {
+				const result = { __type: "circular", ref: null };
+				circularReferences.set(value, result);
+
+				return result;
+			}
+
+			visited.set(value, null);
 		}
 
 		if (Array.isArray(value)) {
 			const parent = value;
 
-			return conform(
+			const result = conform(
 				value.map((x, idx) => deepTransform(x, { key: idx, parent })),
 			);
+
+			visited.set(value, result);
+
+			return result;
 		}
 
 		if (value instanceof Set) {
 			const parent = value;
 
-			return conform(
+			const result = conform(
 				new Set([...value].map(x => deepTransform(x, { parent }))),
 			);
+
+			visited.set(value, result);
+
+			return result;
 		}
 
 		if (value instanceof Map) {
 			const parent = value;
 
-			return conform(
+			const result = conform(
 				new Map(
 					[...value].map(([key, value]) => [
 						key,
@@ -86,12 +94,16 @@ export const transformDeep: Transform = (value, conformer): any => {
 					]),
 				),
 			);
+
+			visited.set(value, result);
+
+			return result;
 		}
 
 		if (isPlainObject(value)) {
 			const parent = value;
 
-			return conform(
+			const result = conform(
 				Object.fromEntries(
 					Object.entries(value).map(([key, value]) => [
 						key,
@@ -99,10 +111,28 @@ export const transformDeep: Transform = (value, conformer): any => {
 					]),
 				),
 			);
+
+			visited.set(value, result);
+
+			return result;
 		}
 
-		return conform(value, context);
+		const result = conform(value, context);
+
+		visited.set(value, result);
+
+		return result;
 	};
 
-	return deepTransform(value);
+	const result = deepTransform(value);
+
+	// TODO: can't think of a better way to handle this so that
+	// we can just access the key on the final result and get the correct reference
+	// need something outside from inside but we cannot determine outside without inside
+	// using a proxy placeholder does not work and forwarding all prop access to ref does not work
+	circularReferences.forEach((value, key) => {
+		value.ref = visited.get(key);
+	});
+
+	return result;
 };
