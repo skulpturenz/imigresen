@@ -27,7 +27,10 @@ export const transformDeep: Transform = (value, conformer): any => {
 				conformer.match?.(value, context),
 			);
 
-			if (!firstMatch) {
+			if (
+				!firstMatch ||
+				(firstMatch.match && !firstMatch.match(value, context))
+			) {
 				return identity;
 			}
 
