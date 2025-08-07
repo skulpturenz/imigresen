@@ -1,11 +1,12 @@
-import { identity, isPlainObject, isPrimitive } from "es-toolkit";
-import type { Conformer, Transform } from "./types";
+import { identity, isPlainObject, isPrimitive, partialRight } from "es-toolkit";
+import type { Conformer, ConformerContext, Transform } from "./types";
 
 export const createConformer = (
-	conformFn: (value: any) => any,
-	predicateFn?: (value: any) => boolean,
+	conformFn: (value: any, context?: ConformerContext) => any,
+	predicateFn?: (value: any, context?: ConformerContext) => boolean,
 ) => {
-	const result = (value: any) => conformFn(value);
+	const result = (value: any, context?: ConformerContext) =>
+		conformFn(value, context);
 
 	Object.assign(result, {
 		match: predicateFn,
@@ -17,23 +18,30 @@ export const createConformer = (
 export const transformDeep: Transform = (value, conformer): any => {
 	const visited = new Set();
 
-	const getConformer = (value: any): Conformer<any, any> => {
+	const getConformer = (
+		value: any,
+		context?: ConformerContext,
+	): Conformer<any, any> => {
 		if (Array.isArray(conformer)) {
-			return (
-				conformer.find(conformer => conformer.match?.(value)) ??
-				identity
+			const firstMatch = conformer.find(conformer =>
+				conformer.match?.(value, context),
 			);
+
+			if (!firstMatch) {
+				return identity;
+			}
+
+			return partialRight(firstMatch, context);
 		}
 
-		if (conformer.match && !conformer.match(value)) {
+		if (conformer.match && !conformer.match(value, context)) {
 			return identity;
 		}
 
-		return conformer;
+		return partialRight(conformer, context);
 	};
 
-	const deepTransform = (value: any): any => {
-		// Handle circular references
+	const deepTransform = (value: any, context?: ConformerContext): any => {
 		if (typeof value === "object" && value !== null) {
 			if (visited.has(value)) {
 				throw new Error("Circular reference detected");
@@ -42,45 +50,55 @@ export const transformDeep: Transform = (value, conformer): any => {
 			visited.add(value);
 		}
 
-		const conform = getConformer(value);
+		const conform = getConformer(value, context);
 
 		if (isPrimitive(value)) {
-			return conform(value);
+			return conform(value, context);
 		}
 
 		if (Array.isArray(value)) {
-			return conform(value.map(deepTransform));
+			const parent = value;
+
+			return conform(
+				value.map((x, idx) => deepTransform(x, { key: idx, parent })),
+			);
 		}
 
 		if (value instanceof Set) {
-			// TODO: `Object.values` returns an empty array with tests
-			return conform(new Set([...value.values()].map(deepTransform)));
+			const parent = value;
+
+			return conform(
+				new Set([...value].map(x => deepTransform(x, { parent }))),
+			);
 		}
 
 		if (value instanceof Map) {
-			// TODO: `Object.entries` returns an empty array with tests
+			const parent = value;
+
 			return conform(
 				new Map(
-					[...value.entries()].map(([key, value]) => [
+					[...value].map(([key, value]) => [
 						key,
-						deepTransform(value),
+						deepTransform(value, { key, parent }),
 					]),
 				),
 			);
 		}
 
 		if (isPlainObject(value)) {
+			const parent = value;
+
 			return conform(
 				Object.fromEntries(
 					Object.entries(value).map(([key, value]) => [
 						key,
-						deepTransform(value),
+						deepTransform(value, { key, parent }),
 					]),
 				),
 			);
 		}
 
-		return conform(value);
+		return conform(value, context);
 	};
 
 	return deepTransform(value);

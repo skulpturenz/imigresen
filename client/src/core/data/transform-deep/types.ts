@@ -1,6 +1,14 @@
+export interface ConformerContext {
+	/**
+	 * Defined for: arrays, plain objects, maps
+	 */
+	key?: string | number;
+	parent: unknown;
+}
+
 export interface Conformer<T, U> {
-	(value: T): U;
-	match?: (value: T) => boolean;
+	(value: T, context?: ConformerContext): U;
+	match?: (value: T, context?: ConformerContext) => boolean;
 }
 
 export interface Transform<T = unknown, U = unknown> {

@@ -270,6 +270,92 @@ describe("transformDeep", () => {
 		});
 	});
 
+	describe("conformer context", () => {
+		it("predicate access keys", () => {
+			const record = { a: "b", c: "d" };
+
+			const resultSingleConformer = transformDeep(
+				record,
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					(value, context) =>
+						!isPlainObject(value) && context?.key !== "a",
+				),
+			);
+			const resultMultipleConformers = transformDeep(record, [
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					(value, context) =>
+						!isPlainObject(value) && context?.key !== "a",
+				),
+			]);
+
+			expect(resultSingleConformer).toEqual({
+				a: "b",
+				c: "D",
+			});
+			expect(resultMultipleConformers).toEqual(resultSingleConformer);
+		});
+
+		it("predicate access index", () => {
+			const arr = ["string", 0, true, null, undefined];
+
+			const resultSingleConformer = transformDeep(
+				arr,
+				createConformer(
+					(value: any) => `${value}`,
+					(value, context) => {
+						console.log(context);
+						return !Array.isArray(value) && context?.key !== 1;
+					},
+				),
+			);
+			const resultMultipleConformers = transformDeep(arr, [
+				createConformer(
+					(value: any) => `${value}`,
+					(value, context) => {
+						console.log(context);
+						return !Array.isArray(value) && context?.key !== 1;
+					},
+				),
+			]);
+
+			expect(resultSingleConformer).toEqual([
+				"string",
+				0,
+				"true",
+				"null",
+				"undefined",
+			]);
+			expect(resultMultipleConformers).toEqual(resultSingleConformer);
+		});
+
+		it("predicate access parent", () => {
+			const record = {
+				a: "b",
+				nested: {
+					c: "d",
+				},
+			};
+
+			const result = transformDeep(
+				record,
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					(value, context) =>
+						!isPlainObject(value) && !(context?.parent as any).c,
+				),
+			);
+
+			expect(result).toEqual({
+				a: "B",
+				nested: {
+					c: "d",
+				},
+			});
+		});
+	});
+
 	it("throws if circular reference", () => {
 		const record: Record<string, any> = { a: "b" };
 		record.self = record;
