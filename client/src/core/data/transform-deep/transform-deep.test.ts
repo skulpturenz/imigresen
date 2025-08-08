@@ -398,14 +398,16 @@ describe("transformDeep", () => {
 		]) as CircularReferentialResult<Record<string, any>>;
 
 		expect(result.__meta__?.hasCircularReference).toBeTruthy();
-		expect(isCircularReference(result.self)).toBeTruthy();
+		expect(isCircularReference(result.self)).toBeFalsy(); // No longer wrapped
 
-		expect(unwrap(result)).toBe(result);
+		expect(unwrap(result)).toBe(result); // unwrap returns input directly
 
-		expect(unwrap(result.self)).toEqual(result);
-		expect(unwrap(result.self)).toBe(result);
+		// Direct circular reference access - no more .ref wrapper needed
+		expect(result.self).toBe(result);
+		expect(result.c.self).toBe(result.c);
 
-		expect(unwrap(result.c.self)).toEqual(result.c);
-		expect(unwrap(result.c.self)).toBe(result.c);
+		// Verify transformations still work
+		expect(result.a).toBe("B"); // string was uppercased
+		expect(result.c.d).toBe("E"); // nested string was uppercased
 	});
 });
