@@ -1,4 +1,4 @@
-import { isPlainObject } from "es-toolkit";
+import { isPlainObject, negate } from "es-toolkit";
 import { describe, expect, it } from "vitest";
 import { createConformer, transformDeep } from "./transform-deep";
 
@@ -362,11 +362,167 @@ describe("transformDeep", () => {
 	});
 
 	describe("circular references", () => {
-		it.todo("arrays");
+		it("arrays", () => {
+			const record: Record<string, any> = { a: "b", c: { d: "e" } };
+			record.self = record;
+			record.c.self = record.c;
 
-		it.todo("sets");
+			const arr = [record];
 
-		it.todo("maps");
+			expect(() =>
+				transformDeep<typeof arr, typeof arr>(arr, [
+					createConformer(
+						(value: string) => value.toUpperCase(),
+						value =>
+							[
+								negate(isPlainObject),
+								negate(Array.isArray),
+							].every(predicate => predicate(value)),
+					),
+					createConformer((value: Record<string, any>) => {
+						if (value.acc) {
+							return value.acc;
+						}
+
+						return value;
+					}, isPlainObject),
+				]),
+			).not.toThrowError();
+
+			const result = transformDeep<typeof arr, typeof arr>(arr, [
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					value =>
+						[negate(isPlainObject), negate(Array.isArray)].every(
+							predicate => predicate(value),
+						),
+				),
+				createConformer((value: Record<string, any>) => {
+					if (value.acc) {
+						return value.acc;
+					}
+
+					return value;
+				}, isPlainObject),
+			]);
+
+			expect(result.at(0)).toBeTruthy();
+
+			expect(result.at(0)?.self).toBe(result.at(0));
+			expect(result.at(0)?.self).toEqual(result.at(0));
+
+			expect(result.at(0)?.c.self).toBe(result.at(0)?.c);
+			expect(result.at(0)?.c.self).toEqual(result.at(0)?.c);
+
+			expect(result.at(0)?.a).toEqual("B");
+			expect(result.at(0)?.c.d).toEqual("E");
+		});
+
+		it("sets", () => {
+			const record: Record<string, any> = { a: "b", c: { d: "e" } };
+			record.self = record;
+			record.c.self = record.c;
+
+			const set = new Set([record]);
+
+			expect(() =>
+				transformDeep<typeof set, typeof set>(set, [
+					createConformer(
+						(value: string) => value.toUpperCase(),
+						value =>
+							[
+								negate(isPlainObject),
+								(value: any) => !(value instanceof Set),
+							].every(predicate => predicate(value)),
+					),
+					createConformer((value: Record<string, any>) => {
+						if (value.acc) {
+							return value.acc;
+						}
+
+						return value;
+					}, isPlainObject),
+				]),
+			).not.toThrowError();
+
+			const result = transformDeep<typeof set, typeof set>(set, [
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					value =>
+						[
+							negate(isPlainObject),
+							(value: any) => !(value instanceof Set),
+						].every(predicate => predicate(value)),
+				),
+				createConformer((value: Record<string, any>) => {
+					if (value.acc) {
+						return value.acc;
+					}
+
+					return value;
+				}, isPlainObject),
+			]);
+
+			expect([...result].at(0)).toBeTruthy();
+
+			expect([...result].at(0)?.self).toBe([...result].at(0));
+			expect([...result].at(0)?.self).toEqual([...result].at(0));
+
+			expect([...result].at(0)?.c.self).toBe([...result].at(0)?.c);
+			expect([...result].at(0)?.c.self).toEqual([...result].at(0)?.c);
+
+			expect([...result].at(0)?.a).toEqual("B");
+			expect([...result].at(0)?.c.d).toEqual("E");
+		});
+
+		it("maps", () => {
+			const map = new Map<any, any>([
+				["a", "b"],
+				["c", new Map([["d", "e"]])],
+			]);
+			map.set("self", map);
+			map.get("c").set("self", map.get("c"));
+
+			expect(() =>
+				transformDeep<typeof map, typeof map>(map, [
+					createConformer(
+						(value: string) => value.toUpperCase(),
+						value =>
+							!(value instanceof Map) && !isPlainObject(value),
+					),
+					createConformer((value: Record<string, any>) => {
+						if (value.acc) {
+							return value.acc;
+						}
+
+						return value;
+					}, isPlainObject),
+				]),
+			).not.toThrowError();
+
+			const result = transformDeep<typeof map, typeof map>(map, [
+				createConformer(
+					(value: string) => value.toUpperCase(),
+					value => !(value instanceof Map) && !isPlainObject(value),
+				),
+				createConformer((value: Record<string, any>) => {
+					if (value.acc) {
+						return value.acc;
+					}
+
+					return value;
+				}, isPlainObject),
+			]);
+
+			expect(result.get("self")).toBe(result);
+			expect(result.get("self")).toEqual(result);
+
+			expect(result.get("c").get("self")).toBe(result.get("c"));
+			expect(result.get("c").get("self")).toEqual(result.get("c"));
+
+			expect(result.get("a")).toEqual("B");
+			expect(result.get("c").get("d")).toEqual("E");
+		});
 
 		it("objects", () => {
 			const record: Record<string, any> = { a: "b", c: { d: "e" } };

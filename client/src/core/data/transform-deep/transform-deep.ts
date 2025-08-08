@@ -39,11 +39,47 @@ export const transformDeep = <T = unknown, U = unknown>(
 			}
 
 			// arrays, maps and plain objects have keys and values
-			if (!(parent && key in parent)) {
-				return;
+			if (Array.isArray(parent) && key >= parent.length) {
+				throw new Error(
+					`Trying to link circular reference at index which is out of bounds in array`,
+				);
+			}
+
+			if (parent instanceof Map && !parent.has(key)) {
+				throw new Error(
+					`Placeholder for circular reference \`${key}\` does not exist in Map`,
+				);
+			}
+
+			if (isPlainObject(parent) && !(key in parent)) {
+				throw new Error(
+					`Placeholder for circular reference \`${key}\` does not exist in plain object`,
+				);
+			}
+
+			if (
+				!Array.isArray(parent) &&
+				!(parent instanceof Map) &&
+				!isPlainObject(parent)
+			) {
+				throw new Error(
+					"Trying to link circular reference in unsupported type",
+				);
 			}
 
 			const conformed = visited.get(placeholder);
+
+			if (Array.isArray(parent)) {
+				parent[key] = conformed;
+
+				return;
+			}
+
+			if (parent instanceof Map) {
+				parent.set(key, conformed);
+
+				return;
+			}
 
 			parent[key] = conformed;
 		});
