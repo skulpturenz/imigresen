@@ -192,15 +192,3 @@ export const transformDeep: Transform = (value, conformer): any => {
 	return result;
 };
 
-const isRef = (x: unknown) => Boolean((x as Record<string, any>)?.ref);
-
-export const isCircularReference = (x: unknown) =>
-	// With direct circular reference access, there are no wrapper objects
-	// so this function now returns false since circular refs are direct
-	false;
-
-export const unwrap = (node: Record<string, any>) => {
-	// With direct circular reference access, no unwrapping is needed
-	// Just return the input directly
-	return node;
-};

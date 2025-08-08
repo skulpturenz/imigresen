@@ -2,9 +2,7 @@ import { isPlainObject } from "es-toolkit";
 import { describe, expect, it } from "vitest";
 import {
 	createConformer,
-	isCircularReference,
 	transformDeep,
-	unwrap,
 } from "./transform-deep";
 import type { CircularReferentialResult } from "./types";
 
@@ -398,9 +396,6 @@ describe("transformDeep", () => {
 		]) as CircularReferentialResult<Record<string, any>>;
 
 		expect(result.__meta__?.hasCircularReference).toBeTruthy();
-		expect(isCircularReference(result.self)).toBeFalsy(); // No longer wrapped
-
-		expect(unwrap(result)).toBe(result); // unwrap returns input directly
 
 		// Direct circular reference access - no more .ref wrapper needed
 		expect(result.self).toBe(result);
