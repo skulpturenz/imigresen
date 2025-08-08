@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import { queryKeys } from "core/constants/query-keys";
+import { normalizeResponse } from "core/data/transform-deep";
 import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
 import { createEffect } from "solid-js";
@@ -75,7 +76,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 							userApi
 								.auth(`Bearer ${token}`)
 								.get(`?${searchParams.toString()}`)
-								.json<UserProfile>(),
+								.json(normalizeResponse<UserProfile>),
 					}));
 
 					const qPersonalDetails = useQuery(() => ({
@@ -85,7 +86,9 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 								.auth(`Bearer ${token}`)
 								.get(`/user/${qUser.data?.uuid}`)
 								.notFound(() => null)
-								.json<UserPersonalDetails | null>(),
+								.json(
+									normalizeResponse<UserPersonalDetails | null>,
+								),
 						enabled: Boolean(qUser.data),
 					}));
 
@@ -95,13 +98,7 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 							userApi
 								.auth(`Bearer ${token}`)
 								.get(`/${qUser.data?.uuid}/config/im42`)
-								// TODO: deep transform for responses
-								.json<IM42Config>(res => ({
-									...res,
-									syncedAt: res.syncedAt
-										? new Date(res.syncedAt)
-										: null,
-								})),
+								.json(normalizeResponse<IM42Config>),
 						enabled: Boolean(qUser.data),
 					}));
 
