@@ -39,7 +39,10 @@ export const transformDeep = <T = unknown, U = unknown>(
 			}
 
 			// arrays, maps and plain objects have keys and values
-			if (Array.isArray(parent) && key >= parent.length) {
+			if (
+				Array.isArray(parent) &&
+				(key >= parent.length || typeof key !== "number")
+			) {
 				throw new Error(
 					`Trying to link circular reference at index which is out of bounds in array`,
 				);
