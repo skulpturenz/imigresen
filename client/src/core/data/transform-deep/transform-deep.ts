@@ -1,9 +1,9 @@
 import { identity, isPlainObject, partialRight } from "es-toolkit";
-import type { Conformer, ConformerContext, Transform } from "./types";
+import type { Conformer, ConformerContext } from "./types";
 
-export const createConformer = (
-	conformFn: (value: any, context?: ConformerContext) => any,
-	predicateFn?: (value: any, context?: ConformerContext) => boolean,
+export const createConformer = <T = unknown, U = unknown>(
+	conformFn: (value: T, context?: ConformerContext) => U,
+	predicateFn?: (value: unknown, context?: ConformerContext) => boolean,
 ) => {
 	const result = (value: any, context?: ConformerContext) =>
 		conformFn(value, context);
@@ -12,10 +12,13 @@ export const createConformer = (
 		match: predicateFn,
 	});
 
-	return result;
+	return result as Conformer<T, U>;
 };
 
-export const transformDeep: Transform = (value, conformer): any => {
+export const transformDeep = <T = unknown, U = unknown>(
+	value: T,
+	conformer: Conformer<any, any> | Conformer<any, any>[],
+): U => {
 	const visited = new Map();
 	const circularReferences = new Map();
 

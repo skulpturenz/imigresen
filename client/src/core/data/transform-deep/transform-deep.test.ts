@@ -14,7 +14,7 @@ describe("transformDeep", () => {
 
 		PRIMITIVE_VALUES.forEach(({ value, expected, type }) => {
 			it(type, () => {
-				const result = transformDeep(
+				const result = transformDeep<typeof value, string>(
 					value,
 					createConformer((value: any) => `${value}`),
 				);
@@ -27,7 +27,7 @@ describe("transformDeep", () => {
 		it("transforms arrays of primitives", () => {
 			const arr = ["string", 0, true, null, undefined];
 
-			const result = transformDeep(arr, [
+			const result = transformDeep<typeof arr, string[]>(arr, [
 				createConformer(
 					(value: any) => `${value}`,
 					value => !Array.isArray(value),
@@ -49,7 +49,7 @@ describe("transformDeep", () => {
 				[],
 			);
 
-			const result = transformDeep(arr, [
+			const result = transformDeep<typeof arr, number[]>(arr, [
 				createConformer(
 					(value: any) => value,
 					value => !Array.isArray(value),
@@ -68,7 +68,7 @@ describe("transformDeep", () => {
 		it("transforms values", () => {
 			const record = { a: "b", c: "d" };
 
-			const result = transformDeep(
+			const result = transformDeep<typeof record, typeof record>(
 				record,
 				createConformer(
 					(value: string) => value.toUpperCase(),
@@ -94,7 +94,7 @@ describe("transformDeep", () => {
 				Object.create(null),
 			);
 
-			const result = transformDeep(record, [
+			const result = transformDeep<typeof record, { x: number }>(record, [
 				createConformer(
 					(value: string) => value + 1,
 					value => !isPlainObject(value),
@@ -119,7 +119,7 @@ describe("transformDeep", () => {
 				{ a: "b", c: "d" },
 			];
 
-			const result = transformDeep(arr, [
+			const result = transformDeep<typeof arr, typeof arr>(arr, [
 				createConformer(
 					(value: string) => value.toUpperCase(),
 					value => !isPlainObject(value) && !Array.isArray(value),
@@ -154,7 +154,7 @@ describe("transformDeep", () => {
 				[],
 			);
 
-			const result = transformDeep(arr, [
+			const result = transformDeep<typeof arr, { x: number }[]>(arr, [
 				createConformer(
 					(value: string) => value + 1,
 					value => !isPlainObject(value) && !Array.isArray(value),
@@ -180,7 +180,7 @@ describe("transformDeep", () => {
 		it("transforms set of primitives", () => {
 			const set = new Set(["string", 0, true, null, undefined]);
 
-			const result = transformDeep(set, [
+			const result = transformDeep<typeof set, Set<string>>(set, [
 				createConformer(
 					(value: any) => `${value}`,
 					value => !(value instanceof Set),
@@ -198,7 +198,7 @@ describe("transformDeep", () => {
 				new Set(),
 			);
 
-			const result = transformDeep(set, [
+			const result = transformDeep<typeof set, Set<number>>(set, [
 				createConformer(
 					(value: any) => value,
 					value => !Array.isArray(value),
@@ -219,7 +219,7 @@ describe("transformDeep", () => {
 		it("transforms values", () => {
 			const map = new Map(Object.entries({ a: "b", c: "d" }));
 
-			const result = transformDeep(
+			const result = transformDeep<typeof map, typeof map>(
 				map,
 				createConformer(
 					(value: string) => value.toUpperCase(),
@@ -249,7 +249,7 @@ describe("transformDeep", () => {
 				new Map(),
 			);
 
-			const result = transformDeep(map, [
+			const result = transformDeep<typeof map, Map<string, number>>(map, [
 				createConformer(
 					(value: string) => value + 1,
 					value => !(value instanceof Map),
@@ -274,7 +274,10 @@ describe("transformDeep", () => {
 		it("predicate access keys", () => {
 			const record = { a: "b", c: "d" };
 
-			const resultSingleConformer = transformDeep(
+			const resultSingleConformer = transformDeep<
+				typeof record,
+				typeof record
+			>(
 				record,
 				createConformer(
 					(value: string) => value.toUpperCase(),
@@ -282,7 +285,10 @@ describe("transformDeep", () => {
 						!isPlainObject(value) && context?.key !== "a",
 				),
 			);
-			const resultMultipleConformers = transformDeep(record, [
+			const resultMultipleConformers = transformDeep<
+				typeof record,
+				typeof record
+			>(record, [
 				createConformer(
 					(value: string) => value.toUpperCase(),
 					(value, context) =>
@@ -300,23 +306,22 @@ describe("transformDeep", () => {
 		it("predicate access index", () => {
 			const arr = ["string", 0, true, null, undefined];
 
-			const resultSingleConformer = transformDeep(
+			const resultSingleConformer = transformDeep<typeof arr, string[]>(
 				arr,
 				createConformer(
 					(value: any) => `${value}`,
-					(value, context) => {
-						console.log(context);
-						return !Array.isArray(value) && context?.key !== 1;
-					},
+					(value, context) =>
+						!Array.isArray(value) && context?.key !== 1,
 				),
 			);
-			const resultMultipleConformers = transformDeep(arr, [
+			const resultMultipleConformers = transformDeep<
+				typeof arr,
+				string[]
+			>(arr, [
 				createConformer(
 					(value: any) => `${value}`,
-					(value, context) => {
-						console.log(context);
-						return !Array.isArray(value) && context?.key !== 1;
-					},
+					(value, context) =>
+						!Array.isArray(value) && context?.key !== 1,
 				),
 			]);
 
@@ -338,7 +343,7 @@ describe("transformDeep", () => {
 				},
 			};
 
-			const result = transformDeep(
+			const result = transformDeep<typeof record, typeof record>(
 				record,
 				createConformer(
 					(value: string) => value.toUpperCase(),
@@ -369,7 +374,7 @@ describe("transformDeep", () => {
 			record.c.self = record.c;
 
 			expect(() =>
-				transformDeep(record, [
+				transformDeep<typeof record, typeof record>(record, [
 					createConformer(
 						(value: string) => value.toUpperCase(),
 						value => !isPlainObject(value),
@@ -384,7 +389,7 @@ describe("transformDeep", () => {
 				]),
 			).not.toThrowError();
 
-			const result = transformDeep(record, [
+			const result = transformDeep<typeof record, typeof record>(record, [
 				createConformer(
 					(value: string) => value.toUpperCase(),
 					value => !isPlainObject(value),
@@ -396,7 +401,7 @@ describe("transformDeep", () => {
 
 					return value;
 				}, isPlainObject),
-			]) as Record<string, any>;
+			]);
 
 			expect(result.self).toBe(result);
 			expect(result.self).toEqual(result);
