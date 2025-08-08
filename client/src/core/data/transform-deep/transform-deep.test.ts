@@ -356,13 +356,35 @@ describe("transformDeep", () => {
 		});
 	});
 
-	it("circular references", () => {
-		const record: Record<string, any> = { a: "b", c: { d: "e" } };
-		record.self = record;
-		record.c.self = record.c;
+	describe("circular references", () => {
+		it.todo("arrays");
 
-		expect(() =>
-			transformDeep(record, [
+		it.todo("sets");
+
+		it.todo("maps");
+
+		it("objects", () => {
+			const record: Record<string, any> = { a: "b", c: { d: "e" } };
+			record.self = record;
+			record.c.self = record.c;
+
+			expect(() =>
+				transformDeep(record, [
+					createConformer(
+						(value: string) => value.toUpperCase(),
+						value => !isPlainObject(value),
+					),
+					createConformer((value: Record<string, any>) => {
+						if (value.acc) {
+							return value.acc;
+						}
+
+						return value;
+					}, isPlainObject),
+				]),
+			).not.toThrowError();
+
+			const result = transformDeep(record, [
 				createConformer(
 					(value: string) => value.toUpperCase(),
 					value => !isPlainObject(value),
@@ -374,27 +396,16 @@ describe("transformDeep", () => {
 
 					return value;
 				}, isPlainObject),
-			]),
-		).not.toThrowError();
+			]) as Record<string, any>;
 
-		const result = transformDeep(record, [
-			createConformer(
-				(value: string) => value.toUpperCase(),
-				value => !isPlainObject(value),
-			),
-			createConformer((value: Record<string, any>) => {
-				if (value.acc) {
-					return value.acc;
-				}
+			expect(result.self).toBe(result);
+			expect(result.self).toEqual(result);
 
-				return value;
-			}, isPlainObject),
-		]) as Record<string, any>;
+			expect(result.c.self).toBe(result.c);
+			expect(result.c.self).toEqual(result.c);
 
-		expect(result.self).toBe(result);
-		expect(result.c.self).toBe(result.c);
-
-		expect(result.a).toBe("B");
-		expect(result.c.d).toBe("E");
+			expect(result.a).toEqual("B");
+			expect(result.c.d).toEqual("E");
+		});
 	});
 });

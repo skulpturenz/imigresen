@@ -26,9 +26,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 		isRef(x) && (x as any).__type === "circular";
 
 	const linkRefs = () => {
-		circularReferences.forEach((meta, placeholder) => {
-			const { parent, key } = meta;
-
+		circularReferences.forEach(({ parent, key }, placeholder) => {
 			// sets don't have a notion of "keys", the key is the value
 			if (parent instanceof Set) {
 				parent.delete(key);
