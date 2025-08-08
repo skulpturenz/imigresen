@@ -121,8 +121,8 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const parent = value;
 
 			const result = conform(
-				[...value].reduce((acc: Set<any>, x, idx) => {
-					const result = deepTransform(x, { key: idx, parent });
+				[...value].reduce((acc: Set<any>, x) => {
+					const result = deepTransform(x, { parent });
 
 					if (isCircularRef(result)) {
 						circularReferences.set(x, {
