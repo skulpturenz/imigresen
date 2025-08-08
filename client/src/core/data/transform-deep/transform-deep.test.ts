@@ -1,10 +1,6 @@
 import { isPlainObject } from "es-toolkit";
 import { describe, expect, it } from "vitest";
-import {
-	createConformer,
-	transformDeep,
-} from "./transform-deep";
-import type { CircularReferentialResult } from "./types";
+import { createConformer, transformDeep } from "./transform-deep";
 
 describe("transformDeep", () => {
 	describe("primitive values", () => {
@@ -393,16 +389,12 @@ describe("transformDeep", () => {
 
 				return value;
 			}, isPlainObject),
-		]) as CircularReferentialResult<Record<string, any>>;
+		]) as Record<string, any>;
 
-		expect(result.__meta__?.hasCircularReference).toBeTruthy();
-
-		// Direct circular reference access - no more .ref wrapper needed
 		expect(result.self).toBe(result);
 		expect(result.c.self).toBe(result.c);
 
-		// Verify transformations still work
-		expect(result.a).toBe("B"); // string was uppercased
-		expect(result.c.d).toBe("E"); // nested string was uppercased
+		expect(result.a).toBe("B");
+		expect(result.c.d).toBe("E");
 	});
 });

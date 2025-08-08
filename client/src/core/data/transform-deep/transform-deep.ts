@@ -17,13 +17,36 @@ export const createConformer = (
 
 export const transformDeep: Transform = (value, conformer): any => {
 	const visited = new Map();
-	const processing = new Set();
-	const deferredAssignments: Array<{
-		target: any;
-		key: string | number;
-		originalValue: any;
-	}> = [];
-	let hasCircularReference = false;
+	const circularReferences = new Map();
+
+	const isRef = (x: unknown) =>
+		x && typeof x === "object" && "__type" in x && "ref" in x;
+
+	const isCircularRef = (x: unknown) =>
+		isRef(x) && (x as any).__type === "circular";
+
+	const linkRefs = () => {
+		circularReferences.forEach((meta, placeholder) => {
+			const { parent, key } = meta;
+
+			// sets don't have a notion of "keys", the key is the value
+			if (parent instanceof Set) {
+				parent.delete(key);
+				parent.add(visited.get(placeholder));
+
+				return;
+			}
+
+			// arrays, maps and plain objects have keys and values
+			if (!(parent && key in parent)) {
+				return;
+			}
+
+			const conformed = visited.get(placeholder);
+
+			parent[key] = conformed;
+		});
+	};
 
 	const getConformer = (
 		value: any,
@@ -51,210 +74,126 @@ export const transformDeep: Transform = (value, conformer): any => {
 		return partialRight(conformer, context);
 	};
 
+	const conformed = (initial: any, final: any) => {
+		// in the case of circular references we have the result of
+		// a call higher up the stack that depends on a value lower
+		// so we need to mark the value lower as visited before we can
+		// link the circular reference in the final result
+		visited.set(initial, final);
+		linkRefs();
+
+		return final;
+	};
+
 	const deepTransform = (value: any, context?: ConformerContext): any => {
 		const conform = getConformer(value, context);
 
 		if (typeof value === "object" && value !== null) {
-			// If we're already processing this object, it's a circular reference
-			if (processing.has(value)) {
-				hasCircularReference = true;
-				// Return a temporary placeholder that will be replaced
-				return { __circular_ref: value };
-			}
-
-			// If we've already visited this object, return the cached result
 			if (visited.has(value)) {
-				return visited.get(value);
+				const ref = { __type: "circular", ref: null };
+
+				return ref;
 			}
 
-			// Mark as being processed
-			processing.add(value);
+			// set to null and override later so that we can check for circular references
+			visited.set(value, null);
 		}
 
 		if (Array.isArray(value)) {
 			const parent = value;
-			const transformedArray: any[] = [];
 
-			// Transform each element, tracking circular references
-			for (let i = 0; i < value.length; i++) {
-				const transformedElement = deepTransform(value[i], { key: i, parent });
-				
-				if (transformedElement && transformedElement.__circular_ref) {
-					// Defer the assignment - we'll resolve it when the target is ready
-					deferredAssignments.push({
-						target: transformedArray,
-						key: i,
-						originalValue: transformedElement.__circular_ref
-					});
-					transformedArray[i] = null; // temporary placeholder
-				} else {
-					transformedArray[i] = transformedElement;
-				}
-			}
+			const result = conform(
+				value.reduce((acc, x, idx) => {
+					const result = deepTransform(x, { key: idx, parent });
 
-			const result = conform(transformedArray);
-			visited.set(value, result);
-			processing.delete(value);
+					if (isCircularRef(result)) {
+						circularReferences.set(x, { key: idx, parent: acc });
+					}
 
-			// Resolve any deferred assignments that can now be resolved
-			resolveDeferredAssignments();
+					acc.push(result);
 
-			return result;
+					return acc;
+				}, []),
+			);
+
+			return conformed(value, result);
 		}
 
 		if (value instanceof Set) {
 			const parent = value;
-			const transformedValues: any[] = [];
 
-			// Transform each element, tracking circular references
-			for (const item of value) {
-				const transformedItem = deepTransform(item, { parent });
-				
-				if (transformedItem && transformedItem.__circular_ref) {
-					// For Sets, we need a different approach since we can't defer by index
-					// We'll add the resolved value after processing
-					deferredAssignments.push({
-						target: null, // Will be set to the final Set
-						key: 'SET_VALUE',
-						originalValue: transformedItem.__circular_ref
-					});
-					transformedValues.push({ __deferred_set_value: transformedItem.__circular_ref });
-				} else {
-					transformedValues.push(transformedItem);
-				}
-			}
+			const result = conform(
+				[...value].reduce((acc: Set<any>, x, idx) => {
+					const result = deepTransform(x, { key: idx, parent });
 
-			const result = conform(new Set(transformedValues.filter(v => !v || !v.__deferred_set_value)));
-			visited.set(value, result);
-			processing.delete(value);
-
-			// Add deferred set values
-			for (const item of transformedValues) {
-				if (item && item.__deferred_set_value) {
-					const resolvedValue = visited.get(item.__deferred_set_value);
-					if (resolvedValue) {
-						result.add(resolvedValue);
+					if (isCircularRef(result)) {
+						circularReferences.set(x, {
+							key: result,
+							parent: acc,
+						});
 					}
-				}
-			}
 
-			// Resolve any other deferred assignments
-			resolveDeferredAssignments();
+					acc.add(result);
 
-			return result;
+					return acc;
+				}, new Set()),
+			);
+
+			return conformed(value, result);
 		}
 
 		if (value instanceof Map) {
 			const parent = value;
-			const transformedEntries: Array<[any, any]> = [];
 
-			// Transform each value, tracking circular references
-			for (const [key, val] of value) {
-				const transformedValue = deepTransform(val, { key, parent });
-				
-				if (transformedValue && transformedValue.__circular_ref) {
-					// Defer the assignment
-					const entry: [any, any] = [key, null]; // temporary placeholder
-					transformedEntries.push(entry);
-					deferredAssignments.push({
-						target: entry,
-						key: 1, // value position in the entry array
-						originalValue: transformedValue.__circular_ref
-					});
-				} else {
-					transformedEntries.push([key, transformedValue]);
-				}
-			}
+			const result = conform(
+				[...value].reduce((acc, [key, value]) => {
+					const result = deepTransform(value, { key: key, parent });
 
-			const result = conform(new Map(transformedEntries));
-			visited.set(value, result);
-			processing.delete(value);
+					if (isCircularRef(result)) {
+						circularReferences.set(value, {
+							key: key,
+							parent: acc,
+						});
+					}
 
-			// Resolve any deferred assignments
-			resolveDeferredAssignments();
+					acc.set(key, result);
 
-			return result;
+					return acc;
+				}, new Map()),
+			);
+
+			return conformed(value, result);
 		}
 
 		if (isPlainObject(value)) {
 			const parent = value;
-			const transformedEntries: Array<[string, any]> = [];
 
-			// Transform each property, tracking circular references
-			for (const [key, val] of Object.entries(value)) {
-				const transformedValue = deepTransform(val, { key, parent });
-				
-				if (transformedValue && transformedValue.__circular_ref) {
-					// Defer the assignment
-					transformedEntries.push([key, null]); // temporary placeholder
-					deferredAssignments.push({
-						target: null, // Will be set to the final object
-						key: key,
-						originalValue: transformedValue.__circular_ref
-					});
-				} else {
-					transformedEntries.push([key, transformedValue]);
-				}
-			}
+			const result = conform(
+				Object.entries(value).reduce((acc, [key, value]) => {
+					const result = deepTransform(value, { key: key, parent });
 
-			const result = conform(Object.fromEntries(transformedEntries));
-			visited.set(value, result);
-			processing.delete(value);
+					if (isCircularRef(result)) {
+						circularReferences.set(value, {
+							key: key,
+							parent: acc,
+						});
+					}
 
-			// Update deferred assignments with the actual target object
-			for (const assignment of deferredAssignments) {
-				if (assignment.target === null && typeof assignment.key === 'string') {
-					assignment.target = result;
-				}
-			}
+					acc[key] = result;
 
-			// Resolve any deferred assignments that can now be resolved
-			resolveDeferredAssignments();
+					return acc;
+				}, Object.create(null)),
+			);
 
-			return result;
+			return conformed(value, result);
 		}
 
 		const result = conform(value, context);
 
-		if (typeof value === "object" && value !== null) {
-			visited.set(value, result);
-			processing.delete(value);
-		}
-
-		return result;
-	};
-
-	const resolveDeferredAssignments = () => {
-		let resolved = true;
-		while (resolved) {
-			resolved = false;
-			for (let i = deferredAssignments.length - 1; i >= 0; i--) {
-				const assignment = deferredAssignments[i];
-				const resolvedValue = visited.get(assignment.originalValue);
-				
-				if (resolvedValue && assignment.target) {
-					assignment.target[assignment.key] = resolvedValue;
-					deferredAssignments.splice(i, 1);
-					resolved = true;
-				}
-			}
-		}
+		return conformed(value, result);
 	};
 
 	const result = deepTransform(value);
 
-	// Final resolution of any remaining deferred assignments
-	resolveDeferredAssignments();
-
-	if (typeof result === "object" && hasCircularReference) {
-		Object.defineProperty(result, "__meta__", {
-			value: {
-				hasCircularReference,
-			},
-			enumerable: false,
-		});
-	}
-
 	return result;
 };
-
