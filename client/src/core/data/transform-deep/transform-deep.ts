@@ -101,7 +101,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const parent = value;
 
 			const result = conform(
-				value.reduce((acc, x, idx) => {
+				value.reduce<any[]>((acc, x, idx) => {
 					const result = deepTransform(x, { key: idx, parent });
 
 					if (isCircularRef(result)) {
@@ -121,7 +121,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const parent = value;
 
 			const result = conform(
-				[...value].reduce((acc: Set<any>, x) => {
+				[...value].reduce<Set<any>>((acc, x) => {
 					const result = deepTransform(x, { parent });
 
 					if (isCircularRef(result)) {
@@ -144,7 +144,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const parent = value;
 
 			const result = conform(
-				[...value].reduce((acc, [key, value]) => {
+				[...value].reduce<Map<any, any>>((acc, [key, value]) => {
 					const result = deepTransform(value, { key: key, parent });
 
 					if (isCircularRef(result)) {
@@ -167,20 +167,26 @@ export const transformDeep: Transform = (value, conformer): any => {
 			const parent = value;
 
 			const result = conform(
-				Object.entries(value).reduce((acc, [key, value]) => {
-					const result = deepTransform(value, { key: key, parent });
-
-					if (isCircularRef(result)) {
-						circularReferences.set(value, {
+				Object.entries(value).reduce<Record<string, any>>(
+					(acc, [key, value]) => {
+						const result = deepTransform(value, {
 							key: key,
-							parent: acc,
+							parent,
 						});
-					}
 
-					acc[key] = result;
+						if (isCircularRef(result)) {
+							circularReferences.set(value, {
+								key: key,
+								parent: acc,
+							});
+						}
 
-					return acc;
-				}, Object.create(null)),
+						acc[key] = result;
+
+						return acc;
+					},
+					Object.create(null),
+				),
 			);
 
 			return conformed(value, result);
