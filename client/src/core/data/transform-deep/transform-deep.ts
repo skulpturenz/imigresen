@@ -17,7 +17,9 @@ export const createConformer = (
 
 export const transformDeep: Transform = (value, conformer): any => {
 	const visited = new Map();
-	const circularReferences = new Map();
+	const processing = new Set();
+	const placeholders: any[] = [];
+	let hasCircularReference = false;
 
 	const getConformer = (
 		value: any,
@@ -49,14 +51,21 @@ export const transformDeep: Transform = (value, conformer): any => {
 		const conform = getConformer(value, context);
 
 		if (typeof value === "object" && value !== null) {
-			if (visited.has(value)) {
-				const result = { __type: "circular", ref: null };
-				circularReferences.set(value, result);
-
-				return result;
+			// If we're already processing this object, it's a circular reference
+			if (processing.has(value)) {
+				hasCircularReference = true;
+				const placeholder = { __circular_placeholder: value };
+				placeholders.push(placeholder);
+				return placeholder;
 			}
 
-			visited.set(value, null);
+			// If we've already visited this object, return the cached result
+			if (visited.has(value)) {
+				return visited.get(value);
+			}
+
+			// Mark as being processed
+			processing.add(value);
 		}
 
 		if (Array.isArray(value)) {
@@ -67,6 +76,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			);
 
 			visited.set(value, result);
+			processing.delete(value);
 
 			return result;
 		}
@@ -79,6 +89,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			);
 
 			visited.set(value, result);
+			processing.delete(value);
 
 			return result;
 		}
@@ -96,6 +107,7 @@ export const transformDeep: Transform = (value, conformer): any => {
 			);
 
 			visited.set(value, result);
+			processing.delete(value);
 
 			return result;
 		}
@@ -113,31 +125,65 @@ export const transformDeep: Transform = (value, conformer): any => {
 			);
 
 			visited.set(value, result);
+			processing.delete(value);
 
 			return result;
 		}
 
 		const result = conform(value, context);
 
-		visited.set(value, result);
+		if (typeof value === "object" && value !== null) {
+			visited.set(value, result);
+			processing.delete(value);
+		}
 
 		return result;
 	};
 
 	const result = deepTransform(value);
 
-	// TODO: can't think of a better way to handle this so that
-	// we can just access the key on the final result and get the correct reference
-	// need something outside from inside but we cannot determine outside without inside
-	// using a proxy placeholder does not work and forwarding all prop access to ref does not work
-	circularReferences.forEach((value, key) => {
-		value.ref = visited.get(key);
-	});
+	// Phase 2: Replace all placeholders with direct references
+	const replacePlaceholders = (obj: any): any => {
+		if (obj && typeof obj === "object") {
+			if (obj.__circular_placeholder) {
+				return visited.get(obj.__circular_placeholder);
+			}
 
-	if (typeof result === "object" && circularReferences.size) {
+			if (Array.isArray(obj)) {
+				for (let i = 0; i < obj.length; i++) {
+					obj[i] = replacePlaceholders(obj[i]);
+				}
+			} else if (obj instanceof Set) {
+				const newValues = [];
+				for (const item of obj) {
+					newValues.push(replacePlaceholders(item));
+				}
+				obj.clear();
+				newValues.forEach(val => obj.add(val));
+			} else if (obj instanceof Map) {
+				const newEntries = [];
+				for (const [key, val] of obj) {
+					newEntries.push([key, replacePlaceholders(val)]);
+				}
+				obj.clear();
+				newEntries.forEach(([key, val]) => obj.set(key, val));
+			} else if (isPlainObject(obj)) {
+				for (const key in obj) {
+					obj[key] = replacePlaceholders(obj[key]);
+				}
+			}
+		}
+		return obj;
+	};
+
+	if (placeholders.length > 0) {
+		replacePlaceholders(result);
+	}
+
+	if (typeof result === "object" && hasCircularReference) {
 		Object.defineProperty(result, "__meta__", {
 			value: {
-				hasCircularReference: Boolean(circularReferences.size),
+				hasCircularReference,
 			},
 			enumerable: false,
 		});
@@ -149,12 +195,12 @@ export const transformDeep: Transform = (value, conformer): any => {
 const isRef = (x: unknown) => Boolean((x as Record<string, any>)?.ref);
 
 export const isCircularReference = (x: unknown) =>
-	isRef(x) && (x as Record<string, any>)?.__type === "circular";
+	// With direct circular reference access, there are no wrapper objects
+	// so this function now returns false since circular refs are direct
+	false;
 
 export const unwrap = (node: Record<string, any>) => {
-	if (!isRef(node)) {
-		return node;
-	}
-
-	return node.ref;
+	// With direct circular reference access, no unwrapping is needed
+	// Just return the input directly
+	return node;
 };
