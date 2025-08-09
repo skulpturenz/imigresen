@@ -4,6 +4,7 @@ import {
 	getValue,
 	getValues,
 	reset,
+	validate,
 	type SubmitHandler,
 } from "@modular-forms/solid";
 import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
@@ -23,10 +24,10 @@ import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import { myPassportForm } from "feat/my-passport-form/spec";
 import {
+	MyPassportFormMode,
 	type DropdownOptions,
 	type FormContext,
 	type MyPassportForm,
-	MyPassportFormMode,
 } from "feat/my-passport-form/types";
 import { useRepo } from "solid-automerge";
 import {
@@ -63,7 +64,7 @@ export const useMyPassportForm = () => {
 	const [formContext, setFormContext] = createSignal<FormContext>({
 		mode: MyPassportFormMode.Draft,
 	});
-	const _publish = () =>
+	const publish = () =>
 		setFormContext(formContext => ({
 			...formContext,
 			mode: MyPassportFormMode.Published,
@@ -180,6 +181,17 @@ export const useMyPassportForm = () => {
 		formValues,
 		_event,
 	) => {
+		publish();
+
+		const isValid = await validate(form, {
+			shouldActive: false,
+			shouldFocus: false,
+		});
+
+		if (!isValid) {
+			return;
+		}
+
 		if (form.submitting || mSubmit.isPending) {
 			return;
 		}
