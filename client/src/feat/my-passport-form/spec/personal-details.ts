@@ -25,10 +25,13 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, () => {
-			const t = useI18n<typeof resources>();
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
 
-			return t("form.errors.alphanumeric");
+				return t("form.errors.alphanumeric");
+			},
 		}),
 	lastName: string()
 		.when(
@@ -48,10 +51,13 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, () => {
-			const t = useI18n<typeof resources>();
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
 
-			return t("form.errors.alphanumeric");
+				return t("form.errors.alphanumeric");
+			},
 		}),
 	nickName: string()
 		.max(constants.fieldConstraints.nameMaxChars, () => {
@@ -62,10 +68,13 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, () => {
-			const t = useI18n<typeof resources>();
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
 
-			return t("form.errors.alphanumeric");
+				return t("form.errors.alphanumeric");
+			},
 		}),
 	genderCode: string().when(
 		whenOptions(
