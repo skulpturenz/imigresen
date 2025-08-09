@@ -62,7 +62,8 @@ export const useMyPassportForm = () => {
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
 	const [formContext, setFormContext] = createSignal<FormContext>({
-		mode: MyPassportFormMode.Draft,
+		// TODO: change to `Draft`
+		mode: MyPassportFormMode.Published,
 	});
 	const publish = () =>
 		setFormContext(formContext => ({

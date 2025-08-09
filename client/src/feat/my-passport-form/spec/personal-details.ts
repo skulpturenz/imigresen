@@ -13,10 +13,7 @@ export const personalDetails = object({
 				schema.min(constants.fieldConstraints.nameMinChars, () => {
 					const t = useI18n<typeof resources>();
 
-					return t(
-						"form.errors.minChars",
-						constants.fieldConstraints.nameMinChars,
-					);
+					return t("form.errors.required");
 				}),
 			),
 		)
@@ -27,27 +24,14 @@ export const personalDetails = object({
 				"form.errors.maxChars",
 				constants.fieldConstraints.nameMaxChars,
 			);
-		})
-		.when(
-			whenOptions(
-				isPublished,
-				partialRight(toRequired, () => {
-					const t = useI18n<typeof resources>();
-
-					return t("form.errors.required");
-				}),
-			),
-		),
+		}),
 	lastName: string()
 		.when(
 			whenOptions(isPublished, schema =>
 				schema.min(constants.fieldConstraints.nameMinChars, () => {
 					const t = useI18n<typeof resources>();
 
-					return t(
-						"form.errors.minChars",
-						constants.fieldConstraints.nameMinChars,
-					);
+					return t("form.errors.required");
 				}),
 			),
 		)
@@ -58,48 +42,15 @@ export const personalDetails = object({
 				"form.errors.maxChars",
 				constants.fieldConstraints.nameMaxChars,
 			);
-		})
-		.when(
-			whenOptions(
-				isPublished,
-				partialRight(toRequired, () => {
-					const t = useI18n<typeof resources>();
+		}),
+	nickName: string().max(constants.fieldConstraints.nameMaxChars, () => {
+		const t = useI18n<typeof resources>();
 
-					return t("form.errors.required");
-				}),
-			),
-		),
-	nickName: string()
-		.when(
-			whenOptions(isPublished, schema =>
-				schema.min(constants.fieldConstraints.nameMinChars, () => {
-					const t = useI18n<typeof resources>();
-
-					return t(
-						"form.errors.minChars",
-						constants.fieldConstraints.nameMinChars,
-					);
-				}),
-			),
-		)
-		.max(constants.fieldConstraints.nameMaxChars, () => {
-			const t = useI18n<typeof resources>();
-
-			return t(
-				"form.errors.maxChars",
-				constants.fieldConstraints.nameMaxChars,
-			);
-		})
-		.when(
-			whenOptions(
-				isPublished,
-				partialRight(toRequired, () => {
-					const t = useI18n<typeof resources>();
-
-					return t("form.errors.required");
-				}),
-			),
-		),
+		return t(
+			"form.errors.maxChars",
+			constants.fieldConstraints.nameMaxChars,
+		);
+	}),
 	genderCode: string().when(
 		whenOptions(
 			isPublished,
@@ -150,16 +101,22 @@ export const personalDetails = object({
 			}),
 		),
 	),
-	emailAddress: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
-				const t = useI18n<typeof resources>();
+	emailAddress: string()
+		.email(() => {
+			const t = useI18n<typeof resources>();
 
-				return t("form.errors.required");
-			}),
+			return t("form.errors.email");
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
 		),
-	),
 	mobileNumber: string().when(
 		whenOptions(
 			isPublished,
