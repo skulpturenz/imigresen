@@ -1,8 +1,12 @@
+import { toRequired, whenOptions } from "core/data/yup/utils";
 import { boolean, object, string } from "yup";
+import { isPublished } from "./utils";
 
 export const declaration = object({
-	isDetailsCorrect: boolean(),
-	confirmPreviousDocumentNumber: string(),
+	isDetailsCorrect: boolean().when(whenOptions(isPublished, toRequired)),
+	confirmPreviousDocumentNumber: string().when(
+		whenOptions(isPublished, toRequired),
+	),
 	declareTrueAndCorrect: boolean(),
 	isLiable: boolean(),
 });
