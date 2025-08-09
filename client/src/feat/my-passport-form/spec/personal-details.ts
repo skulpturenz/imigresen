@@ -24,6 +24,11 @@ export const personalDetails = object({
 				"form.errors.maxChars",
 				constants.fieldConstraints.nameMaxChars,
 			);
+		})
+		.matches(constants.regex.alphanumeric, () => {
+			const t = useI18n<typeof resources>();
+
+			return t("form.errors.alphanumeric");
 		}),
 	lastName: string()
 		.when(
@@ -42,15 +47,26 @@ export const personalDetails = object({
 				"form.errors.maxChars",
 				constants.fieldConstraints.nameMaxChars,
 			);
-		}),
-	nickName: string().max(constants.fieldConstraints.nameMaxChars, () => {
-		const t = useI18n<typeof resources>();
+		})
+		.matches(constants.regex.alphanumeric, () => {
+			const t = useI18n<typeof resources>();
 
-		return t(
-			"form.errors.maxChars",
-			constants.fieldConstraints.nameMaxChars,
-		);
-	}),
+			return t("form.errors.alphanumeric");
+		}),
+	nickName: string()
+		.max(constants.fieldConstraints.nameMaxChars, () => {
+			const t = useI18n<typeof resources>();
+
+			return t(
+				"form.errors.maxChars",
+				constants.fieldConstraints.nameMaxChars,
+			);
+		})
+		.matches(constants.regex.alphanumeric, () => {
+			const t = useI18n<typeof resources>();
+
+			return t("form.errors.alphanumeric");
+		}),
 	genderCode: string().when(
 		whenOptions(
 			isPublished,
