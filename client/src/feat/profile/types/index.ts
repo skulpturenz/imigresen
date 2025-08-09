@@ -1,5 +1,2 @@
-export type ProfileForm = {
-	email: string;
-	firstName: string;
-	lastName: string;
-};
+export * from "./api";
+export * from "./form";

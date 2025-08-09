@@ -1,5 +1,9 @@
+import { useQuery } from "@tanstack/solid-query";
+import { queryKeys } from "core/constants/query-keys";
+import { normalizeResponse } from "core/data/transform-deep";
 import { invariant, once } from "es-toolkit";
 import type { KeycloakProfile } from "keycloak-js";
+import { createEffect } from "solid-js";
 import { createWithSignal } from "solid-zustand";
 import { default as wretch } from "wretch";
 
@@ -66,42 +70,77 @@ export const useStore = createWithSignal<UserSvc>((set, get) => {
 						email: profile.email,
 					});
 
-					const user = await userApi
-						.auth(`Bearer ${token}`)
-						.get(`?${searchParams.toString()}`)
-						.json<UserProfile>();
+					const qUser = useQuery(() => ({
+						queryKey: queryKeys.getUserDetails(token),
+						queryFn: () =>
+							userApi
+								.auth(`Bearer ${token}`)
+								.get(`?${searchParams.toString()}`)
+								.json(normalizeResponse<UserProfile>),
+					}));
 
-					// Fetch personal details to get phone number
-					const personalDetails = await personalDetailsApi
-						.auth(`Bearer ${token}`)
-						.get(`/user/${user.uuid}`)
-						.notFound(() => null)
-						.json<UserPersonalDetails | null>();
+					const qPersonalDetails = useQuery(() => ({
+						queryKey: queryKeys.getPersonalDetails(token),
+						queryFn: () =>
+							personalDetailsApi
+								.auth(`Bearer ${token}`)
+								.get(`/user/${qUser.data?.uuid}`)
+								.notFound(() => null)
+								.json(
+									normalizeResponse<UserPersonalDetails | null>,
+								),
+						enabled: Boolean(qUser.data),
+					}));
 
-					// Update user profile with phone number from personal details
-					set({
-						profile: {
-							...user,
-							phoneNumber: personalDetails?.mobileNumber || "",
-						},
+					const qIm42Config = useQuery(() => ({
+						queryKey: queryKeys.getPersonalDetails(token),
+						queryFn: () =>
+							userApi
+								.auth(`Bearer ${token}`)
+								.get(`/${qUser.data?.uuid}/config/im42`)
+								.json(normalizeResponse<IM42Config>),
+						enabled: Boolean(qUser.data),
+					}));
+
+					createEffect(() => {
+						if (
+							qUser.isLoading ||
+							qPersonalDetails.isLoading ||
+							!qUser.data
+						) {
+							return;
+						}
+
+						set({
+							profile: {
+								...qUser.data,
+								phoneNumber:
+									qPersonalDetails.data?.mobileNumber || "",
+							},
+						});
 					});
 
-					const im42Config = await userApi
-						.auth(`Bearer ${token}`)
-						.get(`/${user.uuid}/config/im42`)
-						// TODO: deep transform for responses
-						.json<IM42Config>(res => ({
-							...res,
-							syncedAt: res.syncedAt
-								? new Date(res.syncedAt)
-								: null,
-						}));
+					createEffect(() => {
+						if (!qUser.data || !qIm42Config.data) {
+							return;
+						}
 
-					set({
-						syncComplete: Boolean(im42Config.syncedAt),
+						set({
+							syncComplete: Boolean(qIm42Config.data.syncedAt),
+						});
 					});
 
-					set({ isInitialLoading: false });
+					createEffect(() => {
+						if (
+							qUser.isLoading ||
+							qPersonalDetails.isLoading ||
+							qIm42Config.isLoading
+						) {
+							return;
+						}
+
+						set({ isInitialLoading: false });
+					});
 				},
 			),
 			completeSync: (token?: string) => {

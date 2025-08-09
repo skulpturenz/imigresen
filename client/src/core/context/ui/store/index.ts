@@ -1,6 +1,5 @@
-import { QueryClient } from "@tanstack/solid-query";
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { once, partialRight } from "es-toolkit";
+import { noop, once, partialRight } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -20,7 +19,6 @@ export interface UiSvc {
 	locale: Locale;
 	theme: UiTheme;
 	mode: UiMode;
-	queryClient?: QueryClient | null;
 	actions: {
 		init: () => void;
 		setTheme: (theme: UiTheme) => void;
@@ -45,7 +43,6 @@ const persistLocalStorage: (
 	onRehydrateStorage: state => () => state.actions.setHasHydrated?.(),
 	partialize: state => {
 		const keysToIgnore: Set<keyof (UiSvc & UiSvcInternal)> = new Set([
-			"queryClient",
 			"actions",
 			"hasHydrated",
 		]);
@@ -62,8 +59,7 @@ const persistLocalStorage: (
 export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 	persistLocalStorage((set, get) => {
 		return {
-			isInitialLoading: () =>
-				Boolean(!get()?.hasHydrated || !get().queryClient),
+			isInitialLoading: () => Boolean(!get()?.hasHydrated),
 			locale: "en-NZ", // https://www.ietf.org/rfc/bcp/bcp47.txt
 			// TODO: There is a state update issue here
 			// if there is no persisted storage then `onRehydrateStorage`
@@ -72,23 +68,8 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 			hasHydrated: true,
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,
-			queryClient: null,
 			actions: {
-				init: once(() => {
-					const queryClient = new QueryClient({
-						defaultOptions: {
-							queries: {
-								throwOnError: true,
-								suspense: true,
-							},
-							mutations: {
-								throwOnError: true,
-							},
-						},
-					});
-
-					set({ queryClient });
-				}),
+				init: once(noop),
 				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),

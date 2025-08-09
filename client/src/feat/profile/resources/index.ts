@@ -1,4 +1,4 @@
-import { flatten } from "@solid-primitives/i18n";
+import { flatten, type Flatten } from "@solid-primitives/i18n";
 import { makeWithI18n } from "core/context/i18n";
 import type { Locale } from "core/context/ui";
 
@@ -9,3 +9,5 @@ export const fetcher = async (locale: Locale) => {
 };
 
 export const withI18n = makeWithI18n({ fetcher });
+
+export type TranslatorKeys<T extends Record<string, any>> = keyof Flatten<T>;
