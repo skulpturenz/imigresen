@@ -310,6 +310,17 @@ export const useMyPassportForm = () => {
 		};
 	};
 
+	createEffect(() => {
+		if (!qReferenceData.data) {
+			return;
+		}
+
+		setFormContext(formContext => ({
+			...formContext,
+			dropdownOptions: selectReferenceData(),
+		}));
+	});
+
 	return {
 		data: {
 			referenceData: selectReferenceData,

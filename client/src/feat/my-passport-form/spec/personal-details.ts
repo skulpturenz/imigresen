@@ -1,7 +1,8 @@
 import { useI18n } from "core/context/i18n";
 import { toRequired, whenOptions } from "core/data/yup/utils";
-import { partialRight } from "es-toolkit";
+import { invariant, partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
+import type { FormContext } from "feat/my-passport-form/types";
 import { object, string } from "yup";
 import { constants } from "./constants";
 import { isPublished } from "./utils";
@@ -76,16 +77,37 @@ export const personalDetails = object({
 				return t("form.errors.alphanumeric");
 			},
 		}),
-	genderCode: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
-				const t = useI18n<typeof resources>();
+	genderCode: string()
+		.test((value, testContext) => {
+			if (!value) {
+				return true;
+			}
 
-				return t("form.errors.required");
-			}),
+			const t = useI18n<typeof resources>();
+			const context = testContext.options.context as FormContext;
+			invariant(
+				context.dropdownOptions,
+				"Reference data not defined in yup context",
+			);
+
+			if (!context.dropdownOptions.genderOptions[value]) {
+				return testContext.createError({
+					message: t("form.errors.invalidOption"),
+				});
+			}
+
+			return true;
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
 		),
-	),
 	dateOfBirth: string().when(
 		whenOptions(
 			isPublished,
@@ -96,16 +118,37 @@ export const personalDetails = object({
 			}),
 		),
 	),
-	countryOfBirthCode: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
-				const t = useI18n<typeof resources>();
+	countryOfBirthCode: string()
+		.test((value, testContext) => {
+			if (!value) {
+				return true;
+			}
 
-				return t("form.errors.required");
-			}),
+			const t = useI18n<typeof resources>();
+			const context = testContext.options.context as FormContext;
+			invariant(
+				context.dropdownOptions,
+				"Reference data not defined in yup context",
+			);
+
+			if (!context.dropdownOptions.countryOptions[value]) {
+				return testContext.createError({
+					message: t("form.errors.invalidOption"),
+				});
+			}
+
+			return true;
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
 		),
-	),
 	stateOfBirth: string().when(
 		whenOptions(
 			isPublished,
@@ -152,14 +195,35 @@ export const personalDetails = object({
 			}),
 		),
 	),
-	relationshipStatusCode: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
-				const t = useI18n<typeof resources>();
+	relationshipStatusCode: string()
+		.test((value, testContext) => {
+			if (!value) {
+				return true;
+			}
 
-				return t("form.errors.required");
-			}),
+			const t = useI18n<typeof resources>();
+			const context = testContext.options.context as FormContext;
+			invariant(
+				context.dropdownOptions,
+				"Reference data not defined in yup context",
+			);
+
+			if (!context.dropdownOptions.relationshipStatusOptions[value]) {
+				return testContext.createError({
+					message: t("form.errors.invalidOption"),
+				});
+			}
+
+			return true;
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
 		),
-	),
 });

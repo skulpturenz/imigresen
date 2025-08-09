@@ -49,6 +49,7 @@ export const resources = {
 				`${maxChars} ${pluralize("character", maxChars)} maximum`,
 			alphanumeric: "Must be alphanumeric",
 			required: "Required",
+			invalidOption: "Invalid option",
 		},
 		optional: (label: string) => `${label} (Optional)`,
 		personalDetails: {
