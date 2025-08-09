@@ -1,17 +1,183 @@
+import { useI18n } from "core/context/i18n";
 import { toRequired, whenOptions } from "core/data/yup/utils";
+import { partialRight } from "es-toolkit";
+import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { object, string } from "yup";
+import { constants } from "./constants";
 import { isPublished } from "./utils";
 
 export const personalDetails = object({
-	firstName: string().when(whenOptions(isPublished, toRequired)),
-	lastName: string().when(whenOptions(isPublished, toRequired)),
-	nickName: string().when(whenOptions(isPublished, toRequired)),
-	genderCode: string().when(whenOptions(isPublished, toRequired)),
-	dateOfBirth: string().when(whenOptions(isPublished, toRequired)),
-	countryOfBirthCode: string().when(whenOptions(isPublished, toRequired)),
-	stateOfBirth: string().when(whenOptions(isPublished, toRequired)),
-	height: string().when(whenOptions(isPublished, toRequired)),
-	emailAddress: string().when(whenOptions(isPublished, toRequired)),
-	mobileNumber: string().when(whenOptions(isPublished, toRequired)),
-	relationshipStatusCode: string().when(whenOptions(isPublished, toRequired)),
+	firstName: string()
+		.when(
+			whenOptions(isPublished, schema =>
+				schema.min(constants.fieldConstraints.nameMinChars, () => {
+					const t = useI18n<typeof resources>();
+
+					return t(
+						"form.errors.minChars",
+						constants.fieldConstraints.nameMinChars,
+					);
+				}),
+			),
+		)
+		.max(constants.fieldConstraints.nameMaxChars, () => {
+			const t = useI18n<typeof resources>();
+
+			return t(
+				"form.errors.maxChars",
+				constants.fieldConstraints.nameMaxChars,
+			);
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
+	lastName: string()
+		.when(
+			whenOptions(isPublished, schema =>
+				schema.min(constants.fieldConstraints.nameMinChars, () => {
+					const t = useI18n<typeof resources>();
+
+					return t(
+						"form.errors.minChars",
+						constants.fieldConstraints.nameMinChars,
+					);
+				}),
+			),
+		)
+		.max(constants.fieldConstraints.nameMaxChars, () => {
+			const t = useI18n<typeof resources>();
+
+			return t(
+				"form.errors.maxChars",
+				constants.fieldConstraints.nameMaxChars,
+			);
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
+	nickName: string()
+		.when(
+			whenOptions(isPublished, schema =>
+				schema.min(constants.fieldConstraints.nameMinChars, () => {
+					const t = useI18n<typeof resources>();
+
+					return t(
+						"form.errors.minChars",
+						constants.fieldConstraints.nameMinChars,
+					);
+				}),
+			),
+		)
+		.max(constants.fieldConstraints.nameMaxChars, () => {
+			const t = useI18n<typeof resources>();
+
+			return t(
+				"form.errors.maxChars",
+				constants.fieldConstraints.nameMaxChars,
+			);
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
+	genderCode: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	dateOfBirth: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	countryOfBirthCode: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	stateOfBirth: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	height: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	emailAddress: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	mobileNumber: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
+	relationshipStatusCode: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
 });

@@ -25,6 +25,7 @@ import { Label } from "ui/label";
 import {
 	SelectClearSelection,
 	SelectContent,
+	SelectErrorMessage,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
@@ -33,6 +34,7 @@ import { ModularFormsSelect } from "ui/select/modular-forms-select";
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -71,6 +73,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									type="text"
 									autocomplete="given-name"
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -99,6 +105,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									type="text"
 									autocomplete="family-name"
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -114,7 +124,12 @@ export const PersonalDetails: Component<StepProps> = props => {
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.personalDetails.nickName.label")}
+									{t(
+										"form.optional",
+										t(
+											"form.personalDetails.nickName.label",
+										),
+									)}
 								</TextFieldLabel>
 
 								<TextField
@@ -127,6 +142,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									type="text"
 									autocomplete="nickname"
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -157,6 +176,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									type="text"
 									autocomplete="email"
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -187,6 +210,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									type="tel"
 									autocomplete="tel"
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -247,6 +274,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</SelectTrigger>
 
 									<SelectContent />
+
+									<SelectErrorMessage>
+										{field.error}
+									</SelectErrorMessage>
 								</ModularFormsSelect>
 							</InputGroup>
 						</>
@@ -312,6 +343,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</SelectTrigger>
 
 									<SelectContent />
+
+									<SelectErrorMessage>
+										{field.error}
+									</SelectErrorMessage>
 								</ModularFormsSelect>
 							</InputGroup>
 						</>
@@ -381,6 +416,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 											)}
 										</Show>
 									</TextFieldDescription>
+
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
 								</TextFieldRoot>
 							</>
 						)}
@@ -402,6 +441,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 									<ModularFormsDateRangePicker
 										form={props.form}
+										// TODO: error message
 										{...field}
 										{...fieldProps}
 										/// @ts-expect-error: expects a div not an input
@@ -456,6 +496,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										"form.personalDetails.countryOfBirthCode.description",
 									)}
 								</TextFieldDescription>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -464,6 +508,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<props.Field name="personalDetails.stateOfBirth">
 				{(field, fieldProps) => {
+					// TODO: error message
 					return (
 						<>
 							<Show

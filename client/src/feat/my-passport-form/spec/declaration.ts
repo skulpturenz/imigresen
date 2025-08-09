@@ -3,7 +3,7 @@ import { boolean, object, string } from "yup";
 import { isPublished } from "./utils";
 
 export const declaration = object({
-	isDetailsCorrect: boolean().when(whenOptions(isPublished, toRequired)),
+	isDetailsCorrect: boolean(),
 	confirmPreviousDocumentNumber: string().when(
 		whenOptions(isPublished, toRequired),
 	),

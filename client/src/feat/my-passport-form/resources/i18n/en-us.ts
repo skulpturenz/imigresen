@@ -8,6 +8,7 @@ import type {
 	RequestType,
 } from "feat/my-passport-form/types";
 import { Step } from "feat/my-passport-form/types/ui";
+import pluralize from "pluralize";
 
 export const resources = {
 	metaTitle: "Create a new application",
@@ -40,6 +41,16 @@ export const resources = {
 		},
 	},
 	form: {
+		errors: {
+			email: "Must be an email",
+			minChars: (minChars: number) =>
+				`${minChars} ${pluralize("character", minChars)} minimum`,
+			maxChars: (maxChars: number) =>
+				`${maxChars} ${pluralize("character", maxChars)} maximum`,
+			alphanumeric: "Must be alphanumeric",
+			required: "Required",
+		},
+		optional: (label: string) => `${label} (Optional)`,
 		personalDetails: {
 			firstName: {
 				label: "First name",
