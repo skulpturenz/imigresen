@@ -18,8 +18,7 @@ import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
 import { toPath } from "core/router/utils";
-import { flattenObject, invariant } from "es-toolkit";
-import { set } from "es-toolkit/compat";
+import { invariant, isEqualWith, merge } from "es-toolkit";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import { myPassportForm } from "feat/my-passport-form/spec";
@@ -61,25 +60,6 @@ export const useMyPassportForm = () => {
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
-	const [formContext, setFormContext] = createSignal<FormContext>({
-		// TODO: change to `Draft`
-		mode: MyPassportFormMode.Published,
-	});
-	const publish = () =>
-		setFormContext(formContext => ({
-			...formContext,
-			mode: MyPassportFormMode.Published,
-		}));
-
-	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
-		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
-		validate: yupForm(myPassportForm, {
-			context: formContext,
-		}),
-		validateOn: "change",
-		revalidateOn: "change",
-	});
-
 	const qReferenceData = useQuery<DropdownOptions>(() => ({
 		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
 		queryFn: myPassportFormContext.getReferenceData,
@@ -105,6 +85,40 @@ export const useMyPassportForm = () => {
 		placeholderData: [],
 		staleTime: Infinity,
 	}));
+
+	const selectReferenceData = (): DropdownOptions | null => {
+		if (!qReferenceData.data) {
+			return null;
+		}
+
+		return {
+			...qReferenceData.data,
+			personalDetailsStateOptions:
+				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
+			addressDetailsStateOptions:
+				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
+		};
+	};
+
+	const [formContext, setFormContext] = createSignal<FormContext>({
+		// TODO: change to `Draft`
+		mode: MyPassportFormMode.Published,
+		dropdownOptions: selectReferenceData,
+	});
+	const publish = () =>
+		setFormContext(formContext => ({
+			...formContext,
+			mode: MyPassportFormMode.Published,
+		}));
+
+	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
+		validate: yupForm(myPassportForm, {
+			context: formContext,
+		}),
+		validateOn: "change",
+		revalidateOn: "change",
+	});
 
 	const [handle] = createResource(async () => {
 		// not ideal that we are performing side effects here
@@ -141,6 +155,29 @@ export const useMyPassportForm = () => {
 
 		return handle;
 	});
+
+	// the default comparison between form values and initial values
+	// just checks if the form values are not equal to the initial values
+	// but when it comes to forms we want to treat falsy values the same regardless
+	// of what type it is
+	// - sometimes initial values starts with `null` and when the form is edited it becomes
+	// a an empty string, both are empty and we treat the form as not modified. mainly select
+	// options which are reference types
+	const isDirty = () =>
+		isEqualWith(
+			getValues(form),
+			form.internal.initialValues,
+			(final, initial) => {
+				// handle falsy values separately
+				if (!final && !initial) {
+					return false;
+				}
+
+				// use default equality comparison
+				// should handle objects and arrays
+				return undefined;
+			},
+		);
 
 	const mDeleteForm = useMutation(() => ({
 		mutationFn: myPassportFormContext.deleteApplication,
@@ -208,24 +245,14 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		const dirtyFields = flattenObject(
-			getValues(form, {
-				shouldDirty: true,
-			}),
-		);
+		const dirtyFields = getValues(form);
 
 		if (!import.meta.env.PROD) {
 			console.debug("form dirty fields", dirtyFields);
 		}
 
 		handle()?.change(doc => {
-			Object.entries(dirtyFields).forEach(([path, value]) => {
-				if (!import.meta.env.PROD) {
-					console.debug("set", path, value);
-				}
-
-				set(doc, path, value);
-			});
+			merge(doc, dirtyFields);
 		});
 	});
 
@@ -248,7 +275,7 @@ export const useMyPassportForm = () => {
 	onCleanup(() => {
 		invariant(form, "Form is not defined");
 
-		if (!form.dirty) {
+		if (!form.dirty || !isDirty()) {
 			return;
 		}
 
@@ -294,31 +321,6 @@ export const useMyPassportForm = () => {
 		}
 
 		queueMicrotask(() => registerNewForm());
-	});
-
-	const selectReferenceData = (): DropdownOptions | null => {
-		if (!qReferenceData.data) {
-			return null;
-		}
-
-		return {
-			...qReferenceData.data,
-			personalDetailsStateOptions:
-				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
-			addressDetailsStateOptions:
-				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
-		};
-	};
-
-	createEffect(() => {
-		if (!qReferenceData.data) {
-			return;
-		}
-
-		setFormContext(formContext => ({
-			...formContext,
-			dropdownOptions: selectReferenceData(),
-		}));
 	});
 
 	return {

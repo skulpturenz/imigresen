@@ -43,7 +43,7 @@ export const applicationDetails = object({
 				"Reference data not defined in yup context",
 			);
 
-			if (!context.dropdownOptions.requestTypeOptions[value]) {
+			if (!context.dropdownOptions()?.requestTypeOptions[value]) {
 				return testContext.createError({
 					message: t("form.errors.invalidOption"),
 				});

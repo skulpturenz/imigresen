@@ -90,7 +90,7 @@ export const personalDetails = object({
 				"Reference data not defined in yup context",
 			);
 
-			if (!context.dropdownOptions.genderOptions[value]) {
+			if (!context.dropdownOptions()?.genderOptions[value]) {
 				return testContext.createError({
 					message: t("form.errors.invalidOption"),
 				});
@@ -131,7 +131,7 @@ export const personalDetails = object({
 				"Reference data not defined in yup context",
 			);
 
-			if (!context.dropdownOptions.countryOptions[value]) {
+			if (!context.dropdownOptions()?.countryOptions[value]) {
 				return testContext.createError({
 					message: t("form.errors.invalidOption"),
 				});
@@ -225,7 +225,7 @@ export const personalDetails = object({
 				"Reference data not defined in yup context",
 			);
 
-			if (!context.dropdownOptions.relationshipStatusOptions[value]) {
+			if (!context.dropdownOptions()?.relationshipStatusOptions[value]) {
 				return testContext.createError({
 					message: t("form.errors.invalidOption"),
 				});

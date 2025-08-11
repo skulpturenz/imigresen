@@ -61,7 +61,7 @@ export const addressDetails = object({
 				"Reference data not defined in yup context",
 			);
 
-			if (!context.dropdownOptions.countryOptions[value]) {
+			if (!context.dropdownOptions()?.countryOptions[value]) {
 				return testContext.createError({
 					message: t("form.errors.invalidOption"),
 				});
