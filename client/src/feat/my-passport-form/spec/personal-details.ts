@@ -3,7 +3,7 @@ import { toRequired, whenOptions } from "core/data/yup/utils";
 import { invariant, partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { FormContext } from "feat/my-passport-form/types";
-import { object, string } from "yup";
+import { number, object, string } from "yup";
 import { constants } from "./constants";
 import { isPublished } from "./utils";
 
@@ -159,16 +159,33 @@ export const personalDetails = object({
 			}),
 		),
 	),
-	height: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
-				const t = useI18n<typeof resources>();
+	height: number()
+		.min(constants.fieldConstraints.heightMin, () => {
+			const t = useI18n<typeof resources>();
 
-				return t("form.errors.required");
-			}),
+			return t(
+				"form.errors.minHeight",
+				constants.fieldConstraints.heightMin,
+			);
+		})
+		.max(constants.fieldConstraints.heightMax, () => {
+			const t = useI18n<typeof resources>();
+
+			return t(
+				"form.errors.maxHeight",
+				constants.fieldConstraints.heightMax,
+			);
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
 		),
-	),
 	emailAddress: string()
 		.email(() => {
 			const t = useI18n<typeof resources>();

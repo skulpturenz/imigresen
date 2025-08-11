@@ -4,6 +4,7 @@ import { invariant } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { FormContext } from "feat/my-passport-form/types";
 import { object, string } from "yup";
+import { constants } from "./constants";
 import { isPublished } from "./utils";
 
 export const applicationDetails = object({
@@ -51,6 +52,15 @@ export const applicationDetails = object({
 			return true;
 		})
 		.when(whenOptions(isPublished, toRequired)),
-	myKadNumber: string().when(whenOptions(isPublished, toRequired)),
+	myKadNumber: string()
+		.matches(constants.regex.myKadNumber, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.invalidMyKadNumber");
+			},
+		})
+		.when(whenOptions(isPublished, toRequired)),
 	birthDocumentNumber: string().when(whenOptions(isPublished, toRequired)),
 });

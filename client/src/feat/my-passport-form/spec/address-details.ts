@@ -4,13 +4,50 @@ import { invariant } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { FormContext } from "feat/my-passport-form/types";
 import { object, string } from "yup";
+import { constants } from "./constants";
 import { isPublished } from "./utils";
 
 export const addressDetails = object({
-	streetAddress: string().when(whenOptions(isPublished, toRequired)),
-	postcode: string().when(whenOptions(isPublished, toRequired)),
-	city: string().when(whenOptions(isPublished, toRequired)),
-	state: string().when(whenOptions(isPublished, toRequired)),
+	streetAddress: string()
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.alphanumeric");
+			},
+		})
+		.when(whenOptions(isPublished, toRequired)),
+	postcode: string()
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.numeric");
+			},
+		})
+		.when(whenOptions(isPublished, toRequired)),
+	city: string()
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.alphanumeric");
+			},
+		})
+		.when(whenOptions(isPublished, toRequired)),
+	state: string()
+		.matches(constants.regex.alphanumeric, {
+			excludeEmptyString: true,
+			message: () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.alphanumeric");
+			},
+		})
+		.when(whenOptions(isPublished, toRequired)),
 	countryCode: string()
 		.test((value, testContext) => {
 			if (!value) {

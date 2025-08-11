@@ -48,8 +48,12 @@ export const resources = {
 			maxChars: (maxChars: number) =>
 				`${maxChars} ${pluralize("character", maxChars)} maximum`,
 			alphanumeric: "Must be alphanumeric",
+			numeric: "Must be a number",
+			invalidMyKadNumber: "Invalid MyKad number",
 			required: "Required",
 			invalidOption: "Invalid option",
+			minHeight: (metres: number) => `${metres}m minimum`,
+			maxHeight: (centimetres: number) => `${centimetres}cm maximum`,
 		},
 		optional: (label: string) => `${label} (Optional)`,
 		personalDetails: {
