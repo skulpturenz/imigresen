@@ -7,7 +7,12 @@ import {
 	validate,
 	type SubmitHandler,
 } from "@modular-forms/solid";
-import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
+import {
+	useBeforeLeave,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types";
@@ -226,10 +231,7 @@ export const useMyPassportForm = () => {
 	) => {
 		publish();
 
-		const isValid = await validate(form, {
-			shouldActive: false,
-			shouldFocus: false,
-		});
+		const isValid = await validate(form);
 
 		if (!isValid) {
 			return;
@@ -277,7 +279,7 @@ export const useMyPassportForm = () => {
 		deleteBlankDocument();
 	});
 
-	onCleanup(() => {
+	useBeforeLeave(event => {
 		invariant(form, "Form is not defined");
 
 		if (!isDirty()) {
@@ -286,13 +288,13 @@ export const useMyPassportForm = () => {
 
 		const currentUuid = routeParams.uuid;
 
-		const updateExistingFormEntry = () => {
+		const updateExistingFormEntry = async () => {
 			invariant(
 				handle()?.url,
 				"Automerge URL for existing document is not defined, check `handle`",
 			);
 
-			queryClient.refetchQueries({
+			await queryClient.refetchQueries({
 				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
@@ -319,13 +321,15 @@ export const useMyPassportForm = () => {
 			});
 		};
 
+		const proceed = () => event.retry(true);
+
 		if (currentUuid) {
-			queueMicrotask(() => updateExistingFormEntry());
+			updateExistingFormEntry().then(proceed);
 
 			return;
 		}
 
-		queueMicrotask(() => registerNewForm());
+		registerNewForm().then(proceed);
 	});
 
 	return {
