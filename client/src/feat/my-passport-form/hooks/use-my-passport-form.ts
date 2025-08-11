@@ -163,8 +163,12 @@ export const useMyPassportForm = () => {
 	// - sometimes initial values starts with `null` and when the form is edited it becomes
 	// a an empty string, both are empty and we treat the form as not modified. mainly select
 	// options which are reference types
-	const isDirty = () =>
-		isEqualWith(
+	const isDirty = () => {
+		if (!form.dirty) {
+			return false;
+		}
+
+		return isEqualWith(
 			getValues(form),
 			form.internal.initialValues,
 			(final, initial) => {
@@ -178,6 +182,7 @@ export const useMyPassportForm = () => {
 				return undefined;
 			},
 		);
+	};
 
 	const mDeleteForm = useMutation(() => ({
 		mutationFn: myPassportFormContext.deleteApplication,
@@ -334,6 +339,7 @@ export const useMyPassportForm = () => {
 		onSubmit,
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
+		isDirty,
 		Components: {
 			Form,
 			Field,
