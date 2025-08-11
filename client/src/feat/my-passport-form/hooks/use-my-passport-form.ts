@@ -38,7 +38,6 @@ import {
 	createEffect,
 	createResource,
 	createSignal,
-	onCleanup,
 	type Resource,
 } from "solid-js";
 
@@ -263,10 +262,12 @@ export const useMyPassportForm = () => {
 		});
 	});
 
-	onCleanup(() => {
+	useBeforeLeave(event => {
 		invariant(form, "Form is not defined");
 
 		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
 		const deleteBlankDocument = async () => {
 			if (isDirty() || currentUuid) {
 				return;
@@ -276,17 +277,11 @@ export const useMyPassportForm = () => {
 			handle()?.delete();
 		};
 
-		deleteBlankDocument();
-	});
+		if (!isDirty() || !currentUuid) {
+			deleteBlankDocument().then(proceed);
 
-	useBeforeLeave(event => {
-		invariant(form, "Form is not defined");
-
-		if (!isDirty()) {
 			return;
 		}
-
-		const currentUuid = routeParams.uuid;
 
 		const updateExistingFormEntry = async () => {
 			invariant(
@@ -320,8 +315,6 @@ export const useMyPassportForm = () => {
 				),
 			});
 		};
-
-		const proceed = () => event.retry(true);
 
 		if (currentUuid) {
 			updateExistingFormEntry().then(proceed);
