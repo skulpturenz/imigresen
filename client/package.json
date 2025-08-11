@@ -55,7 +55,7 @@
 		"zustand": "^5.0.6"
 	},
 	"devDependencies": {
-		"@automerge/automerge-repo-storage-nodefs": "^2.1.0",
+		"@automerge/automerge-repo-storage-nodefs": "^2.2.0",
 		"@chromatic-com/storybook": "latest",
 		"@eslint/js": "^9.32.0",
 		"@formbricks/js": "latest",
