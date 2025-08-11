@@ -261,7 +261,7 @@ export const useMyPassportForm = () => {
 
 		const currentUuid = routeParams.uuid;
 		const deleteBlankDocument = async () => {
-			if (form.dirty || currentUuid) {
+			if (isDirty() || currentUuid) {
 				return;
 			}
 
@@ -275,7 +275,7 @@ export const useMyPassportForm = () => {
 	onCleanup(() => {
 		invariant(form, "Form is not defined");
 
-		if (!form.dirty || !isDirty()) {
+		if (!isDirty()) {
 			return;
 		}
 
