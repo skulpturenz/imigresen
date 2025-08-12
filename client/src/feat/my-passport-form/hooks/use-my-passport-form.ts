@@ -23,7 +23,8 @@ import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
 import { toPath } from "core/router/utils";
-import { invariant, isEqualWith, merge } from "es-toolkit";
+import { flattenObject, invariant, isEqualWith } from "es-toolkit";
+import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
 import { myPassportForm } from "feat/my-passport-form/spec";
@@ -64,32 +65,6 @@ export const useMyPassportForm = () => {
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
-	const qReferenceData = useQuery<DropdownOptions>(() => ({
-		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
-		queryFn: myPassportFormContext.getReferenceData,
-		staleTime: Infinity,
-	}));
-
-	const qReferenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
-		staleTime: Infinity,
-	}));
-
-	const qReferenceDataAddressDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "addressDetails.countryCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
-		staleTime: Infinity,
-	}));
-
 	const selectReferenceData = (): DropdownOptions | null => {
 		if (!qReferenceData.data) {
 			return null;
@@ -123,6 +98,32 @@ export const useMyPassportForm = () => {
 		validateOn: "change",
 		revalidateOn: "change",
 	});
+
+	const qReferenceData = useQuery<DropdownOptions>(() => ({
+		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
+		queryFn: myPassportFormContext.getReferenceData,
+		staleTime: Infinity,
+	}));
+
+	const qReferenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
+		queryKey: queryKeys.getReferenceDataStates(
+			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
+			authnContext().keycloak?.token,
+		),
+		queryFn: myPassportFormContext.getReferenceDataStates,
+		placeholderData: [],
+		staleTime: Infinity,
+	}));
+
+	const qReferenceDataAddressDetailsStates = useQuery<string[]>(() => ({
+		queryKey: queryKeys.getReferenceDataStates(
+			getValue(form, "addressDetails.countryCode") ?? "",
+			authnContext().keycloak?.token,
+		),
+		queryFn: myPassportFormContext.getReferenceDataStates,
+		placeholderData: [],
+		staleTime: Infinity,
+	}));
 
 	const [handle] = createResource(async () => {
 		// not ideal that we are performing side effects here
@@ -172,7 +173,7 @@ export const useMyPassportForm = () => {
 			return false;
 		}
 
-		return isEqualWith(
+		return !isEqualWith(
 			getValues(form),
 			form.internal.initialValues,
 			(final, initial) => {
@@ -251,22 +252,49 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		const dirtyFields = getValues(form);
+		const dirtyFields = flattenObject(
+			getValues(form, {
+				shouldDirty: true,
+			}),
+		);
 
 		if (!import.meta.env.PROD) {
 			console.debug("form dirty fields", dirtyFields);
 		}
 
 		handle()?.change(doc => {
-			merge(doc, dirtyFields);
+			Object.entries(dirtyFields).forEach(([path, value]) => {
+				if (!import.meta.env.PROD) {
+					console.debug("set", path, value);
+				}
+
+				set(doc, path, value);
+			});
 		});
 	});
 
-	useBeforeLeave(event => {
+	useBeforeLeave(async event => {
+		// onUnmount runs once, useBeforeLeave runs twice. would've thought both run twice
+		// since effect hooks
+
+		// TODO: this kind of sidesteps hook running twice, better way?
+		// for some user + automerge url:
+		// - if there is already a form with that url registered, endpoint should return the same uuid
+		// - delete is a bit harder because trying to delete an automerge doc twice will just return
+		// the same result
+		if (mDeleteForm.isSuccess || mRegister.isSuccess) {
+			return;
+		}
+
+		event.preventDefault();
+
 		invariant(form, "Form is not defined");
 
 		const currentUuid = routeParams.uuid;
 		const proceed = () => event.retry(true);
+
+		// TODO: remove
+		console.log(currentUuid);
 
 		const deleteBlankDocument = async () => {
 			if (isDirty() || currentUuid) {
@@ -277,8 +305,10 @@ export const useMyPassportForm = () => {
 			handle()?.delete();
 		};
 
-		if (!isDirty() || !currentUuid) {
-			deleteBlankDocument().then(proceed);
+		if (!isDirty() && !currentUuid) {
+			await deleteBlankDocument();
+
+			proceed();
 
 			return;
 		}
@@ -297,6 +327,12 @@ export const useMyPassportForm = () => {
 		};
 
 		const registerNewForm = async () => {
+			// TODO: remove
+			console.log(
+				"here register!",
+				window.location.href,
+				routeParams.uuid,
+			);
 			const automergeUrl = handle()?.url;
 
 			invariant(
@@ -317,12 +353,18 @@ export const useMyPassportForm = () => {
 		};
 
 		if (currentUuid) {
-			updateExistingFormEntry().then(proceed);
+			await updateExistingFormEntry();
+
+			proceed();
 
 			return;
 		}
 
-		registerNewForm().then(proceed);
+		// TODO: theres a bug, hook runs twice and on the second run `currentUuid` is null
+		// for some reason which causes register to be called again. so updates to a form
+		// causes an update + register
+		await registerNewForm();
+		proceed();
 	});
 
 	return {
