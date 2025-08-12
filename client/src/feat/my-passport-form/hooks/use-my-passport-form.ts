@@ -280,8 +280,7 @@ export const useMyPassportForm = () => {
 		// TODO: this kind of sidesteps hook running twice, better way?
 		// for some user + automerge url:
 		// - if there is already a form with that url registered, endpoint should return the same uuid
-		// - delete is a bit harder because trying to delete an automerge doc twice will just return
-		// the same result
+		// - delete is a bit harder because trying to delete an automerge doc twice will throw an error
 		if (mDeleteForm.isSuccess || mRegister.isSuccess) {
 			return;
 		}
