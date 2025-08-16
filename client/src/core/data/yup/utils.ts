@@ -1,6 +1,6 @@
 import { get } from "es-toolkit/compat";
 import { isNil } from "es-toolkit/predicate";
-import type { Schema } from "yup";
+import type { Message, Schema } from "yup";
 
 export const whenOptions =
 	<T extends Schema, U extends Schema>(
@@ -18,7 +18,8 @@ export const whenOptions =
 export const toRequired = <T extends Schema>(
 	schema: T,
 	_options: ResolveOptions,
-) => schema.required();
+	message?: Message<any>,
+) => schema.required(message);
 
 export const toNullish = <T extends Schema>(
 	schema: T,

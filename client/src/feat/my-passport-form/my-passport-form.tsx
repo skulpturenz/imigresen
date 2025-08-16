@@ -38,6 +38,7 @@ export const MyPassportForm = () => {
 		onDelete,
 		Components,
 		toggleDeleteFrictionDialog,
+		toggleInvalidDataDialog,
 	} = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
@@ -139,6 +140,24 @@ export const MyPassportForm = () => {
 					</Suspense>
 				</Form>
 			</Wizard>
+
+			<AlertDialog open={show().invalidDataDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{t("invalidDataDialog.title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t("invalidDataDialog.description")}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogClose onClick={toggleInvalidDataDialog}>
+							{t("invalidDataDialog.doOk")}
+						</AlertDialogClose>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			<AlertDialog open={show().deleteFrictionDialog}>
 				<AlertDialogContent>

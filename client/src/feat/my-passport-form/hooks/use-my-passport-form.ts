@@ -4,9 +4,15 @@ import {
 	getValue,
 	getValues,
 	reset,
+	validate,
 	type SubmitHandler,
 } from "@modular-forms/solid";
-import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
+import {
+	useBeforeLeave,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
 import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types";
@@ -15,21 +21,24 @@ import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import { yupForm } from "core/data/yup/yup-form";
 import { toPath } from "core/router/utils";
-import { flattenObject, invariant } from "es-toolkit";
+import { flattenObject, invariant, isEqualWith } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 import { MyPassportFormContext } from "feat/my-passport-form/context";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
-import type {
-	DropdownOptions,
-	MyPassportForm,
+import { myPassportForm } from "feat/my-passport-form/spec";
+import {
+	MyPassportFormMode,
+	type DropdownOptions,
+	type FormContext,
+	type MyPassportForm,
 } from "feat/my-passport-form/types";
 import { useRepo } from "solid-automerge";
 import {
 	createEffect,
 	createResource,
 	createSignal,
-	onCleanup,
 	type Resource,
 } from "solid-js";
 
@@ -46,17 +55,52 @@ export const useMyPassportForm = () => {
 
 	const [show, setShow] = createSignal({
 		deleteFrictionDialog: false,
+		invalidDataDialog: false,
 	});
 	const toggleDeleteFrictionDialog = () =>
 		setShow(show => ({
 			...show,
 			deleteFrictionDialog: !show.deleteFrictionDialog,
 		}));
+	const toggleInvalidDataDialog = () =>
+		setShow(show => ({
+			...show,
+			invalidDataDialog: !show.invalidDataDialog,
+		}));
 
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 
+	const selectReferenceData = (): DropdownOptions | null => {
+		if (!qReferenceData.data) {
+			return null;
+		}
+
+		return {
+			...qReferenceData.data,
+			personalDetailsStateOptions:
+				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
+			addressDetailsStateOptions:
+				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
+		};
+	};
+
+	const [formContext, setFormContext] = createSignal<FormContext>({
+		// TODO: change to `Draft`
+		mode: MyPassportFormMode.Published,
+		dropdownOptions: selectReferenceData,
+	});
+	const publish = () =>
+		setFormContext(formContext => ({
+			...formContext,
+			mode: MyPassportFormMode.Published,
+		}));
+
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
+		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
+		validate: yupForm(myPassportForm, {
+			context: formContext,
+		}),
 		validateOn: "change",
 		revalidateOn: "change",
 	});
@@ -123,6 +167,46 @@ export const useMyPassportForm = () => {
 		return handle;
 	});
 
+	// the default comparison between form values and initial values
+	// just checks if the form values are not equal to the initial values
+	// but when it comes to forms we want to treat falsy values the same regardless
+	// of what type it is
+	// - sometimes initial values starts with `null` and when the form is edited it becomes
+	// a an empty string, both are empty and we treat the form as not modified. mainly select
+	// options which are reference types
+	const isDirty = () => {
+		if (!form.dirty) {
+			return false;
+		}
+
+		const formValuesFlattened = flattenObject(getValues(form));
+		const initialValuesFlattened = flattenObject(
+			form.internal.initialValues,
+		);
+
+		if (
+			!Object.keys(initialValuesFlattened).length &&
+			!Object.values(formValuesFlattened).filter(Boolean).length
+		) {
+			return false;
+		}
+
+		return !isEqualWith(
+			formValuesFlattened,
+			initialValuesFlattened,
+			(final, initial) => {
+				// handle falsy values separately
+				if (!final && !initial) {
+					return false;
+				}
+
+				// use default equality comparison
+				// should handle objects and arrays
+				return undefined;
+			},
+		);
+	};
+
 	const mDeleteForm = useMutation(() => ({
 		mutationFn: myPassportFormContext.deleteApplication,
 	}));
@@ -163,6 +247,14 @@ export const useMyPassportForm = () => {
 		formValues,
 		_event,
 	) => {
+		publish();
+
+		const isValid = await validate(form);
+
+		if (!isValid) {
+			return;
+		}
+
 		if (form.submitting || mSubmit.isPending) {
 			return;
 		}
@@ -199,43 +291,99 @@ export const useMyPassportForm = () => {
 		});
 	});
 
-	onCleanup(() => {
-		invariant(form, "Form is not defined");
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
 
-		const currentUuid = routeParams.uuid;
-		const deleteBlankDocument = async () => {
-			if (form.dirty || currentUuid) {
-				return;
-			}
+		if (
+			formContext().mode === MyPassportFormMode.Published &&
+			!form.invalid
+		) {
+			return;
+		}
 
-			await handle()?.whenReady();
-			handle()?.delete();
-		};
-
-		deleteBlankDocument();
+		event.preventDefault();
+		toggleInvalidDataDialog();
 	});
 
-	onCleanup(() => {
-		invariant(form, "Form is not defined");
-
-		if (!form.dirty) {
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
 			return;
 		}
 
 		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
 
-		const updateExistingFormEntry = () => {
+		if (isDirty() || currentUuid) {
+			return;
+		}
+
+		event.preventDefault();
+
+		const deleteBlankDocument = async () => {
+			await handle()?.whenReady();
+			handle()?.delete();
+		};
+
+		deleteBlankDocument().then(proceed);
+	});
+
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
+
+		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
+		if (!isDirty() || !currentUuid) {
+			return;
+		}
+
+		event.preventDefault();
+
+		const refetchPassportApplications = async () => {
 			invariant(
 				handle()?.url,
 				"Automerge URL for existing document is not defined, check `handle`",
 			);
 
-			queryClient.refetchQueries({
+			await queryClient.refetchQueries({
 				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 			});
 		};
+
+		refetchPassportApplications().then(proceed);
+	});
+
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
+
+		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
+		if (!isDirty() || currentUuid) {
+			return;
+		}
+
+		event.preventDefault();
 
 		const registerNewForm = async () => {
 			const automergeUrl = handle()?.url;
@@ -250,35 +398,15 @@ export const useMyPassportForm = () => {
 				user: userContext().profile?.uuid,
 			});
 
-			queryClient.refetchQueries({
+			await queryClient.refetchQueries({
 				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 			});
 		};
 
-		if (currentUuid) {
-			queueMicrotask(() => updateExistingFormEntry());
-
-			return;
-		}
-
-		queueMicrotask(() => registerNewForm());
+		registerNewForm().then(proceed);
 	});
-
-	const selectReferenceData = (): DropdownOptions | null => {
-		if (!qReferenceData.data) {
-			return null;
-		}
-
-		return {
-			...qReferenceData.data,
-			personalDetailsStateOptions:
-				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
-			addressDetailsStateOptions:
-				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
-		};
-	};
 
 	return {
 		data: {
@@ -286,11 +414,13 @@ export const useMyPassportForm = () => {
 		},
 		show,
 		toggleDeleteFrictionDialog,
+		toggleInvalidDataDialog,
 		handle,
 		form,
 		onSubmit,
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
+		isDirty,
 		Components: {
 			Form,
 			Field,
