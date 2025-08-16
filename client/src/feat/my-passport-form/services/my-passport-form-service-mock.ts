@@ -4,6 +4,7 @@ import { fixture as referenceDataStateFixture } from "feat/my-passport-form/chor
 import { fixture as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import type {
 	DeleteApplicationVariables,
+	PutApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
 import { createStorage } from "unstorage";
@@ -62,10 +63,15 @@ export const myPassportFormService = (_token?: string) => {
 		return referenceDataStateFixture;
 	};
 
+	const putIm42 = async (_variables: PutApplicationVariables) => {
+		await delay(250);
+	};
+
 	return {
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
 		getReferenceDataStates,
+		putIm42,
 	};
 };

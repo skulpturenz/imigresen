@@ -217,8 +217,7 @@ export const useMyPassportForm = () => {
 	}));
 
 	const mSubmit = useMutation(() => ({
-		mutationFn: (_formValues: MyPassportForm) =>
-			Promise.resolve(handle()?.url),
+		mutationFn: myPassportFormContext.putIm42,
 	}));
 
 	const onDelete = async () => {
@@ -260,7 +259,24 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		await mSubmit.mutateAsync(formValues);
+		const user = userContext().profile?.uuid;
+		invariant(user, "no user uuid");
+
+		const automergeUrl = handle()?.url;
+		invariant(
+			automergeUrl,
+			"Automerge URL for existing document is not defined, check `handle`",
+		);
+
+		await mSubmit.mutateAsync({
+			// TODO: there is a new case here
+			// submitting immediately without saving as draft
+			// need to disable before leave handler for this case and register when submitting
+			uuid: routeParams.uuid as string,
+			user,
+			automergeUrl,
+			formValues,
+		});
 		reset(form);
 
 		navigate(toPath(CoreRoute.Home));

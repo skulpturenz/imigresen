@@ -1,7 +1,9 @@
 import { storageKeys } from "core/constants/storage-keys";
 import { assertEnv } from "core/utils/assert-env";
+import { toPutIm42Request } from "feat/my-passport-form/data/to-put-im42-request";
 import type {
 	DeleteApplicationVariables,
+	PutApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
 import { createStorage } from "unstorage";
@@ -100,10 +102,26 @@ export const myPassportFormService = (token?: string) => {
 		return [] as string[];
 	};
 
+	const putIm42 = async ({
+		uuid,
+		user,
+		automergeUrl,
+		formValues,
+	}: PutApplicationVariables) => {
+		await im42Api
+			.auth(`Bearer ${token}`)
+			.put(
+				toPutIm42Request(automergeUrl, formValues),
+				`${uuid}/user/${user}`,
+			)
+			.res();
+	};
+
 	return {
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
 		getReferenceDataStates,
+		putIm42,
 	};
 };
