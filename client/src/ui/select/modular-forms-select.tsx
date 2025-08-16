@@ -46,13 +46,13 @@ export const ModularFormsSelect = <
 	>,
 ) => {
 	const onChange = (value: TOption) => {
-		if (props.optionValue) {
-			setValue(props.form, props.name, props.optionValue(value));
+		if (props.optionValue && value) {
+			setValue(props.form, props.name, props.optionValue(value) || null);
 
 			return;
 		}
 
-		setValue(props.form, props.name, props.optionValue);
+		setValue(props.form, props.name, value);
 	};
 
 	return <Select {...spreadProps(props)} onChange={onChange} />;
