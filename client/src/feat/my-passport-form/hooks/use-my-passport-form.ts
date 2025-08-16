@@ -55,11 +55,17 @@ export const useMyPassportForm = () => {
 
 	const [show, setShow] = createSignal({
 		deleteFrictionDialog: false,
+		invalidDataDialog: false,
 	});
 	const toggleDeleteFrictionDialog = () =>
 		setShow(show => ({
 			...show,
 			deleteFrictionDialog: !show.deleteFrictionDialog,
+		}));
+	const toggleInvalidDataDialog = () =>
+		setShow(show => ({
+			...show,
+			invalidDataDialog: !show.invalidDataDialog,
 		}));
 
 	const routeParams = useParams<{ uuid?: string }>();
@@ -281,6 +287,25 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
+		if (
+			formContext().mode === MyPassportFormMode.Published &&
+			!form.invalid
+		) {
+			return;
+		}
+
+		event.preventDefault();
+		toggleInvalidDataDialog();
+	});
+
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
+
 		const currentUuid = routeParams.uuid;
 		const proceed = () => event.retry(true);
 
@@ -377,6 +402,7 @@ export const useMyPassportForm = () => {
 		},
 		show,
 		toggleDeleteFrictionDialog,
+		toggleInvalidDataDialog,
 		handle,
 		form,
 		onSubmit,

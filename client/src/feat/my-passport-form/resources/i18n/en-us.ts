@@ -40,6 +40,12 @@ export const resources = {
 			description: "Declaration",
 		},
 	},
+	invalidDataDialog: {
+		title: "Invalid application",
+		description:
+			"The form has incorrect data, double check the application",
+		doOk: "Ok",
+	},
 	form: {
 		errors: {
 			email: "Must be an email",
