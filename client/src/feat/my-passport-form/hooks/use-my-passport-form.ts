@@ -298,7 +298,8 @@ export const useMyPassportForm = () => {
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
-			event.from.pathname !== window.location.pathname
+			event.from.pathname !== window.location.pathname ||
+			show().invalidDataDialog
 		) {
 			return;
 		}
@@ -321,7 +322,8 @@ export const useMyPassportForm = () => {
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
-			event.from.pathname !== window.location.pathname
+			event.from.pathname !== window.location.pathname ||
+			mDeleteForm.isPending
 		) {
 			return;
 		}
@@ -387,7 +389,8 @@ export const useMyPassportForm = () => {
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
-			event.from.pathname !== window.location.pathname
+			event.from.pathname !== window.location.pathname ||
+			mRegister.isPending
 		) {
 			return;
 		}
