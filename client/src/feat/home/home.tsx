@@ -13,9 +13,7 @@ export const Home = () => {
 		fliptContext().flipt?.evaluateBoolean({
 			flagKey: FeatureToggles.HomeV2,
 			entityId: authnContext().userId,
-			context: {
-				environment: import.meta.env.MODE,
-			},
+			context: {},
 		}).enabled;
 
 	return (
