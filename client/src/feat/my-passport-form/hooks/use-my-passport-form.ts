@@ -273,46 +273,49 @@ export const useMyPassportForm = () => {
 		});
 	});
 
-	useBeforeLeave(async event => {
-		// onUnmount runs once, useBeforeLeave runs twice. would've thought both run twice
-		// since effect hooks
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
 
-		// TODO: this kind of sidesteps hook running twice, better way?
-		// for some user + automerge url:
-		// - if there is already a form with that url registered, endpoint should return the same uuid
-		// - delete is a bit harder because trying to delete an automerge doc twice will throw an error
-		if (mDeleteForm.isSuccess || mRegister.isSuccess) {
+		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
+		if (isDirty() || currentUuid) {
 			return;
 		}
 
 		event.preventDefault();
 
-		invariant(form, "Form is not defined");
-
-		const currentUuid = routeParams.uuid;
-		const proceed = () => event.retry(true);
-
-		// TODO: remove
-		console.log(currentUuid);
-
 		const deleteBlankDocument = async () => {
-			if (isDirty() || currentUuid) {
-				return;
-			}
-
 			await handle()?.whenReady();
 			handle()?.delete();
 		};
 
-		if (!isDirty() && !currentUuid) {
-			await deleteBlankDocument();
+		deleteBlankDocument().then(proceed);
+	});
 
-			proceed();
-
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
 			return;
 		}
 
-		const updateExistingFormEntry = async () => {
+		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
+		if (!isDirty() || !currentUuid) {
+			return;
+		}
+
+		event.preventDefault();
+
+		const refetchPassportApplications = async () => {
 			invariant(
 				handle()?.url,
 				"Automerge URL for existing document is not defined, check `handle`",
@@ -325,13 +328,27 @@ export const useMyPassportForm = () => {
 			});
 		};
 
+		refetchPassportApplications().then(proceed);
+	});
+
+	useBeforeLeave(event => {
+		if (
+			event.defaultPrevented ||
+			event.from.pathname !== window.location.pathname
+		) {
+			return;
+		}
+
+		const currentUuid = routeParams.uuid;
+		const proceed = () => event.retry(true);
+
+		if (!isDirty() || currentUuid) {
+			return;
+		}
+
+		event.preventDefault();
+
 		const registerNewForm = async () => {
-			// TODO: remove
-			console.log(
-				"here register!",
-				window.location.href,
-				routeParams.uuid,
-			);
 			const automergeUrl = handle()?.url;
 
 			invariant(
@@ -344,26 +361,14 @@ export const useMyPassportForm = () => {
 				user: userContext().profile?.uuid,
 			});
 
-			queryClient.refetchQueries({
+			await queryClient.refetchQueries({
 				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 			});
 		};
 
-		if (currentUuid) {
-			await updateExistingFormEntry();
-
-			proceed();
-
-			return;
-		}
-
-		// TODO: theres a bug, hook runs twice and on the second run `currentUuid` is null
-		// for some reason which causes register to be called again. so updates to a form
-		// causes an update + register
-		await registerNewForm();
-		proceed();
+		registerNewForm().then(proceed);
 	});
 
 	return {
