@@ -321,9 +321,7 @@ export const Navbar: Component<ParentProps> = () => {
 		fliptContext().flipt?.evaluateBoolean({
 			flagKey: FeatureToggles.HomeV2,
 			entityId: authnContext().userId,
-			context: {
-				environment: import.meta.env.MODE,
-			},
+			context: {},
 		}).enabled;
 
 	return (
