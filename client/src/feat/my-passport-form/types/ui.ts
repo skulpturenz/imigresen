@@ -20,6 +20,11 @@ export interface DropdownOptions {
 	documentTypeOptions: Record<string, string>;
 }
 
+export interface Option<T = number | string, U = string> {
+	key: T;
+	label: U;
+}
+
 // TODO
 export interface StepProps {
 	form: FormStore<MyPassportForm>;

@@ -4,6 +4,7 @@ import {
 	DocumentType,
 	RequestType,
 	type MyPassportForm,
+	type Option,
 	type StepProps,
 } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
@@ -29,17 +30,33 @@ import {
 export const ApplicationDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const documentTypeOptions = dynamic(
-		DocumentType,
-		t("options.documentTypes"),
-		false,
-	);
+	const documentTypeOptions = () => {
+		const documentTypes = dynamic(
+			DocumentType,
+			t("options.documentTypes"),
+			false,
+		);
 
-	const requestTypeOptions = dynamic(
-		RequestType,
-		t("options.requestTypes"),
-		false,
-	);
+		const options = Object.entries<string>(
+			documentTypes ?? Object.create(null),
+		).map(([documentType, label]) => ({ key: documentType, label }));
+
+		return options;
+	};
+
+	const requestTypeOptions = () => {
+		const requestTypes = dynamic(
+			RequestType,
+			t("options.requestTypes"),
+			false,
+		);
+
+		const options = Object.entries<string>(
+			requestTypes ?? Object.create(null),
+		).map(([requestType, label]) => ({ key: requestType, label }));
+
+		return options;
+	};
 
 	return (
 		<>
@@ -55,7 +72,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 								</Label>
 
 								<ModularFormsSelect<
-									string,
+									Option<string, string>,
 									MyPassportForm,
 									never,
 									"input"
@@ -63,22 +80,31 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									options={Object.values(documentTypeOptions)}
+									value={documentTypeOptions().find(
+										option => option.key === field.value,
+									)}
+									options={documentTypeOptions()}
 									placeholder={t(
 										"form.applicationDetails.documentType.placeholder",
 									)}
+									optionValue={documentType =>
+										documentType.key
+									}
 									itemComponent={props => (
 										<SelectItem item={props.item}>
-											{props.item.rawValue}
+											{props.item.rawValue.label}
 										</SelectItem>
 									)}>
 									<SelectTrigger>
-										<SelectValue<string>>
+										<SelectValue<Option<string, string>>>
 											{state => {
 												return (
 													<>
 														<div>
-															{state.selectedOption()}
+															{
+																state.selectedOption()
+																	?.label
+															}
 														</div>
 
 														<SelectClearSelection
@@ -112,7 +138,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									</Label>
 
 									<ModularFormsSelect<
-										string,
+										Option<string, string>,
 										MyPassportForm,
 										never,
 										"input"
@@ -120,24 +146,34 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										{...field}
 										{...fieldProps}
 										form={props.form}
-										options={Object.values(
-											requestTypeOptions,
+										value={requestTypeOptions().find(
+											option =>
+												option.key === field.value,
 										)}
+										options={requestTypeOptions()}
 										placeholder={t(
 											"form.applicationDetails.requestType.placeholder",
 										)}
+										optionValue={requestType =>
+											requestType.key
+										}
 										itemComponent={props => (
 											<SelectItem item={props.item}>
-												{props.item.rawValue}
+												{props.item.rawValue.label}
 											</SelectItem>
 										)}>
 										<SelectTrigger>
-											<SelectValue<string>>
+											<SelectValue<
+												Option<string, string>
+											>>
 												{state => {
 													return (
 														<>
 															<div>
-																{state.selectedOption()}
+																{
+																	state.selectedOption()
+																		?.label
+																}
 															</div>
 
 															<SelectClearSelection

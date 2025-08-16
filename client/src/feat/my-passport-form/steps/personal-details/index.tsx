@@ -5,6 +5,7 @@ import { localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import {
 	type MyPassportForm,
+	type Option,
 	type StepProps,
 } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
@@ -48,6 +49,23 @@ export const PersonalDetails: Component<StepProps> = props => {
 			groupSort: localeAsc,
 		}),
 	);
+
+	const genderOptions = () => {
+		const options = Object.entries<string>(
+			props.dropdownOptions()?.genderOptions ?? Object.create(null),
+		).map(([code, label]) => ({ key: code, label }));
+
+		return options;
+	};
+
+	const relationshipStatusOptions = () => {
+		const options = Object.entries<string>(
+			props.dropdownOptions()?.relationshipStatusOptions ??
+				Object.create(null),
+		).map(([code, label]) => ({ key: code, label }));
+
+		return options;
+	};
 
 	return (
 		<>
@@ -230,7 +248,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 								</Label>
 
 								<ModularFormsSelect<
-									string,
+									Option<string, string>,
 									MyPassportForm,
 									never,
 									"input"
@@ -238,28 +256,29 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									value={field.value ?? ""}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.genderOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
-									optionValue={gender => gender}
+									value={genderOptions().find(
+										option => option.key === field.value,
+									)}
+									options={genderOptions()}
+									optionValue={gender => gender.key}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
 									)}
 									itemComponent={props => (
 										<SelectItem item={props.item}>
-											{props.item.rawValue}
+											{props.item.rawValue.label}
 										</SelectItem>
 									)}>
 									<SelectTrigger class="w-full">
-										<SelectValue<string>>
+										<SelectValue<Option<string, string>>>
 											{state => {
 												return (
 													<>
 														<div>
-															{state.selectedOption()}
+															{
+																state.selectedOption()
+																	?.label
+															}
 														</div>
 
 														<SelectClearSelection
@@ -297,7 +316,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 								</Label>
 
 								<ModularFormsSelect<
-									string,
+									Option<string, string>,
 									MyPassportForm,
 									never,
 									"input"
@@ -305,30 +324,31 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{...field}
 									{...fieldProps}
 									form={props.form}
-									value={field.value ?? ""}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.relationshipStatusOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
+									value={relationshipStatusOptions().find(
+										option => option.key === field.value,
+									)}
+									options={relationshipStatusOptions()}
 									optionValue={relationshipStatus =>
-										relationshipStatus
+										relationshipStatus.key
 									}
 									placeholder={t(
 										"form.personalDetails.relationshipStatusCode.placeholder",
 									)}
 									itemComponent={props => (
 										<SelectItem item={props.item}>
-											{props.item.rawValue}
+											{props.item.rawValue.label}
 										</SelectItem>
 									)}>
 									<SelectTrigger class="w-full">
-										<SelectValue<string>>
+										<SelectValue<Option<string, string>>>
 											{state => {
 												return (
 													<>
 														<div>
-															{state.selectedOption()}
+															{
+																state.selectedOption()
+																	?.label
+															}
 														</div>
 
 														<SelectClearSelection
@@ -475,6 +495,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 								</TextFieldLabel>
 
 								<AutocorrectTextField
+									// TODO: need to revisit
 									{...field}
 									{...fieldProps}
 									form={props.form}
@@ -527,6 +548,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</Label>
 
 									<ModularFormsCombobox
+										// TODO: need to revisit
 										{...field}
 										allowCustomValue
 										form={props.form}
