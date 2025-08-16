@@ -37,6 +37,7 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 					set({ isInitialLoading: true });
 
 					const flipt = await FliptClient.init({
+						environment: import.meta.env.PROD ? "master" : "dev",
 						namespace: fliptNamespace,
 						url: fliptUrl,
 						reference: import.meta.env.MODE,
