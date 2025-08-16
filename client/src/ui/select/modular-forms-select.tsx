@@ -52,8 +52,14 @@ export const ModularFormsSelect = <
 			return;
 		}
 
-		setValue(props.form, props.name, value);
+		setValue(props.form, props.name, value as any);
 	};
 
-	return <Select {...spreadProps(props)} onChange={onChange} />;
+	return (
+		<Select
+			{...spreadProps(props)}
+			// TODO: some type error
+			onChange={onChange as any}
+		/>
+	);
 };
