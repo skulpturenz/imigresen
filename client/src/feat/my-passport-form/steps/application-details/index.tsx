@@ -90,6 +90,9 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									optionValue={documentType =>
 										documentType.key
 									}
+									optionTextValue={documentType =>
+										documentType.label
+									}
 									itemComponent={props => (
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
@@ -156,6 +159,9 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										)}
 										optionValue={requestType =>
 											requestType.key
+										}
+										optionTextValue={requestType =>
+											requestType.label
 										}
 										itemComponent={props => (
 											<SelectItem item={props.item}>

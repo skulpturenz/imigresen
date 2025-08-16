@@ -7,7 +7,6 @@ import {
 	type FormStore,
 } from "@modular-forms/solid";
 import { spreadProps } from "core/utils";
-import { partial } from "es-toolkit";
 import type { ValidComponent } from "solid-js";
 import { Select } from "ui/select";
 
@@ -45,9 +44,16 @@ export const ModularFormsSelect = <
 		TOptionGroup,
 		TComponent
 	>,
-) => (
-	<Select
-		{...spreadProps(props)}
-		onChange={partial(setValue, props.form, props.name)}
-	/>
-);
+) => {
+	const onChange = (value: TOption) => {
+		if (props.optionValue) {
+			setValue(props.form, props.name, props.optionValue(value));
+
+			return;
+		}
+
+		setValue(props.form, props.name, props.optionValue);
+	};
+
+	return <Select {...spreadProps(props)} onChange={onChange} />;
+};

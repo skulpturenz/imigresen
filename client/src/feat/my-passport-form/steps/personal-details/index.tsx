@@ -261,6 +261,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									)}
 									options={genderOptions()}
 									optionValue={gender => gender.key}
+									optionTextValue={gender => gender.label}
 									placeholder={t(
 										"form.personalDetails.genderCode.placeholder",
 									)}
@@ -330,6 +331,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 									options={relationshipStatusOptions()}
 									optionValue={relationshipStatus =>
 										relationshipStatus.key
+									}
+									optionTextValue={relationshipStatus =>
+										relationshipStatus.label
 									}
 									placeholder={t(
 										"form.personalDetails.relationshipStatusCode.placeholder",
