@@ -321,10 +321,6 @@ export const useMyPassportForm = () => {
 		const currentUuid = routeParams.uuid;
 		const proceed = () => event.retry(true);
 
-		console.log(isDirty());
-
-		const dirtyFields = getValues(form, { shouldDirty: true });
-		console.log(dirtyFields);
 		if (isDirty() || currentUuid) {
 			return;
 		}
