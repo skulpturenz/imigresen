@@ -12,6 +12,7 @@ import {
 	useNavigate,
 	useParams,
 	useSearchParams,
+	type BeforeLeaveEventArgs,
 } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
@@ -291,11 +292,18 @@ export const useMyPassportForm = () => {
 		});
 	});
 
+	const isNavigatingBetweenSteps = (event: BeforeLeaveEventArgs) =>
+		event.to.toString().includes(event.from.pathname);
+
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
 		) {
+			return;
+		}
+
+		if (isNavigatingBetweenSteps(event)) {
 			return;
 		}
 
@@ -315,6 +323,10 @@ export const useMyPassportForm = () => {
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
 		) {
+			return;
+		}
+
+		if (isNavigatingBetweenSteps(event)) {
 			return;
 		}
 
@@ -340,6 +352,10 @@ export const useMyPassportForm = () => {
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
 		) {
+			return;
+		}
+
+		if (isNavigatingBetweenSteps(event)) {
 			return;
 		}
 
@@ -373,6 +389,10 @@ export const useMyPassportForm = () => {
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
 		) {
+			return;
+		}
+
+		if (isNavigatingBetweenSteps(event)) {
 			return;
 		}
 
