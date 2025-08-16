@@ -9,6 +9,7 @@ import type {
 	GetPassportApplicationsVariables,
 	ImportApplicationsVariables,
 	MyPassportForm,
+	PromiseSettledResultValue,
 	RegisterApplicationVariables,
 	RegisteredMyPassportForm,
 } from "feat/home/types";
@@ -60,7 +61,7 @@ export const homeService = (repo: Repo, token?: string) => {
 			return [];
 		}
 
-		const documents = await Promise.all(
+		const documents = await Promise.allSettled(
 			automergeUrls?.map(async ([key, value]) => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
@@ -81,6 +82,46 @@ export const homeService = (repo: Repo, token?: string) => {
 					doc,
 				};
 			}) ?? [],
+		).then(promiseSettledResults =>
+			promiseSettledResults.reduce<
+				PromiseSettledResultValue<
+					(typeof promiseSettledResults)[number]
+				>[]
+			>((acc, promise) => {
+				const isPromiseRejected = (
+					x: unknown,
+				): x is PromiseRejectedResult =>
+					(x as PromiseRejectedResult)?.status === "rejected";
+
+				// in prod we want to throw if any application fails to load
+				invariant(
+					!import.meta.env.PROD || !isPromiseRejected(promise),
+					(promise as PromiseRejectedResult).reason,
+				);
+
+				// in dev sometimes when using the same account locally with deployed apis
+				// the document won't load if it was created to the deployed automerge repo
+				// can't authenticate to deployed automerge repo because the authentication
+				// will fail since cookie auth
+				// likewise any local applications won't load in dev environments
+				const filterOrphanedApplications =
+					import.meta.env.DEV && isPromiseRejected(promise);
+
+				if (filterOrphanedApplications) {
+					invariant(
+						!import.meta.env.PROD,
+						"Filtering orphaned records in production",
+					);
+
+					return acc;
+				}
+
+				const { value: result } = promise as PromiseFulfilledResult<
+					PromiseSettledResultValue<typeof promise>
+				>;
+
+				return [...acc, result];
+			}, []),
 		);
 
 		const getUuid = (document: (typeof documents)[number]) => document.uuid;
