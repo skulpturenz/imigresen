@@ -179,9 +179,21 @@ export const useMyPassportForm = () => {
 			return false;
 		}
 
-		return !isEqualWith(
-			getValues(form),
+		const formValuesFlattened = flattenObject(getValues(form));
+		const initialValuesFlattened = flattenObject(
 			form.internal.initialValues,
+		);
+
+		if (
+			!Object.keys(initialValuesFlattened).length &&
+			!Object.values(formValuesFlattened).filter(Boolean).length
+		) {
+			return false;
+		}
+
+		return !isEqualWith(
+			formValuesFlattened,
+			initialValuesFlattened,
 			(final, initial) => {
 				// handle falsy values separately
 				if (!final && !initial) {
@@ -309,6 +321,10 @@ export const useMyPassportForm = () => {
 		const currentUuid = routeParams.uuid;
 		const proceed = () => event.retry(true);
 
+		console.log(isDirty());
+
+		const dirtyFields = getValues(form, { shouldDirty: true });
+		console.log(dirtyFields);
 		if (isDirty() || currentUuid) {
 			return;
 		}
