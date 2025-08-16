@@ -9,7 +9,7 @@ import { isPublished } from "./utils";
 
 export const addressDetails = object({
 	streetAddress: string()
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();
@@ -19,7 +19,7 @@ export const addressDetails = object({
 		})
 		.when(whenOptions(isPublished, toRequired)),
 	postcode: string()
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.numeric, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();
@@ -29,7 +29,7 @@ export const addressDetails = object({
 		})
 		.when(whenOptions(isPublished, toRequired)),
 	city: string()
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();
@@ -39,7 +39,7 @@ export const addressDetails = object({
 		})
 		.when(whenOptions(isPublished, toRequired)),
 	state: string()
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();

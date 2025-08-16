@@ -26,7 +26,7 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();
@@ -52,7 +52,7 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();
@@ -69,7 +69,7 @@ export const personalDetails = object({
 				constants.fieldConstraints.nameMaxChars,
 			);
 		})
-		.matches(constants.regex.alphanumeric, {
+		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
 			message: () => {
 				const t = useI18n<typeof resources>();

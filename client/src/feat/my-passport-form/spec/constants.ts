@@ -1,6 +1,6 @@
 export const constants = {
 	regex: {
-		alphanumeric: /^[a-zA-Z0-9]+$/,
+		alphanumericWithSpaces: /^[a-zA-Z0-9\s]+$/,
 		myKadNumber: /\d{12}/,
 		numeric: /[0-9]+/,
 	},
