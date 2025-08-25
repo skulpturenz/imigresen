@@ -98,7 +98,7 @@
 		"vite": "^7.0.6",
 		"vite-plugin-compression": "^0.5.1",
 		"vite-plugin-eslint2": "^5.0.4",
-		"vite-plugin-solid": "^2.11.7",
+		"vite-plugin-solid": "^2.11.8",
 		"vite-plugin-top-level-await": "^1.6.0",
 		"vite-plugin-wasm": "^3.5.0",
 		"vite-plugin-webfont-dl": "^3.11.1",
