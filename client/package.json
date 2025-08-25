@@ -52,7 +52,7 @@
 		"uuidv7": "^1.0.2",
 		"wretch": "^2.11.0",
 		"yup": "^1.6.1",
-		"zustand": "^5.0.6"
+		"zustand": "^5.0.8"
 	},
 	"devDependencies": {
 		"@automerge/automerge-repo-storage-nodefs": "^2.1.0",
