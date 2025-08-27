@@ -119,13 +119,15 @@
                                                          (truss/have? fn? transformer))]}
   (let [aggregate (aggregate connectable entity entity-id transformer)
         revision (next-revision entity aggregate)
+        event-data (dissoc (:aggregate aggregate) :revision)
         snapshot-event {:event-agent (:snapshot agents/system-agents)
                         :entity-id entity-id
                         :time-occurred (jt/instant)
                         :time-observed (jt/instant)
-                        :event (dissoc (:aggregate aggregate) :revision)
+                        :event-data event-data
                         :revision revision}
         schema (truss/have ((keyword entity) @schema-registry))]
     (when (truss/have (partial s/valid? schema) (:aggregate aggregate))
-      (store/persist! connectable [snapshot-event])
+      (truss/have [:and #(some? %) #(= event-data (:event-data %))]
+                  (store/persist! connectable [snapshot-event]))
       snapshot-event)))
