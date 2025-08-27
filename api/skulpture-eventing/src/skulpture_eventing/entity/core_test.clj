@@ -287,4 +287,4 @@
         (t/is (= (:event-agent snapshot) (:snapshot agents/system-agents)))
         (t/is (= (:entity-id snapshot) 1))
         (t/is (= (:revision snapshot) 5))
-        (t/is (= (:event snapshot) {:a 2 :b 2}))))))
+        (t/is (= (:event-data snapshot) {:a 2 :b 2}))))))
