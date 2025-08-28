@@ -35,9 +35,9 @@
                                          :time-occurred :time-observed :event-data]
                                 :from :event-journal
                                 :where [:and
-                                        [:= :entity-id entity-id]
+                                        [:= :entity-id :?entity-id]
                                         [:= :event-agent (:snapshot agents/system-agents)]
-                                        [:> :revision revision-start]]
+                                        [:> :revision :?revision-start]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]
                               [[:events {:columns [:entity-id :revision :event-agent
                                                    :time-occurred :time-observed :event-data]}]
@@ -45,18 +45,19 @@
                                          :time-occurred :time-observed :event-data]
                                 :from :event-journal
                                 :where [:and
-                                        [:= :entity-id entity-id]
+                                        [:= :entity-id :?entity-id]
                                         [:> :revision [:coalesce
                                                        {:select [[[:max :revision]]]
                                                         :from :snapshots}
-                                                       revision-start]]]
+                                                       :?revision-start]]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]]
                        :union [{:select [:*]
                                 :from :snapshots}
                                {:select [:*]
                                 :from :events
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]}
-                      (sql/format))
+                      (sql/format {:cache lirs-cache :params {:entity-id entity-id
+                                                              :revision-start revision-start}}))
             result (jdbc/execute! connectable query)
             combined (into [] cat [(:events cached-events) result])]
         (when (not (cache/has? @lirs-cache entity-id))
@@ -77,7 +78,7 @@
                                      :time-occurred :time-observed :event-data]
                             :from :event-journal
                             :where [:and
-                                    [:in :entity-id entity-ids]
+                                    [:in :entity-id :?entity-ids]
                                     [:= :event-agent (:snapshot agents/system-agents)]]
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]
                           [[:events {:columns [:entity-id :revision :event-agent
@@ -86,18 +87,19 @@
                                      :time-occurred :time-observed :event-data]
                             :from :event-journal
                             :where [:and
-                                    [:in :entity-id entity-ids]
+                                    [:in :entity-id :?entity-ids]
                                     [:> :revision [:coalesce
                                                    {:select [[[:max :revision]]]
                                                     :from :snapshots}
-                                                   0]]]
+                                                   :?revision-start]]]
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]]
                    :union [{:select [:*]
                             :from :snapshots}
                            {:select [:*]
                             :from :events
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]}
-                  (sql/format))
+                  (sql/format {:params {:entity-ids entity-ids
+                                        :revision-start 0}}))
         result (jdbc/execute! connectable query)]
     result))
 
@@ -125,10 +127,10 @@
                                          :time-occurred :time-observed :event-data]
                                 :from :event-journal
                                 :where [:and
-                                        [:= :entity-id entity-id]
+                                        [:= :entity-id :?entity-id]
                                         [:= :event-agent (:snapshot agents/system-agents)]
-                                        [:<= :revision revision]
-                                        [:>= :revision revision-start]]
+                                        [:<= :revision :?revision-end]
+                                        [:>= :revision :?revision-start]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]
                               [[:events {:columns [:entity-id :revision :event-agent
                                                    :time-occurred :time-observed :event-data]}]
@@ -136,20 +138,22 @@
                                          :time-occurred :time-observed :event-data]
                                 :from :event-journal
                                 :where [:and
-                                        [:= :entity-id entity-id]
+                                        [:= :entity-id :?entity-id]
                                         [:> :revision [:coalesce
                                                        {:select [[[:max :revision]]]
                                                         :from :snapshots}
                                                        0]]
-                                        [:<= :revision revision]
-                                        [:>= :revision revision-start]]
+                                        [:<= :revision :?revision-end]
+                                        [:>= :revision :?revision-start]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]]
                        :union [{:select [:*]
                                 :from :snapshots}
                                {:select [:*]
                                 :from :events
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]}
-                      (sql/format))
+                      (sql/format {:cache lirs-cache :params {:entity-id entity-id
+                                                              :revision-start revision-start
+                                                              :revision-end revision}}))
             result (jdbc/execute! connectable query)
             combined (into [] cat [(:events cached-events) result])]
         (swap! lirs-cache cache/miss entity-id {:events combined
@@ -173,14 +177,16 @@
       (let [query (-> {:select [[[:count :entity-id]]]
                        :from :event-journal
                        :where [:= :entity-id entity-id]}
-                      (sql/format))
+                      (sql/format {:cache lirs-cache
+                                   :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
         (:count result)))))
 
 (defn persist!
   "Persist a stream of events"
   [connectable events]
-  (let [query! (-> {:insert-into [:event-journal]
+  ;; TODO: parameterizing values throws
+  (let [query! (-> {:insert-into :event-journal
                     :columns [:event-agent :entity-id :time-occurred :time-observed :event-data :revision]
                     :values (map transformers/->sql-value events)
                     :returning :*}
