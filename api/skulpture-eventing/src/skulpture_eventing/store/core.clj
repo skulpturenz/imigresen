@@ -7,7 +7,7 @@
 
 (def lirs-cache (atom (cache/lirs-cache-factory {})))
 
-(def ^:dynamic *cache-event-store* true)
+(def ^:dynamic *event-store-cache* true)
 
 (defn load-by-entity-id
   "Load all events for an entity by its id.
@@ -16,7 +16,7 @@
    
    If snapshots are available starts from the snapshot."
   [connectable entity-id]
-  (let [cached-events (if (and *cache-event-store*
+  (let [cached-events (if (and *event-store-cache*
                                (cache/has? @lirs-cache entity-id))
                         (do
                           (swap! lirs-cache cache/hit entity-id)
@@ -110,7 +110,7 @@
    
    If snapshots are available starts from the snapshot."
   [connectable entity-id revision]
-  (let [cached-events (if (and *cache-event-store*
+  (let [cached-events (if (and *event-store-cache*
                                (cache/has? @lirs-cache entity-id))
                         (do
                           (swap! lirs-cache cache/hit entity-id)
@@ -164,7 +164,7 @@
 (defn count-by-entity-id
   "Count the number of events for an entity by its id"
   [connectable entity-id]
-  (let [cached-events (if (and *cache-event-store*
+  (let [cached-events (if (and *event-store-cache*
                                (cache/has? @lirs-cache entity-id))
                         (do
                           (swap! lirs-cache cache/hit entity-id)
