@@ -66,7 +66,8 @@
                                     [:in :entity-id entity-ids]
                                     [:> :revision [:coalesce
                                                    {:select [[[:max :revision]]]
-                                                    :from :snapshots}
+                                                    :from :snapshots
+                                                    :where [:= :entity-id :snapshots.entity-id]}
                                                    0]]]
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]]
                    :union [{:select [:*]
