@@ -90,7 +90,8 @@
                                     [:in :entity-id :?entity-ids]
                                     [:> :revision [:coalesce
                                                    {:select [[[:max :revision]]]
-                                                    :from :snapshots}
+                                                    :from :snapshots
+                                                    :where [:= :event-journal.entity-id :snapshots.entity-id]}
                                                    :?revision-start]]]
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]]
                    :union-all [{:select [:*]
