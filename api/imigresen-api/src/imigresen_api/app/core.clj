@@ -31,18 +31,22 @@
             [reitit.spec :as rs]
             [ring.core.protocols :as ring-protocols]
             [imigresen-common.app.middleware.cors :as imi-cors]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [imigresen-common.state.keycloak.core]
+            [ring.logger :as logger])
   (:import (java.util UUID)
            (java.io Writer)))
 
 (defn init []
   (imi-logging/init-logging)
   (mount/start #'imigresen-common.state.db.core/db
-               #'imigresen-common.state.flipt.core/flipt))
+               #'imigresen-common.state.flipt.core/flipt
+               #'imigresen-common.state.keycloak.core/keycloak))
 
 (defn destroy []
   (mount/stop #'imigresen-common.state.db.core/db
-              #'imigresen-common.state.flipt.core/flipt))
+              #'imigresen-common.state.flipt.core/flipt
+              #'imigresen-common.state.keycloak.core/keycloak))
 
 (defn- response-writer ^Writer [response output-stream]
   (if-let [charset (ring-res/get-charset response)]
@@ -165,4 +169,6 @@
                                     :jsonEditor true}})
                          (reitit-ring/create-default-handler)))))
 
-(def app (create-app (imi-core/handlers)))
+(def app (logger/wrap-with-logger (create-app (imi-core/handlers))
+                                  {:log-fn (fn [{:keys [level throwable message]}]
+                                             (tel/log! {:level level :data {:details message :ex throwable}}))}))
