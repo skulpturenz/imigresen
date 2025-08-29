@@ -51,11 +51,11 @@
                                                         :from :snapshots}
                                                        :?revision-start]]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]]
-                       :union [{:select [:*]
-                                :from :snapshots}
-                               {:select [:*]
-                                :from :events
-                                :order-by [[:time-occurred :asc] [:revision :asc]]}]}
+                       :union-all [{:select [:*]
+                                    :from :snapshots}
+                                   {:select [:*]
+                                    :from :events
+                                    :order-by [[:time-occurred :asc] [:revision :asc]]}]}
                       (sql/format {:cache lirs-cache :params {:entity-id entity-id
                                                               :revision-start revision-start}}))
             result (jdbc/execute! connectable query)
@@ -93,11 +93,11 @@
                                                     :from :snapshots}
                                                    :?revision-start]]]
                             :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]]
-                   :union [{:select [:*]
-                            :from :snapshots}
-                           {:select [:*]
-                            :from :events
-                            :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]}
+                   :union-all [{:select [:*]
+                                :from :snapshots}
+                               {:select [:*]
+                                :from :events
+                                :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]}
                   (sql/format {:params {:entity-ids entity-ids
                                         :revision-start 0}}))
         result (jdbc/execute! connectable query)]
@@ -146,11 +146,11 @@
                                         [:<= :revision :?revision-end]
                                         [:>= :revision :?revision-start]]
                                 :order-by [[:time-occurred :asc] [:revision :asc]]}]]
-                       :union [{:select [:*]
-                                :from :snapshots}
-                               {:select [:*]
-                                :from :events
-                                :order-by [[:time-occurred :asc] [:revision :asc]]}]}
+                       :union-all [{:select [:*]
+                                    :from :snapshots}
+                                   {:select [:*]
+                                    :from :events
+                                    :order-by [[:time-occurred :asc] [:revision :asc]]}]}
                       (sql/format {:cache lirs-cache :params {:entity-id entity-id
                                                               :revision-start revision-start
                                                               :revision-end revision}}))
