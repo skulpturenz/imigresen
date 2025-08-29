@@ -186,9 +186,7 @@
 (defn persist!
   "Persist a stream of events"
   [connectable events]
-  ;; TODO: parameterizing values throws
   (let [query! (-> {:insert-into :event-journal
-                    :columns [:event-agent :entity-id :time-occurred :time-observed :event-data :revision]
                     :values (map transformers/->sql-value events)
                     :returning :*}
                    (sql/format))
