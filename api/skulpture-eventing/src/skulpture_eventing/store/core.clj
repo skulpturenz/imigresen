@@ -63,7 +63,7 @@
         (when (not (cache/has? @lirs-cache entity-id))
           (swap! lirs-cache cache/miss entity-id {:events combined
                                                   :revision (or (:revision (last combined)) 0)}))
-        (:events (cache/lookup @lirs-cache entity-id))))))
+        combined))))
 
 (defn load-by-entity-ids
   "Load all events for entities by entity ids.
@@ -159,7 +159,7 @@
         (swap! lirs-cache cache/miss entity-id {:events combined
                                                 :revision (or (:revision (last combined)) 0)
                                                 :dirty false})
-        (:events (cache/lookup @lirs-cache entity-id))))))
+        combined))))
 
 (defn count-by-entity-id
   "Count the number of events for an entity by its id"
