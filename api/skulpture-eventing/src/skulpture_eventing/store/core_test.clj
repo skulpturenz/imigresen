@@ -182,18 +182,14 @@
                                  :entity-id second-entity-id
                                  :event-data {:hello "world"}
                                  :revision 1}
-                                {:event-agent "test"
-                                 :entity-id second-entity-id
-                                 :event-data {:hello "world1234"}
-                                 :revision 2}
                                 {:event-agent (:snapshot agents/system-agents)
                                  :entity-id second-entity-id
-                                 :event-data {:hello "world1234"}
-                                 :revision 3}
+                                 :event-data {:hello "world"}
+                                 :revision 2}
                                 {:event-agent "test"
                                  :entity-id second-entity-id
                                  :event-data {:hello "world4321"}
-                                 :revision 4}]
+                                 :revision 3}]
           events (into first-entity-events second-entity-events)
           _ (store/persist! (:ds-opts @db-mock/db) events)
           events (store/load-by-entity-ids (:ds-opts @db-mock/db) [first-entity-id second-entity-id])]
@@ -201,5 +197,5 @@
       (t/is (= (count events) 4))
       (t/is (= (:revision (first events)) 3))
       (t/is (= (:revision (second events)) 4))
-      (t/is (= (:revision (nth events 2)) 3))
-      (t/is (= (:revision (nth events 3)) 4)))))
+      (t/is (= (:revision (nth events 2)) 2))
+      (t/is (= (:revision (nth events 3)) 3)))))
