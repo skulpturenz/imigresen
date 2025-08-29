@@ -27,7 +27,7 @@
              (not-empty cached-events))
       (:events cached-events)
       (let [revision-start (if (not-empty (:events cached-events))
-                             (:revision (last cached-events))
+                             (:revision (last (:events cached-events)))
                              0)
             query (-> {:with [[[:snapshots {:columns [:entity-id :revision :event-agent
                                                       :time-occurred :time-observed :event-data]}]
@@ -60,9 +60,11 @@
                                                               :revision-start revision-start}}))
             result (jdbc/execute! connectable query)
             combined (into [] cat [(:events cached-events) result])]
+
         (when (not (cache/has? @lirs-cache entity-id))
           (swap! lirs-cache cache/miss entity-id {:events combined
-                                                  :revision (or (:revision (last combined)) 0)}))
+                                                  :revision (or (:revision (last combined)) 0)
+                                                  :dirty false}))
         combined))))
 
 (defn load-by-entity-ids
@@ -175,7 +177,7 @@
              (not (:dirty cached-events))
              (not-empty cached-events))
       (count (:events cached-events))
-      (let [query (-> {:select [[[:count :entity-id]]]
+      (let [query (-> {:select [[[:count :1]]]
                        :from :event-journal
                        :where [:= :entity-id entity-id]}
                       (sql/format {:cache lirs-cache
@@ -191,10 +193,10 @@
                     :returning :*}
                    (sql/format))
         result (jdbc/execute! connectable query!)
-        entity-ids (distinct (map :entity-id events))]
+        entity-ids (distinct (map #(str (:entity-id %)) events))]
     ;; we have cached values but the entity has been modified so
     ;; do a fetch from the db since the last revision we have in cache
     (doseq [x entity-ids
-            :when (cache/has? @lirs-cache x)]
-      (swap! lirs-cache assoc-in [x :dirty] true))
+            :when (cache/has? @lirs-cache (str x))]
+      (swap! lirs-cache assoc-in [(str x) :dirty] true))
     result))
