@@ -72,7 +72,9 @@
                                   ;; not required for dev, its only used in tests but
                                   ;; hmr throws without it
                                   [ring/ring-mock "0.6.1"]]}
-             :uberjar {:env {:java-env "production"}
+             :uberjar {:env {:java-env "production"
+                             :timbre-level "ERROR"
+                             :log-level "ERROR"}
                        :aot [imigresen-api.app.core]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]
