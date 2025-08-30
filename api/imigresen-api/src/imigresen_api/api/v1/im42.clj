@@ -51,10 +51,11 @@
    ["/status/draft/user/:user-uuid" {:get {:summary "Get draft IM42 forms"
                                            :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered"
                                            :handler (fn [{:keys [parameters] :as _req}]
-                                                      (-> (imi-im42/get-draft-im42-forms-by-user-uuid
+                                                      (-> (imi-im42/get-im42-forms-by-user-uuid
                                                            (truss/have imi-user/active-by-uuid?
                                                                        (get-in parameters [:path :user-uuid])
-                                                                       :data {:type :not-found}))
+                                                                       :data {:type :not-found})
+                                                           :deleted true)
                                                           (ring-res/response)
                                                           (ring-res/status (:ok imi-routes/status-codes))))
                                            :parameters {:path {:user-uuid ::imi-im42-spec/uuid}}
