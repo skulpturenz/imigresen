@@ -90,8 +90,7 @@
 (defn persist!
   "Persist events for an entity without loading all its events"
   [connectable events] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
-                                   (truss/have? vector? events)
-                                   (truss/have? es/aggregate? aggregate))]}
+                                   (truss/have? vector? events))]}
   (truss/have (store/persist! connectable events))
   events)
 
@@ -121,8 +120,7 @@
    
    Does not check whether the state of the entity is valid"
   [connectable entity-id] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
-                                      (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
-                                      (truss/have? es/aggregate? aggregate))]}
+                                      (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id))]}
   (store/next-revision connectable (str entity-id)))
 
 (defn snapshot!
