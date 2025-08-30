@@ -87,8 +87,15 @@
          :events (into [] cat [(:events aggregate) (:uncommitted-events aggregate)])
          :uncommitted-events []}))))
 
+(defn persist!
+  "Persist events for an entity without loading all its events"
+  [connectable events] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
+                                   (truss/have? vector? events))]}
+  (truss/have (store/persist! connectable events))
+  events)
+
 (defn next-revision
-  "Determine the next revision of the entity from an aggregate or the current state.
+  "Determine the next revision of an entity from an aggregate or the current state.
    
    The latest revision of events for an entity is also the revision of the current state of the entity
    so revisions should only increase as more events are associated with an entity"
@@ -107,6 +114,14 @@
          schema (truss/have ((keyword entity) @schema-registry))]
      (when (truss/have (partial s/valid? schema) (:aggregate aggregate))
        (apply/next-revision (:aggregate aggregate))))))
+
+(defn next-revision'
+  "Determine the next revision of an entity without loading its event stream
+   
+   Does not check whether the state of the entity is valid"
+  [connectable entity-id] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
+                                      (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id))]}
+  (store/next-revision connectable (str entity-id)))
 
 (defn snapshot!
   "Creates and persists a snapshot event of the current state of the entity.

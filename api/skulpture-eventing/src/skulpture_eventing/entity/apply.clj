@@ -1,4 +1,7 @@
 (ns skulpture-eventing.entity.apply
+  "This namespace is not meant to be used directly
+     
+   Use `skulpture-eventing.entity.core` instead"
   (:require [taoensso.truss :as truss]))
 
 (declare aggregate
