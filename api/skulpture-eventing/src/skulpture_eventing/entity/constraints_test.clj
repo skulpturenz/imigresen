@@ -1,6 +1,7 @@
 (ns skulpture-eventing.entity.constraints-test
   (:require [clojure.test :as t]
-            [skulpture-eventing.entity.constraints :as constraints]))
+            [skulpture-eventing.entity.constraints :as constraints]
+            [taoensso.truss :as truss]))
 
 (t/deftest ^:unit where
   (t/testing "basic"
@@ -138,9 +139,25 @@
 (t/deftest ^:unit create-events
   (t/testing "transforms constraint rows to events"
     (let [constraints [{:a 1 :b 1} {:a 2 :b 2} {:a 3 :b 3}]
-          query (constraints/create-events constraints #(vector {:entity-id (:a %) :other-id (:b %)}))]
+          query (constraints/create-events constraints #(vector {:entity-id (:a %)
+                                                                 :other-id  (:b %)
+                                                                 :revision  1}
+                                                                {:entity-id (:a %)
+                                                                 :other-id  (:b %)
+                                                                 :revision  2}))]
       (t/is (= query {:insert-into :event-journal
-                      :values      [{:entity-id 1 :other-id 1}
-                                    {:entity-id 2 :other-id 2}
-                                    {:entity-id 3 :other-id 3}]
-                      :returning   :*})))))
+                      :values      [{:entity-id 1 :other-id 1 :revision 1}
+                                    {:entity-id 1 :other-id 1 :revision 2}
+                                    {:entity-id 2 :other-id 2 :revision 1}
+                                    {:entity-id 2 :other-id 2 :revision 2}
+                                    {:entity-id 3 :other-id 3 :revision 1}
+                                    {:entity-id 3 :other-id 3 :revision 2}]
+                      :returning   :*}))))
+  (t/testing "throws if events don't have the correct revision"
+    (let [constraints [{:a 1 :b 1} {:a 2 :b 2} {:a 3 :b 3}]]
+      (t/is (truss/throws? (constraints/create-events constraints #(vector {:entity-id (:a %)
+                                                                            :other-id  (:b %)
+                                                                            :revision  2}
+                                                                           {:entity-id (:a %)
+                                                                            :other-id  (:b %)
+                                                                            :revision  1})))))))

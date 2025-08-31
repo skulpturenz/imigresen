@@ -1,5 +1,6 @@
 (in-ns 'skulpture-eventing.entity.constraints)
-(require '[taoensso.truss :as truss])
+(require '[taoensso.truss :as truss]
+         '[skulpture-eventing.entity-utils.apply :as apply])
 
 (defn create-migration
   "Build a HoneySQL DSL data structure to migrate entities to constraints.
@@ -21,5 +22,5 @@
   {:pre [(and (truss/have? vector? constraints)
               (truss/have? fn? ->event))]}
   {:insert-into :event-journal
-   :values      (into [] cat (map ->event constraints))
+   :values      (into [] cat (map #(truss/have apply/valid-stream? (->event %)) constraints))
    :returning   :*})
