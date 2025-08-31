@@ -2,6 +2,9 @@
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
+(declare *event-store-cache*
+         lirs-cache)
+
 (defn count-by-entity-id
   "Count the number of events for an entity by its id"
   [connectable entity-id]
@@ -16,9 +19,9 @@
              (not-empty cached-events))
       (count (:events cached-events))
       (let [query (-> {:select [[[:count :1]]]
-                       :from :event-journal
-                       :where [:= :entity-id :?entity-id]}
-                      (sql/format {:cache lirs-cache
+                       :from   :event-journal
+                       :where  [:= :entity-id :?entity-id]}
+                      (sql/format {:cache  lirs-cache
                                    :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
         (:count result)))))
