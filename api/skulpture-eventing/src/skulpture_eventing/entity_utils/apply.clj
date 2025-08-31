@@ -1,4 +1,4 @@
-(ns skulpture-eventing.entity.apply
+(ns skulpture-eventing.entity-utils.apply
   "This namespace is not meant to be used directly
      
    Use `skulpture-eventing.entity.core` instead"

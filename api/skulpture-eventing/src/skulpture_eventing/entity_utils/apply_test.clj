@@ -1,6 +1,6 @@
-(ns skulpture-eventing.entity.apply-test
+(ns skulpture-eventing.entity-utils.apply-test
   (:require [clojure.test :as t]
-            [skulpture-eventing.entity.apply :as apply]))
+            [skulpture-eventing.entity-utils.apply :as apply]))
 
 (t/deftest ^:unit aggregate
   (t/testing "reduces result"
