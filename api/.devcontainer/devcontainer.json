@@ -6,7 +6,10 @@
 	"runArgs": [
 		"--init",
 		"--env-file",
-		".devcontainer/.env"
+		// Works in IDEA
+		"/.env"
+		// works in VSCode
+		// ".devcontainer/.env"
 	],
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
