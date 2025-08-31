@@ -3,8 +3,8 @@
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.agents :as agents])
 
-(declare *event-store-cache*
-         lirs-cache)
+(declare ^:dynamic *event-store-cache*)
+(declare lirs-cache)
 
 (defn load-by-entity-id
   "Load all events for an entity by its id.

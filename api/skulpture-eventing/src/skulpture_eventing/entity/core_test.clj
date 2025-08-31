@@ -1,13 +1,13 @@
 (ns skulpture-eventing.entity.core-test
-  (:require [skulpture-eventing.entity.core :as entity]
-            [skulpture-eventing.store.core :as store]
+  (:require [clj-uuid :as uuid]
             [clojure.test :as t]
-            [skulpture-eventing.store.agents :as agents]
-            [taoensso.truss :as truss]
-            [clj-uuid :as uuid]
             [java-time.api :as jt]
+            [skulpture-eventing.entity.core :as entity]
+            [skulpture-eventing.store.agents :as agents]
+            [skulpture-eventing.store.core :as store]
             [skulpture-eventing.test-utils.db.mock :as db-mock]
-            [spec-tools.data-spec :as ds]))
+            [spec-tools.data-spec :as ds]
+            [taoensso.truss :as truss]))
 
 (defn fixture [f]
   (swap! entity/schema-registry conj {::test (ds/spec {:name ::test
@@ -19,12 +19,12 @@
 (t/use-fixtures :once fixture)
 
 (defn create-event [event-data revision]
-  {:event-agent "test"
-   :entity-id "1234"
+  {:event-agent   "test"
+   :entity-id     "1234"
    :time-occurred (jt/instant)
    :time-observed (jt/instant)
-   :event-data event-data
-   :revision revision})
+   :event-data    event-data
+   :revision      revision})
 
 (t/deftest ^:unit aggregate
   (t/testing "preconditions"
@@ -38,7 +38,7 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))]
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))]
         (t/testing "keyword entity"
           (t/is (and (truss/throws? (entity/aggregate (:ds-opts @db-mock/db) "test" 1234 transformer))
                      (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer)))
@@ -63,19 +63,19 @@
                      (entity/aggregate (:ds-opts @db-mock/db) ::test (entity/aggregate (:ds-opts @db-mock/db) ::test 1234 transformer) transformer []))))
         (t/testing "from specified event stream options"
           (t/testing "committed events"
-            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events '((create-event {:type :a :a 1} 1)) ;; must be a vector
+            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events   '((create-event {:type :a :a 1} 1)) ;; must be a vector
                                                                             :uncommitted-events [(create-event {:type :b :b -1} 2)]}))
-                       (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 2)] ;; invalid stream
+                       (truss/throws? (entity/aggregate ::test transformer {:committed-events   [(create-event {:type :a :a 1} 2)] ;; invalid stream
                                                                             :uncommitted-events [{:type :b :b -1}]}))
-                       (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)] ;; valid
+                       (entity/aggregate ::test transformer {:committed-events   [(create-event {:type :a :a 1} 1)] ;; valid
                                                              :uncommitted-events [(create-event {:type :b :b -1} 2)]}))))
           (t/testing "uncommitted events"
-            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+            (t/is (and (truss/throws? (entity/aggregate ::test transformer {:committed-events   [(create-event {:type :a :a 1} 1)]
                                                                             :uncommitted-events '((create-event {:type :b :b -1} 2))})) ;; must be a vector
-                       (truss/throws? (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+                       (truss/throws? (entity/aggregate ::test transformer {:committed-events   [(create-event {:type :a :a 1} 1)]
                                                                             :uncommitted-events [{:type :b :b -1}]})) ;; invalid event
                        ;; valid
-                       (entity/aggregate ::test transformer {:committed-events [(create-event {:type :a :a 1} 1)]
+                       (entity/aggregate ::test transformer {:committed-events   [(create-event {:type :a :a 1} 1)]
                                                              :uncommitted-events [(create-event {:type :b :b -1} 2)]}))))))))
   (t/testing "returns current state"
     (with-redefs [store/load-by-entity-id (constantly [(create-event {:type :a :a 1} 1)
@@ -88,7 +88,7 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))
             aggregate (entity/aggregate (:ds-opts @db-mock/db) ::test 1 transformer)]
         (t/is (= (:aggregate aggregate) {:a 2 :b 2 :revision 4}))))
     (t/testing "from specified event stream"
@@ -106,8 +106,8 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
-            aggregate (entity/aggregate ::test transformer {:committed-events committed-events
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))
+            aggregate (entity/aggregate ::test transformer {:committed-events   committed-events
                                                             :uncommitted-events uncommitted-events})]
         (t/is (= (:aggregate aggregate) {:a 4 :b 4 :revision 8}))
         (t/is (= (:uncommitted-events aggregate) uncommitted-events)))))
@@ -122,7 +122,7 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))
             uncommitted-events [(create-event {:type :a :a 1} 5)
                                 (create-event {:type :b :b -1} 6)
                                 (create-event {:type :a :a 2} 7)
@@ -141,7 +141,7 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))
             initial (entity/aggregate (:ds-opts @db-mock/db) ::test 1 transformer)
             uncommitted-events [(create-event {:type :a :a 1} 5)
                                 (create-event {:type :b :b -1} 6)
@@ -282,9 +282,29 @@
                           ([acc {{:keys [type]} :event-data :as event}]
                            (case type
                              :a (assoc acc :a (/ (get-in event [:event-data :a]) (or (:a acc) 1)))
-                             :b (assoc acc :b (/ (get-in event [:event-data :b])  (or (:b acc) 1))))))
+                             :b (assoc acc :b (/ (get-in event [:event-data :b]) (or (:b acc) 1))))))
             snapshot (entity/snapshot! (:ds-opts @db-mock/db) ::test 1 transformer)]
         (t/is (= (:event-agent snapshot) (:snapshot agents/system-agents)))
         (t/is (= (:entity-id snapshot) 1))
         (t/is (= (:revision snapshot) 5))
         (t/is (= (:event-data snapshot) {:a 2 :b 2}))))))
+
+(t/deftest ^:unit group->aggregates
+  (t/testing "groups events by entity ids in order and returns a map of entity id to aggregate"
+    (let [events [{:entity-id 1 :event-data {:a 1} :revision 1}
+                  {:entity-id 1 :event-data {:b 2} :revision 2}
+                  {:entity-id 2 :event-data {:a 1} :revision 1}
+                  {:entity-id 2 :event-data {:b 2} :revision 2}]
+          result (entity/group->aggregates events (fn [events]
+                                                    {:entity-id (:entity-id (last events))
+                                                     :revision  (:revision (last events))}))]
+      (t/is (= result {1 {:entity-id 1 :revision 2}
+                       2 {:entity-id 2 :revision 2}}))))
+  (t/testing "throws if the stream is not valid"
+    (let [events [{:entity-id 1 :event-data {:a 1} :revision 3}
+                  {:entity-id 1 :event-data {:b 2} :revision 1}
+                  {:entity-id 2 :event-data {:a 1} :revision 1}
+                  {:entity-id 2 :event-data {:b 2} :revision 2}]]
+      (t/is (truss/throws? (entity/group->aggregates events (fn [events]
+                                                              {:entity-id (:entity-id (last events))
+                                                               :revision  (:revision (last events))})))))))
