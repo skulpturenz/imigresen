@@ -1,13 +1,14 @@
 {
 	"name": "Debian Clojure",
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile",
+		"context": "."
 	},
 	"runArgs": [
-		"--init",
-		"--env-file",
+		"--init"
+		// "--env-file",
 		// Works in IDEA
-		"./.env"
+		// "./.env"
 		// works in VSCode
 		// ".devcontainer/.env"
 	],
