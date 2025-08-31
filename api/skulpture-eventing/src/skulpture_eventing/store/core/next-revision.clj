@@ -2,6 +2,9 @@
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
+(declare *event-store-cache*
+         lirs-cache)
+
 (defn next-revision
   "Get the next revision without loading all events for an entity"
   [connectable entity-id]
@@ -16,9 +19,9 @@
              (not-empty cached-events))
       (inc' (:revision (last (:events cached-events))))
       (let [query (-> {:select [[[:max :revision]]]
-                       :from :event-journal
-                       :where [:= :entity-id :?entity-id]}
-                      (sql/format {:cache lirs-cache
+                       :from   :event-journal
+                       :where  [:= :entity-id :?entity-id]}
+                      (sql/format {:cache  lirs-cache
                                    :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
         (inc' (or (:max result) 0))))))

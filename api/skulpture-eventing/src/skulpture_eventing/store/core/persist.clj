@@ -3,12 +3,14 @@
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.transformers :as transformers])
 
+(declare lirs-cache)
+
 (defn persist!
   "Persist a stream of events"
   [connectable events]
   (let [query! (-> {:insert-into :event-journal
-                    :values (map transformers/->sql-value events)
-                    :returning :*}
+                    :values      (map transformers/->sql-value events)
+                    :returning   :*}
                    (sql/format))
         result (jdbc/execute! connectable query!)
         entity-ids (distinct (map #(str (:entity-id %)) events))]
