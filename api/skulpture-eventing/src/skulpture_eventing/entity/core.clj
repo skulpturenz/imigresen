@@ -9,5 +9,5 @@
 (load "core/aggregate")
 (load "core/commit")
 (load "core/persist")
-(load "core/next-revision")
+(load "core/next_revision")
 (load "core/snapshot")
