@@ -14,14 +14,16 @@
     ["" {:get {:summary "Get IM42 forms"
                :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered"
                :handler (fn [{:keys [parameters] :as _req}]
-                          (-> (apply (imi-im42/get-im42-forms-by-user-uuid
-                                      (truss/have imi-user/active-by-uuid?
-                                                  (get-in parameters [:path :user-uuid])
-                                                  :data {:type :not-found}))
-                                     (:query parameters))
+                          (-> (imi-im42/get-im42-forms-by-user-uuid
+                               (truss/have imi-user/active-by-uuid?
+                                           (get-in parameters [:path :user-uuid])
+                                           :data {:type :not-found})
+                               (:query parameters))
                               (ring-res/response)
                               (ring-res/status (:ok imi-routes/status-codes))))
-               :parameters {:query {(ds/opt :deleted) boolean?
+               :parameters {:path {:user-uuid ::imi-im42-spec/uuid}
+                            :query {(ds/opt :draft) boolean?
+                                    (ds/opt :deleted) boolean?
                                     (ds/opt :completed) boolean?}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                           :body vector?}
