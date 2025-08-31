@@ -6,7 +6,7 @@
   (t/testing "basic"
     (let [query (constraints/where {:include-event-types ["user_created" "user_updated"]
                                     :exclude-with-event-types ["user_deleted"]})]
-      (t/is (= query {:select :entity-id
+      (t/is (= query {:select-distinct :entity-id
                       :from :event-journal
                       :where [:and
                               [:not-in {:select :entity-id
@@ -16,7 +16,7 @@
                               [:in [:->> :event-data "type"] ["user_created" "user_updated"]]]}))))
   (t/testing "without exclusions"
     (let [query (constraints/where {:include-event-types ["user_created" "user_updated"]})]
-      (t/is (= query {:select :entity-id
+      (t/is (= query {:select-distinct :entity-id
                       :from :event-journal
                       :where [:and
                               [:in [:->> :event-data "type"] ["user_created" "user_updated"]]]}))))
@@ -24,7 +24,7 @@
     (let [query (constraints/where {:include-event-types ["user_created" "user_updated"]
                                     :additional-include-filters [[:in :entity-id [1 2 3]]]
                                     :exclude-with-event-types ["user_deleted"]})]
-      (t/is (= query {:select :entity-id
+      (t/is (= query {:select-distinct :entity-id
                       :from :event-journal
                       :where [:and
                               [:not-in {:select :entity-id
@@ -38,7 +38,7 @@
                                     :additional-include-filters [[:in :entity-id [1 2 3]]]
                                     :exclude-with-event-types ["user_deleted"]
                                     :additional-exclude-filters [[:in :entity-id [4 5 6]]]})]
-      (t/is (= query {:select :entity-id
+      (t/is (= query {:select-distinct :entity-id
                       :from :event-journal
                       :where [:and
                               [:not-in {:select :entity-id
@@ -52,7 +52,7 @@
     (let [query (constraints/where {:include-event-types ["user_created" "user_updated"]
                                     :additional-include-filters [[:in :entity-id [1 2 3]]]
                                     :additional-exclude-filters [[:in :entity-id [4 5 6]]]})]
-      (t/is (= query {:select :entity-id
+      (t/is (= query {:select-distinct :entity-id
                       :from :event-journal
                       :where [:and
                               [:not-in {:select :entity-id
