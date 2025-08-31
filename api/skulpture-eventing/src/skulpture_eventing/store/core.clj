@@ -2,8 +2,7 @@
   "This namespace is not meant to be used directly
    
    Use `skulpture-eventing.entity.core` instead"
-  (:require [clojure.core.cache :as cache])
-  (:gen-class :main true))
+  (:require [clojure.core.cache :as cache]))
 
 (def lirs-cache (atom (cache/lirs-cache-factory {})))
 
