@@ -7,9 +7,9 @@
 		"--init",
 		"--env-file",
 		// Works in IDEA
-		"./.env.devcontainer"
+		"./.env"
 		// works in VSCode
-		// ".devcontainer/.env.devcontainer"
+		// ".devcontainer/.env"
 	],
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
