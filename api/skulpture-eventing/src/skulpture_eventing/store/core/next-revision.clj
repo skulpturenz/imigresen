@@ -2,8 +2,8 @@
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
-(declare *event-store-cache*
-         lirs-cache)
+(declare ^:dynamic *event-store-cache*)
+(declare lirs-cache)
 
 (defn next-revision
   "Get the next revision without loading all events for an entity"

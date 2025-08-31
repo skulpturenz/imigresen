@@ -21,3 +21,6 @@
 
 (declare snapshot!)
 (load "core/snapshot")
+
+(declare group->aggregates)
+(load "core/group_aggregates")

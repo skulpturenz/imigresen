@@ -2,8 +2,8 @@
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
-(declare *event-store-cache*
-         lirs-cache)
+(declare ^:dynamic *event-store-cache*)
+(declare lirs-cache)
 
 (defn count-by-entity-id
   "Count the number of events for an entity by its id"
