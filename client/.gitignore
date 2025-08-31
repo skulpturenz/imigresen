@@ -26,3 +26,7 @@ storybook-static
 
 .automerge
 .eslintcache
+
+# IDEA
+.idea
+*.iml
