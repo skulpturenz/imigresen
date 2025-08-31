@@ -6,6 +6,10 @@
          '[skulpture-eventing.store.agents :as agents]
          '[next.jdbc.protocols :as jdbc-protocols])
 
+(declare schema-registry
+         aggregate
+         next-revision)
+
 (defn snapshot!
   "Creates and persists a snapshot event of the current state of the entity.
    

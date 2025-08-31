@@ -5,6 +5,8 @@
          '[skulpture-eventing.entity.spec :as es]
          '[next.jdbc.protocols :as jdbc-protocols])
 
+(declare schema-registry)
+
 (defn commit!
   "Commit uncommitted events in an aggregate"
   [connectable entity aggregate] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)

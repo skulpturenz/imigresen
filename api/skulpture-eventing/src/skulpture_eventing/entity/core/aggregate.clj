@@ -6,6 +6,8 @@
          '[skulpture-eventing.entity.spec :as es]
          '[next.jdbc.protocols :as jdbc-protocols])
 
+(declare schema-registry)
+
 (defn aggregate
   "Gets the events associated with the entity id and determines the current state of the event,
    applying any additional events if specified. Additional events are not committed, to do so invoke `commit!`.

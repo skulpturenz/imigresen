@@ -6,6 +6,9 @@
          '[skulpture-eventing.entity.spec :as es]
          '[next.jdbc.protocols :as jdbc-protocols])
 
+(declare schema-registry
+         aggregate)
+
 (defn next-revision
   "Determine the next revision of an entity from an aggregate or the current state.
    
