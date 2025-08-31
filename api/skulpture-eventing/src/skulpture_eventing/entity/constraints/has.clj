@@ -1,6 +1,8 @@
 (in-ns 'skulpture-eventing.entity.constraints)
 (require '[taoensso.truss :as truss])
 
+(declare where)
+
 (defn has
   "Build a HoneySQL DSL data structure to check if entities which fit constraints exists.
    Any additional inclusion and exclusion criteria should be expressed as a HoneySQL clause.
