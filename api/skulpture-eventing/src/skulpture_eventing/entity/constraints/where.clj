@@ -16,7 +16,8 @@
         exclude-filters (into [] cat [default-exclude-filters additional-exclude-filters])]
     {:select :entity-id
      :from :event-journal
-     :where (into [:and] cat [include-filters (when (not-empty exclude-filters)
-                                                [[:not-in {:select :entity-id
-                                                           :from :event-journal
-                                                           :where (into [:and] cat [exclude-filters])}]])])}))
+     :where (into [:and] cat [(when (not-empty exclude-filters)
+                                [[:not-in {:select :entity-id
+                                           :from :event-journal
+                                           :where (into [:and] cat [exclude-filters])}]])
+                              include-filters])}))
