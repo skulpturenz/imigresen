@@ -5,7 +5,7 @@
 	"files.insertFinalNewline": true,
 	"files.trimFinalNewlines": true,
 	"calva.autoConnectRepl": true,
-	"calva.useTestExplorer": true,
+	"calva.useTestExplorer": false,
 	"calva.evalOnSave": true,
 	"calva.showDocstringInParameterHelp": true,
 	"calva.highlight.rainbowIndentGuides": true,
