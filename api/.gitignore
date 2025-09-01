@@ -199,6 +199,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# IDEA
-.idea
-*.iml
+# Clojure
+.lsp
+.calva
+**/.calva/repl.calva-repl
+.clj-kondo
