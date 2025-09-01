@@ -202,3 +202,9 @@ dist
 # IDEA
 .idea
 *.iml
+
+# Clojure
+.lsp
+.calva
+**/.calva/repl.calva-repl
+.clj-kondo
