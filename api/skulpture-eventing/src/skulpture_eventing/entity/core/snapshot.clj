@@ -1,10 +1,10 @@
 (in-ns 'skulpture-eventing.entity.core)
-(require '[skulpture-eventing.store.core :as store]
-         '[java-time.api :as jt]
+(require '[java-time.api :as jt]
          '[taoensso.truss :as truss]
          '[clojure.spec.alpha :as s]
          '[skulpture-eventing.store.agents :as agents]
-         '[next.jdbc.protocols :as jdbc-protocols])
+         '[next.jdbc.protocols :as jdbc-protocols]
+         '[skulpture-eventing.store.protocol :as store-protocol])
 
 (declare schema-registry
          aggregate
@@ -12,10 +12,10 @@
 
 (defn snapshot!
   "Creates and persists a snapshot event of the current state of the entity.
-   
+
    Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
    starting point when events are loaded"
-  [connectable entity entity-id transformer] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
+  [connectable entity entity-id transformer] {:pre [(and (truss/have? #(satisfies? store-protocol/EventStore %) connectable)
                                                          (truss/have? keyword? entity)
                                                          (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)
                                                          (truss/have? fn? transformer))]}
@@ -31,5 +31,5 @@
         schema (truss/have ((keyword entity) @schema-registry))]
     (when (truss/have (partial s/valid? schema) (:aggregate aggregate))
       (truss/have [:and #(some? %) #(= event-data (:event-data %))]
-                  (store/persist! connectable [snapshot-event]))
+                  (.persist! connectable [snapshot-event]))
       snapshot-event)))

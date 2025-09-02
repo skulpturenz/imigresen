@@ -1,5 +1,5 @@
-(ns skulpture-eventing.store.core-test
-  (:require [skulpture-eventing.store.core :as store]
+(ns skulpture-eventing.store.adapters.jdbc-test
+  (:require [skulpture-eventing.store.adapters.jdbc :as jdbc-store]
             [clojure.test :as t]
             [clj-uuid :as uuid]
             [java-time.api :as jt]
@@ -8,7 +8,8 @@
 
 (t/deftest ^:unit persist
   (t/testing "persists events"
-    (let [events [{:event-agent "test"
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          events [{:event-agent "test"
                    :event-data {:hello "world"}
                    :revision 1}
                   {:event-agent "test"
@@ -16,7 +17,7 @@
                    :time-occurred (jt/instant)
                    :event-data {:hello "event2"}
                    :revision 1}]
-          result (store/persist! (:ds-opts @db-mock/db) events)
+          result (.persist! store events)
           first-event (first result)
           second-event (second result)]
       ;; first event
@@ -31,16 +32,18 @@
 
 (t/deftest ^:unit count-by-entity-id
   (t/testing "number of events"
-    (let [events [{:event-agent "test"
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          events [{:event-agent "test"
                    :event-data {:hello "world"}
                    :revision 1}]
-          result (store/persist! (:ds-opts @db-mock/db) events)
-          count (store/count-by-entity-id (:ds-opts @db-mock/db) (:event-journal/entity-id (first result)))]
+          result (.persist! store events)
+          count (.count-by-entity-id store (:event-journal/entity-id (first result)))]
       (t/is (= count 1)))))
 
 (t/deftest ^:unit load-by-entity-id
   (t/testing "without snapshots"
-    (let [entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          entity-id (str (uuid/v7))
           events [{:event-agent "test"
                    :entity-id entity-id
                    :event-data {:hello "world"}
@@ -49,13 +52,14 @@
                    :entity-id entity-id
                    :event-data {:hello "world1234"}
                    :revision 2}]
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-id (:ds-opts @db-mock/db) entity-id)]
+          _  (.persist! store events)
+          events (.load-by-entity-id store entity-id)]
       (t/is (= (count events) 2))
       (t/is (= (:revision (first events)) 1))
       (t/is (= (:revision (second events)) 2))))
   (t/testing "with snapshots"
-    (let [entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          entity-id (str (uuid/v7))
           events [{:event-agent "test"
                    :entity-id entity-id
                    :event-data {:hello "world"}
@@ -72,8 +76,8 @@
                    :entity-id entity-id
                    :event-data {:hello "world4321"}
                    :revision 4}]
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-id (:ds-opts @db-mock/db) entity-id)]
+          _ (.persist! store events)
+          events (.load-by-entity-id store entity-id)]
       (t/is (some #(= (:event-agent %) (:snapshot agents/system-agents)) events))
       (t/is (= (count events) 2))
       (t/is (= (:revision (first events)) 3))
@@ -81,7 +85,8 @@
 
 (t/deftest load-by-entity-id-and-revision
   (t/testing "without snapshots"
-    (let [entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          entity-id (str (uuid/v7))
           events [{:event-agent "test"
                    :entity-id entity-id
                    :event-data {:hello "world"}
@@ -94,13 +99,14 @@
                    :entity-id entity-id
                    :event-data {:hello "world4321"}
                    :revision 3}]
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-id-and-revision (:ds-opts @db-mock/db) entity-id 2)]
+          _ (.persist! store events)
+          events (.load-by-entity-id-and-revision store entity-id 2)]
       (t/is (= (count events) 2))
       (t/is (= (:revision (first events)) 1))
       (t/is (= (:revision (second events)) 2))))
   (t/testing "with snapshots"
-    (let [entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          entity-id (str (uuid/v7))
           events [{:event-agent "test"
                    :entity-id entity-id
                    :event-data {:hello "world"}
@@ -117,8 +123,8 @@
                    :entity-id entity-id
                    :event-data {:hello "world4321"}
                    :revision 4}]
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-id-and-revision (:ds-opts @db-mock/db) entity-id 2)]
+          _ (.persist! store events)
+          events (.load-by-entity-id-and-revision store entity-id 2)]
       (t/is (not (some #(= (:event-agent %) (:snapshot agents/system-agents)) events)))
       (t/is (= (count events) 2))
       (t/is (= (:revision (first events)) 1))
@@ -126,7 +132,8 @@
 
 (t/deftest load-by-entity-ids
   (t/testing "without snapshots"
-    (let [first-entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          first-entity-id (str (uuid/v7))
           second-entity-id (str (uuid/v7))
           events [{:event-agent "test"
                    :entity-id first-entity-id
@@ -152,15 +159,16 @@
                    :entity-id second-entity-id
                    :event-data {:hello "world4321"}
                    :revision 3}]
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-ids (:ds-opts @db-mock/db) [first-entity-id second-entity-id])]
+          _ (.persist! store events)
+          events (.load-by-entity-ids store [first-entity-id second-entity-id])]
       (t/is (= (count events) 6))
       (t/is (= (:revision (first events)) 1))
       (t/is (= (:revision (nth events 2)) 3))
       (t/is (= (:revision (nth events 3)) 1))
       (t/is (= (:revision (nth events 5)) 3))))
   (t/testing "with snapshots"
-    (let [first-entity-id (str (uuid/v7))
+    (let [store (jdbc-store/create-jdbc-event-store (:ds-opts @db-mock/db))
+          first-entity-id (str (uuid/v7))
           second-entity-id (str (uuid/v7))
           first-entity-events [{:event-agent "test"
                                 :entity-id first-entity-id
@@ -191,8 +199,8 @@
                                  :event-data {:hello "world4321"}
                                  :revision 3}]
           events (into first-entity-events second-entity-events)
-          _ (store/persist! (:ds-opts @db-mock/db) events)
-          events (store/load-by-entity-ids (:ds-opts @db-mock/db) [first-entity-id second-entity-id])]
+          _ (.persist! store events)
+          events (.load-by-entity-ids store [first-entity-id second-entity-id])]
       (t/is (some #(= (:event-agent %) (:snapshot agents/system-agents)) events))
       (t/is (= (count events) 4))
       (t/is (= (:revision (first events)) 3))

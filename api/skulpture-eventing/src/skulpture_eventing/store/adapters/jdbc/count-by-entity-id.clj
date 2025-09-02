@@ -1,12 +1,12 @@
-(in-ns 'skulpture-eventing.store.core)
+(in-ns 'skulpture-eventing.store.adapters.jdbc)
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
 (declare ^:dynamic *event-store-cache*)
 (declare lirs-cache)
 
-(defn next-revision
-  "Get the next revision without loading all events for an entity"
+(defn- count-by-entity-id
+  "Count the number of events for an entity by its id"
   [connectable entity-id]
   (let [cached-events (if (and *event-store-cache*
                                (cache/has? @lirs-cache entity-id))
@@ -17,11 +17,11 @@
     (if (and (not= (:revision cached-events) 0)
              (not (:dirty cached-events))
              (not-empty cached-events))
-      (inc' (:revision (last (:events cached-events))))
-      (let [query (-> {:select [[[:max :revision]]]
+      (count (:events cached-events))
+      (let [query (-> {:select [[[:count :1]]]
                        :from   :event-journal
                        :where  [:= :entity-id :?entity-id]}
                       (sql/format {:cache  lirs-cache
                                    :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
-        (inc' (or (:max result) 0))))))
+        (:count result)))))
