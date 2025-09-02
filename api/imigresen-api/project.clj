@@ -22,7 +22,7 @@
                  [ring-logger "1.1.1"]
                  ;; comment when dev - use checkout
                  ;; lein monolith link imigresen/common
-                 [imigresen/common "SNAPSHOT"] ;;
+                 ;;      [imigresen/common "SNAPSHOT"] ;;
                  ]
   :resource-paths ["resources"]
   :main ^:skip-aot imigresen-api.app.core
@@ -84,7 +84,7 @@
                           :log-level "ERROR"
                           :java-env "test"}
                     :dependencies [;; checkout for dev
-                                   [imigresen/common "SNAPSHOT"]
+                                   ;;      [imigresen/common "SNAPSHOT"]
                                    [org.clojure/data.json "2.5.1"]
                                    [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]

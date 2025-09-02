@@ -1,11 +1,11 @@
-(in-ns 'skulpture-eventing.store.core)
+(in-ns 'skulpture-eventing.store.adapters.jdbc)
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.transformers :as transformers])
 
-(declare lirs-cache)
+(declare ^:dynamic lirs-cache)
 
-(defn persist!
+(defn- persist!
   "Persist a stream of events"
   [connectable events]
   (let [query! (-> {:insert-into :event-journal

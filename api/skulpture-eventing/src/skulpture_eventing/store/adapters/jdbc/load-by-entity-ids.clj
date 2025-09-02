@@ -1,13 +1,13 @@
-(in-ns 'skulpture-eventing.store.core)
+(in-ns 'skulpture-eventing.store.adapters.jdbc)
 (require '[honey.sql :as sql]
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.agents :as agents])
 
-(defn load-by-entity-ids
+(defn- load-by-entity-ids
   "Load all events for entities by entity ids.
-   
+
    Events are ordered by the time occurred and their revision.
-   
+
    If snapshots are available starts from the snapshot."
   [connectable entity-ids]
   (let [query (-> {:with [[[:snapshots {:columns [:entity-id :revision :event-agent
