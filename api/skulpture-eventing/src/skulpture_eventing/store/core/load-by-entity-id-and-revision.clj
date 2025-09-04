@@ -6,11 +6,12 @@
 (declare *event-store-cache*)
 (declare lirs-cache)
 
+;; TODO: update for loading projects from `event_journal_projections`
 (defn load-by-entity-id-and-revision
   "Load all events for an entity by its id and revision.
-   
+
    Events are ordered by the time occurred and their revision.
-   
+
    If snapshots are available starts from the snapshot."
   [connectable entity-id revision]
   (let [cached-events (if (and *event-store-cache*
