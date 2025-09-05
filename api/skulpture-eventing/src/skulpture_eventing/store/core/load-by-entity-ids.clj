@@ -3,7 +3,6 @@
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.agents :as agents])
 
-;; TODO: update for loading projects from `event_journal_projections`
 (defn load-by-entity-ids
   "Load all events for entities by entity ids.
 

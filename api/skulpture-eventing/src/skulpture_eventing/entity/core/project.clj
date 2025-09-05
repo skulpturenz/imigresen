@@ -18,7 +18,7 @@
    (let [projection-type (:entity aggregate)
          entity-id (:entity-id aggregate)
          revision (get-in aggregate [:aggregate :revision])
-         snapshot-data (-> (get-in aggregate [:aggregate])
-                           (dissoc :revision))
+         projection (-> (get-in aggregate [:aggregate])
+                        (dissoc :revision))
          agent (:event-agent (last (into [] cat [(:committed-events aggregate) (:uncommitted-events aggregate)])))]
-     (store/project! connectable agent projection-type entity-id snapshot-data revision))))
+     (store/project! connectable agent projection-type entity-id projection revision))))

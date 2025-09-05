@@ -10,9 +10,12 @@
                           :event-data [:lift (:event-data event)]
                           :revision (:revision event)}))
 
-(def snapshot->sql-value (fn [agent projection-type entity-id snapshot revision]
-                           {:projection-type (str projection-type)
-                            :last-updated-by (str agent)
-                            :entity-id (str entity-id)
-                            :revision revision
-                            :snapshot-data [:lift snapshot]}))
+(def projection->sql-value (fn [agent projection-type entity-id projection revision]
+                             {:projection-type (str projection-type)
+                              :last-updated-by (str agent)
+                              :entity-id (str entity-id)
+                              :revision revision
+                              :projection [:lift projection]}))
+
+(defn projection<-sql-value (fn [v]
+                              (:event-journal/projection v)))

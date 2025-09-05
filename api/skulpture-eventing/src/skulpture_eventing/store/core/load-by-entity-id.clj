@@ -6,7 +6,6 @@
 (declare ^:dynamic *event-store-cache*)
 (declare lirs-cache)
 
-;; TODO: update for loading projects from `event_journal_projections`
 (defn load-by-entity-id
   "Load all events for an entity by its id.
 
