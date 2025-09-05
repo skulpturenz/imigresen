@@ -6,7 +6,7 @@
 (defn load-projection-by-entity-id
   "Load the current projection of an entity"
   [connectable projection-type entity-id additional-filters]
-  (let [query {:select :projection
+  (let [query {:select [:entity-id :projection]
                :from :event-journal-projections
                :where (into [:and] cat [[[:= :projection-type projection-type]]
                                         [[:entity-id entity-id]]

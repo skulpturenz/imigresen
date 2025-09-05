@@ -18,4 +18,4 @@
                               :projection [:lift projection]}))
 
 (defn projection<-sql-value (fn [v]
-                              (:event-journal/projection v)))
+                              (merge {:entity-id (:event-journal/entity-id v)} (:event-journal/projection v))))

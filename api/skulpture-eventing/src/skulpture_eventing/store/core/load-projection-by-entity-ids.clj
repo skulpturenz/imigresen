@@ -16,8 +16,9 @@
                                      (when (not (or (string? %) (number? %) (uuid? %)))
                                        [(:filters (second %))])]))
                  entities)
-        query {:select :projection
+        query {:select [:entity-id :projection]
                :from :event-journal-projections
                :where [:or filters]}
         result (jdbc/execute! connectable query)]
-    (map transformers/projection<-sql-value result)))
+    (update-vals (group-by :entity-id (map transformers/projection<-sql-value result))
+                 first)))
