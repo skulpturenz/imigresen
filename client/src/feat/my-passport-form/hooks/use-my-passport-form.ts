@@ -447,6 +447,53 @@ export const useMyPassportForm = () => {
 		registerNewForm().then(proceed);
 	});
 
+	const prefillData = () => {
+		invariant(import.meta.env.DEV, "Dev funcionality enabled in prod");
+
+		reset(form, {
+			/// @ts-expect-error: "type error"
+			initialValues: {
+				personalDetails: {
+					firstName: "Test",
+					lastName: "User",
+					emailAddress: "test@test.com",
+					mobileNumber: "02345689",
+					genderCode: "M",
+					relationshipStatusCode: "M",
+					height: "123",
+					dateOfBirth: "01/01/1900",
+					countryOfBirthCode: "MY",
+					stateOfBirth: "TEST",
+				},
+				addressDetails: {
+					streetAddress: "123 XYZ",
+					countryCode: "NZ",
+					postcode: "1011",
+					state: "TEST",
+					city: "TEST",
+				},
+				applicationDetails: {
+					documentType: "Pages64",
+					requestType: "First",
+					myKadNumber: "930123458890",
+					birthDocumentNumber: "WERWEGWER",
+				},
+				previousDocuments: {
+					previousDocumentNumber: "WFWQFQWEFW",
+					dependentCaregiverFirstName: "TEST",
+					dependentCaregiverLastName: "User",
+					dependentCaregiverMyKadNumber: "930123458890",
+				},
+				declaration: {
+					confirmPreviousDocumentNumber: "WERWEGWER",
+					isDetailsCorrect: true,
+					isLiable: true,
+					declareTrueAndCorrect: true,
+				},
+			},
+		});
+	};
+
 	return {
 		data: {
 			referenceData: selectReferenceData,
@@ -460,6 +507,7 @@ export const useMyPassportForm = () => {
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
 		isDirty,
+		prefillData,
 		Components: {
 			Form,
 			Field,

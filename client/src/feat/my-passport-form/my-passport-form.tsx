@@ -11,6 +11,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
+import { Button } from "ui/button";
 import { useMyPassportForm } from "./hooks/use-my-passport-form";
 import { useWizardSteps } from "./hooks/use-wizard-steps";
 import type { resources } from "./resources/i18n/en-us";
@@ -39,6 +40,7 @@ export const MyPassportForm = () => {
 		Components,
 		toggleDeleteFrictionDialog,
 		toggleInvalidDataDialog,
+		prefillData,
 	} = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
@@ -51,6 +53,14 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
+			{import.meta.env.DEV && (
+				<div
+					// TODO: REMOVE
+					class="flex w-full justify-end my-4">
+					<Button onClick={prefillData}>Prefill data</Button>
+				</div>
+			)}
+
 			<Form of={form} onSubmit={onSubmit}>
 				<Wizard
 					steps={steps()}
