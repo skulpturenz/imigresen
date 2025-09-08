@@ -11,6 +11,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
+import { Button } from "ui/button";
 import { useMyPassportForm } from "./hooks/use-my-passport-form";
 import { useWizardSteps } from "./hooks/use-wizard-steps";
 import type { resources } from "./resources/i18n/en-us";
@@ -39,6 +40,7 @@ export const MyPassportForm = () => {
 		Components,
 		toggleDeleteFrictionDialog,
 		toggleInvalidDataDialog,
+		prefillData,
 	} = useMyPassportForm();
 
 	const t = useI18n<typeof resources>();
@@ -51,26 +53,34 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<Wizard
-				steps={steps()}
-				Footer={
-					<>
-						<DefaultFooter
-							onClickNext={onClickNext}
-							onClickBack={onClickBack}
-							onClickDelete={onClickDelete}
-							isMutating={isMutating}
-						/>
+			{import.meta.env.DEV && (
+				<div
+					// TODO: REMOVE
+					class="flex w-full justify-end my-4">
+					<Button onClick={prefillData}>Prefill data</Button>
+				</div>
+			)}
 
-						<MobileFooter
-							onClickNext={onClickNext}
-							onClickBack={onClickBack}
-							onClickDelete={onClickDelete}
-							isMutating={isMutating}
-						/>
-					</>
-				}>
-				<Form of={form} onSubmit={onSubmit}>
+			<Form of={form} onSubmit={onSubmit}>
+				<Wizard
+					steps={steps()}
+					Footer={
+						<>
+							<DefaultFooter
+								onClickNext={onClickNext}
+								onClickBack={onClickBack}
+								onClickDelete={onClickDelete}
+								isMutating={isMutating}
+							/>
+
+							<MobileFooter
+								onClickNext={onClickNext}
+								onClickBack={onClickBack}
+								onClickDelete={onClickDelete}
+								isMutating={isMutating}
+							/>
+						</>
+					}>
 					<Suspense fallback={<div>{t("loading")}</div>}>
 						<Hide
 							when={
@@ -138,8 +148,8 @@ export const MyPassportForm = () => {
 							/>
 						</Hide>
 					</Suspense>
-				</Form>
-			</Wizard>
+				</Wizard>
+			</Form>
 
 			<AlertDialog open={show().invalidDataDialog}>
 				<AlertDialogContent>

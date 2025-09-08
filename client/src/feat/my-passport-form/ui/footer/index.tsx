@@ -50,6 +50,8 @@ export const MobileFooter: Component<FooterProps> = props => {
 			<Show when={isCurrentStep(location, LAST_STEP)}>
 				<Button
 					variant="default"
+					as="input"
+					type="submit"
 					class="w-full"
 					onClick={props.onClickSubmit}
 					disabled={
@@ -111,6 +113,8 @@ export const DefaultFooter: Component<FooterProps> = props => {
 			<Show when={isCurrentStep(location, LAST_STEP)}>
 				<Button
 					variant="default"
+					as="input"
+					type="submit"
 					onClick={props.onClickSubmit}
 					disabled={
 						props.isMutating?.() ||

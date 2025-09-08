@@ -17,6 +17,7 @@ import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 import { default as wretch } from "wretch";
+import { default as QueryStringAddon } from "wretch/addons/queryString";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -25,7 +26,9 @@ const storage = createStorage({
 });
 
 assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).addon(
+	QueryStringAddon,
+);
 const referenceDataApi = wretch(
 	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
 );
@@ -46,7 +49,8 @@ export const homeService = (repo: Repo, token?: string) => {
 
 		return im42Api
 			.auth(`Bearer ${token}`)
-			.get(`/status/draft/user/${user}`)
+			.query({ draft: true })
+			.get(`/user/${user}`)
 			.json<[string, string][]>();
 	};
 

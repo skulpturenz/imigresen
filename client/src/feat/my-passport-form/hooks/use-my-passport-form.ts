@@ -217,8 +217,7 @@ export const useMyPassportForm = () => {
 	}));
 
 	const mSubmit = useMutation(() => ({
-		mutationFn: (_formValues: MyPassportForm) =>
-			Promise.resolve(handle()?.url),
+		mutationFn: myPassportFormContext.putIm42,
 	}));
 
 	const onDelete = async () => {
@@ -256,11 +255,28 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		if (form.submitting || mSubmit.isPending) {
+		if (mSubmit.isPending) {
 			return;
 		}
 
-		await mSubmit.mutateAsync(formValues);
+		const user = userContext().profile?.uuid;
+		invariant(user, "no user uuid");
+
+		const automergeUrl = handle()?.url;
+		invariant(
+			automergeUrl,
+			"Automerge URL for existing document is not defined, check `handle`",
+		);
+
+		await mSubmit.mutateAsync({
+			// TODO: there is a new case here
+			// submitting immediately without saving as draft
+			// need to disable before leave handler for this case and register when submitting
+			uuid: routeParams.uuid as string,
+			user,
+			automergeUrl,
+			formValues,
+		});
 		reset(form);
 
 		navigate(toPath(CoreRoute.Home));
@@ -431,6 +447,54 @@ export const useMyPassportForm = () => {
 		registerNewForm().then(proceed);
 	});
 
+	const prefillData = () => {
+		invariant(import.meta.env.DEV, "Dev funcionality enabled in prod");
+
+		reset(form, {
+			/// @ts-expect-error: "type error"
+			initialValues: {
+				personalDetails: {
+					firstName: "Test",
+					lastName: "User",
+					emailAddress: "test@test.com",
+					mobileNumber: "02345689",
+					genderCode: "M",
+					relationshipStatusCode: "M",
+					height: "123",
+					dateOfBirth: "01/01/1900",
+					countryOfBirthCode: "MY",
+					stateOfBirth: "TEST",
+				},
+				addressDetails: {
+					streetAddress: "123 XYZ",
+					countryCode: "NZ",
+					postcode: "1011",
+					state: "TEST",
+					city: "TEST",
+				},
+				applicationDetails: {
+					documentType: "Pages64",
+					requestType: "First",
+					myKadNumber: "930123458890",
+					birthDocumentNumber: "WERWEGWER",
+				},
+				previousDocuments: {
+					previousDocumentNumber: "WFWQFQWEFW",
+					dependentCaregiverFirstName: "TEST",
+					dependentCaregiverLastName: "User",
+					dependentCaregiverMyKadNumber: "930123458890",
+					dependentCaregiverSignature: "WEGRWER",
+				},
+				declaration: {
+					confirmPreviousDocumentNumber: "WERWEGWER",
+					isDetailsCorrect: true,
+					isLiable: true,
+					declareTrueAndCorrect: true,
+				},
+			},
+		});
+	};
+
 	return {
 		data: {
 			referenceData: selectReferenceData,
@@ -444,6 +508,7 @@ export const useMyPassportForm = () => {
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
 		isDirty,
+		prefillData,
 		Components: {
 			Form,
 			Field,
