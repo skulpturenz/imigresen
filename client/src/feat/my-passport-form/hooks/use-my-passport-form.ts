@@ -255,7 +255,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		if (form.submitting || mSubmit.isPending) {
+		if (mSubmit.isPending) {
 			return;
 		}
 
@@ -483,6 +483,7 @@ export const useMyPassportForm = () => {
 					dependentCaregiverFirstName: "TEST",
 					dependentCaregiverLastName: "User",
 					dependentCaregiverMyKadNumber: "930123458890",
+					dependentCaregiverSignature: "WEGRWER",
 				},
 				declaration: {
 					confirmPreviousDocumentNumber: "WERWEGWER",

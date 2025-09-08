@@ -68,6 +68,10 @@ export const yupForm = <
 
 		const errors = getAllErrors();
 
+		if (import.meta.env.DEV) {
+			console.warn(errors);
+		}
+
 		return errors;
 	};
 };

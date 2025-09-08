@@ -112,7 +112,7 @@ export const myPassportFormService = (token?: string) => {
 			.auth(`Bearer ${token}`)
 			.put(
 				toPutIm42Request(automergeUrl, formValues),
-				`${uuid}/user/${user}`,
+				`/${uuid}/user/${user}`,
 			)
 			.res();
 	};
