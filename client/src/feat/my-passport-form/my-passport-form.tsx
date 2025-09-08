@@ -51,26 +51,26 @@ export const MyPassportForm = () => {
 
 	return (
 		<>
-			<Wizard
-				steps={steps()}
-				Footer={
-					<>
-						<DefaultFooter
-							onClickNext={onClickNext}
-							onClickBack={onClickBack}
-							onClickDelete={onClickDelete}
-							isMutating={isMutating}
-						/>
+			<Form of={form} onSubmit={onSubmit}>
+				<Wizard
+					steps={steps()}
+					Footer={
+						<>
+							<DefaultFooter
+								onClickNext={onClickNext}
+								onClickBack={onClickBack}
+								onClickDelete={onClickDelete}
+								isMutating={isMutating}
+							/>
 
-						<MobileFooter
-							onClickNext={onClickNext}
-							onClickBack={onClickBack}
-							onClickDelete={onClickDelete}
-							isMutating={isMutating}
-						/>
-					</>
-				}>
-				<Form of={form} onSubmit={onSubmit}>
+							<MobileFooter
+								onClickNext={onClickNext}
+								onClickBack={onClickBack}
+								onClickDelete={onClickDelete}
+								isMutating={isMutating}
+							/>
+						</>
+					}>
 					<Suspense fallback={<div>{t("loading")}</div>}>
 						<Hide
 							when={
@@ -138,8 +138,8 @@ export const MyPassportForm = () => {
 							/>
 						</Hide>
 					</Suspense>
-				</Form>
-			</Wizard>
+				</Wizard>
+			</Form>
 
 			<AlertDialog open={show().invalidDataDialog}>
 				<AlertDialogContent>
