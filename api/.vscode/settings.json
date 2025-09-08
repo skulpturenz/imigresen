@@ -1,3 +1,82 @@
 {
 	"editor.formatOnSave": true,
+	"editor.parameterHints.enabled": true,
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
+	"calva.autoConnectRepl": true,
+	"calva.useTestExplorer": false,
+	"calva.evalOnSave": true,
+	"calva.showDocstringInParameterHelp": true,
+	"calva.highlight.rainbowIndentGuides": true,
+	"calva.autoStartRepl": true,
+	"calva.useLegacyReplWindowPath": false,
+	"calva.replConnectSequences": [
+		{
+			"name": "monorepo",
+			"projectType": "Leiningen",
+			"autoSelectForJackIn": true,
+			"autoSelectForConnect": true,
+			"projectRootPath": [
+				"./."
+			],
+			"menuSelections": {
+				"leinAlias": "No alias"
+			}
+		},
+		{
+			"name": "Imigresen API",
+			"projectType": "Leiningen",
+			"autoSelectForJackIn": true,
+			"autoSelectForConnect": true,
+			"projectRootPath": [
+				"imigresen-api"
+			],
+			"menuSelections": {
+				"cljAliases": [
+					"dev"
+				],
+				"leinAlias": "dev",
+				"leinProfiles": [
+					"dev"
+				]
+			}
+		},
+		{
+			"name": "imigresen-common",
+			"projectType": "Leiningen",
+			"autoSelectForJackIn": true,
+			"autoSelectForConnect": true,
+			"projectRootPath": [
+				"imigresen-common"
+			],
+			"menuSelections": {
+				"cljAliases": [
+					"test"
+				],
+				"leinAlias": "test",
+				"leinProfiles": [
+					"test"
+				]
+			}
+		},
+		{
+			"name": "skulpture-eventing",
+			"projectType": "Leiningen",
+			"autoSelectForJackIn": true,
+			"autoSelectForConnect": true,
+			"projectRootPath": [
+				"skulpture-eventing"
+			],
+			"menuSelections": {
+				"cljAliases": [
+					"test"
+				],
+				"leinAlias": "test",
+				"leinProfiles": [
+					"test"
+				]
+			}
+		}
+	],
 }

@@ -14,7 +14,8 @@
                  [danlentz/clj-uuid "0.2.0"]
                  [clojure.java-time "1.4.3"]
                  [com.taoensso/truss "2.1.0"]
-                 [metosin/spec-tools "0.10.7"]]
+                 [metosin/spec-tools "0.10.7"]
+                 [org.clojure/core.cache "1.1.234"]]
   :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
              :test {:env {:timbre-level "ERROR"
                           :log-level "ERROR"}

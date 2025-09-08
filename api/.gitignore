@@ -198,3 +198,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Clojure
+.lsp
+.calva
+**/.calva/repl.calva-repl
+.clj-kondo

@@ -1,4 +1,7 @@
-(ns skulpture-eventing.entity.apply
+(ns skulpture-eventing.entity-utils.apply
+  "This namespace is not meant to be used directly
+     
+   Use `skulpture-eventing.entity.core` instead"
   (:require [taoensso.truss :as truss]))
 
 (declare aggregate
@@ -28,5 +31,5 @@
    - The revision of each event increases monotonically in steps of 1"
   [events]
   (and (= (latest-revision (truss/have seq events)) (count (truss/have seq events)))
-       (= (map :revision (sort-by :revision (truss/have seq events)))
+       (= (map :revision (truss/have seq events))
           (range (:revision (apply min-key :revision (truss/have seq events))) (inc (count (truss/have seq events))) 1))))

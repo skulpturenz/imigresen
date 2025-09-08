@@ -19,6 +19,7 @@
                  [io.opentelemetry/opentelemetry-api "1.50.0"]
                  [metosin/spec-tools "0.10.7"]
                  [org.clj-commons/pretty "3.4.1"]
+                 [ring-logger "1.1.1"]
                  ;; comment when dev - use checkout
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"] ;;
@@ -71,7 +72,9 @@
                                   ;; not required for dev, its only used in tests but
                                   ;; hmr throws without it
                                   [ring/ring-mock "0.6.1"]]}
-             :uberjar {:env {:java-env "production"}
+             :uberjar {:env {:java-env "production"
+                             :timbre-level "ERROR"
+                             :log-level "ERROR"}
                        :aot [imigresen-api.app.core]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]
