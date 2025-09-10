@@ -10,8 +10,6 @@
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
-            [ring.middleware.reload :as reload]
-            [ring.middleware.lint :as lint]
             [mount.core :as mount]
             [imigresen-api.api.core :as imi-core]
             [imigresen-common.state.db.core]
@@ -33,7 +31,9 @@
             [imigresen-common.app.middleware.cors :as imi-cors]
             [clojure.java.io :as io]
             [imigresen-common.state.keycloak.core]
-            [ring.logger :as logger])
+            [ring.logger :as logger]
+            [clj-reload.core :as reload]
+            [watchtower.core :as watchtower])
   (:import (java.util UUID)
            (java.io Writer)))
 
@@ -41,7 +41,17 @@
   (imi-logging/init-logging)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt
-               #'imigresen-common.state.keycloak.core/keycloak))
+               #'imigresen-common.state.keycloak.core/keycloak)
+  (when (imi-env/development? (imi-env/current-env))
+    (reload/init {:output :verbose})
+    (let [reload-count (atom 0)]
+      (watchtower/watcher ["src" "checkouts"]
+                          (watchtower/rate 20)
+                          (watchtower/on-change (fn [files]
+                                                  (when (> @reload-count 0)
+                                                    (println "files changed: " (map #(.getPath %) files)))
+                                                  (reload/reload)
+                                                  (swap! reload-count inc)))))))
 
 (defn destroy []
   (mount/stop #'imigresen-common.state.db.core/db
@@ -144,10 +154,7 @@
                            reitit.ring.coercion/coerce-response-middleware
                            ;; openapi feature
                            openapi/openapi-feature]
-        dev-middleware [;; reload namespaces
-                        reload/wrap-reload
-                        ;; lint
-                        lint/wrap-lint]]
+        dev-middleware []]
     (reitit-ring/ring-handler
      (reitit-ring/router
       (conj handlers (openapi) (ping))
@@ -156,7 +163,7 @@
        :data {:coercion reitit-coercion/coercion
               :muuntaja m/instance
               :middleware (if (imi-env/development? (imi-env/current-env))
-                            (conj global-middleware dev-middleware)
+                            (into [] cat [global-middleware dev-middleware])
                             global-middleware)}})
      (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
                          (reitit-swagger/create-swagger-ui-handler

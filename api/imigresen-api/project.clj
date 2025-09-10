@@ -59,6 +59,8 @@
                                   [metosin/spec-tools "0.10.7"]
                                   [metosin/jsonista "0.3.13"]
                                   [io.randomseed/phone-number "8.13.6-3"]
+                                  [io.github.tonsky/clj-reload "0.9.8"]
+                                  [watchtower "0.1.1"]
                                   ;; AWS dependencies
                                   [amazonica "0.3.168" :exclusions [com.amazonaws/aws-java-sdk
                                                                     com.amazonaws/amazon-kinesis-client
