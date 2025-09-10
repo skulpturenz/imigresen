@@ -20,6 +20,9 @@
                  [metosin/spec-tools "0.10.7"]
                  [org.clj-commons/pretty "3.4.1"]
                  [ring-logger "1.1.1"]
+                 ;; TODO: this is not a dep thats required for the prod build. import only
+                 ;; for dev
+                 [io.github.tonsky/clj-reload "0.9.8"]
                  ;; comment when dev - use checkout
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"] ;;
