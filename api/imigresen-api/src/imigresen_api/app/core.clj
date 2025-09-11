@@ -33,7 +33,8 @@
             [imigresen-common.state.keycloak.core]
             [ring.logger :as logger]
             [clj-reload.core :as reload]
-            [watchtower.core :as watchtower])
+            [watchtower.core :as watchtower]
+            [ring.adapter.jetty :as adapter])
   (:import (java.util UUID)
            (java.io Writer)))
 
@@ -179,3 +180,50 @@
 (def app (logger/wrap-with-logger (create-app (imi-core/handlers))
                                   {:log-fn (fn [{:keys [level throwable message]}]
                                              (tel/log! {:level level :data {:details message :ex throwable}}))}))
+
+;; -----------
+;; THIS WORKS
+(def server (adapter/run-jetty app {:port 3000 :join? false}))
+
+(defn -main [& _args]
+  (println "HERE!!")
+  (init)
+  ;; TODO: we need to join the server thread and destroy
+  ;;(destroy)
+  )
+
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn before-ns-unload
+  "Ensure proper shutdown before reloading namespaces
+
+   Only used in development"
+  []
+  (-> server
+      (.stop)))
+
+;; ------------
+;; BUT WANT TO MAKE IT WORK LIKE THIS
+;; when we create a server we add a global var and then the `before-ns-unload` hook
+;; grabs that and shutsdown the server
+;; it is reloading right now but after its reloaded something about the server is wrong
+;; because fails to fetch openapi.json
+
+;; (defn create-server [{:keys [init destroy] :as opts}]
+;;   (when init (init))
+;;   ;; TODO: destroy only after server has shutdown
+;;   ;; we need to know when `.stop` on server is called
+;;   (let [server (adapter/run-jetty app {:port 3000 :join? false})]
+;;     (intern *ns* 'server server)))
+
+;; (defn -main [& _args]
+;;   (create-server {:init init
+;;                   :destroy destroy}))
+
+;; #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+;; (defn before-ns-unload
+;;   "Ensure proper shutdown before reloading namespaces
+
+;;    Only used in development"
+;;   []
+;;   (-> @(resolve 'server)
+;;       (.stop)))

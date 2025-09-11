@@ -20,6 +20,7 @@
                  [metosin/spec-tools "0.10.7"]
                  [org.clj-commons/pretty "3.4.1"]
                  [ring-logger "1.1.1"]
+                 [ring/ring-jetty-adapter "1.14.2"]
                  ;; TODO: this is not a dep thats required for the prod build. import only
                  ;; for dev
                  [io.github.tonsky/clj-reload "0.9.8"]
@@ -94,21 +95,16 @@
                                    [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]
   :plugins [[lein-environ "LATEST"]
-            [lein-ring "LATEST" :auto-refresh? true]
             [lein-auto "LATEST"]
             [migratus-lein "0.7.3"]
             [lein-ancient "LATEST"]
             [dev.weavejester/lein-cljfmt "LATEST"]
             [lein-monolith "LATEST"]]
-  :ring {:init imigresen-api.app.core/init
-         :destroy imigresen-api.app.core/destroy
-         :handler imigresen-api.app.core/app
-         :nrepl {:start true :port 3001}}
   ;; uncomment to seed database
   ;; :migratus {:migration-dir "seeds"}
-  :aliases {"dev" ["ring" "server-headless"]
-            "build" ["ring" "uberjar"]
-            "build.watch" ["auto" "ring" "uberjar"]
+  :aliases {"dev" ["run"]
+            "build" ["uberjar"]
+            "build.watch" ["auto" "uberjar"]
             "test" ["test"]
             "test.watch" ["auto" "test"]
             "repl" ["repl"]}
