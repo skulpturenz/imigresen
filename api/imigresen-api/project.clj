@@ -22,8 +22,9 @@
                  [ring-logger "1.1.1"]
                  [ring/ring-jetty-adapter "1.14.2"]
                  ;; TODO: this is not a dep thats required for the prod build. import only
-                 ;; for dev
+                 ;; for dev and resolve dynamically so that we don't have to include it in prod
                  [io.github.tonsky/clj-reload "0.9.8"]
+                 [watchtower "0.1.1"]
                  ;; comment when dev - use checkout
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"] ;;
