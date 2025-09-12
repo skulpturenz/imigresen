@@ -1,8 +1,6 @@
 (ns imigresen-api.app.server
   (:require [imigresen-api.app.core :as core]
             [imigresen-common.app.logging :as imi-logging]
-            [clj-reload.core :as reload]
-            [watchtower.core :as watchtower]
             [ring.adapter.jetty :as adapter]
             [nrepl.server :as nrepl]
             [cider.nrepl :as cider]
@@ -21,17 +19,19 @@
                #'imigresen-common.state.flipt.core/flipt
                #'imigresen-common.state.keycloak.core/keycloak)
   (when (imi-env/development? (imi-env/current-env))
-    (reload/init {:output :verbose
-                  :unload-hook unload-hook
-                  :reload-hook reload-hook})
+    (require '[watchtower.core :as watchtower]
+             '[clj-reload.core :as reload])
+    ((resolve 'reload/init) {:output :verbose
+                             :unload-hook unload-hook
+                             :reload-hook reload-hook})
     (let [reload-count (atom 0)]
-      (watchtower/watcher watch-dirs
-                          (watchtower/rate 20)
-                          (watchtower/on-change (fn [files]
-                                                  (when (> @reload-count 0)
-                                                    (println "files changed: " (map #(.getPath %) files)))
-                                                  (reload/reload)
-                                                  (swap! reload-count inc)))))))
+      ((resolve 'watchtower/watcher) watch-dirs
+                                     ((resolve 'watchtower/rate) 20)
+                                     ((resolve 'watchtower/on-change) (fn [files]
+                                                                        (when (> @reload-count 0)
+                                                                          (println "files changed: " (map #(.getPath %) files)))
+                                                                        ((resolve 'reload/reload))
+                                                                        (swap! reload-count inc)))))))
 
 (defn destroy []
   #_{:clj-kondo/ignore [:unresolved-namespace]}
