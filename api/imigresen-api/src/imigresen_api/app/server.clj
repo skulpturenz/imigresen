@@ -25,13 +25,14 @@
                              :unload-hook unload-hook
                              :reload-hook reload-hook})
     (let [reload-count (atom 0)]
-      ((resolve 'watchtower/watcher) watch-dirs
-                                     ((resolve 'watchtower/rate) 20)
-                                     ((resolve 'watchtower/on-change) (fn [files]
-                                                                        (when (> @reload-count 0)
-                                                                          (println "files changed: " (map #(.getPath %) files)))
-                                                                        ((resolve 'reload/reload))
-                                                                        (swap! reload-count inc)))))))
+      (-> ((resolve 'watchtower/watcher*) watch-dirs)
+          ((resolve 'watchtower/rate) 20)
+          ((resolve 'watchtower/on-change) (fn [files]
+                                             (when (> @reload-count 0)
+                                               (println "files changed: " (map #(.getPath %) files)))
+                                             ((resolve 'reload/reload))
+                                             (swap! reload-count inc)))
+          ((resolve 'watchtower/watch))))))
 
 (defn destroy []
   #_{:clj-kondo/ignore [:unresolved-namespace]}
