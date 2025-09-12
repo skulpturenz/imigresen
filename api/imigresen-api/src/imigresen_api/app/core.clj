@@ -36,7 +36,8 @@
             [watchtower.core :as watchtower]
             [ring.adapter.jetty :as adapter]
             [nrepl.server :as nrepl]
-            [cider.nrepl :as cider])
+            [cider.nrepl :as cider]
+            [clojure.spec.alpha :as s])
   (:import (java.util UUID)
            (java.io Writer)))
 
@@ -188,13 +189,19 @@
                                   {:log-fn (fn [{:keys [level throwable message]}]
                                              (tel/log! {:level level :data {:details message :ex throwable}}))}))
 
-(def server (let [server (adapter/run-jetty app {:port 3000 :join? false})]
-              (println "Listening on port 3000")
+(def server (let [port (imi-env/env :port (s/or :number number?
+                                                :string imi-env/str->num) 3000)
+                  server (adapter/run-jetty app {:port port
+                                                 :join? false})]
+              (println "Listening on port" port)
               server))
 
-(def nrepl-server (let [server (nrepl/start-server :port 4321 :handler cider/cider-nrepl-handler)]
-                    (println "nREPL server listening on 4321")
-                    (spit ".nrepl-port" "4321")
+(def nrepl-server (let [port (imi-env/env :nrepl-port (s/or :number number?
+                                                            :string imi-env/str->num) 4321)
+                        server (nrepl/start-server :port port
+                                                   :handler cider/cider-nrepl-handler)]
+                    (println "nREPL server listening on port" port)
+                    (spit ".nrepl-port" port)
                     server))
 
 #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
