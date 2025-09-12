@@ -7,7 +7,8 @@
             [clojure.spec.alpha :as s]
             [imigresen-common.app.env :as imi-env]
             [mount.core :as mount]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:gen-class))
 
 (defn init! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
                 :or {unload-hook 'before-ns-unload
