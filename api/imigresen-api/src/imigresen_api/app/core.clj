@@ -189,25 +189,33 @@
                                   {:log-fn (fn [{:keys [level throwable message]}]
                                              (tel/log! {:level level :data {:details message :ex throwable}}))}))
 
-(def server (let [port (imi-env/env :port (s/or :number number?
-                                                :string imi-env/str->num) 3000)
-                  server (adapter/run-jetty app {:port port
-                                                 :join? false})]
-              (println "Listening on port" port)
-              server))
+(defn create-server [atom]
+  (reset! atom (let [port (imi-env/env :port (s/or :number number?
+                                                   :string imi-env/str->num) 3000)
+                     server (adapter/run-jetty app {:port port
+                                                    :join? false})]
+                 (println "Listening on port" port)
+                 server)))
 
-(def nrepl-server (let [port (imi-env/env :nrepl-port (s/or :number number?
-                                                            :string imi-env/str->num) 4321)
-                        server (nrepl/start-server :port port
-                                                   :handler cider/cider-nrepl-handler)]
-                    (println "nREPL server listening on port" port)
-                    (spit ".nrepl-port" port)
-                    server))
+(defn create-nrepl-server [atom]
+  (reset! atom (let [port (imi-env/env :nrepl-port (s/or :number number?
+                                                         :string imi-env/str->num) 4321)
+                     server (nrepl/start-server :port port
+                                                :handler cider/cider-nrepl-handler)]
+                 (println "nREPL server listening on port" port)
+                 (spit ".nrepl-port" port)
+                 server)))
+
+(def server (atom nil))
+
+(def nrepl-server (atom nil))
 
 #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
 (defn before-ns-unload []
-  (.stop server)
-  (nrepl/stop-server nrepl-server))
+  (when @server
+    (.stop @server))
+  (when @nrepl-server
+    (nrepl/stop-server nrepl-server)))
 
 ;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L41C1-L45C16
 (defmacro ^{:private true} in-thread
@@ -226,5 +234,7 @@
 
 (defn -main [& _args]
   (init)
-  (add-destroy-hook server (. (Runtime/getRuntime)
-                              (addShutdownHook (Thread. destroy)))))
+  (create-server server)
+  (create-nrepl-server nrepl-server)
+  (add-destroy-hook @server (. (Runtime/getRuntime)
+                               (addShutdownHook (Thread. destroy)))))
