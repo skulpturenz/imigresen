@@ -32,7 +32,7 @@
                  [imigresen/common "SNAPSHOT"] ;;
                  ]
   :resource-paths ["resources"]
-  :main ^:skip-aot imigresen-api.app.core
+  :main ^:skip-aot imigresen-api.app.server
   :target-path "target/%s"
   :profiles {:dev {:env {:java-env "development"
                          :taoensso-telemere-rt-min-level ":debug"}
@@ -84,7 +84,7 @@
              :uberjar {:env {:java-env "production"
                              :timbre-level "ERROR"
                              :log-level "ERROR"}
-                       :aot [imigresen-api.app.core]
+                       :aot [imigresen-api.app.server]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]
                        ;; checkout for dev
