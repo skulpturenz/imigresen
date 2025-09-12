@@ -8,7 +8,8 @@
             [cider.nrepl :as cider]
             [clojure.spec.alpha :as s]
             [imigresen-common.app.env :as imi-env]
-            [mount.core :as mount]))
+            [mount.core :as mount]
+            [clojure.java.io :as io]))
 
 (defn init! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
                 :or {unload-hook 'before-ns-unload
@@ -37,7 +38,6 @@
   (mount/stop #'imigresen-common.state.db.core/db
               #'imigresen-common.state.flipt.core/flipt
               #'imigresen-common.state.keycloak.core/keycloak))
-
 
 (defn create-server! [atom]
   (reset! atom (let [port (imi-env/env :port (s/or :number number?
@@ -78,8 +78,12 @@
 (defn start! [server nrepl-server]
   (create-server! server)
   (create-nrepl-server! nrepl-server)
-  (add-destroy-hook @server (. (Runtime/getRuntime)
-                               (addShutdownHook (Thread. destroy)))))
+  (let [shutdown-hook (fn []
+                        (doseq [hook [destroy
+                                      (fn [] (io/delete-file ".nrepl-port" true))]]
+                          (hook)))]
+    (add-destroy-hook @server (. (Runtime/getRuntime)
+                                 (addShutdownHook (Thread. shutdown-hook))))))
 
 #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
 (defn before-ns-unload []
