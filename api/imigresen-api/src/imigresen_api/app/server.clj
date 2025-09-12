@@ -39,7 +39,7 @@
               #'imigresen-common.state.keycloak.core/keycloak))
 
 
-(defn create-server [atom]
+(defn create-server! [atom]
   (reset! atom (let [port (imi-env/env :port (s/or :number number?
                                                    :string imi-env/str->num) 3000)
                      server (adapter/run-jetty core/app {:port port
@@ -47,7 +47,7 @@
                  (println "Listening on port" port)
                  server)))
 
-(defn create-nrepl-server [atom]
+(defn create-nrepl-server! [atom]
   (reset! atom (let [port (imi-env/env :nrepl-port (s/or :number number?
                                                          :string imi-env/str->num) 4321)
                      server (nrepl/start-server :port port
@@ -76,8 +76,8 @@
         (finally (when destroy (destroy))))))
 
 (defn start! [server nrepl-server]
-  (create-server server)
-  (create-nrepl-server nrepl-server)
+  (create-server! server)
+  (create-nrepl-server! nrepl-server)
   (add-destroy-hook @server (. (Runtime/getRuntime)
                                (addShutdownHook (Thread. destroy)))))
 
