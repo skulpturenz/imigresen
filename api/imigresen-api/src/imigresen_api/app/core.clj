@@ -188,7 +188,7 @@
                                   {:log-fn (fn [{:keys [level throwable message]}]
                                              (tel/log! {:level level :data {:details message :ex throwable}}))}))
 
-(def server (let [server (adapter/run-jetty app {:port 3000 :join? false :daemon? true})]
+(def server (let [server (adapter/run-jetty app {:port 3000 :join? false})]
               (println "Listening on port 3000")
               server))
 
