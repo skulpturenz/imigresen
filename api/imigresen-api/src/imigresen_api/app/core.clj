@@ -41,10 +41,10 @@
   (:import (java.util UUID)
            (java.io Writer)))
 
-(defn init [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
-               :or {unload-hook 'before-ns-unload
-                    reload-hook 'after-ns-reload
-                    watch-dirs ["src" "checkouts" "resources"]}}]
+(defn init! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
+                :or {unload-hook 'before-ns-unload
+                     reload-hook 'after-ns-reload
+                     watch-dirs ["src" "checkouts" "resources"]}}]
   (imi-logging/init-logging)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt
@@ -210,13 +210,6 @@
 
 (def nrepl-server (atom nil))
 
-#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
-(defn before-ns-unload []
-  (when @server
-    (.stop @server))
-  (when @nrepl-server
-    (nrepl/stop-server nrepl-server)))
-
 ;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L41C1-L45C16
 (defmacro ^{:private true} in-thread
   "Execute the body in a new thread and return the Thread object."
@@ -232,9 +225,22 @@
    (try (.join server)
         (finally (when destroy (destroy))))))
 
-(defn -main [& _args]
-  (init)
+(defn start! [server nrepl-server]
   (create-server server)
   (create-nrepl-server nrepl-server)
   (add-destroy-hook @server (. (Runtime/getRuntime)
                                (addShutdownHook (Thread. destroy)))))
+
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn before-ns-unload []
+  (when @server
+    (.stop @server))
+  (when @nrepl-server
+    (nrepl/stop-server @nrepl-server)))
+
+#_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
+(defn after-ns-reload [] (start! server nrepl-server))
+
+(defn -main [& _args]
+  (start! server nrepl-server)
+  (init!))
