@@ -34,19 +34,26 @@
             [ring.logger :as logger]
             [clj-reload.core :as reload]
             [watchtower.core :as watchtower]
-            [ring.adapter.jetty :as adapter])
+            [ring.adapter.jetty :as adapter]
+            [nrepl.server :as nrepl]
+            [cider.nrepl :as cider])
   (:import (java.util UUID)
            (java.io Writer)))
 
-(defn init []
+(defn init [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
+               :or {unload-hook 'before-ns-unload
+                    reload-hook 'after-ns-reload
+                    watch-dirs ["src" "checkouts" "resources"]}}]
   (imi-logging/init-logging)
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt
                #'imigresen-common.state.keycloak.core/keycloak)
   (when (imi-env/development? (imi-env/current-env))
-    (reload/init {:output :verbose})
+    (reload/init {:output :verbose
+                  :unload-hook unload-hook
+                  :reload-hook reload-hook})
     (let [reload-count (atom 0)]
-      (watchtower/watcher ["src" "checkouts"]
+      (watchtower/watcher watch-dirs
                           (watchtower/rate 20)
                           (watchtower/on-change (fn [files]
                                                   (when (> @reload-count 0)
@@ -181,49 +188,36 @@
                                   {:log-fn (fn [{:keys [level throwable message]}]
                                              (tel/log! {:level level :data {:details message :ex throwable}}))}))
 
-;; -----------
-;; THIS WORKS
-(def server (adapter/run-jetty app {:port 3000 :join? false}))
+(def server (let [server (adapter/run-jetty app {:port 3000 :join? false :daemon? true})]
+              (println "Listening on port 3000")
+              server))
 
-(defn -main [& _args]
-  (println "HERE!!")
-  (init)
-  ;; TODO: we need to join the server thread and destroy
-  ;;(destroy)
-  )
+(def nrepl-server (let [server (nrepl/start-server :port 4321 :handler cider/cider-nrepl-handler)]
+                    (println "nREPL server listening on 4321")
+                    (spit ".nrepl-port" "4321")
+                    server))
 
 #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
-(defn before-ns-unload
-  "Ensure proper shutdown before reloading namespaces
+(defn before-ns-unload []
+  (.stop server)
+  (nrepl/stop-server nrepl-server))
 
-   Only used in development"
-  []
-  (-> server
-      (.stop)))
+;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L41C1-L45C16
+(defmacro ^{:private true} in-thread
+  "Execute the body in a new thread and return the Thread object."
+  [& body]
+  `(doto (Thread. (fn [] ~@body))
+     (.start)))
 
-;; ------------
-;; BUT WANT TO MAKE IT WORK LIKE THIS
-;; when we create a server we add a global var and then the `before-ns-unload` hook
-;; grabs that and shutsdown the server
-;; it is reloading right now but after its reloaded something about the server is wrong
-;; because fails to fetch openapi.json
+;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L47
+(defn- add-destroy-hook
+  "Add a destroy hook to be executed when the server ends."
+  [server destroy]
+  (in-thread
+   (try (.join server)
+        (finally (when destroy (destroy))))))
 
-;; (defn create-server [{:keys [init destroy] :as opts}]
-;;   (when init (init))
-;;   ;; TODO: destroy only after server has shutdown
-;;   ;; we need to know when `.stop` on server is called
-;;   (let [server (adapter/run-jetty app {:port 3000 :join? false})]
-;;     (intern *ns* 'server server)))
-
-;; (defn -main [& _args]
-;;   (create-server {:init init
-;;                   :destroy destroy}))
-
-;; #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
-;; (defn before-ns-unload
-;;   "Ensure proper shutdown before reloading namespaces
-
-;;    Only used in development"
-;;   []
-;;   (-> @(resolve 'server)
-;;       (.stop)))
+(defn -main [& _args]
+  (init)
+  (add-destroy-hook server (. (Runtime/getRuntime)
+                              (addShutdownHook (Thread. destroy)))))

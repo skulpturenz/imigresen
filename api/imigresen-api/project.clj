@@ -25,6 +25,8 @@
                  ;; for dev and resolve dynamically so that we don't have to include it in prod
                  [io.github.tonsky/clj-reload "0.9.8"]
                  [watchtower "0.1.1"]
+                 [nrepl/nrepl "1.4.0"]
+                 [cider/cider-nrepl "0.57.0"]
                  ;; comment when dev - use checkout
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"] ;;
