@@ -16,7 +16,17 @@
                  [com.taoensso/truss "2.1.0"]
                  [metosin/spec-tools "0.10.7"]
                  [org.clojure/core.cache "1.1.234"]]
-  :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+  :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+                       :uberjar-exclusions [#".*_test\.(clj|java)"]
+                       :aot :all
+                       :dependencies [[org.postgresql/postgresql "42.7.7" :scope "provided"]
+                                      [clj-test-containers/clj-test-containers "0.7.4" :scope "provided"]
+                                      [org.testcontainers/postgresql "1.21.2" :scope "provided"]
+                                      [metosin/jsonista "0.3.13" :scope "provided"]
+                                      [ring/ring-core "1.14.2" :scope "provided"]
+                                      [mount "0.1.23" :scope "provided"]
+                                      [com.zaxxer/HikariCP "6.3.0" :scope "provided"]
+                                      [migratus "1.6.4" :scope "provided"]]}
              :test {:env {:timbre-level "ERROR"
                           :log-level "ERROR"}
                     :dependencies [[org.postgresql/postgresql "42.7.7"]

@@ -36,7 +36,11 @@
              :uberjar {:env {:java-env "production"
                              :timbre-level "ERROR"
                              :log-level "ERROR"}
-                       :aot [imigresen-api.app.server]
+                       :uberjar-exclusions [#".*_test\.(clj|java)"]
+                       :aot :all
+                       :dependencies [[ring/ring-devel "1.14.1" :scope "provided"]
+                                      [ring/ring-mock "0.6.1" :scope "provided"]
+                                      [org.clojure/data.json "2.5.1" :scope "provided"]]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]}
              :test {:env {:timbre-level "ERROR"
