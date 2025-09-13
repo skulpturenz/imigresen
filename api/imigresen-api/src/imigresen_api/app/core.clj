@@ -10,9 +10,6 @@
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
-            [ring.middleware.reload :as reload]
-            [ring.middleware.lint :as lint]
-            [mount.core :as mount]
             [imigresen-api.api.core :as imi-core]
             [imigresen-common.state.db.core]
             [imigresen-common.state.flipt.core]
@@ -24,7 +21,6 @@
             [muuntaja.core :as m]
             [camel-snake-kebab.core :as csk]
             [imigresen-common.app.swagger :as imi-swagger]
-            [imigresen-common.app.logging :as imi-logging]
             [clj-commons.format.exceptions :as pexceptions]
             [taoensso.telemere :as tel]
             [sentry-clj.core :as sentry]
@@ -36,17 +32,6 @@
             [ring.logger :as logger])
   (:import (java.util UUID)
            (java.io Writer)))
-
-(defn init []
-  (imi-logging/init-logging)
-  (mount/start #'imigresen-common.state.db.core/db
-               #'imigresen-common.state.flipt.core/flipt
-               #'imigresen-common.state.keycloak.core/keycloak))
-
-(defn destroy []
-  (mount/stop #'imigresen-common.state.db.core/db
-              #'imigresen-common.state.flipt.core/flipt
-              #'imigresen-common.state.keycloak.core/keycloak))
 
 (defn- response-writer ^Writer [response output-stream]
   (if-let [charset (ring-res/get-charset response)]
@@ -144,10 +129,7 @@
                            reitit.ring.coercion/coerce-response-middleware
                            ;; openapi feature
                            openapi/openapi-feature]
-        dev-middleware [;; reload namespaces
-                        reload/wrap-reload
-                        ;; lint
-                        lint/wrap-lint]]
+        dev-middleware []]
     (reitit-ring/ring-handler
      (reitit-ring/router
       (conj handlers (openapi) (ping))
@@ -156,7 +138,7 @@
        :data {:coercion reitit-coercion/coercion
               :muuntaja m/instance
               :middleware (if (imi-env/development? (imi-env/current-env))
-                            (conj global-middleware dev-middleware)
+                            (into [] cat [global-middleware dev-middleware])
                             global-middleware)}})
      (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
                          (reitit-swagger/create-swagger-ui-handler

@@ -25,7 +25,7 @@
 			}
 		},
 		{
-			"name": "Imigresen API",
+			"name": "imigresen-api",
 			"projectType": "Leiningen",
 			"autoSelectForJackIn": true,
 			"autoSelectForConnect": true,

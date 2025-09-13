@@ -8,7 +8,7 @@ COPY . ./imigresen-api
 
 RUN cd skulpture-eventing && lein install
 RUN cd imigresen-common && lein install
-RUN cd imigresen-api && lein build
+RUN cd imigresen-api && lein build.prod
 
 FROM eclipse-temurin:24-jre-alpine
 
@@ -18,5 +18,5 @@ COPY --from=build /build/imigresen-api/target/uberjar/api-0.1.0-SNAPSHOT-standal
 ENTRYPOINT [ "java", "-jar", "/app/api-standalone.jar" ]
 
 # note: if migrations are not included then try this
-# see: 
+# see:
 # ENTRYPOINT ["java", "-showversion", "-cp", "/app/common-standalone.jar:/app/api-standalone.jar", "imigresen_api.app.core.main"]
