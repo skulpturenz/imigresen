@@ -26,10 +26,11 @@
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"]]
   :resource-paths ["resources"]
-  :main ^:skip-aot imigresen-api.app.server
+
   :target-path "target/%s"
   :profiles {:dev {:env {:java-env "development"
                          :taoensso-telemere-rt-min-level ":debug"}
+                   :main ^:skip-aot imigresen-api.app.server
                    :dependencies [[ring/ring-devel "1.14.1"]
                                   [io.github.tonsky/clj-reload "0.9.8"]
                                   [watchtower "0.1.1"]]}
@@ -38,6 +39,7 @@
                              :log-level "ERROR"}
                        :uberjar-exclusions [#".*_test\.(clj|java)"]
                        :aot :all
+                       :main imigresen-api.app.server
                        :dependencies [[ring/ring-devel "1.14.1" :scope "provided"]
                                       [ring/ring-mock "0.6.1" :scope "provided"]
                                       [org.clojure/data.json "2.5.1" :scope "provided"]]
@@ -46,6 +48,7 @@
              :test {:env {:timbre-level "ERROR"
                           :log-level "ERROR"
                           :java-env "test"}
+                    :main ^:skip-aot imigresen-api.app.server
                     :dependencies [[org.clojure/data.json "2.5.1"]
                                    [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]
@@ -56,8 +59,6 @@
             [dev.weavejester/lein-cljfmt "LATEST"]
             [lein-monolith "LATEST"]
             [lein-checkout-deps "1.0.0"]]
-  ;; uncomment to seed database
-  ;; :migratus {:migration-dir "seeds"}
   :aliases {"dev" ["do" "deps," "run"]
             "build.prod" ["uberjar"]
             "build.watch" ["auto" "build.prod"]
