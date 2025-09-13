@@ -29,8 +29,9 @@
                                    [migratus "1.6.4"]]
                     :injections [(require 'clojure.set)]}}
   :test-paths ["src"]
-  :aliases {"build" ["uberjar"]
-            "build.watch" ["auto" "uberjar"]
+  :aliases {"build.prod" ["uberjar"]
+            "build.dev" ["do" "jar," "install"]
+            "build.watch" ["auto" "build.dev"]
             "test" ["test"]
             "test.watch" ["auto" "test"]}
   :test-selectors {:default (complement :integration)

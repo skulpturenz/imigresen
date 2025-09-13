@@ -55,8 +55,8 @@
   ;; uncomment to seed database
   ;; :migratus {:migration-dir "seeds"}
   :aliases {"dev" ["do" "deps," "run"]
-            "build" ["uberjar"]
-            "build.watch" ["auto" "uberjar"]
+            "build.prod" ["uberjar"]
+            "build.watch" ["auto" "build.prod"]
             "test" ["do", "deps," "test"]
             "test.watch" ["do" "deps," "auto" "test"]
             "repl" ["repl"]}
