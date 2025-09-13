@@ -10,32 +10,39 @@
             [clojure.java.io :as io])
   (:gen-class))
 
-(defn init! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
-                :or {unload-hook 'before-ns-unload
-                     reload-hook 'after-ns-reload
-                     watch-dirs ["src" "checkouts" "resources"]}}]
+(def server (atom nil))
+
+(def nrepl-server (atom nil))
+
+(defn watch! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
+                 :or {unload-hook 'before-ns-unload
+                      reload-hook 'after-ns-reload
+                      watch-dirs ["src" "checkouts" "resources"]}}]
+  (require '[watchtower.core :as watchtower]
+           '[clj-reload.core :as reload])
+  ((resolve 'reload/init) {:output :verbose
+                           :unload-hook unload-hook
+                           :reload-hook reload-hook})
+  (let [reload-count (atom 0)]
+    (-> ((resolve 'watchtower/watcher*) watch-dirs)
+        ((resolve 'watchtower/rate) 20)
+        ((resolve 'watchtower/on-change) (fn [files]
+                                           (when (> @reload-count 0)
+                                             (println "files changed: " (map #(.getPath %) files)))
+                                           ((resolve 'reload/reload))
+                                           (swap! reload-count inc)))
+        ((resolve 'watchtower/watch)))))
+
+(defn init! [& _args]
   (imi-logging/init-logging)
   #_{:clj-kondo/ignore [:unresolved-namespace]}
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt
                #'imigresen-common.state.keycloak.core/keycloak)
   (when (imi-env/development? (imi-env/current-env))
-    (require '[watchtower.core :as watchtower]
-             '[clj-reload.core :as reload])
-    ((resolve 'reload/init) {:output :verbose
-                             :unload-hook unload-hook
-                             :reload-hook reload-hook})
-    (let [reload-count (atom 0)]
-      (-> ((resolve 'watchtower/watcher*) watch-dirs)
-          ((resolve 'watchtower/rate) 20)
-          ((resolve 'watchtower/on-change) (fn [files]
-                                             (when (> @reload-count 0)
-                                               (println "files changed: " (map #(.getPath %) files)))
-                                             ((resolve 'reload/reload))
-                                             (swap! reload-count inc)))
-          ((resolve 'watchtower/watch))))))
+    (watch!)))
 
-(defn destroy []
+(defn destroy! []
   #_{:clj-kondo/ignore [:unresolved-namespace]}
   (mount/stop #'imigresen-common.state.db.core/db
               #'imigresen-common.state.flipt.core/flipt
@@ -58,19 +65,15 @@
                  (spit ".nrepl-port" port)
                  server)))
 
-(def server (atom nil))
-
-(def nrepl-server (atom nil))
-
 ;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L41C1-L45C16
-(defmacro ^{:private true} in-thread
+(defmacro in-thread
   "Execute the body in a new thread and return the Thread object."
   [& body]
   `(doto (Thread. (fn [] ~@body))
      (.start)))
 
 ;; from: https://github.com/MichaelBlume/ring-server/blob/master/src/ring/server/standalone.clj#L47
-(defn- add-destroy-hook
+(defn add-destroy-hook!
   "Add a destroy hook to be executed when the server ends."
   [server destroy]
   (in-thread
@@ -81,11 +84,11 @@
   (create-server! server)
   (create-nrepl-server! nrepl-server)
   (let [shutdown-hook (fn []
-                        (doseq [hook [destroy
+                        (doseq [hook [destroy!
                                       (fn [] (io/delete-file ".nrepl-port" true))]]
                           (hook)))]
-    (add-destroy-hook @server (. (Runtime/getRuntime)
-                                 (addShutdownHook (Thread. shutdown-hook))))))
+    (add-destroy-hook! @server (. (Runtime/getRuntime)
+                                  (addShutdownHook (Thread. shutdown-hook))))))
 
 #_{:clojure-lsp/ignore [:clojure-lsp/unused-public-var]}
 (defn before-ns-unload []
