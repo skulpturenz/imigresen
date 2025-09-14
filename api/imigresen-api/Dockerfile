@@ -6,9 +6,9 @@ COPY --from=common . ./imigresen-common
 COPY --from=eventing . ./skulpture-eventing
 COPY . ./imigresen-api
 
-RUN cd skulpture-eventing && lein install
-RUN cd imigresen-common && lein install
-RUN cd imigresen-api && lein build.prod
+RUN cd skulpture-eventing && lein test && lein install
+RUN cd imigresen-common && lein test && lein install
+RUN cd imigresen-api && lein test && lein build.prod
 
 FROM eclipse-temurin:24-jre-alpine
 
