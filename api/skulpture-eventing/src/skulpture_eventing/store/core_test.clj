@@ -4,7 +4,15 @@
             [clj-uuid :as uuid]
             [java-time.api :as jt]
             [skulpture-eventing.store.agents :as agents]
-            [skulpture-eventing.test-utils.db.mock :as db-mock]))
+            [skulpture-eventing.test-utils.db.mock :as db-mock]
+            [mount.core :as mount]))
+
+(defn fixture [f]
+  (mount/start #'skulpture-eventing.test-utils.db.mock/db)
+  (f)
+  (mount/stop #'skulpture-eventing.test-utils.db.mock/db))
+
+(t/use-fixtures :once fixture)
 
 (t/deftest ^:unit persist
   (t/testing "persists events"
@@ -79,7 +87,7 @@
       (t/is (= (:revision (first events)) 3))
       (t/is (= (:revision (second events)) 4)))))
 
-(t/deftest load-by-entity-id-and-revision
+(t/deftest ^:unit load-by-entity-id-and-revision
   (t/testing "without snapshots"
     (let [entity-id (str (uuid/v7))
           events [{:event-agent "test"
@@ -124,7 +132,7 @@
       (t/is (= (:revision (first events)) 1))
       (t/is (= (:revision (second events)) 2)))))
 
-(t/deftest load-by-entity-ids
+(t/deftest ^:unit load-by-entity-ids
   (t/testing "without snapshots"
     (let [first-entity-id (str (uuid/v7))
           second-entity-id (str (uuid/v7))
