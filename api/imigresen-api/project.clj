@@ -45,10 +45,12 @@
                                       [org.clojure/data.json "2.5.1" :scope "provided"]]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]}
+             :kaocha {:dependencies [[lambdaisland/kaocha "1.91.1392"]
+                                     [org.clojure/data.json "2.5.1"]
+                                     [ring/ring-mock "0.6.1"]]}
              :test {:env {:timbre-level "ERROR"
                           :log-level "ERROR"
                           :java-env "test"}
-                    :main ^:skip-aot imigresen-api.app.server
                     :dependencies [[org.clojure/data.json "2.5.1"]
                                    [ring/ring-mock "0.6.1"]]}}
   :test-paths ["src"]
@@ -62,23 +64,6 @@
   :aliases {"dev" ["do" "deps," "run"]
             "build.prod" ["uberjar"]
             "build.watch" ["auto" "build.prod"]
-            "test" ["do", "deps," "test"]
-            "test.watch" ["do" "deps," "auto" "test"]
-            "repl" ["repl"]}
-  :test-selectors {:default (complement :integration)
-                   :unit (fn
-                           ([m] (:unit m))
-                           ([m s]
-                            (and
-                             (:unit m)
-                             (or
-                              (clojure.string/includes? (str (:ns m)) (name s))
-                              (clojure.string/includes? (str (:name m)) (name s))))))
-                   :integration (fn
-                                  ([m] (:integration m))
-                                  ([m s]
-                                   (and
-                                    (:integration m)
-                                    (or
-                                     (clojure.string/includes? (str (:ns m)) (name s))
-                                     (clojure.string/includes? (str (:name m)) (name s))))))})
+            "test" ["do", "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
+            "test.watch" ["do" "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner" "--watch"]
+            "repl" ["repl"]})
