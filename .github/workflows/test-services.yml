@@ -29,7 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Test API
+      - name: Test skulpture-eventing
         working-directory: api/skulpture-eventing
         run: |
             docker compose -f docker-compose.test.yml up --exit-code-from skulpture-eventing
@@ -55,7 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Test API
+      - name: Test imigresen-common
         working-directory: api/imigresen-common
         run: |
             docker compose -f docker-compose.test.yml up --exit-code-from imigresen-common
@@ -81,7 +81,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Test API
+      - name: Test imigresen-api
         working-directory: api/imigresen-api
         run: |
             docker compose -f docker-compose.test.yml up --exit-code-from imigresen-api
