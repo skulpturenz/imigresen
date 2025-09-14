@@ -39,7 +39,7 @@
   (mount/start #'imigresen-common.state.db.core/db
                #'imigresen-common.state.flipt.core/flipt
                #'imigresen-common.state.keycloak.core/keycloak)
-  (when (imi-env/development? (imi-env/current-env))
+  (when (imi-env/local? (imi-env/current-env))
     (watch!)))
 
 (defn destroy! []

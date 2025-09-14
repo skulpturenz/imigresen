@@ -10,7 +10,7 @@
 	],
 	"containerEnv": {
 		"SERVICE_NAME": "imigresen-api",
-		"JAVA_ENV": "development"
+		"JAVA_ENV": "local"
 		//// rollout
 		// "ROLLOUT_URL": "",
 		// "ROLLOUT_TOKEN": "",
