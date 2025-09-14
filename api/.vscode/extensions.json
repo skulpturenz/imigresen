@@ -3,6 +3,7 @@
 		"betterthantomorrow.calva",
 		"Gruntfuggly.todo-tree",
 		"IBM.output-colorizer",
-		"ms-ossdata.vscode-postgresql"
-	]
+		"ms-ossdata.vscode-postgresql",
+		"EditorConfig.EditorConfig"
+	],
 }

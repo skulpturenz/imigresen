@@ -3,6 +3,7 @@
 		"esbenp.prettier-vscode",
 		"Gruntfuggly.todo-tree",
 		"IBM.output-colorizer",
-		"dbaeumer.vscode-eslint"
-	]
+		"dbaeumer.vscode-eslint",
+		"EditorConfig.EditorConfig"
+	],
 }
