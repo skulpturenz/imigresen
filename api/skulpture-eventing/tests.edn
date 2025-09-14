@@ -1,0 +1,16 @@
+;; https://cljdoc.org/d/lambdaisland/kaocha/1.91.1392/doc/readme
+
+#kaocha/v1
+ {:tests [{:id          :unit
+           :test-paths  ["test" "src"]
+           :ns-patterns [".*"]
+           :focus-meta [:unit]
+           :skip-meta [:integration]}
+          {:id          :integration
+           :test-paths  ["test" "src"]
+           :ns-patterns [".*"]
+           :focus-meta [:integration]
+           :skip-meta [:unit]}]
+  :kaocha/reporter [kaocha.report.progress/report]
+  :color? #profile {:default true :ci false}
+  :plugins [:kaocha.plugin/print-invocations]}

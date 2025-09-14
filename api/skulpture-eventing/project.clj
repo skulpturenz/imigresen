@@ -27,37 +27,22 @@
                                       [mount "0.1.23" :scope "provided"]
                                       [com.zaxxer/HikariCP "6.3.0" :scope "provided"]
                                       [migratus "1.6.4" :scope "provided"]]}
-             :test {:env {:timbre-level "ERROR"
-                          :log-level "ERROR"}
-                    :dependencies [[org.postgresql/postgresql "42.7.7"]
-                                   [clj-test-containers/clj-test-containers "0.7.4"]
-                                   [org.testcontainers/postgresql "1.21.2"]
-                                   [metosin/jsonista "0.3.13"]
-                                   [ring/ring-core "1.14.2"]
-                                   [mount "0.1.23"]
-                                   [com.zaxxer/HikariCP "6.3.0"]
-                                   [migratus "1.6.4"]]
-                    :injections [(require 'clojure.set)]}}
+             :kaocha {:env {:timbre-level "ERROR"
+                            :log-level "ERROR"
+                            :java-env "test"}
+                      :dependencies [[lambdaisland/kaocha "1.91.1392"]
+                                     [org.postgresql/postgresql "42.7.7"]
+                                     [clj-test-containers/clj-test-containers "0.7.4"]
+                                     [org.testcontainers/postgresql "1.21.2"]
+                                     [metosin/jsonista "0.3.13"]
+                                     [ring/ring-core "1.14.2"]
+                                     [mount "0.1.23"]
+                                     [com.zaxxer/HikariCP "6.3.0"]
+                                     [migratus "1.6.4"]]
+                      :injections [(require 'clojure.set)]}}
   :test-paths ["src"]
   :aliases {"build.prod" ["uberjar"]
             "build.dev" ["do" "jar," "install"]
             "build.watch" ["auto" "build.dev"]
-            "test" ["test"]
-            "test.watch" ["auto" "test"]}
-  :test-selectors {:default (complement :integration)
-                   :unit (fn
-                           ([m] (:unit m))
-                           ([m s]
-                            (and
-                             (:unit m)
-                             (or
-                              (clojure.string/includes? (str (:ns m)) (name s))
-                              (clojure.string/includes? (str (:name m)) (name s))))))
-                   :integration (fn
-                                  ([m] (:integration m))
-                                  ([m s]
-                                   (and
-                                    (:integration m)
-                                    (or
-                                     (clojure.string/includes? (str (:ns m)) (name s))
-                                     (clojure.string/includes? (str (:name m)) (name s))))))})
+            "test" ["do", "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
+            "test.watch" ["do" "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner" "--watch"]})

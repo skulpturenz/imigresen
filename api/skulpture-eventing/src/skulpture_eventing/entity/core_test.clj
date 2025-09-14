@@ -7,14 +7,17 @@
             [skulpture-eventing.store.core :as store]
             [skulpture-eventing.test-utils.db.mock :as db-mock]
             [spec-tools.data-spec :as ds]
-            [taoensso.truss :as truss]))
+            [taoensso.truss :as truss]
+            [mount.core :as mount]))
 
 (defn fixture [f]
+  (mount/start #'skulpture-eventing.test-utils.db.mock/db)
   (swap! entity/schema-registry conj {::test (ds/spec {:name ::test
                                                        :spec {:a integer?
                                                               :b integer?}})})
   (f)
-  (swap! entity/schema-registry dissoc ::test))
+  (swap! entity/schema-registry dissoc ::test)
+  (mount/stop #'skulpture-eventing.test-utils.db.mock/db))
 
 (t/use-fixtures :once fixture)
 

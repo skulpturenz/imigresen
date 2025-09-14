@@ -45,15 +45,12 @@
                                       [org.clojure/data.json "2.5.1" :scope "provided"]]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]}
-             :kaocha {:dependencies [[lambdaisland/kaocha "1.91.1392"]
+             :kaocha {:env {:timbre-level "ERROR"
+                            :log-level "ERROR"
+                            :java-env "test"}
+                      :dependencies [[lambdaisland/kaocha "1.91.1392"]
                                      [org.clojure/data.json "2.5.1"]
-                                     [ring/ring-mock "0.6.1"]]}
-             :test {:env {:timbre-level "ERROR"
-                          :log-level "ERROR"
-                          :java-env "test"}
-                    :dependencies [[org.clojure/data.json "2.5.1"]
-                                   [ring/ring-mock "0.6.1"]]}}
-  :test-paths ["src"]
+                                     [ring/ring-mock "0.6.1"]]}}
   :plugins [[lein-environ "LATEST"]
             [lein-auto "LATEST"]
             [migratus-lein "0.7.3"]
