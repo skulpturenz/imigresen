@@ -1,7 +1,13 @@
 services:
   imigresen-api:
     image: clojure
-    command: sh -c "cd /skulpture-eventing && lein install && cd /imigresen-common && lein install && cd /imigresen-api && lein test"
+    command: >
+      sh -c "
+      cd /skulpture-eventing && 
+      lein install && 
+      cd /imigresen-common && 
+      lein install && 
+      cd /imigresen-api && lein cljfmt check && lein test"
     volumes:
       - .:/imigresen-api
       - ../imigresen-common:/imigresen-common

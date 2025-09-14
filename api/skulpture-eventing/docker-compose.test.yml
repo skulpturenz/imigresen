@@ -1,7 +1,9 @@
 services:
   skulpture-eventing:
     image: clojure
-    command: sh -c "cd /skulpture-eventing && lein test"
+    command: >
+      sh -c "
+      cd /skulpture-eventing && lein cljfmt check && lein test"
     volumes:
       - .:/skulpture-eventing
       - /var/run/docker.sock:/var/run/docker.sock:ro
