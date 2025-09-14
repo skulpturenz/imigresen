@@ -1,0 +1,9 @@
+services:
+  imigresen-api:
+    image: clojure
+    command: sh -c "cd /skulpture-eventing && lein test"
+    volumes:
+      - .:/skulpture-eventing
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      JAVA_ENV: "test"
