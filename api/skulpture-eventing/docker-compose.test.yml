@@ -1,5 +1,5 @@
 services:
-  imigresen-api:
+  skulpture-eventing:
     image: clojure
     command: sh -c "cd /skulpture-eventing && lein test"
     volumes:
