@@ -137,7 +137,7 @@
        :validate rs/validate
        :data {:coercion reitit-coercion/coercion
               :muuntaja m/instance
-              :middleware (if (imi-env/development? (imi-env/current-env))
+              :middleware (if (imi-env/local? (imi-env/current-env))
                             (into [] cat [global-middleware dev-middleware])
                             global-middleware)}})
      (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
