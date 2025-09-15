@@ -26,8 +26,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       '@automerge/automerge-repo-network-websocket':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.3.0
+        version: 2.3.0
       '@automerge/automerge-repo-storage-indexeddb':
         specifier: ^2.1.0
         version: 2.1.0
@@ -139,7 +139,7 @@ importers:
         version: 2.1.0
       '@chromatic-com/storybook':
         specifier: latest
-        version: 3.2.7(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
+        version: 4.1.1(storybook@8.6.14(prettier@3.6.2))
       '@eslint/js':
         specifier: ^9.32.0
         version: 9.32.0
@@ -302,8 +302,8 @@ packages:
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
 
-  '@automerge/automerge-repo-network-websocket@2.1.0':
-    resolution: {integrity: sha512-OeXVw9Ir3piWmloOwZYkH+zKhVCzf9XC5URz/HF+dalllC8Tnz8Xht+XkJcfkhFS/QvqEBN6Neu6du3MOAmhbA==}
+  '@automerge/automerge-repo-network-websocket@2.3.0':
+    resolution: {integrity: sha512-1NddZXFu9Ry2Pfy7p/wbvG8TcsPvv87NPhD7+aiLb8miWrk1TjHYEUbwRQPMUN2lKAcDtnbpMZbJxbwgItxFWA==}
 
   '@automerge/automerge-repo-storage-indexeddb@2.1.0':
     resolution: {integrity: sha512-fNtmPoHc2qfXEnzn61hMFX2ritU8zxytBqhfWEptG8tVm6n+p62prEq/tTMMJXbjSk1DOTmQOGvCwRIlr1aOxA==}
@@ -314,8 +314,14 @@ packages:
   '@automerge/automerge-repo@2.1.0':
     resolution: {integrity: sha512-gqJkyM6Adbgqx7amn4uuz9ezuJHkiYRd9Ad5Z1xoKLq2GjlIIXDvW/NEHGP12CAS3pAbXJsBD0KyP949KvgywA==}
 
+  '@automerge/automerge-repo@2.3.0':
+    resolution: {integrity: sha512-nZppJl90bK0zVGtByHDvXZ1gC8HCcKnhGkJxMLrPxuFlLdoAfq7x10Tk6AT0eMfx1048kl5zRDH7DpAZD+SvMw==}
+
   '@automerge/automerge@2.2.9':
     resolution: {integrity: sha512-6HM52Ops79hAQBWMg/t0MNfGOdEiXyenQjO9F1hKZq0RWDsMLpPa1SzRy/C4/4UyX67sTHuA5CwBpH34SpfZlA==}
+
+  '@automerge/automerge@3.1.2':
+    resolution: {integrity: sha512-rAZRLAMrboBJGMmZXPOfYiwkmHXho6RjhUOIrlmf+Buukt/DN1oee8kHfpI3U4etetvGgqf5JaFVbydQpKT/Vg==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -432,11 +438,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@chromatic-com/storybook@3.2.7':
-    resolution: {integrity: sha512-fCGhk4cd3VA8RNg55MZL5CScdHqljsQcL9g6Ss7YuobHpSo9yytEWNdgMd5QxAHSPBlLGFHjnSmliM3G/BeBqw==}
-    engines: {node: '>=16.0.0', yarn: '>=1.22.18'}
+  '@chromatic-com/storybook@4.1.1':
+    resolution: {integrity: sha512-+Ib4cHtEjKl/Do+4LyU0U1FhLPbIU2Q/zgbOKHBCV+dTC4T3/vGzPqiGsgkdnZyTsK/zXg96LMPSPC4jjOiapg==}
+    engines: {node: '>=20.0.0', yarn: '>=1.22.18'}
     peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+      storybook: ^0.0.0-0 || ^9.0.0 || ^9.1.0-0 || ^9.2.0-0 || ^10.0.0-0
 
   '@corvu/dialog@0.2.4':
     resolution: {integrity: sha512-n54vJq+fOy8GVrnYBdJpD6JXNuyx7LOeMrRxwzAvZnYGpW8+AA12tnb/P/2emJj/HjOO5otheGKb0breshdFlA==}
@@ -802,6 +808,9 @@ packages:
     resolution: {integrity: sha512-issNZ3xl4tj+1K7KT4dNTQaRq5SmVUXgUPeGTMjtrAzCeTnwM/u6vUxSuTY2bcMw4GzTxreFXLx1xMMhrFkt0A==}
     peerDependencies:
       solid-js: ^1.3.1
+
+  '@neoconfetti/react@1.0.0':
+    resolution: {integrity: sha512-klcSooChXXOzIm+SE5IISIAn3bYzYfPjbX7D7HoqZL84oAfgREeSg5vSIaSFH+DaGzzvImTyWe1OyrJ67vik4A==}
 
   '@ngneat/falso@8.0.2':
     resolution: {integrity: sha512-vhPtuoHoxE5JGWPSPBqEyTXcjI4MAn8GllR+Vs8FfpAQu2sQRd4PJc3e8kc9vdbdhYHx1C9HmbECgtGLK30z4w==}
@@ -2136,8 +2145,8 @@ packages:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
 
-  chromatic@11.29.0:
-    resolution: {integrity: sha512-yisBlntp9hHVj19lIQdpTlcYIXuU9H/DbFuu6tyWHmj6hWT2EtukCCcxYXL78XdQt1vm2GfIrtgtKpj/Rzmo4A==}
+  chromatic@12.2.0:
+    resolution: {integrity: sha512-GswmBW9ZptAoTns1BMyjbm55Z7EsIJnUvYKdQqXIBZIKbGErmpA+p4c0BYA+nzw5B0M+rb3Iqp1IaH8TFwIQew==}
     hasBin: true
     peerDependencies:
       '@chromatic-com/cypress': ^0.*.* || ^1.0.0
@@ -2239,6 +2248,15 @@ packages:
       supports-color:
         optional: true
 
+  debug@4.4.3:
+    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   decamelize-keys@1.1.1:
     resolution: {integrity: sha512-WiPxgEirIV0/eIOMcnFBA3/IJZAZqKnwAwWyvvdi4lsr1WCN22nhdf/3db3DoZcUjTV2SqfzIwNyp6y2xs3nmg==}
     engines: {node: '>=0.10.0'}
@@ -2293,6 +2311,10 @@ packages:
 
   detect-libc@2.0.4:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
+    engines: {node: '>=8'}
+
+  detect-libc@2.1.0:
+    resolution: {integrity: sha512-vEtk+OcP7VBRtQZ1EJ3bdgzSfBjgnEalLTp5zjJrS+2Z1w2KZly4SBdac/WDU3hhsNAZ9E8SC96ME4Ey8MZ7cg==}
     engines: {node: '>=8'}
 
   doctrine@2.1.0:
@@ -3601,12 +3623,6 @@ packages:
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
-  react-confetti@6.4.0:
-    resolution: {integrity: sha512-5MdGUcqxrTU26I2EU7ltkWPwxvucQTuqMm8dUz72z2YMqTD6s9vMcDUysk7n9jnC+lXuCPeJJ7Knf98VEYE9Rg==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.1 || ^18.0.0 || ^19.0.0
-
   react-dom@19.1.0:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
@@ -3774,6 +3790,7 @@ packages:
 
   solid-automerge@1.0.10:
     resolution: {integrity: sha512-6ajYmweGpgVtTLDrYb/DrKj9bCAVuF2ZCNlkT8WKWGyc8O8Ve89M20y8Z9a84COGWKtCAExsoERvxwjRs+9xBQ==}
+    deprecated: 'wonderful news! this is now an official part of automerge-repo: @automerge/automerge-repo-solid-primitives'
     peerDependencies:
       solid-js: ^1.9.4
 
@@ -3872,6 +3889,7 @@ packages:
   storybook-solidjs@1.0.0-beta.7:
     resolution: {integrity: sha512-PgquZC4FiNPCDOIXuXYOco01vMHCXBBAr3Y/a9ylF4+0vOTcL2RAqieUmTbZhBxVWZIm+nPIyOlz8UqhwcgLtQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: 'This package is deprecated. Use storybook-solidjs-vite instead: https://www.npmjs.com/package/storybook-solidjs-vite'
     peerDependencies:
       '@storybook/test': '*'
       solid-js: ~1.9.0
@@ -4056,9 +4074,6 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
-
-  tween-functions@1.2.0:
-    resolution: {integrity: sha512-PZBtLYcCLtEcjL14Fzb1gSxPBeL7nWvGhO5ZFPGqziCcr8uvHp0NDmdjBchp6KHL+tExcg0m3NISmKxhU394dA==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4500,6 +4515,9 @@ packages:
   xstate@5.19.4:
     resolution: {integrity: sha512-h1UMSYOB564NXqAI+VpXrxwaBdOJUh6LOStooQ+Rn/+gqJWtGBfjZn265BwFI8Mp4ZoOyoLDNf8X1yp3faBUZQ==}
 
+  xstate@5.21.0:
+    resolution: {integrity: sha512-y4wmqxjyAa0tgz4k3m/MgTF1kDOahE5+xLfWt5eh1sk+43DatLhKlI8lQDJZpvihZavjbD3TUgy2PRMphhhqgQ==}
+
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -4632,11 +4650,11 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@automerge/automerge-repo-network-websocket@2.1.0':
+  '@automerge/automerge-repo-network-websocket@2.3.0':
     dependencies:
-      '@automerge/automerge-repo': 2.1.0
+      '@automerge/automerge-repo': 2.3.0
       cbor-x: 1.6.0
-      debug: 4.4.1
+      debug: 4.4.3
       eventemitter3: 5.0.1
       isomorphic-ws: 5.0.0(ws@8.18.3)
       ws: 8.18.3
@@ -4671,9 +4689,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@automerge/automerge-repo@2.3.0':
+    dependencies:
+      '@automerge/automerge': 3.1.2
+      bs58check: 3.0.1
+      cbor-x: 1.6.0
+      debug: 4.4.3
+      eventemitter3: 5.0.1
+      fast-sha256: 1.3.0
+      uuid: 9.0.1
+      xstate: 5.21.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@automerge/automerge@2.2.9':
     dependencies:
       uuid: 9.0.1
+
+  '@automerge/automerge@3.1.2': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -4696,7 +4729,7 @@ snapshots:
       '@babel/traverse': 7.27.4
       '@babel/types': 7.27.3
       convert-source-map: 2.0.0
-      debug: 4.4.1
+      debug: 4.4.3
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -4778,7 +4811,7 @@ snapshots:
       '@babel/parser': 7.27.4
       '@babel/template': 7.27.2
       '@babel/types': 7.27.3
-      debug: 4.4.1
+      debug: 4.4.3
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4806,18 +4839,17 @@ snapshots:
   '@cbor-extract/cbor-extract-win32-x64@2.2.0':
     optional: true
 
-  '@chromatic-com/storybook@3.2.7(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))':
+  '@chromatic-com/storybook@4.1.1(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
-      chromatic: 11.29.0
+      '@neoconfetti/react': 1.0.0
+      chromatic: 12.2.0
       filesize: 10.1.6
       jsonfile: 6.1.0
-      react-confetti: 6.4.0(react@19.1.0)
       storybook: 8.6.14(prettier@3.6.2)
       strip-ansi: 7.1.0
     transitivePeerDependencies:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
-      - react
 
   '@corvu/dialog@0.2.4(solid-js@1.9.7)':
     dependencies:
@@ -5144,6 +5176,8 @@ snapshots:
       valibot: 1.1.0(typescript@5.8.3)
     transitivePeerDependencies:
       - typescript
+
+  '@neoconfetti/react@1.0.0': {}
 
   '@ngneat/falso@8.0.2':
     dependencies:
@@ -5889,7 +5923,7 @@ snapshots:
       '@typescript-eslint/types': 8.38.0
       '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
       '@typescript-eslint/visitor-keys': 8.38.0
-      debug: 4.4.1
+      debug: 4.4.3
       eslint: 9.32.0(jiti@2.4.2)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -5899,7 +5933,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.33.0(typescript@5.8.3)
       '@typescript-eslint/types': 8.33.0
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -5908,7 +5942,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.38.0(typescript@5.8.3)
       '@typescript-eslint/types': 8.38.0
-      debug: 4.4.1
+      debug: 4.4.3
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
@@ -5936,7 +5970,7 @@ snapshots:
       '@typescript-eslint/types': 8.38.0
       '@typescript-eslint/typescript-estree': 8.38.0(typescript@5.8.3)
       '@typescript-eslint/utils': 8.38.0(eslint@9.32.0(jiti@2.4.2))(typescript@5.8.3)
-      debug: 4.4.1
+      debug: 4.4.3
       eslint: 9.32.0(jiti@2.4.2)
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
@@ -5953,7 +5987,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.33.0(typescript@5.8.3)
       '@typescript-eslint/types': 8.33.0
       '@typescript-eslint/visitor-keys': 8.33.0
-      debug: 4.4.1
+      debug: 4.4.3
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -5969,7 +6003,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.38.0(typescript@5.8.3)
       '@typescript-eslint/types': 8.38.0
       '@typescript-eslint/visitor-keys': 8.38.0
-      debug: 4.4.1
+      debug: 4.4.3
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -6769,7 +6803,7 @@ snapshots:
 
   cabbages@0.2.8:
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -6863,7 +6897,7 @@ snapshots:
 
   chownr@3.0.0: {}
 
-  chromatic@11.29.0: {}
+  chromatic@12.2.0: {}
 
   class-variance-authority@0.7.1:
     dependencies:
@@ -6949,6 +6983,10 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+
   decamelize-keys@1.1.1:
     dependencies:
       decamelize: 1.2.0
@@ -6991,6 +7029,9 @@ snapshots:
   destr@2.0.5: {}
 
   detect-libc@2.0.4: {}
+
+  detect-libc@2.1.0:
+    optional: true
 
   doctrine@2.1.0:
     dependencies:
@@ -7117,7 +7158,7 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.25.5):
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
       esbuild: 0.25.5
     transitivePeerDependencies:
       - supports-color
@@ -7592,7 +7633,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -7604,7 +7645,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.1
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8065,7 +8106,7 @@ snapshots:
 
   node-gyp-build-optional-packages@5.1.1:
     dependencies:
-      detect-libc: 2.0.4
+      detect-libc: 2.1.0
     optional: true
 
   node-mock-http@1.0.0: {}
@@ -8289,11 +8330,6 @@ snapshots:
   quick-lru@5.1.1: {}
 
   radix3@1.1.2: {}
-
-  react-confetti@6.4.0(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      tween-functions: 1.2.0
 
   react-dom@19.1.0(react@19.1.0):
     dependencies:
@@ -8789,8 +8825,6 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tween-functions@1.2.0: {}
-
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
@@ -9187,6 +9221,8 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xstate@5.19.4: {}
+
+  xstate@5.21.0: {}
 
   xtend@4.0.2: {}
 
