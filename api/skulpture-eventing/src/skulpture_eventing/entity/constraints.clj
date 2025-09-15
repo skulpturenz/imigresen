@@ -1,6 +1,4 @@
-(ns skulpture-eventing.entity.constraints
-  (:require '[skulpture-eventing.entity-utils.apply :as apply]
-            '[taoensso.truss :as truss]))
+(ns skulpture-eventing.entity.constraints)
 
 (declare where)
 (load "constraints/where")
