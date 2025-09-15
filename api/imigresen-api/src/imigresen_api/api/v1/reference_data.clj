@@ -1,41 +1,46 @@
 (ns imigresen-api.api.v1.reference-data
   (:require [imigresen-common.app.routes :as imi-routes]
-            [ring.util.response :as ring-res]
-            [imigresen-common.components.reference-data.im42 :as imi-rd-im42]))
+            [imigresen-common.components.reference-data.im42 :as imi-rd-im42]
+            [ring.util.response :as ring-res]))
 
 (defn reference-data-routes []
   ["/reference-data"
    ["/im42" {:tags ["reference-data.im42.v1"]}
     ["/countries" {:get {:summary "Get countries"
-                         :handler (fn [{:keys [_parameters] :as _req}]
+                         :handler (fn [{:keys [_parameters]
+                                        :as _req}]
                                     (-> (ring-res/response (imi-rd-im42/get-country-codes))
                                         (ring-res/status (:ok imi-routes/status-codes))))
                          :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                     :body seq?}
                                      (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
     ["/genders" {:get {:summary "Get genders"
-                       :handler (fn [{:keys [_parameters] :as _req}]
+                       :handler (fn [{:keys [_parameters]
+                                      :as _req}]
                                   (-> (ring-res/response (imi-rd-im42/get-gender-codes))
                                       (ring-res/status (:ok imi-routes/status-codes))))
                        :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                   :body seq?}
                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
     ["/relationship-statuses" {:get {:summary "Get relationship statuses"
-                                     :handler (fn [{:keys [_parameters] :as _req}]
+                                     :handler (fn [{:keys [_parameters]
+                                                    :as _req}]
                                                 (-> (ring-res/response (imi-rd-im42/get-relationship-status-codes))
                                                     (ring-res/status (:ok imi-routes/status-codes))))
                                      :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                                 :body seq?}
                                                  (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
     ["/document-types" {:get {:summary "Get document types"
-                              :handler (fn [{:keys [_parameters] :as _req}]
+                              :handler (fn [{:keys [_parameters]
+                                             :as _req}]
                                          (-> (ring-res/response (imi-rd-im42/get-document-types))
                                              (ring-res/status (:ok imi-routes/status-codes))))
                               :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                                          :body seq?}
                                           (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]
     ["/request-types" {:get {:summary "Get request types"
-                             :handler (fn [{:keys [_parameters] :as _req}]
+                             :handler (fn [{:keys [_parameters]
+                                            :as _req}]
                                         (-> (ring-res/response (imi-rd-im42/get-request-types))
                                             (ring-res/status (:ok imi-routes/status-codes))))
                              :responses {(:ok imi-routes/status-codes) {:description "Ok"

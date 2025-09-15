@@ -6,7 +6,8 @@
   :plugins [[lein-ancient "LATEST"]
             [dev.weavejester/lein-cljfmt "LATEST"]
             [lein-monolith "LATEST"]
-            [lein-auto "LATEST"]]
+            [lein-auto "LATEST"]
+            [com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
   :dependencies [[org.clojure/clojure "1.12.1"]
                  [com.github.seancorfield/honeysql "2.7.1310"]
                  [com.github.seancorfield/next.jdbc "1.3.1048"]
@@ -41,6 +42,7 @@
                                      [migratus "1.6.4"]]
                       :injections [(require 'clojure.set)]}}
   :test-paths ["src"]
+  :cljfmt {:load-config-file? true}
   :aliases {"build.prod" ["uberjar"]
             "build.dev" ["do" "jar," "install"]
             "build.watch" ["auto" "build.dev"]

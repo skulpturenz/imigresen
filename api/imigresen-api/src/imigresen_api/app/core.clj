@@ -1,37 +1,37 @@
 (ns imigresen-api.app.core
-  (:require [reitit.ring :as reitit-ring]
-            [reitit.openapi :as openapi]
-            [reitit.swagger-ui :as reitit-swagger]
-            [reitit.dev.pretty]
+  (:require [camel-snake-kebab.core :as csk]
+            [clj-commons.format.exceptions :as pexceptions]
+            [clojure.java.io :as io]
+            [expound.alpha :as expound]
+            [imigresen-api.api.core :as imi-core]
+            [imigresen-common.app.auth :as imi-auth]
+            [imigresen-common.app.env :as imi-env]
+            [imigresen-common.app.middleware.cors :as imi-cors]
+            [imigresen-common.app.routes :as imi-routes]
+            [imigresen-common.app.swagger :as imi-swagger]
+            [imigresen-common.state.db.core]
+            [imigresen-common.state.flipt.core]
+            [imigresen-common.state.keycloak.core]
+            [muuntaja.core :as m]
             [reitit.coercion]
             [reitit.coercion.spec :as reitit-coercion]
-            [reitit.ring.middleware.parameters :as parameters]
-            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [reitit.dev.pretty]
+            [reitit.openapi :as openapi]
+            [reitit.ring :as reitit-ring]
             [reitit.ring.coercion]
             [reitit.ring.middleware.exception :as reitit-exception]
             [reitit.ring.middleware.multipart]
-            [imigresen-api.api.core :as imi-core]
-            [imigresen-common.state.db.core]
-            [imigresen-common.state.flipt.core]
-            [imigresen-common.app.routes :as imi-routes]
-            [imigresen-common.app.auth :as imi-auth]
-            [ring.util.response :as ring-res]
-            [expound.alpha :as expound]
-            [imigresen-common.app.env :as imi-env]
-            [muuntaja.core :as m]
-            [camel-snake-kebab.core :as csk]
-            [imigresen-common.app.swagger :as imi-swagger]
-            [clj-commons.format.exceptions :as pexceptions]
-            [taoensso.telemere :as tel]
-            [sentry-clj.core :as sentry]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [reitit.ring.middleware.parameters :as parameters]
             [reitit.spec :as rs]
+            [reitit.swagger-ui :as reitit-swagger]
             [ring.core.protocols :as ring-protocols]
-            [imigresen-common.app.middleware.cors :as imi-cors]
-            [clojure.java.io :as io]
-            [imigresen-common.state.keycloak.core]
-            [ring.logger :as logger])
-  (:import (java.util UUID)
-           (java.io Writer)))
+            [ring.logger :as logger]
+            [ring.util.response :as ring-res]
+            [sentry-clj.core :as sentry]
+            [taoensso.telemere :as tel])
+  (:import (java.io Writer)
+           (java.util UUID)))
 
 (defn- response-writer ^Writer [response output-stream]
   (if-let [charset (ring-res/get-charset response)]
@@ -64,8 +64,11 @@
 
 (defn always-exception-handler [handler ex req]
   (let [formatted-ex-message (pexceptions/format-exception ex)]
-    (tel/log! {:level :error :msg formatted-ex-message :data {:ex ex}})
-    (sentry/send-event {:message {:message (ex-message ex) :formatted formatted-ex-message}
+    (tel/log! {:level :error
+               :msg formatted-ex-message
+               :data {:ex ex}})
+    (sentry/send-event {:message {:message (ex-message ex)
+                                  :formatted formatted-ex-message}
                         :throwable ex
                         :level :error
                         :request {:url (:uri req)
@@ -75,7 +78,8 @@
   (handler ex req))
 
 (defn coercion-error-handler [status]
-  (let [printer (expound/custom-printer {:theme :figwheel-theme, :print-specs? false})
+  (let [printer (expound/custom-printer {:theme :figwheel-theme,
+                                         :print-specs? false})
         handler (reitit-exception/create-coercion-handler status)]
     (fn [exception request]
       (printer (-> exception ex-data :problems))
@@ -144,7 +148,8 @@
                          (reitit-swagger/create-swagger-ui-handler
                           {:path "/docs"
                            :config {:validatorUrl nil
-                                    :urls [{:name "openapi" :url "/openapi.json"}]
+                                    :urls [{:name "openapi"
+                                            :url "/openapi.json"}]
                                     :urls.primaryName "openapi"
                                     :operationsSorter "alpha"
                                     :showRequestHeaders true
@@ -153,4 +158,6 @@
 
 (def app (logger/wrap-with-logger (create-app (imi-core/handlers))
                                   {:log-fn (fn [{:keys [level throwable message]}]
-                                             (tel/log! {:level level :data {:details message :ex throwable}}))}))
+                                             (tel/log! {:level level
+                                                        :data {:details message
+                                                               :ex throwable}}))}))

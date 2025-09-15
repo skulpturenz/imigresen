@@ -1,17 +1,17 @@
 (in-ns 'skulpture-eventing.entity.core)
-(require '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss]
-         '[clojure.spec.alpha :as s]
+(require '[clojure.spec.alpha :as s]
+         '[next.jdbc.protocols :as jdbc-protocols]
          '[skulpture-eventing.entity-utils.apply :as apply]
          '[skulpture-eventing.entity.spec :as es]
-         '[next.jdbc.protocols :as jdbc-protocols])
+         '[skulpture-eventing.store.core :as store]
+         '[taoensso.truss :as truss])
 
 (declare schema-registry
          aggregate)
 
 (defn next-revision
   "Determine the next revision of an entity from an aggregate or the current state.
-   
+
    The latest revision of events for an entity is also the revision of the current state of the entity
    so revisions should only increase as more events are associated with an entity"
   ([entity aggregate]
@@ -32,7 +32,7 @@
 
 (defn next-revision'
   "Determine the next revision of an entity without loading its event stream
-   
+
    Does not check whether the state of the entity is valid"
   [connectable entity-id] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                       (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id))]}

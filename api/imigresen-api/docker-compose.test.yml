@@ -1,32 +1,27 @@
 services:
-  imigresen-api:
-    image: clojure
-    command: >
-      sh -c "
-      cd /skulpture-eventing && 
-      lein install && 
-      cd /imigresen-common && 
-      lein install && 
-      cd /imigresen-api && lein cljfmt check && lein test"
-    volumes:
-      - .:/imigresen-api
-      - ../imigresen-common:/imigresen-common
-      - ../skulpture-eventing:/skulpture-eventing
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      JAVA_ENV: "test"
-      DB_MIGRATION_DIR: "migrations/"
-      DB_SEED_DIR: "seeds/"
-      DB_INIT_SCRIPT: "init.sql"
-      DB_INIT_IN_TRANSACTION: "false"
-      DB_MIGRATION_TABLE_NAME: "migrations"
-      DB_SEED_MIGRATION_TABLE_NAME: "seed_migrations"
-      # These are not really used, all mocked out
-      KC_AUTH_SERVER_URL: "https://authnz.skulpture.xyz"
-      KC_REALM: "imigresen-test"
-      KC_OAUTH_CLIENT_ID: "imigresen-test"
-      KC_OAUTH_CLIENT_SECRET: "NOT USED"
-      CF_R2_ACCESS_KEY: "NOT USED"
-      CF_R2_SECRET_KEY: "NOT USED"
-      CF_R2_ENDPOINT: "NOT USED"
-      ROLLOUT_URL: "https://rollout.skulpture.xyz"
+    imigresen-api:
+        image: clojure
+        command: >
+            sh -c " cd /skulpture-eventing && lein install && cd /imigresen-common && lein install && cd /imigresen-api && lein cljfmt check && lein clj-kondo && lein test"
+        volumes:
+            - .:/imigresen-api
+            - ../imigresen-common:/imigresen-common
+            - ../skulpture-eventing:/skulpture-eventing
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        environment:
+            JAVA_ENV: "test"
+            DB_MIGRATION_DIR: "migrations/"
+            DB_SEED_DIR: "seeds/"
+            DB_INIT_SCRIPT: "init.sql"
+            DB_INIT_IN_TRANSACTION: "false"
+            DB_MIGRATION_TABLE_NAME: "migrations"
+            DB_SEED_MIGRATION_TABLE_NAME: "seed_migrations"
+            # These are not really used, all mocked out
+            KC_AUTH_SERVER_URL: "https://authnz.skulpture.xyz"
+            KC_REALM: "imigresen-test"
+            KC_OAUTH_CLIENT_ID: "imigresen-test"
+            KC_OAUTH_CLIENT_SECRET: "NOT USED"
+            CF_R2_ACCESS_KEY: "NOT USED"
+            CF_R2_SECRET_KEY: "NOT USED"
+            CF_R2_ENDPOINT: "NOT USED"
+            ROLLOUT_URL: "https://rollout.skulpture.xyz"

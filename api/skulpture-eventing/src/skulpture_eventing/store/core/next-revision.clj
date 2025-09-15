@@ -1,5 +1,6 @@
 (in-ns 'skulpture-eventing.store.core)
-(require '[honey.sql :as sql]
+(require '[clojure.core.cache :as cache]
+         '[honey.sql :as sql]
          '[next.jdbc :as jdbc])
 
 (declare ^:dynamic *event-store-cache*)
@@ -13,15 +14,17 @@
                         (do
                           (swap! lirs-cache cache/hit entity-id)
                           (cache/lookup @lirs-cache entity-id))
-                        {:events [] :revision 0 :dirty false})]
+                        {:events []
+                         :revision 0
+                         :dirty false})]
     (if (and (not= (:revision cached-events) 0)
              (not (:dirty cached-events))
              (not-empty cached-events))
       (inc' (:revision (last (:events cached-events))))
       (let [query (-> {:select [[[:max :revision]]]
-                       :from   :event-journal
-                       :where  [:= :entity-id :?entity-id]}
-                      (sql/format {:cache  lirs-cache
+                       :from :event-journal
+                       :where [:= :entity-id :?entity-id]}
+                      (sql/format {:cache lirs-cache
                                    :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
         (inc' (or (:max result) 0))))))

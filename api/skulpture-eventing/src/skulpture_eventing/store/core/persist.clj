@@ -1,5 +1,6 @@
 (in-ns 'skulpture-eventing.store.core)
-(require '[honey.sql :as sql]
+(require '[clojure.core.cache :as cache]
+         '[honey.sql :as sql]
          '[next.jdbc :as jdbc]
          '[skulpture-eventing.store.transformers :as transformers])
 
@@ -9,8 +10,8 @@
   "Persist a stream of events"
   [connectable events]
   (let [query! (-> {:insert-into :event-journal
-                    :values      (map transformers/->sql-value events)
-                    :returning   :*}
+                    :values (map transformers/->sql-value events)
+                    :returning :*}
                    (sql/format))
         result (jdbc/execute! connectable query!)
         entity-ids (distinct (map #(str (:entity-id %)) events))]

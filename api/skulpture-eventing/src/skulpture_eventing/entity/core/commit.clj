@@ -1,9 +1,9 @@
 (in-ns 'skulpture-eventing.entity.core)
-(require '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss]
-         '[clojure.spec.alpha :as s]
+(require '[clojure.spec.alpha :as s]
+         '[next.jdbc.protocols :as jdbc-protocols]
          '[skulpture-eventing.entity.spec :as es]
-         '[next.jdbc.protocols :as jdbc-protocols])
+         '[skulpture-eventing.store.core :as store]
+         '[taoensso.truss :as truss])
 
 (declare schema-registry)
 

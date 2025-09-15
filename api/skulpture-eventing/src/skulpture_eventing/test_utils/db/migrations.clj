@@ -1,6 +1,6 @@
 (ns skulpture-eventing.test-utils.db.migrations
-  (:require [migratus.core :as migratus]
-            [clojure.pprint :as pprint]))
+  (:require [clojure.pprint :as pprint]
+            [migratus.core :as migratus]))
 
 (defn- create-config [data-source db-init-script migrations-dir migration-table-name]
   {:store :database

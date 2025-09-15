@@ -1,11 +1,11 @@
 (ns skulpture-eventing.store.core-test
-  (:require [skulpture-eventing.store.core :as store]
+  (:require [clj-uuid :as uuid]
             [clojure.test :as t]
-            [clj-uuid :as uuid]
             [java-time.api :as jt]
+            [mount.core :as mount]
             [skulpture-eventing.store.agents :as agents]
-            [skulpture-eventing.test-utils.db.mock :as db-mock]
-            [mount.core :as mount]))
+            [skulpture-eventing.store.core :as store]
+            [skulpture-eventing.test-utils.db.mock :as db-mock]))
 
 (defn fixture [f]
   (mount/start #'skulpture-eventing.test-utils.db.mock/db)

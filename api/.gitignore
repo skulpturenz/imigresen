@@ -203,4 +203,5 @@ dist
 .lsp
 .calva
 **/.calva/repl.calva-repl
-.clj-kondo
+!.clj-kondo/config.edn
+!.lsp/config.edn

@@ -1,19 +1,20 @@
 (ns imigresen-api.api.v1.im42
-  (:require [imigresen-common.app.routes :as imi-routes]
-            [spec-tools.data-spec :as ds]
-            [imigresen-common.app.auth :as imi-auth]
-            [ring.util.response :as ring-res]
-            [imigresen-common.components.im42-form.store :as imi-im42]
+  (:require [imigresen-common.app.auth :as imi-auth]
+            [imigresen-common.app.routes :as imi-routes]
             [imigresen-common.components.im42-form.spec :as imi-im42-spec]
-            [taoensso.truss :as truss]
-            [imigresen-common.components.user.store :as imi-user]))
+            [imigresen-common.components.im42-form.store :as imi-im42]
+            [imigresen-common.components.user.store :as imi-user]
+            [ring.util.response :as ring-res]
+            [spec-tools.data-spec :as ds]
+            [taoensso.truss :as truss]))
 
 (defn im42-routes []
   ["/im42" {:tags ["im42.v1"]}
    ["/user/:user-uuid"
     ["" {:get {:summary "Get IM42 forms"
                :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered"
-               :handler (fn [{:keys [parameters] :as _req}]
+               :handler (fn [{:keys [parameters]
+                              :as _req}]
                           (-> (imi-im42/get-im42-forms-by-user-uuid
                                (truss/have imi-user/active-by-uuid?
                                            (get-in parameters [:path :user-uuid])
@@ -32,7 +33,8 @@
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                :middleware [imi-auth/protect]}
          :post {:summary "Register a new IM42 form"
-                :handler (fn [{:keys [identity parameters] :as _req}]
+                :handler (fn [{:keys [identity parameters]
+                               :as _req}]
                            (-> (imi-im42/register-im42-form!
                                 identity
                                 (truss/have imi-user/active-by-uuid?
@@ -52,7 +54,8 @@
                             (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                 :middleware [imi-auth/protect]}}]
     ["/config/synced" {:put {:summary "Mark a user as synced"
-                             :handler (fn [{:keys [identity parameters] :as _req}]
+                             :handler (fn [{:keys [identity parameters]
+                                            :as _req}]
                                         (imi-im42/synced! identity
                                                           (truss/have imi-user/active-by-uuid?
                                                                       (get-in parameters [:path :user-uuid])
@@ -67,7 +70,8 @@
                                          (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                              :middleware [imi-auth/protect]}}]]
    ["/:uuid/user/:user-uuid" {:put {:summary "Update a registered IM42 form"
-                                    :handler (fn [{:keys [identity parameters] :as _req}]
+                                    :handler (fn [{:keys [identity parameters]
+                                                   :as _req}]
                                                (truss/have
                                                 (imi-im42/upsert-im42-form!
                                                  identity
@@ -93,7 +97,8 @@
                                                 (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                                     :middleware [imi-auth/protect]}
                               :delete {:summary "Delete a registered IM42 form"
-                                       :handler (fn [{:keys [identity parameters] :as _req}]
+                                       :handler (fn [{:keys [identity parameters]
+                                                      :as _req}]
                                                   (truss/have
                                                    (imi-im42/delete-im42-form!
                                                     identity

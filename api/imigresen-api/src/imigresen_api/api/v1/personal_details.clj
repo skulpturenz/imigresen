@@ -1,19 +1,20 @@
 (ns imigresen-api.api.v1.personal-details
-  (:require [imigresen-common.app.routes :as imi-routes]
-            [spec-tools.data-spec :as ds]
-            [imigresen-common.components.user.store :as imi-user]
-            [imigresen-common.components.user.spec :as imi-user-spec]
-            [imigresen-common.app.auth :as imi-auth]
-            [ring.util.response :as ring-res]
-            [imigresen-common.components.personal-details.store :as imi-pd]
+  (:require [imigresen-common.app.auth :as imi-auth]
+            [imigresen-common.app.routes :as imi-routes]
             [imigresen-common.components.personal-details.spec :as imi-pd-spec]
+            [imigresen-common.components.personal-details.store :as imi-pd]
+            [imigresen-common.components.user.spec :as imi-user-spec]
+            [imigresen-common.components.user.store :as imi-user]
+            [ring.util.response :as ring-res]
+            [spec-tools.data-spec :as ds]
             [taoensso.truss :as truss]))
 
 (defn personal-details-routes []
   ["/personal-details" {:tags ["personal-details.v1"]}
    ["/user/:user-uuid"
     ["" {:get {:summary "Get personal details by user UUID"
-               :handler (fn [{:keys [parameters] :as _req}]
+               :handler (fn [{:keys [parameters]
+                              :as _req}]
                           (-> (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid]) :data {:type :not-found})
                               (imi-pd/get-personal-details-by-user-uuid)
                               (ring-res/response)
@@ -27,7 +28,8 @@
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                :middleware [imi-auth/protect]}
          :put {:summary "Update personal details by user UUID"
-               :handler (fn [{:keys [identity parameters] :as _req}]
+               :handler (fn [{:keys [identity parameters]
+                              :as _req}]
                           (-> (:body parameters)
                               (assoc :user-uuid
                                      (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])) :data {:type :not-found})
