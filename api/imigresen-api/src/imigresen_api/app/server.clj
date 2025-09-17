@@ -8,6 +8,8 @@
             [imigresen-common.app.env :as imi-env]
             [mount.core :as mount]
             [clojure.java.io :as io])
+  (:import (java.util.concurrent Executors)
+           (org.eclipse.jetty.util.thread QueuedThreadPool))
   (:gen-class))
 
 (def server (atom nil))
@@ -52,7 +54,9 @@
   (reset! atom (let [port (imi-env/env :port (s/or :number number?
                                                    :string imi-env/str->num) 3000)
                      server (adapter/run-jetty core/app {:port port
-                                                         :join? false})]
+                                                         :join? false
+                                                         :thread-pool (-> (QueuedThreadPool.)
+                                                                          (.setVirtualThreadsExecutor (Executors/newVirtualThreadPerTaskExecutor)))})]
                  (println "Listening on port" port)
                  server)))
 
