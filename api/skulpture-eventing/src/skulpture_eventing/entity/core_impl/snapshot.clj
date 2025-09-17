@@ -11,10 +11,6 @@
             [taoensso.truss :as truss]))
 
 (defn snapshot!
-  "Creates and persists a snapshot event of the current state of the entity.
-
-   Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
-   starting point when events are loaded"
   [connectable entity entity-id transformer] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                                          (truss/have? keyword? entity)
                                                          (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)

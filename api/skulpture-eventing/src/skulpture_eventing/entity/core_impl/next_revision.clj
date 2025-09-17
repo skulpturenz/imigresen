@@ -10,10 +10,6 @@
             [taoensso.truss :as truss]))
 
 (defn next-revision
-  "Determine the next revision of an entity from an aggregate or the current state.
-
-   The latest revision of events for an entity is also the revision of the current state of the entity
-   so revisions should only increase as more events are associated with an entity"
   ([entity aggregate]
    {:pre [(and (truss/have? keyword? entity)
                (truss/have? es/aggregate? aggregate))]}

@@ -8,7 +8,6 @@
             [taoensso.truss :as truss]))
 
 (defn commit!
-  "Commit uncommitted events in an aggregate"
   [connectable entity aggregate] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                              (truss/have? keyword? entity)
                                              (truss/have? es/aggregate? aggregate))]}

@@ -3,8 +3,6 @@
             [taoensso.truss :as truss]))
 
 (defn group->aggregates
-  "Transform event streams bulk loaded entities into aggregates.
-   Accepts a 1-arity mapper which takes the event stream for the entity and returns its aggregate"
   [events ->aggregate]
   {:pre [(and (truss/have? vector? events)
               (truss/have? fn? ->aggregate))]}

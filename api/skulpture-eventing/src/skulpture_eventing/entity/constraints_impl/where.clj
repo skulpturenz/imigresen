@@ -2,12 +2,6 @@
   (:require [taoensso.truss :as truss]))
 
 (defn where
-  "Build a HoneySQL DSL data structure to query for entities which fit constraints.
-   Any additional inclusion and exclusion criteria should be expressed as a HoneySQL clause.
-
-   Not meant to be a replacement for a constraints table.
-   A constraints table is valuable when we need to do frequent fetches.
-   This is useful in the infrequent case when we wouldn't need a constraints table otherwise"
   [{:keys [include-event-types exclude-with-event-types
            additional-include-filters additional-exclude-filters]
     :as _filters}]

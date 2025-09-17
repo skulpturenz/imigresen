@@ -5,7 +5,6 @@
             [taoensso.truss :as truss]))
 
 (defn persist!
-  "Persist events for an entity without loading all its events"
   [connectable events] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                    (truss/have? #(or (and (vector? %) (every? es/event? %))
                                                      (es/event? %)) events))]}

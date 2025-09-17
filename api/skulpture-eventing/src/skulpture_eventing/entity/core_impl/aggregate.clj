@@ -9,12 +9,6 @@
             [taoensso.truss :as truss]))
 
 (defn aggregate
-  "Gets the events associated with the entity id and determines the current state of the event,
-   applying any additional events if specified. Additional events are not committed, to do so invoke `commit!`.
-
-   An aggregate is composed of: the current state of the entity, events which have been committed and uncommitted events
-   which have been applied to determine the current state. Expects a vector when events to apply are specified as
-   order is important"
   ([entity transformer {:keys [committed-events uncommitted-events]
                         :as _opts}]
    {:pre [(and (truss/have? keyword? entity)
