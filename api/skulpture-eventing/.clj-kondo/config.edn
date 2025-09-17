@@ -1,6 +1,6 @@
 {:linters {:unsorted-required-namespaces {:level :error}
            :refer {:level :warning}
-           :single-key-in {:level :error}
+           :single-key-in {:level :ignore}
            :used-underscored-binding {:level :error}
            :unused-value {:level :warning}
            :redundant-call {:level :warning}
