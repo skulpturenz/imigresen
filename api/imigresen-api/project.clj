@@ -44,7 +44,7 @@
                                       [ring/ring-mock "0.6.1" :scope "provided"]
                                       [org.clojure/data.json "2.5.1" :scope "provided"]]
                        ;; https://cljdoc.org/d/com.taoensso/telemere/1.0.1/api/taoensso.telemere.tools-logging#tools-logging-%3Etelemere!
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true"]}
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true -Dclojure.tools.logging.to-telemere=true -Djdk.tracePinnedThreads=full"]}
              :kaocha {:env {:timbre-level "ERROR"
                             :log-level "ERROR"
                             :java-env "test"}
