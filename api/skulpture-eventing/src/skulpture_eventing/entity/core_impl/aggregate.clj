@@ -1,12 +1,12 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[clojure.spec.alpha :as s]
-         '[next.jdbc.protocols :as jdbc-protocols]
-         '[skulpture-eventing.entity-utils.apply :as apply]
-         '[skulpture-eventing.entity.spec :as es]
-         '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss])
-
-(declare schema-registry)
+(ns skulpture-eventing.entity.core-impl.aggregate
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [clojure.spec.alpha :as s]
+            [next.jdbc.protocols :as jdbc-protocols]
+            [skulpture-eventing.entity-utils.apply :as apply]
+            [skulpture-eventing.entity.core-impl.shared :refer :all]
+            [skulpture-eventing.entity.spec :as es]
+            [skulpture-eventing.store.core :as store]
+            [taoensso.truss :as truss]))
 
 (defn aggregate
   "Gets the events associated with the entity id and determines the current state of the event,

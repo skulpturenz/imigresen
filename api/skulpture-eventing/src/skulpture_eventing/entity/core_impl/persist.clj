@@ -1,8 +1,8 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[next.jdbc.protocols :as jdbc-protocols]
-         '[skulpture-eventing.entity.spec :as es]
-         '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss])
+(ns skulpture-eventing.entity.core-impl.persist
+  (:require [next.jdbc.protocols :as jdbc-protocols]
+            [skulpture-eventing.entity.spec :as es]
+            [skulpture-eventing.store.core :as store]
+            [taoensso.truss :as truss]))
 
 (defn persist!
   "Persist events for an entity without loading all its events"

@@ -1,5 +1,5 @@
-(in-ns 'skulpture-eventing.entity.constraints)
-(require '[taoensso.truss :as truss])
+(ns skulpture-eventing.entity.constraints-impl.where
+  (:require [taoensso.truss :as truss]))
 
 (defn where
   "Build a HoneySQL DSL data structure to query for entities which fit constraints.

@@ -1,6 +1,6 @@
-(in-ns 'skulpture-eventing.entity.constraints)
-(require '[skulpture-eventing.entity-utils.apply :as apply]
-         '[taoensso.truss :as truss])
+(ns skulpture-eventing.entity.constraints-impl.migrate
+  (:require [skulpture-eventing.entity-utils.apply :as apply]
+            [taoensso.truss :as truss]))
 
 (defn create-migration
   "Build a HoneySQL DSL data structure to migrate entities to constraints.

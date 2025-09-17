@@ -1,19 +1,16 @@
-(in-ns 'skulpture-eventing.store.core)
-(require '[clojure.core.cache :as cache]
-         '[honey.sql :as sql]
-         '[next.jdbc :as jdbc])
-
-(declare ^:dynamic *event-store-cache*)
-(declare lirs-cache)
+(ns skulpture-eventing.store.core-impl.next-revision
+  (:require [clojure.core.cache :as cache]
+            [honey.sql :as sql]
+            [next.jdbc :as jdbc]
+            [skulpture-eventing.store.core-impl.shared :as shared]))
 
 (defn next-revision
-  "Get the next revision without loading all events for an entity"
   [connectable entity-id]
-  (let [cached-events (if (and *event-store-cache*
-                               (cache/has? @lirs-cache entity-id))
+  (let [cached-events (if (and shared/*event-store-cache*
+                               (cache/has? @shared/lirs-cache entity-id))
                         (do
-                          (swap! lirs-cache cache/hit entity-id)
-                          (cache/lookup @lirs-cache entity-id))
+                          (swap! shared/lirs-cache cache/hit entity-id)
+                          (cache/lookup @shared/lirs-cache entity-id))
                         {:events []
                          :revision 0
                          :dirty false})]
@@ -24,7 +21,7 @@
       (let [query (-> {:select [[[:max :revision]]]
                        :from :event-journal
                        :where [:= :entity-id :?entity-id]}
-                      (sql/format {:cache lirs-cache
+                      (sql/format {:cache shared/lirs-cache
                                    :params {:entity-id entity-id}}))
             result (jdbc/execute-one! connectable query)]
         (inc' (or (:max result) 0))))))

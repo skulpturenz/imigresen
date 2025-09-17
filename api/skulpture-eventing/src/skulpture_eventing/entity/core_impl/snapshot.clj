@@ -1,14 +1,14 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[clojure.spec.alpha :as s]
-         '[java-time.api :as jt]
-         '[next.jdbc.protocols :as jdbc-protocols]
-         '[skulpture-eventing.store.agents :as agents]
-         '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss])
-
-(declare schema-registry
-         aggregate
-         next-revision)
+(ns skulpture-eventing.entity.core-impl.snapshot
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [clojure.spec.alpha :as s]
+            [java-time.api :as jt]
+            [next.jdbc.protocols :as jdbc-protocols]
+            [skulpture-eventing.entity.core-impl.aggregate :refer :all]
+            [skulpture-eventing.entity.core-impl.next-revision :refer :all]
+            [skulpture-eventing.entity.core-impl.shared :refer :all]
+            [skulpture-eventing.store.agents :as agents]
+            [skulpture-eventing.store.core :as store]
+            [taoensso.truss :as truss]))
 
 (defn snapshot!
   "Creates and persists a snapshot event of the current state of the entity.

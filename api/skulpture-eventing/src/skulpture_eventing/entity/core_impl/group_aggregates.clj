@@ -1,6 +1,6 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[skulpture-eventing.entity-utils.apply :as apply]
-         '[taoensso.truss :as truss])
+(ns skulpture-eventing.entity.core-impl.group-aggregates
+  (:require [skulpture-eventing.entity-utils.apply :as apply]
+            [taoensso.truss :as truss]))
 
 (defn group->aggregates
   "Transform event streams bulk loaded entities into aggregates.

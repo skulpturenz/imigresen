@@ -1,13 +1,13 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[clojure.spec.alpha :as s]
-         '[next.jdbc.protocols :as jdbc-protocols]
-         '[skulpture-eventing.entity-utils.apply :as apply]
-         '[skulpture-eventing.entity.spec :as es]
-         '[skulpture-eventing.store.core :as store]
-         '[taoensso.truss :as truss])
-
-(declare schema-registry
-         aggregate)
+(ns skulpture-eventing.entity.core-impl.next-revision
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [clojure.spec.alpha :as s]
+            [next.jdbc.protocols :as jdbc-protocols]
+            [skulpture-eventing.entity-utils.apply :as apply]
+            [skulpture-eventing.entity.core-impl.aggregate :refer :all]
+            [skulpture-eventing.entity.core-impl.shared :refer :all]
+            [skulpture-eventing.entity.spec :as es]
+            [skulpture-eventing.store.core :as store]
+            [taoensso.truss :as truss]))
 
 (defn next-revision
   "Determine the next revision of an entity from an aggregate or the current state.

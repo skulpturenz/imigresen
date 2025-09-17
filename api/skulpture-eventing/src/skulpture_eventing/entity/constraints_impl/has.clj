@@ -1,7 +1,7 @@
-(in-ns 'skulpture-eventing.entity.constraints)
-(require '[taoensso.truss :as truss])
-
-(declare where)
+(ns skulpture-eventing.entity.constraints-impl.has
+  #_{:clj-kondo/ignore [:refer]}
+  (:require [skulpture-eventing.entity.constraints-impl.where :refer [where]]
+            [taoensso.truss :as truss]))
 
 (defn has
   "Build a HoneySQL DSL data structure to check if entities which fit constraints exists.

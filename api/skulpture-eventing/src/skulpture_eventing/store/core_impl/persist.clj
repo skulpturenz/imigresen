@@ -1,13 +1,11 @@
-(in-ns 'skulpture-eventing.store.core)
-(require '[clojure.core.cache :as cache]
-         '[honey.sql :as sql]
-         '[next.jdbc :as jdbc]
-         '[skulpture-eventing.store.transformers :as transformers])
-
-(declare lirs-cache)
+(ns skulpture-eventing.store.core-impl.persist
+  (:require [clojure.core.cache :as cache]
+            [honey.sql :as sql]
+            [next.jdbc :as jdbc]
+            [skulpture-eventing.store.core-impl.shared :as shared]
+            [skulpture-eventing.store.transformers :as transformers]))
 
 (defn persist!
-  "Persist a stream of events"
   [connectable events]
   (let [query! (-> {:insert-into :event-journal
                     :values (map transformers/->sql-value events)
@@ -18,6 +16,6 @@
     ;; we have cached values but the entity has been modified so
     ;; do a fetch from the db since the last revision we have in cache
     (doseq [x entity-ids
-            :when (cache/has? @lirs-cache (str x))]
-      (swap! lirs-cache assoc-in [(str x) :dirty] true))
+            :when (cache/has? @shared/lirs-cache (str x))]
+      (swap! shared/lirs-cache assoc-in [(str x) :dirty] true))
     result))

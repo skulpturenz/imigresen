@@ -5,10 +5,7 @@
            :unused-value {:level :warning}
            :redundant-call {:level :warning}
            :redundant-str-call {:level :warning}
-           ;; TODO: with files which are loaded they if we remove duplicate imports in each loaded
-           ;; file then we get an unresolved namespace error. add duplicate imports in each loaded
-           ;; file and we get a duplicate require
-           ;; TODO: only shows when we do a `lein clj-kondo` in the editor its fine
            :duplicate-require {:level :warning}
            :unresolved-namespace {:level :error}}
- :lint-as {mount.core/defstate clj-kondo.lint-as/def-catch-all}}
+ :lint-as {mount.core/defstate clj-kondo.lint-as/def-catch-all}
+ :parallel true}
