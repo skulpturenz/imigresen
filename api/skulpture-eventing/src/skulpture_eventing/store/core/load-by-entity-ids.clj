@@ -5,9 +5,9 @@
 
 (defn load-by-entity-ids
   "Load all events for entities by entity ids.
-   
+
    Events are ordered by the time occurred and their revision.
-   
+
    If snapshots are available starts from the snapshot."
   [connectable entity-ids]
   (let [query (-> {:with [[[:snapshots {:columns [:entity-id :revision :event-agent

@@ -2,12 +2,15 @@
 
 (def schema-registry
   "Used to ensure that the reduced state of the entity is valid.
-   
+
    An entity can only be loaded if a schema is defined for it"
   (atom {}))
 
 (declare aggregate)
 (load "core/aggregate")
+
+(declare project!)
+(load "core/project")
 
 (declare commit!)
 (load "core/commit")

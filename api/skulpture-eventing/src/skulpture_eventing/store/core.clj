@@ -1,6 +1,6 @@
 (ns skulpture-eventing.store.core
   "This namespace is not meant to be used directly
-   
+
    Use `skulpture-eventing.entity.core` instead"
   (:require [clojure.core.cache :as cache]))
 
@@ -25,3 +25,6 @@
 
 (declare persist!)
 (load "core/persist")
+
+(declare project!)
+(load "core/project")
