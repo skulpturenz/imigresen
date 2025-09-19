@@ -7,24 +7,36 @@
     (let [transformer (fn
                         ([] {})
                         ([acc] acc)
-                        ([acc {:keys [type] :as event}]
+                        ([acc {:keys [type]
+                               :as event}]
                          (case type
                            :a {:x (+ (:x event) (or (:x acc) 0))}
                            :b {:x (+ (:x event) (or (:x acc) 0) 2)})))
-          result (apply/aggregate transformer [{:type :b :x 2 :revision 1}
-                                               {:type :a :x 1 :revision 2}])]
+          result (apply/aggregate transformer [{:type :b
+                                                :x 2
+                                                :revision 1}
+                                               {:type :a
+                                                :x 1
+                                                :revision 2}])]
       ;; 2 + 1 + 2
       (t/is (= (:x result) 5))))
   (t/testing "revision asc"
     (let [transformer (fn
                         ([] {})
                         ([acc] acc)
-                        ([acc {:keys [type] :as event}]
+                        ([acc {:keys [type]
+                               :as event}]
                          (case type
                            :a {:x (/ (:x event) (or (:x acc) 1))})))
-          result (apply/aggregate transformer [{:type :a :x 2 :revision 1}
-                                               {:type :a :x 1 :revision 2}
-                                               {:type :a :x 3 :revision 3}])]
+          result (apply/aggregate transformer [{:type :a
+                                                :x 2
+                                                :revision 1}
+                                               {:type :a
+                                                :x 1
+                                                :revision 2}
+                                               {:type :a
+                                                :x 3
+                                                :revision 3}])]
       ;; revision 1 = (2 / 1) = 2
       ;; revision 2 = (1 / revision 1) = 0.5
       ;; revision 3 = (3 / revision 2) = 6

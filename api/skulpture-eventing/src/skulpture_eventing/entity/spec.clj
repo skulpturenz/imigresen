@@ -1,8 +1,8 @@
 (ns skulpture-eventing.entity.spec
-  (:require [clojure.spec.alpha :as s]
-            [spec-tools.data-spec :as ds]
+  (:require [clj-uuid :as uuid]
+            [clojure.spec.alpha :as s]
             [java-time.api :as jt]
-            [clj-uuid :as uuid]))
+            [spec-tools.data-spec :as ds]))
 
 (def aggregate (ds/spec {:name ::aggregate
                          :spec {:aggregate {:revision number?}

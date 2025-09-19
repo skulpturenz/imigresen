@@ -1,20 +1,20 @@
 (ns skulpture-eventing.test-utils.db.core
-  (:require [next.jdbc :as jdbc]
-            [next.jdbc.date-time :as dt]
-            [next.jdbc.connection :as connection]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.walk :as walk]
-            [ring.util.codec :as ring-codec]
-            [taoensso.truss :as truss]
             [honey.sql :as sql]
             [jsonista.core :as j]
+            [next.jdbc :as jdbc]
+            [next.jdbc.connection :as connection]
+            [next.jdbc.date-time :as dt]
             [next.jdbc.prepare :as prepare]
             [next.jdbc.result-set :as rs]
-            [skulpture-eventing.test-utils.db.migrations :as migrations])
+            [ring.util.codec :as ring-codec]
+            [skulpture-eventing.test-utils.db.migrations :as migrations]
+            [taoensso.truss :as truss])
   (:import (com.zaxxer.hikari HikariDataSource)
            (java.net URI)
-           (org.postgresql.util PGobject)
-           (java.sql PreparedStatement)))
+           (java.sql PreparedStatement)
+           (org.postgresql.util PGobject)))
 
 (def ^:private db-agent (agent {}))
 
@@ -87,7 +87,7 @@
 (defn <-pgobject
   "Transform PGobject containing `json` or `jsonb` value to Clojure data."
   [^PGobject v]
-  (let [type  (.getType v)
+  (let [type (.getType v)
         value (.getValue v)]
     (if (#{"jsonb" "json"} type)
       (some-> value <-json (with-meta {:pgtype type}))

@@ -1,16 +1,16 @@
-(in-ns 'skulpture-eventing.store.core)
-(require '[honey.sql :as sql]
-         '[next.jdbc :as jdbc]
-         '[skulpture-eventing.store.transformers :as transformers])
-
-(declare lirs-cache)
+(ns skulpture-eventing.store.core-impl.persist
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [clojure.core.cache :as cache]
+            [honey.sql :as sql]
+            [next.jdbc :as jdbc]
+            [skulpture-eventing.store.core-impl.shared :refer :all]
+            [skulpture-eventing.store.transformers :as transformers]))
 
 (defn persist!
-  "Persist a stream of events"
   [connectable events]
   (let [query! (-> {:insert-into :event-journal
-                    :values      (map transformers/->sql-value events)
-                    :returning   :*}
+                    :values (map transformers/->sql-value events)
+                    :returning :*}
                    (sql/format))
         result (jdbc/execute! connectable query!)
         entity-ids (distinct (map #(str (:entity-id %)) events))]

@@ -57,10 +57,13 @@
             [lein-ancient "LATEST"]
             [dev.weavejester/lein-cljfmt "LATEST"]
             [lein-monolith "LATEST"]
-            [lein-checkout-deps "1.0.0"]]
+            [lein-checkout-deps "1.0.0"]
+            [com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
+  :cljfmt {:load-config-file? true}
   :aliases {"dev" ["do" "deps," "run"]
             "build.prod" ["uberjar"]
             "build.watch" ["auto" "build.prod"]
             "test" ["do", "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
             "test.watch" ["do" "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner" "--watch"]
-            "repl" ["repl"]})
+            "repl" ["repl"]
+            "link" ["do" "monolith" "link" "imigresen/common," "monolith" "link" "skulpture/eventing"]})

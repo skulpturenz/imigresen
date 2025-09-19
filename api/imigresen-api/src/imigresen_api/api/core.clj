@@ -1,8 +1,8 @@
 (ns imigresen-api.api.core
-  (:require [imigresen-api.api.v1.user :as imi-user-v1]
-            [imigresen-api.api.v1.reference-data :as imi-reference-data-v1]
+  (:require [imigresen-api.api.v1.im42 :as imi-im42-v1]
             [imigresen-api.api.v1.personal-details :as imi-personal-details-v1]
-            [imigresen-api.api.v1.im42 :as imi-im42-v1]))
+            [imigresen-api.api.v1.reference-data :as imi-reference-data-v1]
+            [imigresen-api.api.v1.user :as imi-user-v1]))
 
 (defn api-v1 []
   ["/api/v1" {:tags ["api.v1"]}

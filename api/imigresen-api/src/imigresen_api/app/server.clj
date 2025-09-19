@@ -1,13 +1,13 @@
 (ns imigresen-api.app.server
-  (:require [imigresen-api.app.core :as core]
-            [imigresen-common.app.logging :as imi-logging]
-            [ring.adapter.jetty :as adapter]
-            [nrepl.server :as nrepl]
-            [cider.nrepl :as cider]
+  (:require [cider.nrepl :as cider]
+            [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
+            [imigresen-api.app.core :as core]
             [imigresen-common.app.env :as imi-env]
+            [imigresen-common.app.logging :as imi-logging]
             [mount.core :as mount]
-            [clojure.java.io :as io])
+            [nrepl.server :as nrepl]
+            [ring.adapter.jetty :as adapter])
   (:import (java.util.concurrent Executors)
            (org.eclipse.jetty.util.thread QueuedThreadPool))
   (:gen-class))
@@ -16,7 +16,8 @@
 
 (def nrepl-server (atom nil))
 
-(defn watch! [& {:keys [unload-hook reload-hook watch-dirs] :as _opts
+(defn watch! [& {:keys [unload-hook reload-hook watch-dirs]
+                 :as _opts
                  :or {unload-hook 'before-ns-unload
                       reload-hook 'after-ns-reload
                       watch-dirs ["src" "checkouts" "resources"]}}]

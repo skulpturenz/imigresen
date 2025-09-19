@@ -1,9 +1,9 @@
 (ns skulpture-eventing.test-utils.db.mock-test
-  (:require [skulpture-eventing.test-utils.db.mock :refer [db] :as db-mock]
-            [clojure.test :as t]
-            [mount.core :as mount]
+  (:require [clojure.test :as t]
             [honey.sql :as sql]
-            [next.jdbc :as jdbc]))
+            [mount.core :as mount]
+            [next.jdbc :as jdbc]
+            [skulpture-eventing.test-utils.db.mock :as db-mock]))
 
 (defn fixture [f]
   (mount/start #'skulpture-eventing.test-utils.db.mock/db)
@@ -14,4 +14,4 @@
 
 (t/deftest ^:unit select
   (t/testing "able to query"
-    (t/is (= (:test (jdbc/execute-one! (:ds @db) (sql/format {:select [[:0 "test"]]}))) 0))))
+    (t/is (= (:test (jdbc/execute-one! (:ds @db-mock/db) (sql/format {:select [[:0 "test"]]}))) 0))))

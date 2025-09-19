@@ -1,10 +1,10 @@
 (ns imigresen-api.app.core-test
   (:require [clojure.test :as t]
             [imigresen-api.app.core :as imi-core]
+            [imigresen-common.app.auth :as imi-auth]
             [imigresen-common.app.routes :as imi-routes]
             [muuntaja.core :as m]
-            [ring.mock.request :as mock]
-            [imigresen-common.app.auth :as imi-auth]))
+            [ring.mock.request :as mock]))
 
 (t/deftest ^:unit response->camelCase
   (t/testing "camelCase response keys"
@@ -57,8 +57,8 @@
   (t/testing "content-type negotiation"
     (let [app (imi-core/create-app
                [["/content-type" {:post (constantly {:body {:some-return "TEST!!"}})}]])
-          res  (-> (mock/request :post "/content-type")
-                   app)]
+          res (-> (mock/request :post "/content-type")
+                  app)]
       (t/is (= (get-in res [:headers "Content-Type"]) "application/json; charset=utf-8")))))
 
 (t/deftest ^:unit openapi-definitions

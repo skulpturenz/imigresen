@@ -1,20 +1,16 @@
-(in-ns 'skulpture-eventing.entity.core)
-(require '[skulpture-eventing.store.core :as store]
-         '[java-time.api :as jt]
-         '[taoensso.truss :as truss]
-         '[clojure.spec.alpha :as s]
-         '[skulpture-eventing.store.agents :as agents]
-         '[next.jdbc.protocols :as jdbc-protocols])
-
-(declare schema-registry
-         aggregate
-         next-revision)
+(ns skulpture-eventing.entity.core-impl.snapshot
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [clojure.spec.alpha :as s]
+            [java-time.api :as jt]
+            [next.jdbc.protocols :as jdbc-protocols]
+            [skulpture-eventing.entity.core-impl.aggregate :refer :all]
+            [skulpture-eventing.entity.core-impl.next-revision :refer :all]
+            [skulpture-eventing.entity.core-impl.shared :refer :all]
+            [skulpture-eventing.store.agents :as agents]
+            [skulpture-eventing.store.core :as store]
+            [taoensso.truss :as truss]))
 
 (defn snapshot!
-  "Creates and persists a snapshot event of the current state of the entity.
-   
-   Snapshot events are valuable when there are many events for an entity. If a snapshot exists then it is the
-   starting point when events are loaded"
   [connectable entity entity-id transformer] {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                                                          (truss/have? keyword? entity)
                                                          (truss/have? #(or (string? %) (number? %) (uuid? %)) entity-id)

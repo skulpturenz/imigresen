@@ -42,7 +42,7 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 .lein-env
-.clj-kondo
+.clj-kondo/*
 
 ## Go
 # If you prefer the allow list template instead of the deny list, see community template:
@@ -202,3 +202,6 @@ dist
 # Clojure
 .calva
 **/.calva/repl.calva-repl
+!.clj-kondo/config.edn
+.lsp/*
+!.lsp/config.edn
