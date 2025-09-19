@@ -1,6 +1,6 @@
 (ns skulpture-eventing.entity.constraints-impl.has
-  #_{:clj-kondo/ignore [:refer]}
-  (:require [skulpture-eventing.entity.constraints-impl.where :refer [where]]
+  #_{:clj-kondo/ignore [:refer :refer-all]}
+  (:require [skulpture-eventing.entity.constraints-impl.where :refer :all]
             [taoensso.truss :as truss]))
 
 (defn has
