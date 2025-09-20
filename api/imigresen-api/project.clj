@@ -26,6 +26,7 @@
                  [org.slf4j/slf4j-api "2.0.17"]
                  [com.taoensso/telemere-slf4j "1.1.0"]
                  [org.clojure/tools.logging "1.3.0"]
+                 [org.typedclojure/typed.clj.runtime "1.3.0"]
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"]]
   :resource-paths ["resources"]
@@ -36,12 +37,14 @@
                      :main ^:skip-aot imigresen-api.app.server
                      :dependencies [[ring/ring-devel "1.14.1"]
                                     [io.github.tonsky/clj-reload "0.9.8"]
-                                    [watchtower "0.1.1"]]}
+                                    [watchtower "0.1.1"]
+                                    [org.typedclojure/typed.clj.checker "1.3.0"]]}
              :dev {:env {:java-env "development"
                          :taoensso-telemere-rt-min-level ":debug"
                          :log-level "DEBUG"}
                    :main ^:skip-aot imigresen-api.app.server
-                   :dependencies [[ring/ring-devel "1.14.1"]]}
+                   :dependencies [[ring/ring-devel "1.14.1"]
+                                  [org.typedclojure/typed.clj.checker "1.3.0"]]}
              :uberjar {:env {:java-env "production"
                              :taoensso-telemere-rt-min-level ":error"
                              :log-level "ERROR"}
@@ -58,7 +61,8 @@
                             :java-env "test"}
                       :dependencies [[lambdaisland/kaocha "1.91.1392"]
                                      [org.clojure/data.json "2.5.1"]
-                                     [ring/ring-mock "0.6.1"]]}}
+                                     [ring/ring-mock "0.6.1"]
+                                     [org.typedclojure/typed.clj.checker "1.3.0"]]}}
   :plugins [[lein-environ "LATEST"]
             [lein-auto "LATEST"]
             [migratus-lein "0.7.3"]
