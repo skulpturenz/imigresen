@@ -16,7 +16,8 @@
                  [clojure.java-time "1.4.3"]
                  [com.taoensso/truss "2.1.0"]
                  [metosin/spec-tools "0.10.7"]
-                 [org.clojure/core.cache "1.1.234"]]
+                 [org.clojure/core.cache "1.1.234"]
+                 [org.typedclojure/typed.clj.runtime "1.3.0"]]
   :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"]
                        :uberjar-exclusions [#".*_test\.(clj|java)"]
                        :aot :all
@@ -39,7 +40,8 @@
                                      [ring/ring-core "1.14.2"]
                                      [mount "0.1.23"]
                                      [com.zaxxer/HikariCP "6.3.0"]
-                                     [migratus "1.6.4"]]
+                                     [migratus "1.6.4"]
+                                     [org.typedclojure/typed.clj.checker "1.3.0"]]
                       :injections [(require 'clojure.set)]}}
   :test-paths ["src"]
   :cljfmt {:load-config-file? true}
