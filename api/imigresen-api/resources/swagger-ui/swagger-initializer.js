@@ -3,7 +3,7 @@ window.onload = function () {
 
     let accessToken = "";
     let refreshToken = "";
-    let accessExpires = -1;
+    let accessExpiresSeconds = -1;
     let refreshIntervalId;
 
     const toMs = (seconds) => seconds * Math.pow(10, 3);
@@ -32,7 +32,7 @@ window.onload = function () {
             const tokenParsed = response.body;
             accessToken = tokenParsed.access_token;
             refreshToken = tokenParsed.refresh_token;
-            accessExpires = tokenParsed.expires_in;
+            accessExpiresSeconds = tokenParsed.expires_in;
 
             if (refreshIntervalId) {
                 clearInterval(refreshIntervalId);
@@ -64,7 +64,9 @@ window.onload = function () {
                 if (res.ok) {
                     accessToken = result.access_token;
                     refreshToken = result.refresh_token;
-                    accessExpires = result.expires_in;
+                    accessExpiresSeconds = result.expires_in;
+
+                    console.debug("Access token refreshed next in (seconds)", accessExpiresSeconds)
                 } else {
                     getNewAccessToken(retryCount + 1);
                 }
@@ -72,7 +74,7 @@ window.onload = function () {
 
             refreshIntervalId = setInterval(() => {
                 getNewAccessToken();
-            }, toMs(accessExpires - 10));
+            }, toMs(accessExpiresSeconds - 10));
 
             return response;
         },
