@@ -30,13 +30,18 @@
                  [imigresen/common "SNAPSHOT"]]
   :resource-paths ["resources"]
   :target-path "target/%s"
-  :profiles {:dev {:env {:java-env "development"
+  :profiles {:local {:env {:java-env "local"
+                           :taoensso-telemere-rt-min-level ":debug"
+                           :log-level "DEBUG"}
+                     :main ^:skip-aot imigresen-api.app.server
+                     :dependencies [[ring/ring-devel "1.14.1"]
+                                    [io.github.tonsky/clj-reload "0.9.8"]
+                                    [watchtower "0.1.1"]]}
+             :dev {:env {:java-env "development"
                          :taoensso-telemere-rt-min-level ":debug"
                          :log-level "DEBUG"}
                    :main ^:skip-aot imigresen-api.app.server
-                   :dependencies [[ring/ring-devel "1.14.1"]
-                                  [io.github.tonsky/clj-reload "0.9.8"]
-                                  [watchtower "0.1.1"]]}
+                   :dependencies [[ring/ring-devel "1.14.1"]]}
              :uberjar {:env {:java-env "production"
                              :taoensso-telemere-rt-min-level ":error"
                              :log-level "ERROR"}
@@ -63,7 +68,7 @@
             [lein-checkout-deps "1.0.0"]
             [com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
   :cljfmt {:load-config-file? true}
-  :aliases {"dev" ["do" "deps," "run"]
+  :aliases {"dev" ["do" "deps," "with-profile" "local" "run"]
             "build.prod" ["uberjar"]
             "build.watch" ["auto" "build.prod"]
             "test" ["do", "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
