@@ -1,20 +1,25 @@
 window.onload = function () {
     //<editor-fold desc="Changeable Configuration Block">
 
-    let token = "";
+    let accessToken = "";
+    let refreshToken = "";
+    let accessExpiresSeconds = -1;
+    let refreshIntervalId;
+
+    const toMs = (seconds) => seconds * Math.pow(10, 3);
 
     // the following lines will be replaced by docker/configurator, when it runs in a docker-container
     window.ui = SwaggerUIBundle({
         url: "https://petstore.swagger.io/v2/swagger.json",
-        dom_id: '#swagger-ui',
+        dom_id: "#swagger-ui",
         deepLinking: true,
         presets: [
             SwaggerUIBundle.presets.apis,
             SwaggerUIStandalonePreset
         ],
         requestInterceptor: request => {
-            if (token) {
-                request.headers['Authorization'] = `Bearer ${token}`;
+            if (accessToken) {
+                request.headers["Authorization"] = `Bearer ${accessToken}`;
             }
 
             return request;
@@ -25,7 +30,51 @@ window.onload = function () {
             }
 
             const tokenParsed = response.body;
-            token = tokenParsed.access_token;
+            accessToken = tokenParsed.access_token;
+            refreshToken = tokenParsed.refresh_token;
+            accessExpiresSeconds = tokenParsed.expires_in;
+
+            if (refreshIntervalId) {
+                clearInterval(refreshIntervalId);
+            }
+
+            const getNewAccessToken = async (retryCount = 0) => {
+                // Not sure what causes this but sometimes the first request
+                // returns an error response saying that the session is not active
+                // The second request ends up being successful
+                // Unable to reproduce with a direct API request so not sure what's causing it
+                // might be the session state cookies which are present when we make a browser request
+                if (retryCount === 5) {
+                    throw new Error("Unable to refresh token");
+                }
+
+                console.debug("Refreshing access token", "retry count", retryCount);
+                const res = await fetch("https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token", {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        client_id: "swagger",
+                        grant_type: "refresh_token",
+                        refresh_token: refreshToken
+                    })
+                });
+
+                const result = await res.json();
+
+                console.debug("Refresh access token result", "ok?", res.ok, "result", result);
+                if (res.ok) {
+                    accessToken = result.access_token;
+                    refreshToken = result.refresh_token;
+                    accessExpiresSeconds = result.expires_in;
+
+                    console.debug("Access token refreshed next in (seconds)", accessExpiresSeconds)
+                } else {
+                    getNewAccessToken(retryCount + 1);
+                }
+            }
+
+            refreshIntervalId = setInterval(() => {
+                getNewAccessToken();
+            }, toMs(accessExpiresSeconds - 10));
 
             return response;
         },
