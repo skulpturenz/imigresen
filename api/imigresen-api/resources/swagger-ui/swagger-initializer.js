@@ -72,8 +72,7 @@ window.onload = function () {
 
             refreshIntervalId = setInterval(() => {
                 getNewAccessToken();
-            }, toMs(accessExpires - 10)
-            );
+            }, toMs(accessExpires - 10));
 
             return response;
         },
