@@ -11,7 +11,7 @@ window.onload = function () {
     // the following lines will be replaced by docker/configurator, when it runs in a docker-container
     window.ui = SwaggerUIBundle({
         url: "https://petstore.swagger.io/v2/swagger.json",
-        dom_id: '#swagger-ui',
+        dom_id: "#swagger-ui",
         deepLinking: true,
         presets: [
             SwaggerUIBundle.presets.apis,
@@ -19,7 +19,7 @@ window.onload = function () {
         ],
         requestInterceptor: request => {
             if (accessToken) {
-                request.headers['Authorization'] = `Bearer ${accessToken}`;
+                request.headers["Authorization"] = `Bearer ${accessToken}`;
             }
 
             return request;
@@ -38,30 +38,42 @@ window.onload = function () {
                 clearInterval(refreshIntervalId);
             }
 
-            const getNewAccessToken = async () => {
-                const res = await fetch('https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token', {
-                    method: 'POST',
+            const getNewAccessToken = async (retryCount = 0) => {
+                // Not sure what causes this but sometimes the first request
+                // returns an error response saying that the session is not active
+                // The second request ends up being successful
+                // Unable to reproduce with a direct API request so not sure what's causing it
+                // might be the session state cookies which are present when we make a browser request
+                if (retryCount === 5) {
+                    throw new Error("Unable to refresh token");
+                }
+
+                console.debug("Refreshing access token", "retry count", retryCount);
+                const res = await fetch("https://authnz.skulpture.xyz/realms/imigresen/protocol/openid-connect/token", {
+                    method: "POST",
                     body: new URLSearchParams({
-                        client_id: 'swagger',
-                        grant_type: 'refresh_token',
+                        client_id: "swagger",
+                        grant_type: "refresh_token",
                         refresh_token: refreshToken
-                    }),
+                    })
                 });
 
                 const result = await res.json();
 
-                console.log('result', result);
+                console.debug("Refresh access token result", "ok?", res.ok, "result", result);
                 if (res.ok) {
                     accessToken = result.access_token;
                     refreshToken = result.refresh_token;
                     accessExpires = result.expires_in;
+                } else {
+                    getNewAccessToken(retryCount + 1);
                 }
             }
 
             refreshIntervalId = setInterval(() => {
-                console.log('Here!! getNewAccessToken');
                 getNewAccessToken();
-            }, toMs(accessExpires - 5));
+            }, toMs(accessExpires - 10)
+            );
 
             return response;
         },
