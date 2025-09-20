@@ -3,8 +3,8 @@ services:
         image: clojure
         command: >
             sh -c "
-             cd /skulpture-eventing && lein install
-             && cd /imigresen-common && lein install &&
+             cd /skulpture-eventing && lein install &&
+             cd /imigresen-common && lein install &&
              cd /imigresen-api && lein cljfmt check && lein clj-kondo && lein test"
         volumes:
             - .:/imigresen-api
