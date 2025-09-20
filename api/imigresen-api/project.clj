@@ -23,19 +23,22 @@
                  [ring/ring-jetty-adapter "1.14.2"]
                  [nrepl/nrepl "1.4.0"]
                  [cider/cider-nrepl "0.57.0"]
+                 [org.slf4j/slf4j-api "2.0.17"]
+                 [com.taoensso/telemere-slf4j "1.1.0"]
+                 [org.clojure/tools.logging "1.3.0"]
                  ;; lein monolith link imigresen/common
                  [imigresen/common "SNAPSHOT"]]
   :resource-paths ["resources"]
-
   :target-path "target/%s"
   :profiles {:dev {:env {:java-env "development"
-                         :taoensso-telemere-rt-min-level ":debug"}
+                         :taoensso-telemere-rt-min-level ":debug"
+                         :log-level "DEBUG"}
                    :main ^:skip-aot imigresen-api.app.server
                    :dependencies [[ring/ring-devel "1.14.1"]
                                   [io.github.tonsky/clj-reload "0.9.8"]
                                   [watchtower "0.1.1"]]}
              :uberjar {:env {:java-env "production"
-                             :timbre-level "ERROR"
+                             :taoensso-telemere-rt-min-level ":error"
                              :log-level "ERROR"}
                        :uberjar-exclusions [#".*_test\.(clj|java)"]
                        :aot :all
