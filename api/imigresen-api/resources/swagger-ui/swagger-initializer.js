@@ -60,7 +60,7 @@ window.onload = function () {
                 this.#refreshToken = result.refresh_token;
                 this.#accessExpiresSeconds = result.expires_in;
 
-                console.debug("Access token refreshed next in (seconds)", this.accessToken);
+                console.debug("Access token refreshed next in (seconds)", this.#accessExpiresSeconds);
             }
 
             this.#refreshIntervalId = setInterval(() => {
