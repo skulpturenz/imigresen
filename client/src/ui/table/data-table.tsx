@@ -207,7 +207,7 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 		const newPageIdx = (page ?? 1) - 1;
 
 		if (table.getState().pagination.pageIndex !== newPageIdx) {
-			table.setPageIndex((page ?? 1) - 1);
+			table.setPageIndex(newPageIdx);
 		}
 	};
 
@@ -312,7 +312,7 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 							(_, i) => i + 1,
 						)}
 						placeholder={t("pageOptionPlaceholder")}
-						defaultValue={table.getState().pagination.pageIndex + 1}
+						value={table.getState().pagination.pageIndex + 1}
 						onChange={onChangePage}
 						itemComponent={props => (
 							<SelectItem item={props.item}>
