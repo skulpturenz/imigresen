@@ -108,17 +108,20 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 								{(column.header as any)(props)}
 							</Show>
 
-							<Switch fallback={<ArrowUpDown />}>
+							<Switch
+								fallback={
+									<ArrowUpDown class="text-muted-foreground/50 size-4" />
+								}>
 								<Match
 									when={props.column.getIsSorted() === "asc"}>
-									<ArrowUp />
+									<ArrowUp class="text-muted-foreground/50 size-4" />
 								</Match>
 
 								<Match
 									when={
 										props.column.getIsSorted() === "desc"
 									}>
-									<ArrowDown />
+									<ArrowDown class="text-muted-foreground/50 size-4" />
 								</Match>
 							</Switch>
 						</Button>
