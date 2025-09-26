@@ -18,7 +18,15 @@ import {
 import { useI18n } from "core/context/i18n";
 import { flow } from "es-toolkit";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-solid";
-import { createSignal, For, mergeProps, Show, type Accessor } from "solid-js";
+import {
+	createSignal,
+	For,
+	Match,
+	mergeProps,
+	Show,
+	Switch,
+	type Accessor,
+} from "solid-js";
 import { Button } from "ui/button";
 import { Checkbox, CheckboxControl } from "ui/checkbox";
 import {
@@ -100,15 +108,19 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 								{(column.header as any)(props)}
 							</Show>
 
-							<Show when={props.column.getIsSorted() === "asc"}>
-								<ArrowUp />
-							</Show>
-							<Show when={props.column.getIsSorted() === "desc"}>
-								<ArrowDown />
-							</Show>
-							<Show when={!props.column.getIsSorted()}>
-								<ArrowUpDown />
-							</Show>
+							<Switch fallback={<ArrowUpDown />}>
+								<Match
+									when={props.column.getIsSorted() === "asc"}>
+									<ArrowUp />
+								</Match>
+
+								<Match
+									when={
+										props.column.getIsSorted() === "desc"
+									}>
+									<ArrowDown />
+								</Match>
+							</Switch>
 						</Button>
 					);
 				},
