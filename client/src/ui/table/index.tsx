@@ -3,7 +3,7 @@ import { type ComponentProps } from "solid-js";
 import { cn } from "ui/utils";
 
 export const Table = (props: ComponentProps<"table">) => (
-	<div class="w-full overflow-auto">
+	<div class="relative w-full overflow-x-auto">
 		<table
 			{...spreadProps(props)}
 			class={cn(
@@ -32,7 +32,7 @@ export const TableFooter = (props: ComponentProps<"tfoot">) => (
 	<tbody
 		{...spreadProps(props)}
 		class={cn(
-			"bg-primary font-medium text-primary-foreground",
+			"bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
 			props.class,
 		)}
 	/>
@@ -42,7 +42,7 @@ export const TableRow = (props: ComponentProps<"tr">) => (
 	<tr
 		{...spreadProps(props)}
 		class={cn(
-			"border-b border-border text-foreground transition-colors hover:bg-muted/80 data-[state=selected]:bg-muted",
+			"border-b border-border text-foreground transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
 			props.class,
 		)}
 	/>
@@ -52,8 +52,8 @@ export const TableHead = (props: ComponentProps<"th">) => (
 	<th
 		{...spreadProps(props)}
 		class={cn(
-			"h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-			"[&>[role=checkbox]]:translate-y-[2px]",
+			"text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap",
+			"[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
 			props.class,
 		)}
 	/>
@@ -63,7 +63,7 @@ export const TableCell = (props: ComponentProps<"td">) => (
 	<td
 		{...spreadProps(props)}
 		class={cn(
-			"p-2 align-middle text-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+			"p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
 			props.class,
 		)}
 	/>
