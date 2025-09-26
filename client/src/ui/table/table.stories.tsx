@@ -1,7 +1,9 @@
 import { randWord } from "@ngneat/falso";
 import { type ColumnDef } from "@tanstack/solid-table";
+import { createSignal } from "solid-js";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { Table } from "ui/table";
+import { TextField, TextFieldRoot } from "ui/text-field";
 import { DataTable } from "./data-table";
 
 export default {
@@ -45,6 +47,27 @@ export const Default: Story<typeof Table> = {
 			},
 		];
 
-		return <DataTable columns={columns} rows={() => tasks} />;
+		const [search, setSearch] = createSignal("");
+		const onSearch = (event: InputEvent) => {
+			setSearch((event.target as HTMLInputElement).value);
+		};
+
+		return (
+			<>
+				<TextFieldRoot>
+					<TextField
+						type="text"
+						placeholder="Search ..."
+						onInput={onSearch}
+					/>
+				</TextFieldRoot>
+
+				<DataTable
+					columns={columns}
+					rows={() => tasks}
+					search={search}
+				/>
+			</>
+		);
 	},
 };

@@ -19,6 +19,7 @@ import { useI18n } from "core/context/i18n";
 import { flow } from "es-toolkit";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-solid";
 import {
+	createEffect,
 	createSignal,
 	For,
 	Match,
@@ -50,6 +51,7 @@ import type { resources } from "./resources/i18n/en-us";
 export interface DataTableProps<TRow> {
 	columns: ColumnDef<TRow>[];
 	rows: Accessor<TRow[] | undefined>;
+	search?: Accessor<string>;
 	initialSort?: SortingState;
 	initialPageSize?: number;
 	isRowSelectable?: boolean;
@@ -217,6 +219,10 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 			table.setPageSize(newPageSize);
 		}
 	};
+
+	createEffect(() => {
+		table.setGlobalFilter(withDefaults.search?.());
+	});
 
 	return (
 		<>
