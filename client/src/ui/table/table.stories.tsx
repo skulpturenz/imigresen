@@ -1,3 +1,4 @@
+import { randWord } from "@ngneat/falso";
 import { type ColumnDef } from "@tanstack/solid-table";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { Table } from "ui/table";
@@ -16,22 +17,14 @@ export default {
 
 export const Default: Story<typeof Table> = {
 	render: () => {
-		const tasks = [
-			{
-				id: "ptL0KpX_yRMI98JFr6B3n",
-				code: "TASK-33",
-				title: "We need to bypass the redundant AI interface!",
-				status: "todo",
-				label: "bug",
-			},
-			{
-				id: "RsrTg_SmBKPKwbUlr7Ztv",
-				code: "TASK-59",
-				title: "Overriding the capacitor won't do anything, we need to generate the solid state JBOD pixel!",
-				status: "in-progress",
-				label: "feature",
-			},
-		];
+		const tasks = Array.from({ length: 500 }, (_, i) => ({
+			id: "ptL0KpX_yRMI98JFr6B3n",
+			code: `ROW-${i + 1}`,
+			title: `Row ${i + 1}`,
+			status: "todo",
+			label: "bug",
+			search: randWord(),
+		}));
 
 		const columns: ColumnDef<(typeof tasks)[number]>[] = [
 			{
@@ -45,6 +38,10 @@ export const Default: Story<typeof Table> = {
 			{
 				accessorKey: "status",
 				header: "Status",
+			},
+			{
+				accessorKey: "search",
+				header: "Search",
 			},
 		];
 

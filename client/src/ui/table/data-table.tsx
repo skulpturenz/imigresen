@@ -49,6 +49,16 @@ interface CellContext<TRow> {
 	row: Row<TRow>;
 }
 
+const resources = {
+	noResults: "No results",
+	pageOptionPlaceholder: "Go to",
+	pageSizeOptionPlaceholder: "Show",
+	page: (page: number) => `Page ${page}`,
+	rows: (rows: number) => `${rows} rows`,
+	doPreviousPage: "Previous",
+	doNextPage: "Next",
+};
+
 export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 	const pageSizeOptions = [10, 20, 30, 40, 50];
 
@@ -111,9 +121,7 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 			} as ColumnDef<TRow>;
 		};
 
-		const columnTransforms: ((x: ColumnDef<TRow>) => ColumnDef<TRow>)[] = [
-			toSortableColumn,
-		];
+		const columnTransforms = [toSortableColumn];
 
 		const transformedColumns = withDefaults.columns.map(
 			flow(...columnTransforms),
@@ -184,6 +192,23 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 		debugTable: import.meta.env.DEV,
 	});
 
+	const onChangePage = (page: number | null) => {
+		const newPageIdx = (page ?? 1) - 1;
+
+		if (table.getState().pagination.pageIndex !== newPageIdx) {
+			table.setPageIndex((page ?? 1) - 1);
+		}
+	};
+
+	const onChangePageSize = (pageSize: number | null) => {
+		const newPageSize = (pageSize ??
+			withDefaults.initialPageSize) as number;
+
+		if (table.getState().pagination.pageSize !== newPageSize) {
+			table.setPageSize(newPageSize);
+		}
+	};
+
 	return (
 		<>
 			<Table>
@@ -221,7 +246,7 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 								<TableCell
 									colSpan={props.columns.length}
 									class="h-24 text-center">
-									No results.
+									{resources.noResults}
 								</TableCell>
 							</TableRow>
 						}>
@@ -247,21 +272,21 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 					</Show>
 				</TableBody>
 			</Table>
-			<div class="flex justify-between py-4 items-center">
+			<div class="flex justify-between gap-40 py-4 items-center">
 				<div class="flex items-center space-x-2">
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}>
-						Previous
+						{resources.doPreviousPage}
 					</Button>
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}>
-						Next
+						{resources.doNextPage}
 					</Button>
 				</div>
 
@@ -271,26 +296,19 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 							{ length: table.getPageCount() },
 							(_, i) => i + 1,
 						)}
-						placeholder="Go to"
+						placeholder={resources.pageOptionPlaceholder}
 						defaultValue={table.getState().pagination.pageIndex + 1}
-						onChange={page => {
-							const pageIdx = (page ?? 1) - 1;
-
-							if (
-								table.getState().pagination.pageIndex !==
-								pageIdx
-							) {
-								table.setPageIndex((page ?? 1) - 1);
-							}
-						}}
+						onChange={onChangePage}
 						itemComponent={props => (
 							<SelectItem item={props.item}>
-								Page {props.item.rawValue}
+								{resources.page(props.item.rawValue)}
 							</SelectItem>
 						)}>
 						<SelectTrigger class="w-36">
 							<SelectValue<number>>
-								{state => `Page ${state.selectedOption()}`}
+								{state =>
+									resources.page(state.selectedOption())
+								}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent />
@@ -299,15 +317,18 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 					<Select
 						options={withDefaults.pageSizeOptions as number[]}
 						defaultValue={table.getState().pagination.pageSize}
-						placeholder="Show"
+						onChange={onChangePageSize}
+						placeholder={resources.pageSizeOptionPlaceholder}
 						itemComponent={props => (
 							<SelectItem item={props.item}>
-								{props.item.rawValue} rows
+								{resources.rows(props.item.rawValue)}
 							</SelectItem>
 						)}>
 						<SelectTrigger class="w-36">
 							<SelectValue<number>>
-								{state => `${state.selectedOption()} rows`}
+								{state =>
+									resources.rows(state.selectedOption())
+								}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent />
