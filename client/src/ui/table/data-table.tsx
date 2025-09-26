@@ -15,6 +15,7 @@ import {
 	type RowSelectionState,
 	type SortingState,
 } from "@tanstack/solid-table";
+import { useI18n } from "core/context/i18n";
 import { flow } from "es-toolkit";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-solid";
 import { createSignal, For, mergeProps, Show, type Accessor } from "solid-js";
@@ -35,6 +36,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "ui/table";
+import { withI18n } from "./resources";
+import type { resources } from "./resources/i18n/en-us";
 
 export interface DataTableProps<TRow> {
 	columns: ColumnDef<TRow>[];
@@ -49,17 +52,8 @@ interface CellContext<TRow> {
 	row: Row<TRow>;
 }
 
-const resources = {
-	noResults: "No results",
-	pageOptionPlaceholder: "Go to",
-	pageSizeOptionPlaceholder: "Show",
-	page: (page: number) => `Page ${page}`,
-	rows: (rows: number) => `${rows} rows`,
-	doPreviousPage: "Previous",
-	doNextPage: "Next",
-};
-
-export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
+export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
+	const t = useI18n<typeof resources>();
 	const pageSizeOptions = [10, 20, 30, 40, 50];
 
 	const withDefaults = mergeProps<Partial<DataTableProps<TRow>>[]>(
@@ -246,7 +240,7 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 								<TableCell
 									colSpan={props.columns.length}
 									class="h-24 text-center">
-									{resources.noResults}
+									{t("noResults")}
 								</TableCell>
 							</TableRow>
 						}>
@@ -279,14 +273,14 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 						size="sm"
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}>
-						{resources.doPreviousPage}
+						{t("doPreviousPage")}
 					</Button>
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}>
-						{resources.doNextPage}
+						{t("doNextPage")}
 					</Button>
 				</div>
 
@@ -296,19 +290,17 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 							{ length: table.getPageCount() },
 							(_, i) => i + 1,
 						)}
-						placeholder={resources.pageOptionPlaceholder}
+						placeholder={t("pageOptionPlaceholder")}
 						defaultValue={table.getState().pagination.pageIndex + 1}
 						onChange={onChangePage}
 						itemComponent={props => (
 							<SelectItem item={props.item}>
-								{resources.page(props.item.rawValue)}
+								{t("page", props.item.rawValue)}
 							</SelectItem>
 						)}>
 						<SelectTrigger class="w-36">
 							<SelectValue<number>>
-								{state =>
-									resources.page(state.selectedOption())
-								}
+								{state => t("page", state.selectedOption())}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent />
@@ -318,17 +310,15 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 						options={withDefaults.pageSizeOptions as number[]}
 						defaultValue={table.getState().pagination.pageSize}
 						onChange={onChangePageSize}
-						placeholder={resources.pageSizeOptionPlaceholder}
+						placeholder={t("pageSizeOptionPlaceholder")}
 						itemComponent={props => (
 							<SelectItem item={props.item}>
-								{resources.rows(props.item.rawValue)}
+								{t("rows", props.item.rawValue)}
 							</SelectItem>
 						)}>
 						<SelectTrigger class="w-36">
 							<SelectValue<number>>
-								{state =>
-									resources.rows(state.selectedOption())
-								}
+								{state => t("rows", state.selectedOption())}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent />
@@ -338,3 +328,5 @@ export const DataTable = <TRow,>(props: DataTableProps<TRow>) => {
 		</>
 	);
 };
+
+export const DataTable = withI18n(DataTableWithoutI18n);
