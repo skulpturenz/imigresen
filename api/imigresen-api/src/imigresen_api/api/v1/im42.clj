@@ -36,8 +36,10 @@
                 :handler (fn [{:keys [identity parameters]
                                :as _req}]
                            (truss/have #(every? empty? %)
-                                       (pmap #(imi-im42/get-im42-forms-by-user-uuid (get-in parameters [:path :user-uuid]) %) [{:draft true}
-                                                                                                                               {:completed true}])
+                                       (pmap #(imi-im42/get-im42-forms-by-user-uuid
+                                               (get-in parameters [:path :user-uuid]) %)
+                                             [{:draft true}
+                                              {:completed true}])
                                        :data {:type :bad-request
                                               :message (str "User" " " (get-in parameters [:path :user-uuid]) " " "has an active application")})
                            (-> (imi-im42/register-im42-form!
