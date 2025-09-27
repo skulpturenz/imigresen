@@ -12,7 +12,8 @@
   ["/im42" {:tags ["im42.v1"]}
    ["/user/:user-uuid"
     ["" {:get {:summary "Get IM42 forms"
-               :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered"
+               :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered.
+                             Filters are combined and if no filter is specified then all results for the user are returned"
                :handler (fn [{:keys [parameters]
                               :as _req}]
                           (-> (imi-im42/get-im42-forms-by-user-uuid
