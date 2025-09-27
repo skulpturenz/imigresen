@@ -275,13 +275,15 @@ export const Home = () => {
 			<Suspense fallback={<div>Loading...</div>}>
 				<Show
 					// TODO: in this case show form to enter current passport details
-					when={!qPassportApplications.data?.length}>
+					when={false && !qPassportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
 				</Show>
 
-				<Show when={qPassportApplications.data?.length}>
+				<Show
+					// TODO
+					when={true || qPassportApplications.data?.length}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<Alert>
