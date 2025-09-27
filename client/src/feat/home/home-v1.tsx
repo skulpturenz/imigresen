@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "ui/card";
 import { Label } from "ui/label";
 import { Progress, ProgressLabel, ProgressValueLabel } from "ui/progress";
 import { DataTable } from "ui/table/data-table";
+import { TextField, TextFieldRoot } from "ui/text-field";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
 import { usePassportApplications } from "./hooks/use-passport-applications";
@@ -55,6 +56,8 @@ export const Home = () => {
 
 		setFiles(selected);
 	};
+
+	const [search, setSearch] = createSignal("");
 
 	const t = useI18n<typeof resources>();
 
@@ -213,17 +216,18 @@ export const Home = () => {
 			},
 		},
 		{
-			id: "dateIssued",
-			/// @ts-expect-error: TODO
-			accessorFn: row => row.applicationDetails.dateIssued,
-			header: "Date issued",
-			cell: ({ getValue }) => {
-				if (getValue()) {
-					return formatDate(getValue<Date>(), "dd-MM-yyyy");
+			accessorKey: "applicationDetails.dateIssued",
+			accessorFn: row => {
+				if (!row.applicationDetails.dateIssued) {
+					return "";
 				}
 
-				return "";
+				return formatDate(
+					row.applicationDetails.dateIssued,
+					"dd-MM-yyyy",
+				);
 			},
+			header: "Date issued",
 		},
 		{
 			id: "actions",
@@ -449,11 +453,22 @@ export const Home = () => {
 								<CardTitle>Past applications</CardTitle>
 							</CardHeader>
 
-							<CardContent>
+							<CardContent class="flex flex-col gap-4">
+								<TextFieldRoot>
+									<TextField
+										type="text"
+										placeholder="Search ..."
+										onInput={event =>
+											setSearch(event.target.value)
+										}
+									/>
+								</TextFieldRoot>
+
 								<DataTable
 									columns={columns}
 									rows={() => pastApplications as any[]}
 									isRowSelectable={false}
+									search={search}
 								/>
 							</CardContent>
 						</Card>
