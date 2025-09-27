@@ -1,6 +1,6 @@
 export const styles = {
 	contentContainer: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
-	narrowContentContainer: "mx-auto max-w-6xl",
+	narrowContentContainer: "mx-auto max-w-5xl",
 	breakpoints: {
 		isVerySmall: () => window.matchMedia("(width < 40rem)").matches,
 		isSmall: () => window.matchMedia("(width >= 40rem)").matches,

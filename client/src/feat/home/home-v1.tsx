@@ -24,7 +24,7 @@ import { createSignal, Show, Suspense } from "solid-js";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import { Badge } from "ui/badge";
 import { Button } from "ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "ui/card";
+import { CardContent, CardHeader, CardTitle } from "ui/card";
 import { Label } from "ui/label";
 import { Progress, ProgressLabel, ProgressValueLabel } from "ui/progress";
 import { DataTable } from "ui/table/data-table";
@@ -301,7 +301,7 @@ export const Home = () => {
 							</Alert>
 						</Show>
 
-						<Card>
+						<div>
 							<CardHeader class="flex-row items-center justify-between">
 								<div>
 									<CardTitle>Current application</CardTitle>
@@ -317,51 +317,44 @@ export const Home = () => {
 							</CardHeader>
 
 							<CardContent class="space-y-8">
-								<Card>
-									<CardContent class="pt-6">
-										<Show
-											when={
-												getDifferenceUnit(
-													randomDate,
-												) === "today"
-											}>
-											<div>
-												Your latest travel document has
-												the number&nbsp; A1234123 &nbsp;
-												and is due to expire &nbsp;
-												today
-											</div>
-										</Show>
+								<Typography variant="h4">
+									<Show
+										when={
+											getDifferenceUnit(randomDate) ===
+											"today"
+										}>
+										<div>
+											Your latest travel document has the
+											number&nbsp; A1234123 &nbsp; and is
+											due to expire &nbsp; today
+										</div>
+									</Show>
 
-										<Show
-											when={
-												getDifferenceUnit(
-													randomDate,
-												) !== "today"
-											}>
-											<div>
-												Your latest travel document has
-												the number A1234123 and is due
-												to expire in&nbsp;
-												<Tooltip>
-													<TooltipTrigger as="span">
-														{getDifference(
-															randomDate,
-														)}
-														&nbsp;
-														{getDifferenceUnit(
-															randomDate,
-														)}
-													</TooltipTrigger>
+									<Show
+										when={
+											getDifferenceUnit(randomDate) !==
+											"today"
+										}>
+										<div>
+											Your latest travel document has the
+											number A1234123 and is due to expire
+											in&nbsp;
+											<Tooltip>
+												<TooltipTrigger as="span">
+													{getDifference(randomDate)}
+													&nbsp;
+													{getDifferenceUnit(
+														randomDate,
+													)}
+												</TooltipTrigger>
 
-													<TooltipContent>
-														{randomDate.toDateString()}
-													</TooltipContent>
-												</Tooltip>
-											</div>
-										</Show>
-									</CardContent>
-								</Card>
+												<TooltipContent>
+													{randomDate.toDateString()}
+												</TooltipContent>
+											</Tooltip>
+										</div>
+									</Show>
+								</Typography>
 
 								<div class="grid grid-cols-2 gap-4">
 									<div>
@@ -446,9 +439,9 @@ export const Home = () => {
 									</div>
 								</div>
 							</CardContent>
-						</Card>
+						</div>
 
-						<Card>
+						<div>
 							<CardHeader>
 								<CardTitle>Past applications</CardTitle>
 							</CardHeader>
@@ -471,7 +464,7 @@ export const Home = () => {
 									search={search}
 								/>
 							</CardContent>
-						</Card>
+						</div>
 					</div>
 				</Show>
 			</Suspense>
