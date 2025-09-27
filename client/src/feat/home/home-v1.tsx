@@ -1,54 +1,34 @@
-import { randBetweenDate, randFirstName, randLastName } from "@ngneat/falso";
-import { A } from "@solidjs/router";
+import { randBetweenDate } from "@ngneat/falso";
+import type { ColumnDef } from "@tanstack/solid-table";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/utils";
-import { generatePath } from "core/utils";
 import {
 	addYears,
 	differenceInDays,
 	differenceInMonths,
 	differenceInWeeks,
 	differenceInYears,
+	formatDate,
 	isBefore,
 } from "date-fns";
-import { invariant, partial } from "es-toolkit";
-import { CircleAlert } from "lucide-solid";
-import { createSignal, For, Show, Suspense } from "solid-js";
+import { invariant } from "es-toolkit";
+import { CircleAlert, Eye, Plus } from "lucide-solid";
+import { createSignal, Show, Suspense } from "solid-js";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
-import {
-	AlertDialog,
-	AlertDialogClose,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "ui/alert-dialog";
+import { Badge } from "ui/badge";
 import { Button } from "ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "ui/card";
+import { Label } from "ui/label";
+import { Progress, ProgressLabel, ProgressValueLabel } from "ui/progress";
+import { DataTable } from "ui/table/data-table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
-import { cn } from "ui/utils";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
+import type { RegisteredMyPassportForm } from "./types";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -139,21 +119,126 @@ export const Home = () => {
 		to: addYears(new Date(), 5),
 	});
 
-	const isValid = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) === "years" ||
-		(getDifferenceUnit(expiryDate) === "months" &&
-			getDifference(expiryDate) > 6);
+	// TODO
+	const currentApplication = {
+		uuid: "",
+		automergeUrl: "",
+		personalDetails: {
+			firstName: "John",
+			lastName: "Doe",
+		},
+		applicationDetails: {
+			documentType: "64 page passport",
+			requestType: "Expired application",
+		},
+		status: "Submitted",
+	};
+	const getProgressByStatus = (status: string) => {
+		const progress = ["Draft", "Ready", "Submitted", "Issued"];
 
-	const isTimeToRenew = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) === "months" &&
-		getDifference(expiryDate) <= 6;
+		const currentStatusIdx = progress.findIndex(x => x === status);
+		invariant(currentStatusIdx !== -1, "Invalid status");
 
-	const isExpired = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) !== "years" &&
-		getDifferenceUnit(expiryDate) !== "months";
+		return ((currentStatusIdx + 1) / progress.length) * 100;
+	};
+
+	const pastApplications = [
+		{
+			uuid: "",
+			automergeUrl: "",
+			personalDetails: {
+				firstName: "John",
+				lastName: "Doe",
+			},
+			applicationDetails: {
+				documentType: "64 page passport",
+				requestType: "Expired application",
+			},
+			status: "Submitted",
+		},
+		{
+			uuid: "",
+			automergeUrl: "",
+			personalDetails: {
+				firstName: "John",
+				lastName: "Doe",
+			},
+			applicationDetails: {
+				documentType: "64 page passport",
+				requestType: "Expired application",
+			},
+			status: "Submitted",
+		},
+		{
+			uuid: "",
+			automergeUrl: "",
+			personalDetails: {
+				firstName: "John",
+				lastName: "Doe",
+			},
+			applicationDetails: {
+				documentType: "64 page passport",
+				requestType: "Expired application",
+				dateIssued: new Date(),
+			},
+			status: "Issued",
+		},
+	];
+	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
+		{
+			accessorKey: "applicationDetails.requestType",
+			header: "Application type",
+		},
+		{
+			accessorKey: "applicationDetails.documentType",
+			header: "Document type",
+		},
+		{
+			id: "name",
+			accessorFn: row =>
+				[row.personalDetails.firstName, row.personalDetails.lastName]
+					.filter(Boolean)
+					.join(" "),
+			header: "Name",
+		},
+		{
+			accessorKey: "status",
+			header: "Status",
+			cell: ({ getValue }) => {
+				return <Badge>{getValue<string>()}</Badge>;
+			},
+		},
+		{
+			id: "dateIssued",
+			/// @ts-expect-error: TODO
+			accessorFn: row => row.applicationDetails.dateIssued,
+			header: "Date issued",
+			cell: ({ getValue }) => {
+				if (getValue()) {
+					return formatDate(getValue<Date>(), "dd-MM-yyyy");
+				}
+
+				return "";
+			},
+		},
+		{
+			id: "actions",
+			header: "Actions",
+			enableSorting: false,
+			cell: () => {
+				return (
+					<>
+						<Button variant="ghost" size="icon">
+							<Eye />
+						</Button>
+					</>
+				);
+			},
+		},
+	];
 
 	return (
-		<div>
+		<>
 			<div class="flex justify-end gap-4 my-8">
 				<Show when={!authnContext().keycloak?.token}>
 					<Show when={!qPassportApplications.data?.length}>
@@ -177,12 +262,16 @@ export const Home = () => {
 					as="a"
 					href={toPath(MyPassportForm.New)}
 					onMouseOver={prefetchReferenceData}>
+					<Plus />
+
 					{t("doApply")}
 				</Button>
 			</div>
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show when={!qPassportApplications.data?.length}>
+				<Show
+					// TODO: in this case show form to enter current passport details
+					when={!qPassportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
@@ -202,319 +291,535 @@ export const Home = () => {
 							</Alert>
 						</Show>
 
-						<div class="space-y-2">
-							<Typography
-								variant="small"
-								as="p"
-								class="uppercase">
-								Summary
-							</Typography>
+						<Card>
+							<CardHeader class="flex-row items-center justify-between">
+								<div>
+									<CardTitle>Current application</CardTitle>
+								</div>
+								<div>
+									<Button size="sm" variant="secondary">
+										<div>
+											<Eye />
+										</div>
+										View application
+									</Button>
+								</div>
+							</CardHeader>
 
-							<Show
-								when={
-									getDifferenceUnit(randomDate) === "today"
-								}>
-								<Typography variant="h3">
-									Your latest travel document has the
-									number&nbsp;
-									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-										A1234123
-									</span>
-									&nbsp; and is due to expire &nbsp;
-									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-										today
-									</span>
-								</Typography>
-							</Show>
+							<CardContent class="space-y-8">
+								<Card>
+									<CardContent class="pt-6">
+										<Show
+											when={
+												getDifferenceUnit(
+													randomDate,
+												) === "today"
+											}>
+											<div>
+												Your latest travel document has
+												the number&nbsp; A1234123 &nbsp;
+												and is due to expire &nbsp;
+												today
+											</div>
+										</Show>
 
-							<Show
-								when={
-									getDifferenceUnit(randomDate) !== "today"
-								}>
-								<Typography variant="h3">
-									Your latest travel document has the
-									number&nbsp;
-									<span
-										class={cn(
-											"underline underline-offset-4",
-											{
-												"decoration-green-500 dark:decoration-green-900":
-													isValid(randomDate),
-												"decoration-yellow-500 dark:decoration-yellow-900":
-													isTimeToRenew(randomDate),
-												"decoration-red-500 dark:decoration-red-900":
-													isExpired(randomDate),
-											},
-										)}>
-										A1234123
-									</span>
-									&nbsp; and is due to expire in&nbsp;
-									<Tooltip>
-										<TooltipTrigger
-											as="span"
-											class={cn(
-												"underline underline-offset-4",
-												{
-													"decoration-green-500 dark:decoration-green-900":
-														isValid(randomDate),
-													"decoration-yellow-500 dark:decoration-yellow-900":
-														isTimeToRenew(
+										<Show
+											when={
+												getDifferenceUnit(
+													randomDate,
+												) !== "today"
+											}>
+											<div>
+												Your latest travel document has
+												the number A1234123 and is due
+												to expire in&nbsp;
+												<Tooltip>
+													<TooltipTrigger as="span">
+														{getDifference(
 															randomDate,
-														),
-													"decoration-red-500 dark:decoration-red-900":
-														isExpired(randomDate),
-												},
-											)}>
-											{getDifference(randomDate)}&nbsp;
-											{getDifferenceUnit(randomDate)}
-										</TooltipTrigger>
-
-										<TooltipContent>
-											{randomDate.toDateString()}
-										</TooltipContent>
-									</Tooltip>
-								</Typography>
-							</Show>
-						</div>
-
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
-							<For each={qPassportApplications.data}>
-								{item => {
-									const getHref = () => {
-										const url = new URL(location.origin);
-										url.hash = location.hash;
-
-										const searchParams =
-											new URLSearchParams({
-												automergeUrl: item.automergeUrl,
-											});
-
-										url.pathname = generatePath(
-											MyPassportForm.Edit,
-											{
-												uuid: item.uuid,
-											},
-										);
-										url.search = searchParams.toString();
-
-										return url.href;
-									};
-
-									const details = [
-										{
-											label: "Email",
-											description: "test@test.com",
-										},
-										{
-											label: "Mobile number",
-											description: "0234567890",
-										},
-										{
-											label: "Document type",
-											description:
-												"Malaysian passport (64 pages)",
-										},
-										{
-											label: "Current document number",
-											description: "A1234124",
-										},
-										{
-											label: "Status",
-											description: "In progress",
-										},
-									];
-
-									return (
-										<A
-											href={getHref()}
-											class="group hover:scale-105 group-hover:not-hover:scale-95 transition-transform">
-											<Card class="h-full">
-												<CardHeader>
-													<Show
-														when={
-															item.personalDetails
-																.firstName ||
-															item.personalDetails
-																.lastName
-														}>
-														<Tooltip>
-															<TooltipTrigger
-																as={CardTitle}
-																class="truncate">
-																{[
-																	item
-																		.personalDetails
-																		.firstName,
-																	item
-																		.personalDetails
-																		.lastName,
-																]
-																	.filter(
-																		Boolean,
-																	)
-																	.join(" ")}
-															</TooltipTrigger>
-															<TooltipContent>
-																{[
-																	item
-																		.personalDetails
-																		.firstName,
-																	item
-																		.personalDetails
-																		.lastName,
-																]
-																	.filter(
-																		Boolean,
-																	)
-																	.join(" ")}
-															</TooltipContent>
-														</Tooltip>
-													</Show>
-
-													<Show
-														when={
-															!item
-																.personalDetails
-																.firstName &&
-															!item
-																.personalDetails
-																.lastName
-														}>
-														<CardTitle class="text-muted-foreground">
-															{[
-																randFirstName(),
-																randLastName(),
-															].join(" ")}
-														</CardTitle>
-													</Show>
-
-													<CardDescription>
-														Malaysian passport
-													</CardDescription>
-												</CardHeader>
-												<CardContent>
-													<For each={details}>
-														{item => (
-															<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-																<div class="space-y-2">
-																	<div class="grid grid-cols-3 gap-4 items-center">
-																		<div class="col-span-1">
-																			<span class="flex col-span-1 size-2 bg-sky-500 dark:bg-sky-900" />
-																		</div>
-
-																		<Typography
-																			variant="small"
-																			as="p"
-																			class="w-full col-span-2 text-nowrap">
-																			{
-																				item.label
-																			}
-																		</Typography>
-																	</div>
-
-																	<Typography
-																		variant="small"
-																		as="p"
-																		class="text-nowrap mx-4">
-																		{
-																			item.description
-																		}
-																	</Typography>
-																</div>
-															</div>
 														)}
-													</For>
-												</CardContent>
+														&nbsp;
+														{getDifferenceUnit(
+															randomDate,
+														)}
+													</TooltipTrigger>
 
-												<CardFooter>
-													<Button class="w-full group-hover:bg-primary/90">
-														Edit
-													</Button>
-												</CardFooter>
-											</Card>
-										</A>
-									);
-								}}
-							</For>
-						</div>
+													<TooltipContent>
+														{randomDate.toDateString()}
+													</TooltipContent>
+												</Tooltip>
+											</div>
+										</Show>
+									</CardContent>
+								</Card>
+
+								<div class="grid grid-cols-2 gap-4">
+									<div>
+										<Label class="text-muted-foreground">
+											Application type
+										</Label>
+
+										<div>
+											{
+												currentApplication
+													.applicationDetails
+													.requestType
+											}
+										</div>
+									</div>
+
+									<div>
+										<Label class="text-muted-foreground">
+											Document type
+										</Label>
+
+										<div>
+											{
+												currentApplication
+													.applicationDetails
+													.documentType
+											}
+										</div>
+									</div>
+
+									<div>
+										<Label class="text-muted-foreground">
+											Applicant Name
+										</Label>
+
+										<div>
+											{[
+												currentApplication
+													.personalDetails.firstName,
+												currentApplication
+													.personalDetails.lastName,
+											]
+												.filter(Boolean)
+												.join(" ")}
+										</div>
+									</div>
+
+									<div>
+										<Label class="text-muted-foreground">
+											Status
+										</Label>
+
+										<div>
+											<Badge>
+												{currentApplication.status}
+											</Badge>
+										</div>
+									</div>
+								</div>
+
+								<div class="flex flex-col gap-2">
+									<Progress
+										value={getProgressByStatus(
+											currentApplication.status,
+										)}>
+										<div class="flex justify-between">
+											<ProgressLabel>
+												Progress
+											</ProgressLabel>
+											<ProgressValueLabel />
+										</div>
+									</Progress>
+
+									<div class="flex justify-between">
+										<Label description>Draft</Label>
+
+										<Label description>Ready</Label>
+
+										<Label description>Submitted</Label>
+
+										<Label description>Issued</Label>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle>Past applications</CardTitle>
+							</CardHeader>
+
+							<CardContent>
+								<DataTable
+									columns={columns}
+									rows={() => pastApplications as any[]}
+									isRowSelectable={false}
+								/>
+							</CardContent>
+						</Card>
 					</div>
 				</Show>
-
-				<AlertDialog
-					open={show().failedToExportDialog}
-					onOpenChange={onClickCloseExportApplications}>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>
-								{t("exportFailedDialogTitle")}
-							</AlertDialogTitle>
-							<AlertDialogDescription>
-								{t("exportFailedDialogDescription", [
-									...(mDownloadApplications.data
-										?.invalidUrls ?? []),
-								])}
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogClose
-								onClick={onClickCloseExportApplications}>
-								{t("doCloseExportFailedDialog")}
-							</AlertDialogClose>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-
-				<Dialog
-					open={show().importDialog}
-					onOpenChange={toggleImportDialog}>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>{t("importDialogTitle")}</DialogTitle>
-							<DialogDescription>
-								{t("importDialogDescription")}
-							</DialogDescription>
-
-							<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
-								<Typography variant="small">
-									Drop files here
-								</Typography>
-							</div>
-
-							<input
-								// TODO: proper file input
-								type="file"
-								multiple
-								onChange={onFilesChange}
-							/>
-						</DialogHeader>
-						<DialogFooter>
-							<Button
-								variant="secondary"
-								onClick={toggleImportDialog}>
-								<Show when={mImportApplications.isSuccess}>
-									{t("doFinishImport")}
-								</Show>
-
-								<Show when={mImportApplications.isIdle}>
-									{t("doCloseImportDialog")}
-								</Show>
-							</Button>
-
-							<Button
-								onClick={partial(
-									onClickImportApplications,
-									files(),
-								)}
-								disabled={
-									!files().length ||
-									mImportApplications.isPending
-								}>
-								{t("doImportApplication")}
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
 			</Suspense>
-		</div>
+		</>
 	);
+
+	// return (
+	// 	<div>
+	// 		<div class="flex justify-end gap-4 my-8">
+	// 			<Show when={!authnContext().keycloak?.token}>
+	// 				<Show when={!qPassportApplications.data?.length}>
+	// 					<Button
+	// 						variant="secondary"
+	// 						onClick={toggleImportDialog}>
+	// 						{t("doImport")}
+	// 					</Button>
+	// 				</Show>
+
+	// 				<Show when={qPassportApplications.data?.length}>
+	// 					<Button
+	// 						variant="secondary"
+	// 						onClick={onClickExportApplications}>
+	// 						{t("doExport")}
+	// 					</Button>
+	// 				</Show>
+	// 			</Show>
+
+	// 			<Button
+	// 				as="a"
+	// 				href={toPath(MyPassportForm.New)}
+	// 				onMouseOver={prefetchReferenceData}>
+	// 				{t("doApply")}
+	// 			</Button>
+	// 		</div>
+
+	// 		<Suspense fallback={<div>Loading...</div>}>
+	// 			<Show when={!qPassportApplications.data?.length}>
+	// 				<Typography variant="h3" class="text-center">
+	// 					No applications yet!
+	// 				</Typography>
+	// 			</Show>
+
+	// 			<Show when={qPassportApplications.data?.length}>
+	// 				<div class="space-y-8">
+	// 					<Show when={!authnContext().keycloak?.token}>
+	// 						<Alert>
+	// 							<CircleAlert class="size-4" />
+
+	// 							<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
+
+	// 							<AlertDescription>
+	// 								{t("exportAlertDescription")}
+	// 							</AlertDescription>
+	// 						</Alert>
+	// 					</Show>
+
+	// 					<div class="space-y-2">
+	// 						<Typography
+	// 							variant="small"
+	// 							as="p"
+	// 							class="uppercase">
+	// 							Summary
+	// 						</Typography>
+
+	// 						<Show
+	// 							when={
+	// 								getDifferenceUnit(randomDate) === "today"
+	// 							}>
+	// 							<Typography variant="h3">
+	// 								Your latest travel document has the
+	// 								number&nbsp;
+	// 								<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+	// 									A1234123
+	// 								</span>
+	// 								&nbsp; and is due to expire &nbsp;
+	// 								<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
+	// 									today
+	// 								</span>
+	// 							</Typography>
+	// 						</Show>
+
+	// 						<Show
+	// 							when={
+	// 								getDifferenceUnit(randomDate) !== "today"
+	// 							}>
+	// 							<Typography variant="h3">
+	// 								Your latest travel document has the
+	// 								number&nbsp;
+	// 								<span
+	// 									class={cn(
+	// 										"underline underline-offset-4",
+	// 										{
+	// 											"decoration-green-500 dark:decoration-green-900":
+	// 												isValid(randomDate),
+	// 											"decoration-yellow-500 dark:decoration-yellow-900":
+	// 												isTimeToRenew(randomDate),
+	// 											"decoration-red-500 dark:decoration-red-900":
+	// 												isExpired(randomDate),
+	// 										},
+	// 									)}>
+	// 									A1234123
+	// 								</span>
+	// 								&nbsp; and is due to expire in&nbsp;
+	// 								<Tooltip>
+	// 									<TooltipTrigger
+	// 										as="span"
+	// 										class={cn(
+	// 											"underline underline-offset-4",
+	// 											{
+	// 												"decoration-green-500 dark:decoration-green-900":
+	// 													isValid(randomDate),
+	// 												"decoration-yellow-500 dark:decoration-yellow-900":
+	// 													isTimeToRenew(
+	// 														randomDate,
+	// 													),
+	// 												"decoration-red-500 dark:decoration-red-900":
+	// 													isExpired(randomDate),
+	// 											},
+	// 										)}>
+	// 										{getDifference(randomDate)}&nbsp;
+	// 										{getDifferenceUnit(randomDate)}
+	// 									</TooltipTrigger>
+
+	// 									<TooltipContent>
+	// 										{randomDate.toDateString()}
+	// 									</TooltipContent>
+	// 								</Tooltip>
+	// 							</Typography>
+	// 						</Show>
+	// 					</div>
+
+	// 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
+	// 						<For each={qPassportApplications.data}>
+	// 							{item => {
+	// 								const getHref = () => {
+	// 									const url = new URL(location.origin);
+	// 									url.hash = location.hash;
+
+	// 									const searchParams =
+	// 										new URLSearchParams({
+	// 											automergeUrl: item.automergeUrl,
+	// 										});
+
+	// 									url.pathname = generatePath(
+	// 										MyPassportForm.Edit,
+	// 										{
+	// 											uuid: item.uuid,
+	// 										},
+	// 									);
+	// 									url.search = searchParams.toString();
+
+	// 									return url.href;
+	// 								};
+
+	// 								const details = [
+	// 									{
+	// 										label: "Email",
+	// 										description: "test@test.com",
+	// 									},
+	// 									{
+	// 										label: "Mobile number",
+	// 										description: "0234567890",
+	// 									},
+	// 									{
+	// 										label: "Document type",
+	// 										description:
+	// 											"Malaysian passport (64 pages)",
+	// 									},
+	// 									{
+	// 										label: "Current document number",
+	// 										description: "A1234124",
+	// 									},
+	// 									{
+	// 										label: "Status",
+	// 										description: "In progress",
+	// 									},
+	// 								];
+
+	// 								return (
+	// 									<A
+	// 										href={getHref()}
+	// 										class="group hover:scale-105 group-hover:not-hover:scale-95 transition-transform">
+	// 										<Card class="h-full">
+	// 											<CardHeader>
+	// 												<Show
+	// 													when={
+	// 														item.personalDetails
+	// 															.firstName ||
+	// 														item.personalDetails
+	// 															.lastName
+	// 													}>
+	// 													<Tooltip>
+	// 														<TooltipTrigger
+	// 															as={CardTitle}
+	// 															class="truncate">
+	// 															{[
+	// 																item
+	// 																	.personalDetails
+	// 																	.firstName,
+	// 																item
+	// 																	.personalDetails
+	// 																	.lastName,
+	// 															]
+	// 																.filter(
+	// 																	Boolean,
+	// 																)
+	// 																.join(" ")}
+	// 														</TooltipTrigger>
+	// 														<TooltipContent>
+	// 															{[
+	// 																item
+	// 																	.personalDetails
+	// 																	.firstName,
+	// 																item
+	// 																	.personalDetails
+	// 																	.lastName,
+	// 															]
+	// 																.filter(
+	// 																	Boolean,
+	// 																)
+	// 																.join(" ")}
+	// 														</TooltipContent>
+	// 													</Tooltip>
+	// 												</Show>
+
+	// 												<Show
+	// 													when={
+	// 														!item
+	// 															.personalDetails
+	// 															.firstName &&
+	// 														!item
+	// 															.personalDetails
+	// 															.lastName
+	// 													}>
+	// 													<CardTitle class="text-muted-foreground">
+	// 														{[
+	// 															randFirstName(),
+	// 															randLastName(),
+	// 														].join(" ")}
+	// 													</CardTitle>
+	// 												</Show>
+
+	// 												<CardDescription>
+	// 													Malaysian passport
+	// 												</CardDescription>
+	// 											</CardHeader>
+	// 											<CardContent>
+	// 												<For each={details}>
+	// 													{item => (
+	// 														<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
+	// 															<div class="space-y-2">
+	// 																<div class="grid grid-cols-3 gap-4 items-center">
+	// 																	<div class="col-span-1">
+	// 																		<span class="flex col-span-1 size-2 bg-sky-500 dark:bg-sky-900" />
+	// 																	</div>
+
+	// 																	<Typography
+	// 																		variant="small"
+	// 																		as="p"
+	// 																		class="w-full col-span-2 text-nowrap">
+	// 																		{
+	// 																			item.label
+	// 																		}
+	// 																	</Typography>
+	// 																</div>
+
+	// 																<Typography
+	// 																	variant="small"
+	// 																	as="p"
+	// 																	class="text-nowrap mx-4">
+	// 																	{
+	// 																		item.description
+	// 																	}
+	// 																</Typography>
+	// 															</div>
+	// 														</div>
+	// 													)}
+	// 												</For>
+	// 											</CardContent>
+
+	// 											<CardFooter>
+	// 												<Button class="w-full group-hover:bg-primary/90">
+	// 													Edit
+	// 												</Button>
+	// 											</CardFooter>
+	// 										</Card>
+	// 									</A>
+	// 								);
+	// 							}}
+	// 						</For>
+	// 					</div>
+	// 				</div>
+	// 			</Show>
+
+	// 			<AlertDialog
+	// 				open={show().failedToExportDialog}
+	// 				onOpenChange={onClickCloseExportApplications}>
+	// 				<AlertDialogContent>
+	// 					<AlertDialogHeader>
+	// 						<AlertDialogTitle>
+	// 							{t("exportFailedDialogTitle")}
+	// 						</AlertDialogTitle>
+	// 						<AlertDialogDescription>
+	// 							{t("exportFailedDialogDescription", [
+	// 								...(mDownloadApplications.data
+	// 									?.invalidUrls ?? []),
+	// 							])}
+	// 						</AlertDialogDescription>
+	// 					</AlertDialogHeader>
+	// 					<AlertDialogFooter>
+	// 						<AlertDialogClose
+	// 							onClick={onClickCloseExportApplications}>
+	// 							{t("doCloseExportFailedDialog")}
+	// 						</AlertDialogClose>
+	// 					</AlertDialogFooter>
+	// 				</AlertDialogContent>
+	// 			</AlertDialog>
+
+	// 			<Dialog
+	// 				open={show().importDialog}
+	// 				onOpenChange={toggleImportDialog}>
+	// 				<DialogContent>
+	// 					<DialogHeader>
+	// 						<DialogTitle>{t("importDialogTitle")}</DialogTitle>
+	// 						<DialogDescription>
+	// 							{t("importDialogDescription")}
+	// 						</DialogDescription>
+
+	// 						<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
+	// 							<Typography variant="small">
+	// 								Drop files here
+	// 							</Typography>
+	// 						</div>
+
+	// 						<input
+	// 							// TODO: proper file input
+	// 							type="file"
+	// 							multiple
+	// 							onChange={onFilesChange}
+	// 						/>
+	// 					</DialogHeader>
+	// 					<DialogFooter>
+	// 						<Button
+	// 							variant="secondary"
+	// 							onClick={toggleImportDialog}>
+	// 							<Show when={mImportApplications.isSuccess}>
+	// 								{t("doFinishImport")}
+	// 							</Show>
+
+	// 							<Show when={mImportApplications.isIdle}>
+	// 								{t("doCloseImportDialog")}
+	// 							</Show>
+	// 						</Button>
+
+	// 						<Button
+	// 							onClick={partial(
+	// 								onClickImportApplications,
+	// 								files(),
+	// 							)}
+	// 							disabled={
+	// 								!files().length ||
+	// 								mImportApplications.isPending
+	// 							}>
+	// 							{t("doImportApplication")}
+	// 						</Button>
+	// 					</DialogFooter>
+	// 				</DialogContent>
+	// 			</Dialog>
+	// 		</Suspense>
+	// 	</div>
+	// );
 };

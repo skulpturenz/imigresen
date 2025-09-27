@@ -22,7 +22,7 @@ export const Progress = <T extends ValidComponent = "div">(
 		<ProgressPrimitive.Track class="h-4 overflow-hidden rounded-full bg-secondary">
 			<ProgressPrimitive.Fill
 				class={cn(
-					"h-full w-[--kb-progress-fill-width] bg-primary transition-all duration-500 ease-linear",
+					"h-full w-[var(--kb-progress-fill-width)] bg-primary transition-all duration-500 ease-linear",
 					"data-[progress=complete]:bg-primary",
 				)}
 			/>

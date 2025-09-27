@@ -91,13 +91,16 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 
 	const getColumns = () => {
 		const toSortableColumn = (column: ColumnDef<TRow>): ColumnDef<TRow> => {
+			if (column.enableSorting === false) {
+				return column;
+			}
+
 			return {
 				...column,
 				header: props => {
 					return (
-						<Button
-							variant="ghost"
-							class="w-full"
+						<button
+							class="px-0 w-full justify-start flex items-center gap-2 cursor-pointer"
 							onClick={() =>
 								props.column.toggleSorting(
 									props.column.getIsSorted() === "asc",
@@ -126,7 +129,7 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 									<ArrowDown class="text-muted-foreground/50 size-4" />
 								</Match>
 							</Switch>
-						</Button>
+						</button>
 					);
 				},
 			} as ColumnDef<TRow>;

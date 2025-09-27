@@ -3,7 +3,7 @@ import { type ComponentProps } from "solid-js";
 import { cn } from "ui/utils";
 
 export const Table = (props: ComponentProps<"table">) => (
-	<div class="relative w-full overflow-x-auto">
+	<div class="w-full overflow-x-auto">
 		<table
 			{...spreadProps(props)}
 			class={cn(
