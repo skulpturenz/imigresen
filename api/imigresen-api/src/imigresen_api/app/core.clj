@@ -46,13 +46,20 @@
                              (.write (str body))
                              (.close)))})
 
-(def unauthorized-exception-handler (constantly (ring-res/status (:unauthorized imi-routes/status-codes))))
+(defn unauthorized-exception-handler [ex _req]
+  {:status (:unauthorized imi-routes/status-codes)
+   :body {:message (or (get-in (ex-data ex) [:data :message])
+                       "Unauthorized")}})
 
-(def not-found-exception-handler (constantly (ring-res/status (:not-found imi-routes/status-codes))))
+(defn not-found-exception-handler [ex _req]
+  {:status (:not-found imi-routes/status-codes)
+   :body {:message (or (get-in (ex-data ex) [:data :message])
+                       "Not found")}})
 
 (defn bad-request-exception-handler [ex _req]
   {:status (:bad-request imi-routes/status-codes)
-   :body {:message (get-in (ex-data ex) [:data :message])}})
+   :body {:message (or (get-in (ex-data ex) [:data :message])
+                       "Bad request")}})
 
 (defn default-exception-handler [ex _req]
   {:status (:internal-server-error imi-routes/status-codes)
