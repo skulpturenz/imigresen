@@ -8,5 +8,5 @@
 		"unifiedjs.vscode-mdx",
 		"dbaeumer.vscode-eslint",
 		"EditorConfig.EditorConfig"
-	],
+	]
 }
