@@ -25,7 +25,8 @@
                :parameters {:path {:user-uuid ::imi-im42-spec/uuid}
                             :query {(ds/opt :draft) boolean?
                                     (ds/opt :deleted) boolean?
-                                    (ds/opt :completed) boolean?}}
+                                    (ds/opt :completed) boolean?
+                                    (ds/opt :issued) boolean?}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                           :body vector?}
                            (:not-found imi-routes/status-codes) {:description "Not found"}
