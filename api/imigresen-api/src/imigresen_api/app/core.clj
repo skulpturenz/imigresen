@@ -50,6 +50,10 @@
 
 (def not-found-exception-handler (constantly (ring-res/status (:not-found imi-routes/status-codes))))
 
+(defn bad-request-exception-handler [ex _req]
+  {:status (:bad-request imi-routes/status-codes)
+   :body {:message (get-in (ex-data ex) [:data :message])}})
+
 (defn default-exception-handler [ex _req]
   {:status (:internal-server-error imi-routes/status-codes)
    :body {:message (ex-message ex)
@@ -59,7 +63,8 @@
 (defn generic-exception-handler [ex req]
   (let [data (ex-data ex)]
     (cond
-      (= (get-in data [:data :type]) :not-found) (not-found-exception-handler req)
+      (= (get-in data [:data :type]) :not-found) (not-found-exception-handler ex req)
+      (= (get-in data [:data :type]) :bad-request) (bad-request-exception-handler ex req)
       :else (default-exception-handler ex req))))
 
 (defn always-exception-handler [handler ex req]

@@ -35,6 +35,11 @@
          :post {:summary "Register a new IM42 form"
                 :handler (fn [{:keys [identity parameters]
                                :as _req}]
+                           (truss/have #(every? empty? %)
+                                       (pmap #(imi-im42/get-im42-forms-by-user-uuid (get-in parameters [:path :user-uuid]) %) [{:draft true}
+                                                                                                                               {:completed true}])
+                                       :data {:type :bad-request
+                                              :message (str "User" " " (get-in parameters [:path :user-uuid]) " " "has an active application")})
                            (-> (imi-im42/register-im42-form!
                                 identity
                                 (truss/have imi-user/active-by-uuid?
@@ -50,6 +55,7 @@
                 :responses {(:created imi-routes/status-codes) {:description "Created"
                                                                 :body uuid?}
                             (:not-found imi-routes/status-codes) {:description "Not found"}
+                            (:bad-request imi-routes/status-codes) {:description "Bad request"}
                             (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                             (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                 :middleware [imi-auth/protect]}}]
