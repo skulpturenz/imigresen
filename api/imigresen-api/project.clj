@@ -72,8 +72,8 @@
             [lein-checkout-deps "1.0.0"]
             [com.github.clj-kondo/lein-clj-kondo "0.2.5"]]
   :cljfmt {:load-config-file? true}
-  :aliases {"dev" ["do" "deps," "with-profile" "local" "run"]
-            "build.prod" ["uberjar"]
+  :aliases {"dev" ["do" "deps," "with-profile" "+local" "run"]
+            "build.prod" ["with-profile" "+uberjar" "uberjar"]
             "build.watch" ["auto" "build.prod"]
             "test" ["do", "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
             "test.watch" ["do" "deps," "with-profile" "+kaocha" "run" "-m" "kaocha.runner" "--watch"]
