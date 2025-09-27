@@ -9,16 +9,7 @@ import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
 import { flatMapDeep } from "es-toolkit";
-import {
-	Earth,
-	LogOut,
-	Menu,
-	Moon,
-	Settings,
-	Sun,
-	User,
-	X,
-} from "lucide-solid";
+import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import {
 	createMemo,
 	createSignal,
@@ -326,7 +317,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 	return (
 		<Show when={!isHomeV2Enabled()}>
-			<nav class="shadow shadow-accent py-4">
+			<nav class="py-4">
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer, "space-y-4")}>
 						<div class="relative flex h-16 items-center justify-between">
@@ -336,9 +327,7 @@ export const Navbar: Component<ParentProps> = () => {
 								<div class="flex shrink-0 items-center">
 									<a
 										href="/"
-										class="flex items-center gap-3 sm:gap-4 font-bold uppercase text-2xl sm:text-3xl">
-										<Earth class="h-10 sm:h-12 w-auto" />
-
+										class="flex items-center gap-3 sm:gap-4 font-black lowercase tracking-tighter text-4xl sm:text-4xl">
 										{resources.logoAlt}
 									</a>
 								</div>
