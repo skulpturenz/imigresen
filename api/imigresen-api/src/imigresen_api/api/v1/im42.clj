@@ -31,9 +31,9 @@
                                     (ds/opt :cursor) number?}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                           :body (s/coll-of (-> {:name ::get-im42-form
-                                                                                (ds/opt :automerge-url) ::automerge-url
-                                                                                (ds/opt :completed-at) ::maybe-offset-date
-                                                                                (ds/opt :issued-at) ::maybe-offset-date
+                                                                                (ds/opt :automerge-url) ::imi-im42-spec/automerge-url
+                                                                                (ds/opt :completed-at) ::imi-im42-spec/maybe-offset-date
+                                                                                (ds/opt :issued-at) ::imi-im42-spec/maybe-offset-date
                                                                                 (ds/opt :personal-details) imi-im42-spec/personal-details
                                                                                 (ds/opt :application-details) imi-im42-spec/application-details
                                                                                 (ds/opt :address-details) imi-im42-spec/address-details
