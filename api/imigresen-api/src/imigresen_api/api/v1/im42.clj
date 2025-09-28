@@ -6,30 +6,40 @@
             [imigresen-common.components.user.store :as imi-user]
             [ring.util.response :as ring-res]
             [spec-tools.data-spec :as ds]
-            [taoensso.truss :as truss]))
+            [taoensso.truss :as truss]
+            [clojure.spec.alpha :as s]))
 
 (defn im42-routes []
   ["/im42" {:tags ["im42.v1"]}
    ["/user/:user-uuid"
     ["" {:get {:summary "Get IM42 forms"
-               :description "Returns a sorted list of IM42 UUIDs to automerge urls, sort: desc time registered.
+               :description "Returns a sorted list of IM42 application details, sort: desc time registered.
                              Filters are combined and if no filter is specified then all results for the user are returned"
                :handler (fn [{:keys [parameters]
                               :as _req}]
-                          (-> (imi-im42/get-im42-forms-by-user-uuid
-                               (truss/have imi-user/active-by-uuid?
-                                           (get-in parameters [:path :user-uuid])
-                                           :data {:type :not-found})
-                               (:query parameters))
+                          (-> (truss/have imi-user/active-by-uuid? (get-in parameters [:path :user-uuid])
+                                          :data {:type :not-found})
+                              (imi-im42/user->im42-forms (:query parameters) (:query parameters))
                               (ring-res/response)
                               (ring-res/status (:ok imi-routes/status-codes))))
                :parameters {:path {:user-uuid ::imi-im42-spec/uuid}
                             :query {(ds/opt :draft) boolean?
                                     (ds/opt :deleted) boolean?
                                     (ds/opt :completed) boolean?
-                                    (ds/opt :issued) boolean?}}
+                                    (ds/opt :issued) boolean?
+                                    (ds/opt :limit) number?
+                                    (ds/opt :cursor) number?}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
-                                                          :body vector?}
+                                                          :body (s/coll-of (-> {:name ::get-im42-form
+                                                                                (ds/opt :automerge-url) ::automerge-url
+                                                                                (ds/opt :completed-at) ::maybe-offset-date
+                                                                                (ds/opt :issued-at) ::maybe-offset-date
+                                                                                (ds/opt :personal-details) imi-im42-spec/personal-details
+                                                                                (ds/opt :application-details) imi-im42-spec/application-details
+                                                                                (ds/opt :address-details) imi-im42-spec/address-details
+                                                                                (ds/opt :previous-documents) imi-im42-spec/previous-documents
+                                                                                (ds/opt :declaration) imi-im42-spec/declaration}
+                                                                               (ds/spec)))}
                            (:not-found imi-routes/status-codes) {:description "Not found"}
                            (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                            (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
@@ -38,7 +48,7 @@
                 :handler (fn [{:keys [identity parameters]
                                :as _req}]
                            (truss/have #(every? empty? %)
-                                       (pmap #(imi-im42/get-im42-forms-by-user-uuid
+                                       (pmap #(imi-im42/user->im42-form-ids
                                                (get-in parameters [:path :user-uuid]) %)
                                              [{:draft true}
                                               {:completed true}])

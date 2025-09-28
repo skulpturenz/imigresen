@@ -32,7 +32,7 @@
                                {:select [:*]
                                 :from :events
                                 :order-by [[:entity-id :asc] [:time-occurred :asc] [:revision :asc]]}]}
-                  (sql/format {:params {:entity-ids entity-ids
+                  (sql/format {:params {:entity-ids (map str entity-ids)
                                         :revision-start 0}}))
         result (jdbc/execute! connectable query)]
     result))
