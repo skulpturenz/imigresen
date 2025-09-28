@@ -1,13 +1,13 @@
 (ns imigresen-api.api.v1.im42
-  (:require [imigresen-common.app.auth :as imi-auth]
+  (:require [clojure.spec.alpha :as s]
+            [imigresen-common.app.auth :as imi-auth]
             [imigresen-common.app.routes :as imi-routes]
             [imigresen-common.components.im42-form.spec :as imi-im42-spec]
             [imigresen-common.components.im42-form.store :as imi-im42]
             [imigresen-common.components.user.store :as imi-user]
             [ring.util.response :as ring-res]
             [spec-tools.data-spec :as ds]
-            [taoensso.truss :as truss]
-            [clojure.spec.alpha :as s]))
+            [taoensso.truss :as truss]))
 
 (defn im42-routes []
   ["/im42" {:tags ["im42.v1"]}
