@@ -28,7 +28,7 @@
                                     (ds/opt :completed) boolean?
                                     (ds/opt :issued) boolean?
                                     (ds/opt :limit) number?
-                                    (ds/opt :cursor) number?}}
+                                    (ds/opt :page) number?}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                           :body (s/coll-of (-> {:name ::get-im42-form
                                                                                 (ds/opt :automerge-url) ::imi-im42-spec/automerge-url
