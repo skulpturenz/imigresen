@@ -19,6 +19,7 @@ services:
             DB_INIT_IN_TRANSACTION: "false"
             DB_MIGRATION_TABLE_NAME: "migrations"
             DB_SEED_MIGRATION_TABLE_NAME: "seed_migrations"
+            DB_CHANGE_SCRIPT_MIGRATION_TABLE_NAME: "change_script_migrations"
             # These are not really used, all mocked out
             KC_AUTH_SERVER_URL: "https://authnz.skulpture.xyz"
             KC_REALM: "imigresen-test"
