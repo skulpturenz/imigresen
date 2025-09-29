@@ -5,7 +5,7 @@ import { flip, get, uuidAsc } from "core/data/sort";
 import { delay, flatten, invariant } from "es-toolkit";
 import { fixture as referenceDataFixture } from "feat/home/chore/reference-data.fixture";
 import type {
-	GetAutomergeUrlsVariables,
+	GetDraftApplicationsVariables,
 	GetPassportApplicationsVariables,
 	ImportApplicationsVariables,
 	MyPassportForm,
@@ -24,7 +24,9 @@ const storage = createStorage({
 });
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
+	const getAutomergeUrls = async ({
+		user,
+	}: GetDraftApplicationsVariables) => {
 		const localKeys = await storage.getKeys(
 			storageKeys.myPassportFormApplications(user),
 		);

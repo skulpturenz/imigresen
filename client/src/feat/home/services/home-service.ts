@@ -1,5 +1,6 @@
 import type { AnyDocumentId, Repo } from "@automerge/automerge-repo";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
+import { MyPassportFormStatus } from "common/epic/my-passport-form/types";
 import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { assertEnv } from "core/utils/assert-env";
@@ -8,7 +9,6 @@ import type {
 	GetAutomergeUrlsVariables,
 	GetPassportApplicationsVariables,
 	ImportApplicationsVariables,
-	MyPassportForm,
 	PromiseSettledResultValue,
 	RegisterApplicationVariables,
 	RegisteredMyPassportForm,
@@ -41,17 +41,20 @@ export const homeService = (repo: Repo, token?: string) => {
 			);
 			const localItems = await storage.getItems<string>(localKeys);
 
-			return localItems.map<[string, string]>(({ key, value }) => [
-				key,
-				value,
-			]);
+			return localItems.map<Partial<RegisteredMyPassportForm>>(
+				({ key, value }) => ({
+					uuid: key.split(":").at(-1),
+					automergeUrl: value,
+					status: MyPassportFormStatus.Draft,
+				}),
+			);
 		}
 
 		return im42Api
 			.auth(`Bearer ${token}`)
 			.query({ draft: true })
 			.get(`/user/${user}`)
-			.json<[string, string][]>();
+			.json<Partial<RegisteredMyPassportForm>[]>();
 	};
 
 	const getPassportApplications = async ({
@@ -61,28 +64,38 @@ export const homeService = (repo: Repo, token?: string) => {
 			user,
 		});
 
+		const nonDraftDocuments = await im42Api
+			.auth(`Bearer ${token}`)
+			.query({ draft: false })
+			.get(`/user/${user}`)
+			.json<RegisteredMyPassportForm[]>();
+
+		// TODO: update types
+		const getUuid = (document: Record<string, any>) =>
+			document.uuid as string;
+
 		if (!automergeUrls.length) {
-			return [];
+			return nonDraftDocuments.sort(flip(get(getUuid)(uuidAsc)));
 		}
 
-		const documents = await Promise.allSettled(
-			automergeUrls?.map(async ([key, value]) => {
+		const draftDocuments = await Promise.allSettled(
+			automergeUrls?.map(async form => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
-				>(value as AnyDocumentId);
+				>(form.automergeUrl as AnyDocumentId);
 
 				// this usually happens if the doc does not exist on the remote or locally
 				// either there's been a indexdb migration (database name change for example)
 				// or the remote repo does not have the document
 				await makeTimeout({
-					message: `timed out waiting for automerge doc with url "${value}"`,
+					message: `timed out waiting for automerge doc with url "${form.automergeUrl}"`,
 				})(handle.whenReady());
 
 				const doc = selectMyPassportForm(handle.doc());
 
 				return {
-					uuid: key.split(":").at(-1) as string,
-					automergeUrl: value,
+					uuid: form.uuid,
+					automergeUrl: form.automergeUrl,
 					doc,
 				};
 			}) ?? [],
@@ -128,17 +141,18 @@ export const homeService = (repo: Repo, token?: string) => {
 			}, []),
 		);
 
-		const getUuid = (document: (typeof documents)[number]) => document.uuid;
-
-		return documents
-			.sort(flip(get(getUuid)(uuidAsc)))
-			.map<RegisteredMyPassportForm>(application => {
+		const allDocuments = [
+			...draftDocuments.map<RegisteredMyPassportForm>(application => {
 				return {
-					uuid: application.uuid,
-					automergeUrl: application.automergeUrl,
-					...(application.doc as MyPassportForm),
+					...(application.doc as RegisteredMyPassportForm),
+					uuid: application.uuid as string,
+					automergeUrl: application.automergeUrl as string,
 				};
-			});
+			}),
+			...nonDraftDocuments,
+		];
+
+		return allDocuments.sort(flip(get(getUuid)(uuidAsc)));
 	};
 
 	const downloadApplications = async (automergeUrls: string[]) => {
