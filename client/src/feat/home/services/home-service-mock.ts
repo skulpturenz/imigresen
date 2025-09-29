@@ -4,13 +4,14 @@ import { storageKeys } from "core/constants/storage-keys";
 import { flip, get, uuidAsc } from "core/data/sort";
 import { delay, flatten, invariant } from "es-toolkit";
 import { fixture as referenceDataFixture } from "feat/home/chore/reference-data.fixture";
-import type {
-	GetDraftApplicationsVariables,
-	GetPassportApplicationsVariables,
-	ImportApplicationsVariables,
-	MyPassportForm,
-	RegisterApplicationVariables,
-	RegisteredMyPassportForm,
+import {
+	MyPassportFormStatus,
+	type GetAutomergeUrlsVariables,
+	type GetPassportApplicationsVariables,
+	type ImportApplicationsVariables,
+	type PromiseSettledResultValue,
+	type RegisterApplicationVariables,
+	type RegisteredMyPassportForm,
 } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
@@ -24,18 +25,19 @@ const storage = createStorage({
 });
 
 export const homeService = (repo: Repo, _token?: string) => {
-	const getAutomergeUrls = async ({
-		user,
-	}: GetDraftApplicationsVariables) => {
+	const getAutomergeUrls = async ({ user }: GetAutomergeUrlsVariables) => {
 		const localKeys = await storage.getKeys(
 			storageKeys.myPassportFormApplications(user),
 		);
 		const localItems = await storage.getItems<string>(localKeys);
 
-		return localItems.map<[string, string]>(({ key, value }) => [
-			key,
-			value,
-		]);
+		return localItems.map<Partial<RegisteredMyPassportForm>>(
+			({ key, value }) => ({
+				uuid: key.split(":").at(-1),
+				automergeUrl: value,
+				status: MyPassportFormStatus.Draft,
+			}),
+		);
 	};
 
 	const getPassportApplications = async ({
@@ -45,44 +47,88 @@ export const homeService = (repo: Repo, _token?: string) => {
 			user,
 		});
 
+		// TODO: update types
+		const getUuid = (document: Record<string, any>) =>
+			document.uuid as string;
+
 		if (!automergeUrls.length) {
 			return [];
 		}
 
-		const documents = await Promise.all(
-			automergeUrls?.map(async ([key, value]) => {
+		const draftDocuments = await Promise.allSettled(
+			automergeUrls?.map(async form => {
 				const handle = await repo.find<
 					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
-				>(value as AnyDocumentId);
+				>(form.automergeUrl as AnyDocumentId);
 
 				// this usually happens if the doc does not exist on the remote or locally
 				// either there's been a indexdb migration (database name change for example)
 				// or the remote repo does not have the document
 				await makeTimeout({
-					message: `timed out waiting for automerge doc with url "${value}"`,
+					message: `timed out waiting for automerge doc with url "${form.automergeUrl}"`,
 				})(handle.whenReady());
 
 				const doc = selectMyPassportForm(handle.doc());
 
 				return {
-					uuid: key.split(":").at(-1) as string,
-					automergeUrl: value,
+					uuid: form.uuid,
+					automergeUrl: form.automergeUrl,
 					doc,
 				};
 			}) ?? [],
+		).then(promiseSettledResults =>
+			promiseSettledResults.reduce<
+				PromiseSettledResultValue<
+					(typeof promiseSettledResults)[number]
+				>[]
+			>((acc, promise) => {
+				const isPromiseRejected = (
+					x: unknown,
+				): x is PromiseRejectedResult =>
+					(x as PromiseRejectedResult)?.status === "rejected";
+
+				// in prod we want to throw if any application fails to load
+				invariant(
+					!import.meta.env.PROD || !isPromiseRejected(promise),
+					(promise as PromiseRejectedResult).reason,
+				);
+
+				// in dev sometimes when using the same account locally with deployed apis
+				// the document won't load if it was created to the deployed automerge repo
+				// can't authenticate to deployed automerge repo because the authentication
+				// will fail since cookie auth
+				// likewise any local applications won't load in dev environments
+				const filterOrphanedApplications =
+					import.meta.env.DEV && isPromiseRejected(promise);
+
+				if (filterOrphanedApplications) {
+					invariant(
+						!import.meta.env.PROD,
+						"Filtering orphaned records in production",
+					);
+
+					return acc;
+				}
+
+				const { value: result } = promise as PromiseFulfilledResult<
+					PromiseSettledResultValue<typeof promise>
+				>;
+
+				return [...acc, result];
+			}, []),
 		);
 
-		const getUuid = (document: (typeof documents)[number]) => document.uuid;
-
-		return documents
-			.sort(flip(get(getUuid)(uuidAsc)))
-			.map<RegisteredMyPassportForm>(application => {
+		const allDocuments = [
+			...draftDocuments.map<RegisteredMyPassportForm>(application => {
 				return {
-					uuid: application.uuid,
-					automergeUrl: application.automergeUrl,
-					...(application.doc as MyPassportForm),
+					...(application.doc as RegisteredMyPassportForm),
+					uuid: application.uuid as string,
+					automergeUrl: application.automergeUrl as string,
 				};
-			});
+			}),
+		];
+
+		return allDocuments.sort(flip(get(getUuid)(uuidAsc)));
 	};
 
 	const downloadApplications = async (automergeUrls: string[]) => {
