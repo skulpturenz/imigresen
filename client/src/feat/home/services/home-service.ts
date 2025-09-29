@@ -64,11 +64,16 @@ export const homeService = (repo: Repo, token?: string) => {
 			user,
 		});
 
-		const nonDraftDocuments = await im42Api
-			.auth(`Bearer ${token}`)
-			.query({ draft: false })
-			.get(`/user/${user}`)
-			.json<RegisteredMyPassportForm[]>();
+		const nonDraftDocuments = [];
+		if (user) {
+			const documents = await im42Api
+				.auth(`Bearer ${token}`)
+				.query({ draft: false })
+				.get(`/user/${user}`)
+				.json<RegisteredMyPassportForm[]>();
+
+			nonDraftDocuments.push(...documents);
+		}
 
 		// TODO: update types
 		const getUuid = (document: Record<string, any>) =>
