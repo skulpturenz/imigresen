@@ -16,7 +16,10 @@ import {
 } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
-import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types";
+import {
+	MyPassportFormStatus,
+	MyPassportFormVersionLatest,
+} from "common/epic/my-passport-form/types";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
@@ -161,6 +164,7 @@ export const useMyPassportForm = () => {
 
 		const handle = repo.create<Partial<MyPassportForm>>({
 			version: MyPassportFormVersionLatest,
+			status: MyPassportFormStatus.Draft,
 		});
 
 		await handle.whenReady();

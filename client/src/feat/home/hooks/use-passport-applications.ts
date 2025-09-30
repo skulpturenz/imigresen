@@ -4,6 +4,7 @@ import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { HomeContext } from "feat/home/context";
+import { MyPassportFormStatus } from "feat/home/types";
 import { exportData } from "feat/home/utils";
 import { createSignal } from "solid-js";
 
@@ -105,6 +106,28 @@ export const usePassportApplications = () => {
 		});
 	};
 
+	const getCurrentApplication = () => {
+		const currentApplication = qPassportApplications.data?.find(
+			application => application.status === MyPassportFormStatus.Draft,
+		);
+
+		return currentApplication;
+	};
+
+	const getPreviousApplications = () => {
+		const applications = qPassportApplications.data?.slice(1) ?? [];
+
+		return applications;
+	};
+
+	const getLatestIssuedApplication = () => {
+		const latestIssuedApplication = qPassportApplications.data?.find(
+			application => Boolean(application.issuedAt),
+		);
+
+		return latestIssuedApplication;
+	};
+
 	return {
 		show,
 		qPassportApplications,
@@ -116,5 +139,8 @@ export const usePassportApplications = () => {
 		toggleImportDialog,
 		toggleFailedToExportDialog,
 		prefetchReferenceData,
+		getCurrentApplication,
+		getPreviousApplications,
+		getLatestIssuedApplication,
 	};
 };

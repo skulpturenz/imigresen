@@ -1,16 +1,11 @@
-// TODO: remove
-/* eslint-disable */
-/// @ts-nocheck
-
-import { randBetweenDate } from "@ngneat/falso";
 import type { ColumnDef } from "@tanstack/solid-table";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/utils";
+import { generatePath } from "core/utils";
 import {
-	addYears,
 	differenceInDays,
 	differenceInMonths,
 	differenceInWeeks,
@@ -33,29 +28,33 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
-import type { RegisteredMyPassportForm } from "./types";
+import { MyPassportFormStatus, type RegisteredMyPassportForm } from "./types";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const {
-		show,
+		show: _show,
 		qPassportApplications,
-		mImportApplications,
-		onClickImportApplications,
+		mImportApplications: _mImportApplications,
+		onClickImportApplications: _onClickImportApplications,
 		onClickExportApplications,
-		onClickCloseExportApplications,
-		mDownloadApplications,
+		onClickCloseExportApplications: _onClickCloseExportApplications,
+		mDownloadApplications: _mDownloadApplications,
 		toggleImportDialog,
 		prefetchReferenceData,
+		getCurrentApplication,
+		getPreviousApplications,
+		getLatestIssuedApplication,
 	} = usePassportApplications();
 
-	const [files, setFiles] = createSignal<File[]>([]);
-	const onFilesChange = (event: any) => {
-		const selected: File[] = Array.from(event.target.files);
+	// TODO
+	const [_files, _setFiles] = createSignal<File[]>([]);
+	// const _onFilesChange = (event: any) => {
+	// 	const selected: File[] = Array.from(event.target.files);
 
-		setFiles(selected);
-	};
+	// 	setFiles(selected);
+	// };
 
 	const [search, setSearch] = createSignal("");
 
@@ -121,76 +120,61 @@ export const Home = () => {
 		return "days";
 	};
 
-	const randomDate = randBetweenDate({
-		from: new Date().toLocaleDateString("en-us"),
-		to: addYears(new Date(), 5),
-	});
-
-	// TODO
-	const currentApplication = {
-		uuid: "",
-		automergeUrl: "",
-		personalDetails: {
-			firstName: "John",
-			lastName: "Doe",
-		},
-		applicationDetails: {
-			documentType: "64 page passport",
-			requestType: "Expired application",
-		},
-		status: "Submitted",
-	};
-	const getProgressByStatus = (status: string) => {
-		const progress = ["Draft", "Ready", "Submitted", "Issued"];
+	const getProgressByStatus = (status: MyPassportFormStatus) => {
+		const progress = [
+			MyPassportFormStatus.Draft,
+			MyPassportFormStatus.Ready,
+			MyPassportFormStatus.Submitted,
+			MyPassportFormStatus.Issued,
+		];
 
 		const currentStatusIdx = progress.findIndex(x => x === status);
 		invariant(currentStatusIdx !== -1, "Invalid status");
 
 		return ((currentStatusIdx + 1) / progress.length) * 100;
 	};
+	const toLabel = (status: MyPassportFormStatus) => {
+		const statusLabelMap = {
+			[MyPassportFormStatus.Draft]: "Draft",
+			[MyPassportFormStatus.Ready]: "Ready",
+			[MyPassportFormStatus.Submitted]: "Submitted",
+			[MyPassportFormStatus.Issued]: "Issued",
+		};
 
-	const pastApplications = [
-		{
-			uuid: "",
-			automergeUrl: "",
-			personalDetails: {
-				firstName: "John",
-				lastName: "Doe",
-			},
-			applicationDetails: {
-				documentType: "64 page passport",
-				requestType: "Expired application",
-			},
-			status: "Submitted",
-		},
-		{
-			uuid: "",
-			automergeUrl: "",
-			personalDetails: {
-				firstName: "John",
-				lastName: "Doe",
-			},
-			applicationDetails: {
-				documentType: "64 page passport",
-				requestType: "Expired application",
-			},
-			status: "Submitted",
-		},
-		{
-			uuid: "",
-			automergeUrl: "",
-			personalDetails: {
-				firstName: "John",
-				lastName: "Doe",
-			},
-			applicationDetails: {
-				documentType: "64 page passport",
-				requestType: "Expired application",
-				dateIssued: new Date(),
-			},
-			status: "Issued",
-		},
-	];
+		const label = statusLabelMap[status];
+		invariant(label, "Unknown status");
+
+		return label;
+	};
+	const getHref = (application: RegisteredMyPassportForm) => {
+		const url = new URL(location.origin);
+		url.hash = location.hash;
+
+		const searchParams = new URLSearchParams({
+			automergeUrl: application.automergeUrl,
+		});
+
+		url.pathname = generatePath(MyPassportForm.Edit, {
+			uuid: application.uuid,
+		});
+		url.search = searchParams.toString();
+
+		return url.href;
+	};
+	const getViewApplicationHref = () => {
+		if (getCurrentApplication()) {
+			return getHref(getCurrentApplication() as RegisteredMyPassportForm);
+		}
+
+		if (getLatestIssuedApplication()?.automergeUrl) {
+			return getHref(
+				getLatestIssuedApplication() as RegisteredMyPassportForm,
+			);
+		}
+
+		return null;
+	};
+
 	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
 		{
 			accessorKey: "applicationDetails.requestType",
@@ -216,16 +200,13 @@ export const Home = () => {
 			},
 		},
 		{
-			accessorKey: "applicationDetails.dateIssued",
+			accessorKey: "issuedAt",
 			accessorFn: row => {
-				if (!row.applicationDetails.dateIssued) {
+				if (!row.issuedAt) {
 					return "";
 				}
 
-				return formatDate(
-					row.applicationDetails.dateIssued,
-					"dd-MM-yyyy",
-				);
+				return formatDate(row.issuedAt, "dd-MM-yyyy");
 			},
 			header: "Date issued",
 		},
@@ -279,7 +260,7 @@ export const Home = () => {
 			<Suspense fallback={<div>Loading...</div>}>
 				<Show
 					// TODO: in this case show form to enter current passport details
-					when={false && !qPassportApplications.data?.length}>
+					when={!qPassportApplications.data?.length}>
 					<Typography variant="h3" class="text-center">
 						No applications yet!
 					</Typography>
@@ -287,7 +268,7 @@ export const Home = () => {
 
 				<Show
 					// TODO
-					when={true || qPassportApplications.data?.length}>
+					when={qPassportApplications.data?.length}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<Alert>
@@ -302,169 +283,275 @@ export const Home = () => {
 						</Show>
 
 						<div>
-							<CardHeader class="flex-row items-center justify-between">
-								<div>
-									<CardTitle>Current application</CardTitle>
-								</div>
-								<div>
-									<Button size="sm" variant="secondary">
+							<Show
+								when={
+									getLatestIssuedApplication() ||
+									getCurrentApplication()
+								}>
+								<CardHeader class="flex-row items-center justify-between">
+									<div>
+										<CardTitle>
+											Current application
+										</CardTitle>
+									</div>
+
+									<Show when={getViewApplicationHref()}>
 										<div>
-											<Eye />
+											<Button
+												size="sm"
+												variant="secondary"
+												as="a"
+												href={
+													getViewApplicationHref() as string
+												}>
+												<div>
+													<Eye />
+												</div>
+												View application
+											</Button>
 										</div>
-										View application
-									</Button>
-								</div>
-							</CardHeader>
+									</Show>
+								</CardHeader>
+							</Show>
 
 							<CardContent class="space-y-8">
-								<Typography variant="h4">
-									<Show
-										when={
-											getDifferenceUnit(randomDate) ===
-											"today"
-										}>
-										<div>
-											Your latest travel document has the
-											number&nbsp; A1234123 &nbsp; and is
-											due to expire &nbsp; today
-										</div>
-									</Show>
+								<Show when={getLatestIssuedApplication()}>
+									<Typography variant="h4">
+										<Show
+											when={
+												getDifferenceUnit(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												) === "today"
+											}>
+											<div>
+												Your latest travel document has
+												the number&nbsp; A1234123 &nbsp;
+												and is due to expire &nbsp;
+												today
+											</div>
+										</Show>
 
-									<Show
-										when={
-											getDifferenceUnit(randomDate) !==
-											"today"
-										}>
+										<Show
+											when={
+												getDifferenceUnit(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												) !== "today"
+											}>
+											<div>
+												Your latest travel document has
+												the number A1234123 and is due
+												to expire in&nbsp;
+												<Tooltip>
+													<TooltipTrigger as="span">
+														{getDifference(
+															getLatestIssuedApplication()
+																?.issuedAt as Date,
+														)}
+														&nbsp;
+														{getDifferenceUnit(
+															getLatestIssuedApplication()
+																?.issuedAt as Date,
+														)}
+													</TooltipTrigger>
+
+													<TooltipContent>
+														{(
+															getLatestIssuedApplication()
+																?.issuedAt as Date
+														).toDateString()}
+													</TooltipContent>
+												</Tooltip>
+											</div>
+										</Show>
+									</Typography>
+								</Show>
+
+								<Show when={getCurrentApplication()}>
+									<div class="grid grid-cols-2 gap-4">
 										<div>
-											Your latest travel document has the
-											number A1234123 and is due to expire
-											in&nbsp;
-											<Tooltip>
-												<TooltipTrigger as="span">
-													{getDifference(randomDate)}
-													&nbsp;
-													{getDifferenceUnit(
-														randomDate,
+											<Label class="text-muted-foreground">
+												Application type
+											</Label>
+
+											<Show
+												when={
+													getCurrentApplication()
+														?.applicationDetails
+														?.requestType
+												}>
+												<div>
+													{
+														getCurrentApplication()
+															?.applicationDetails
+															?.requestType
+													}
+												</div>
+											</Show>
+
+											<Show
+												when={
+													!getCurrentApplication()
+														?.applicationDetails
+														?.requestType
+												}>
+												<div class="text-muted-foreground">
+													Placeholder
+												</div>
+											</Show>
+										</div>
+
+										<div>
+											<Label class="text-muted-foreground">
+												Document type
+											</Label>
+
+											<Show
+												when={
+													getCurrentApplication()
+														?.applicationDetails
+														?.documentType
+												}>
+												<div>
+													{
+														getCurrentApplication()
+															?.applicationDetails
+															?.documentType
+													}
+												</div>
+											</Show>
+
+											<Show
+												when={
+													!getCurrentApplication()
+														?.applicationDetails
+														?.documentType
+												}>
+												<div class="text-muted-foreground">
+													Placeholder
+												</div>
+											</Show>
+										</div>
+
+										<div>
+											<Label class="text-muted-foreground">
+												Applicant Name
+											</Label>
+
+											<Show
+												when={
+													getCurrentApplication()
+														?.personalDetails
+														?.firstName ||
+													getCurrentApplication()
+														?.personalDetails
+														?.lastName
+												}>
+												<div>
+													{[
+														getCurrentApplication()
+															?.personalDetails
+															?.firstName,
+														getCurrentApplication()
+															?.personalDetails
+															?.lastName,
+													]
+														.filter(Boolean)
+														.join(" ")}
+												</div>
+											</Show>
+
+											<Show
+												when={
+													!getCurrentApplication()
+														?.personalDetails
+														?.firstName &&
+													!getCurrentApplication()
+														?.personalDetails
+														?.lastName
+												}>
+												<div class="text-muted-foreground">
+													Placeholder
+												</div>
+											</Show>
+										</div>
+
+										<div>
+											<Label class="text-muted-foreground">
+												Status
+											</Label>
+
+											<div>
+												<Badge>
+													{toLabel(
+														getCurrentApplication()
+															?.status as MyPassportFormStatus,
 													)}
-												</TooltipTrigger>
-
-												<TooltipContent>
-													{randomDate.toDateString()}
-												</TooltipContent>
-											</Tooltip>
-										</div>
-									</Show>
-								</Typography>
-
-								<div class="grid grid-cols-2 gap-4">
-									<div>
-										<Label class="text-muted-foreground">
-											Application type
-										</Label>
-
-										<div>
-											{
-												currentApplication
-													.applicationDetails
-													.requestType
-											}
+												</Badge>
+											</div>
 										</div>
 									</div>
 
-									<div>
-										<Label class="text-muted-foreground">
-											Document type
-										</Label>
+									<div class="flex flex-col gap-2">
+										<Progress
+											value={getProgressByStatus(
+												getCurrentApplication()
+													?.status as MyPassportFormStatus,
+											)}>
+											<div class="flex justify-between">
+												<ProgressLabel>
+													Progress
+												</ProgressLabel>
+												<ProgressValueLabel />
+											</div>
+										</Progress>
 
-										<div>
-											{
-												currentApplication
-													.applicationDetails
-													.documentType
-											}
-										</div>
-									</div>
-
-									<div>
-										<Label class="text-muted-foreground">
-											Applicant Name
-										</Label>
-
-										<div>
-											{[
-												currentApplication
-													.personalDetails.firstName,
-												currentApplication
-													.personalDetails.lastName,
-											]
-												.filter(Boolean)
-												.join(" ")}
-										</div>
-									</div>
-
-									<div>
-										<Label class="text-muted-foreground">
-											Status
-										</Label>
-
-										<div>
-											<Badge>
-												{currentApplication.status}
-											</Badge>
-										</div>
-									</div>
-								</div>
-
-								<div class="flex flex-col gap-2">
-									<Progress
-										value={getProgressByStatus(
-											currentApplication.status,
-										)}>
 										<div class="flex justify-between">
-											<ProgressLabel>
-												Progress
-											</ProgressLabel>
-											<ProgressValueLabel />
+											<Label description>Draft</Label>
+
+											<Label description>Ready</Label>
+
+											<Label description>Submitted</Label>
+
+											<Label description>Issued</Label>
 										</div>
-									</Progress>
-
-									<div class="flex justify-between">
-										<Label description>Draft</Label>
-
-										<Label description>Ready</Label>
-
-										<Label description>Submitted</Label>
-
-										<Label description>Issued</Label>
 									</div>
-								</div>
+								</Show>
 							</CardContent>
 						</div>
 
-						<div>
-							<CardHeader>
-								<CardTitle>Past applications</CardTitle>
-							</CardHeader>
+						<Show when={getPreviousApplications().length > 0}>
+							<div>
+								<CardHeader>
+									<CardTitle>Past applications</CardTitle>
+								</CardHeader>
 
-							<CardContent class="flex flex-col gap-4">
-								<TextFieldRoot>
-									<TextField
-										type="text"
-										placeholder="Search ..."
-										onInput={event =>
-											setSearch(event.target.value)
-										}
+								<CardContent class="flex flex-col gap-4">
+									<TextFieldRoot>
+										<TextField
+											type="text"
+											placeholder="Search ..."
+											// TODO
+											onInput={event =>
+												setSearch(
+													(
+														event.target as HTMLInputElement
+													).value,
+												)
+											}
+										/>
+									</TextFieldRoot>
+
+									<DataTable
+										columns={columns}
+										rows={getPreviousApplications}
+										isRowSelectable={false}
+										search={search}
 									/>
-								</TextFieldRoot>
-
-								<DataTable
-									columns={columns}
-									rows={() => pastApplications as any[]}
-									isRowSelectable={false}
-									search={search}
-								/>
-							</CardContent>
-						</div>
+								</CardContent>
+							</div>
+						</Show>
 					</div>
 				</Show>
 			</Suspense>
