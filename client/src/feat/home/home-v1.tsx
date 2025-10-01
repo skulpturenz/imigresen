@@ -253,10 +253,14 @@ export const Home = () => {
 			id: "actions",
 			header: t("pastApplications.tableColumns.actions"),
 			enableSorting: false,
-			cell: () => {
+			cell: ({ row }) => {
 				return (
 					<div class="flex gap-2 items-center">
-						<Button variant="ghost" size="icon">
+						<Button
+							as="a"
+							variant="ghost"
+							size="icon"
+							href={getHref(row.original)}>
 							<Eye />
 						</Button>
 					</div>
