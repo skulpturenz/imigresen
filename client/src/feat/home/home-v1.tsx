@@ -268,17 +268,21 @@ export const Home = () => {
 			<>
 				<Typography
 					variant="h2"
-					class="flex justify-between items-center">
-					<span class="max-w-sm md:max-w-full">
+					class="flex flex-col md:flex-row gap-4 justify-between items-center">
+					<span class="max-w-full sm:max-w-sm md:max-w-full">
 						Onboard details of your current passport
 					</span>
 
-					<div class="flex gap-2">
-						<Button variant="outline" onClick={toggleImportDialog}>
+					<div class="flex w-full md:max-w-min gap-2">
+						<Button
+							variant="outline"
+							class="w-full md:max-w-min"
+							onClick={toggleImportDialog}>
 							{t("doImport")}
 						</Button>
 					</div>
 				</Typography>
+
 				<Typography variant="p">
 					Imigresen allows you to manage your Malaysian passport
 					applications online, simplifying the process so that you
