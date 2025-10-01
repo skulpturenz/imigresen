@@ -117,25 +117,25 @@ export const Home = () => {
 
 		const yearsToExpiry = differenceInYears(expiryDate, new Date());
 		if (yearsToExpiry > 1) {
-			return "years";
+			return t("timeUnit.years");
 		}
 
 		const monthsToExpiry = differenceInMonths(expiryDate, new Date());
 		if (monthsToExpiry > 1) {
-			return "months";
+			return t("timeUnit.months");
 		}
 
 		const weeksToExpiry = differenceInWeeks(expiryDate, new Date());
 		if (weeksToExpiry > 1) {
-			return "weeks";
+			return t("timeUnit.weeks");
 		}
 
 		const daysToExpiry = differenceInDays(expiryDate, new Date());
 		if (daysToExpiry === 0) {
-			return "today";
+			return t("timeUnit.today");
 		}
 
-		return "days";
+		return t("timeUnit.days");
 	};
 
 	const getProgressByStatus = (status: MyPassportFormStatus) => {
@@ -153,10 +153,10 @@ export const Home = () => {
 	};
 	const toLabel = (status: MyPassportFormStatus) => {
 		const statusLabelMap = {
-			[MyPassportFormStatus.Draft]: "Draft",
-			[MyPassportFormStatus.Ready]: "Ready",
-			[MyPassportFormStatus.Submitted]: "Submitted",
-			[MyPassportFormStatus.Issued]: "Issued",
+			[MyPassportFormStatus.Draft]: t("status.draft"),
+			[MyPassportFormStatus.Ready]: t("status.ready"),
+			[MyPassportFormStatus.Submitted]: t("status.submitted"),
+			[MyPassportFormStatus.Issued]: t("status.issued"),
 		};
 
 		const label = statusLabelMap[status];
@@ -196,11 +196,11 @@ export const Home = () => {
 	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
 		{
 			accessorKey: "applicationDetails.requestType",
-			header: "Application type",
+			header: t("pastApplications.tableColumns.requestType"),
 		},
 		{
 			accessorKey: "applicationDetails.documentType",
-			header: "Document type",
+			header: t("pastApplications.tableColumns.documentType"),
 		},
 		{
 			id: "name",
@@ -208,11 +208,11 @@ export const Home = () => {
 				[row.personalDetails.firstName, row.personalDetails.lastName]
 					.filter(Boolean)
 					.join(" "),
-			header: "Name",
+			header: t("pastApplications.tableColumns.name"),
 		},
 		{
 			accessorKey: "status",
-			header: "Status",
+			header: t("pastApplications.tableColumns.status"),
 			cell: ({ getValue }) => {
 				return <Badge>{getValue<string>()}</Badge>;
 			},
@@ -226,11 +226,11 @@ export const Home = () => {
 
 				return formatDate(row.issuedAt, "dd-MM-yyyy");
 			},
-			header: "Date issued",
+			header: t("pastApplications.tableColumns.dateIssued"),
 		},
 		{
 			id: "actions",
-			header: "Actions",
+			header: t("pastApplications.tableColumns.actions"),
 			enableSorting: false,
 			cell: () => {
 				return (
@@ -270,7 +270,7 @@ export const Home = () => {
 					variant="h2"
 					class="flex flex-col md:flex-row gap-4 justify-between items-center">
 					<span class="max-w-full sm:max-w-sm md:max-w-full">
-						Onboard details of your current passport
+						{t("onboarding.title")}
 					</span>
 
 					<div class="flex w-full md:max-w-min gap-2">
@@ -283,16 +283,8 @@ export const Home = () => {
 					</div>
 				</Typography>
 
-				<Typography variant="p">
-					Imigresen allows you to manage your Malaysian passport
-					applications online, simplifying the process so that you
-					don't need to scramble for your documents every time you
-					renew. You can also import any applications you previously
-					created.
-					<br />
-					<br />
-					Imigresen allows you to work locally and export your data
-					for backup or store them in the cloud by registering.
+				<Typography variant="p" class="whitespace-pre-line">
+					{t("onboarding.description")}
 				</Typography>
 
 				<MyPassportFormWizard ref={myPassportFormWizardRef} />
@@ -340,7 +332,9 @@ export const Home = () => {
 						}>
 						<CardHeader class="flex-row items-center justify-between">
 							<div>
-								<CardTitle>Current application</CardTitle>
+								<CardTitle>
+									{t("currentApplication.title")}
+								</CardTitle>
 							</div>
 
 							<Show when={getViewApplicationHref()}>
@@ -355,7 +349,9 @@ export const Home = () => {
 										<div>
 											<Eye />
 										</div>
-										View application
+										{t(
+											"currentApplication.doViewApplication",
+										)}
 									</Button>
 								</div>
 							</Show>
@@ -366,6 +362,7 @@ export const Home = () => {
 						<Show when={getLatestIssuedApplication()}>
 							<Typography variant="h4">
 								<Show
+									// TODO
 									when={
 										getDifferenceUnit(
 											getLatestIssuedApplication()
@@ -380,6 +377,7 @@ export const Home = () => {
 								</Show>
 
 								<Show
+									// TODO
 									when={
 										getDifferenceUnit(
 											getLatestIssuedApplication()
@@ -419,7 +417,9 @@ export const Home = () => {
 							<div class="grid grid-cols-2 gap-4">
 								<div>
 									<Label class="text-muted-foreground">
-										Application type
+										{t(
+											"currentApplication.applicationType",
+										)}
 									</Label>
 
 									<Show
@@ -444,14 +444,14 @@ export const Home = () => {
 												?.requestType
 										}>
 										<div class="text-muted-foreground">
-											Placeholder
+											{t("placeholder")}
 										</div>
 									</Show>
 								</div>
 
 								<div>
 									<Label class="text-muted-foreground">
-										Document type
+										{t("currentApplication.documentType")}
 									</Label>
 
 									<Show
@@ -476,14 +476,14 @@ export const Home = () => {
 												?.documentType
 										}>
 										<div class="text-muted-foreground">
-											Placeholder
+											{t("placeholder")}
 										</div>
 									</Show>
 								</div>
 
 								<div>
 									<Label class="text-muted-foreground">
-										Applicant Name
+										{t("currentApplication.name")}
 									</Label>
 
 									<Show
@@ -514,14 +514,14 @@ export const Home = () => {
 												?.personalDetails?.lastName
 										}>
 										<div class="text-muted-foreground">
-											Placeholder
+											{t("placeholder")}
 										</div>
 									</Show>
 								</div>
 
 								<div>
 									<Label class="text-muted-foreground">
-										Status
+										{t("currentApplication.status")}
 									</Label>
 
 									<div>
@@ -542,19 +542,30 @@ export const Home = () => {
 											?.status as MyPassportFormStatus,
 									)}>
 									<div class="flex justify-between">
-										<ProgressLabel>Progress</ProgressLabel>
+										<ProgressLabel>
+											{t("currentApplication.progress")}
+										</ProgressLabel>
+
 										<ProgressValueLabel />
 									</div>
 								</Progress>
 
 								<div class="flex justify-between">
-									<Label description>Draft</Label>
+									<Label description>
+										{t("status.draft")}
+									</Label>
 
-									<Label description>Ready</Label>
+									<Label description>
+										{t("status.ready")}
+									</Label>
 
-									<Label description>Submitted</Label>
+									<Label description>
+										{t("status.submitted")}
+									</Label>
 
-									<Label description>Issued</Label>
+									<Label description>
+										{t("status.issued")}
+									</Label>
 								</div>
 							</div>
 						</Show>
@@ -564,19 +575,21 @@ export const Home = () => {
 		);
 	};
 
-	const PreviousApplications = () => {
+	const PastApplications = () => {
 		return (
 			<>
 				<div>
 					<CardHeader>
-						<CardTitle>Past applications</CardTitle>
+						<CardTitle>{t("pastApplications.title")}</CardTitle>
 					</CardHeader>
 
 					<CardContent class="flex flex-col gap-4">
 						<TextFieldRoot>
 							<TextField
 								type="text"
-								placeholder="Search ..."
+								placeholder={t(
+									"pastApplications.placeholderSearch",
+								)}
 								// TODO
 								onInput={event =>
 									setSearch(
@@ -707,9 +720,7 @@ export const Home = () => {
 			<ActionBar />
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show
-					// TODO: in this case show form to enter current passport details
-					when={!qPassportApplications.data?.length}>
+				<Show when={!qPassportApplications.data?.length}>
 					<Onboarding />
 				</Show>
 
@@ -724,7 +735,7 @@ export const Home = () => {
 						<CurrentApplication />
 
 						<Show when={getPreviousApplications().length > 0}>
-							<PreviousApplications />
+							<PastApplications />
 						</Show>
 					</div>
 				</Show>
