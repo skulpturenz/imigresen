@@ -255,11 +255,11 @@ export const Home = () => {
 			enableSorting: false,
 			cell: () => {
 				return (
-					<>
+					<div class="flex gap-2 items-center">
 						<Button variant="ghost" size="icon">
 							<Eye />
 						</Button>
-					</>
+					</div>
 				);
 			},
 		},
