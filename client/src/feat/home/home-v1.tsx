@@ -210,6 +210,9 @@ export const Home = () => {
 		return getValue();
 	};
 
+	const toName = (firstName?: string, lastName?: string) =>
+		[firstName, lastName].filter(Boolean).join(" ");
+
 	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
 		{
 			accessorKey: "applicationDetails.requestType",
@@ -224,9 +227,10 @@ export const Home = () => {
 		{
 			id: "name",
 			accessorFn: row =>
-				[row.personalDetails.firstName, row.personalDetails.lastName]
-					.filter(Boolean)
-					.join(" "),
+				toName(
+					row.personalDetails.firstName,
+					row.personalDetails.lastName,
+				),
 			header: t("pastApplications.tableColumns.name"),
 			cell: renderColumn,
 		},
