@@ -20,6 +20,7 @@ import {
 import { invariant, partial } from "es-toolkit";
 import { CircleAlert, Eye, Plus } from "lucide-solid";
 import { createSignal, Show, Suspense } from "solid-js";
+import type { JSX } from "solid-js/h/jsx-runtime";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
 	AlertDialog,
@@ -596,6 +597,15 @@ export const Home = () => {
 	};
 
 	const PastApplications = () => {
+		const onInputSearch: JSX.EventHandlerUnion<
+			HTMLInputElement,
+			InputEvent
+		> = event => {
+			const value = (event.target as HTMLInputElement).value;
+
+			setSearch(value);
+		};
+
 		return (
 			<>
 				<div>
@@ -610,13 +620,7 @@ export const Home = () => {
 								placeholder={t(
 									"pastApplications.placeholderSearch",
 								)}
-								// TODO
-								onInput={event =>
-									setSearch(
-										(event.target as HTMLInputElement)
-											.value,
-									)
-								}
+								onInput={onInputSearch}
 							/>
 						</TextFieldRoot>
 
