@@ -1,4 +1,8 @@
-import type { ColumnDef } from "@tanstack/solid-table";
+import type {
+	CellContext,
+	ColumnDef,
+	ColumnDefTemplate,
+} from "@tanstack/solid-table";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
@@ -193,14 +197,28 @@ export const Home = () => {
 		return null;
 	};
 
+	const renderColumn: ColumnDefTemplate<CellContext<any, any>> = ({
+		getValue,
+	}) => {
+		if (!getValue()) {
+			return (
+				<span class="text-muted-foreground">{t("placeholder")}</span>
+			);
+		}
+
+		return getValue();
+	};
+
 	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
 		{
 			accessorKey: "applicationDetails.requestType",
 			header: t("pastApplications.tableColumns.requestType"),
+			cell: renderColumn,
 		},
 		{
 			accessorKey: "applicationDetails.documentType",
 			header: t("pastApplications.tableColumns.documentType"),
+			cell: renderColumn,
 		},
 		{
 			id: "name",
@@ -209,6 +227,7 @@ export const Home = () => {
 					.filter(Boolean)
 					.join(" "),
 			header: t("pastApplications.tableColumns.name"),
+			cell: renderColumn,
 		},
 		{
 			accessorKey: "status",
@@ -227,6 +246,7 @@ export const Home = () => {
 				return formatDate(row.issuedAt, "dd-MM-yyyy");
 			},
 			header: t("pastApplications.tableColumns.dateIssued"),
+			cell: renderColumn,
 		},
 		{
 			id: "actions",

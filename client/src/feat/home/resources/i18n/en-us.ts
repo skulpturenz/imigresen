@@ -62,7 +62,7 @@ export const resources = {
 			name: "Name",
 			status: "Status",
 			dateIssued: "Date issued",
-			actions: "actions",
+			actions: "Actions",
 		},
 	},
 	v2: {
