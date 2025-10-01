@@ -301,12 +301,6 @@ export const Home = () => {
 								onClick={toggleImportDialog}>
 								{t("doImport")}
 							</Button>
-
-							<Button
-								variant="outline"
-								onClick={onClickExportApplications}>
-								{t("doExport")}
-							</Button>
 						</div>
 					</Typography>
 					<Typography variant="p">
