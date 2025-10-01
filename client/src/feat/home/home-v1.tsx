@@ -293,7 +293,9 @@ export const Home = () => {
 					// TODO: in this case show form to enter current passport details
 					when={!qPassportApplications.data?.length}>
 					<Typography variant="h2" class="flex justify-between">
-						<span>Onboard details of your current passport</span>
+						<span class="max-w-sm md:max-w-full">
+							Onboard details of your current passport
+						</span>
 
 						<div class="flex gap-2">
 							<Button
