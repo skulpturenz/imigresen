@@ -234,7 +234,9 @@ export const Home = () => {
 			accessorKey: "status",
 			header: t("pastApplications.tableColumns.status"),
 			cell: ({ getValue }) => {
-				return <Badge>{getValue<string>()}</Badge>;
+				return (
+					<Badge>{toLabel(getValue<MyPassportFormStatus>())}</Badge>
+				);
 			},
 		},
 		{
