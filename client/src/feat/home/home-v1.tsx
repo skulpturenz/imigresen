@@ -244,376 +244,378 @@ export const Home = () => {
 		},
 	];
 
-	let myPassportFormWizardRef: any;
-	// TODO: decide how to go about this later. either we allow saving as draft
-	// right now clicking the logo will trigger for the form to be registered and the view will update
-	//
-	// for onboarding or we pass an onboarding prop and submit creates it.
-	// allowing for saving as draft will be very complicated because
-	// we have to only trigger a save if the route changes which is looks like sometimes it saves
-	// as draft and sometimes not or an onboarding prop which registers the form as soon as its dirty
-	// (instead of when they navigate away, component unmount)
-	// also need to consider that once a form is registered the passport applications list will no longer
-	// be empty if it refetches (solid query will refetch when appropriate) causing the entire view to change
-	// so we need some sort of onboarding completed flag
-	//
-	// if register the form when its dirty then we also need to consider what happens if all values get cleared
-	// out
-	// const onClick = () => {
-	// 	myPassportFormWizardRef?.registerApplication();
-	// };
+	const Onboarding = () => {
+		let myPassportFormWizardRef: any;
+		// TODO: decide how to go about this later. either we allow saving as draft
+		// right now clicking the logo will trigger for the form to be registered and the view will update
+		//
+		// for onboarding or we pass an onboarding prop and submit creates it.
+		// allowing for saving as draft will be very complicated because
+		// we have to only trigger a save if the route changes which is looks like sometimes it saves
+		// as draft and sometimes not or an onboarding prop which registers the form as soon as its dirty
+		// (instead of when they navigate away, component unmount)
+		// also need to consider that once a form is registered the passport applications list will no longer
+		// be empty if it refetches (solid query will refetch when appropriate) causing the entire view to change
+		// so we need some sort of onboarding completed flag
+		//
+		// if register the form when its dirty then we also need to consider what happens if all values get cleared
+		// out
+		// const onClick = () => {
+		// 	myPassportFormWizardRef?.registerApplication();
+		// };
 
-	return (
-		<>
-			<div class="flex justify-end gap-4 my-8">
-				<Show when={!authnContext().keycloak?.token}>
+		return (
+			<>
+				<Typography
+					variant="h2"
+					class="flex justify-between items-center">
+					<span class="max-w-sm md:max-w-full">
+						Onboard details of your current passport
+					</span>
+
+					<div class="flex gap-2">
+						<Button variant="outline" onClick={toggleImportDialog}>
+							{t("doImport")}
+						</Button>
+					</div>
+				</Typography>
+				<Typography variant="p">
+					Imigresen allows you to manage your Malaysian passport
+					applications online, simplifying the process so that you
+					don't need to scramble for your documents every time you
+					renew. You can also import any applications you previously
+					created.
+					<br />
+					<br />
+					Imigresen allows you to work locally and export your data
+					for backup or store them in the cloud by registering.
+				</Typography>
+
+				<MyPassportFormProvider>
+					<MyPassportFormWizard ref={myPassportFormWizardRef} />
+				</MyPassportFormProvider>
+			</>
+		);
+	};
+
+	const ActionBar = () => {
+		return (
+			<>
+				<div class="flex justify-end gap-4 my-8">
+					<Show when={!authnContext().keycloak?.token}>
+						<Show when={qPassportApplications.data?.length}>
+							<Button
+								variant="secondary"
+								onClick={onClickExportApplications}>
+								{t("doExport")}
+							</Button>
+						</Show>
+					</Show>
+
 					<Show when={qPassportApplications.data?.length}>
 						<Button
-							variant="secondary"
-							onClick={onClickExportApplications}>
-							{t("doExport")}
+							as="a"
+							href={toPath(MyPassportForm.New)}
+							onMouseOver={prefetchReferenceData}>
+							<Plus />
+
+							{t("doApply")}
 						</Button>
 					</Show>
-				</Show>
+				</div>
+			</>
+		);
+	};
 
-				<Show when={qPassportApplications.data?.length}>
-					<Button
-						as="a"
-						href={toPath(MyPassportForm.New)}
-						onMouseOver={prefetchReferenceData}>
-						<Plus />
+	const CurrentApplication = () => {
+		return (
+			<>
+				<div>
+					<Show
+						when={
+							getLatestIssuedApplication() ||
+							getCurrentApplication()
+						}>
+						<CardHeader class="flex-row items-center justify-between">
+							<div>
+								<CardTitle>Current application</CardTitle>
+							</div>
 
-						{t("doApply")}
-					</Button>
-				</Show>
-			</div>
+							<Show when={getViewApplicationHref()}>
+								<div>
+									<Button
+										size="sm"
+										variant="secondary"
+										as="a"
+										href={
+											getViewApplicationHref() as string
+										}>
+										<div>
+											<Eye />
+										</div>
+										View application
+									</Button>
+								</div>
+							</Show>
+						</CardHeader>
+					</Show>
 
-			<Suspense fallback={<div>Loading...</div>}>
-				<Show
-					// TODO: in this case show form to enter current passport details
-					when={!qPassportApplications.data?.length}>
-					<Typography
-						variant="h2"
-						class="flex justify-between items-center">
-						<span class="max-w-sm md:max-w-full">
-							Onboard details of your current passport
-						</span>
+					<CardContent class="space-y-8">
+						<Show when={getLatestIssuedApplication()}>
+							<Typography variant="h4">
+								<Show
+									when={
+										getDifferenceUnit(
+											getLatestIssuedApplication()
+												?.issuedAt as Date,
+										) === "today"
+									}>
+									<div>
+										Your latest travel document has the
+										number&nbsp; A1234123 &nbsp; and is due
+										to expire &nbsp; today
+									</div>
+								</Show>
 
-						<div class="flex gap-2">
-							<Button
-								variant="outline"
-								onClick={toggleImportDialog}>
-								{t("doImport")}
-							</Button>
-						</div>
-					</Typography>
-					<Typography variant="p">
-						Imigresen allows you to manage your Malaysian passport
-						applications online, simplifying the process so that you
-						don't need to scramble for your documents every time you
-						renew. You can also import any applications you
-						previously created.
-						<br />
-						<br />
-						Imigresen allows you to work locally and export your
-						data for backup or store them in the cloud by
-						registering.
-					</Typography>
+								<Show
+									when={
+										getDifferenceUnit(
+											getLatestIssuedApplication()
+												?.issuedAt as Date,
+										) !== "today"
+									}>
+									<div>
+										Your latest travel document has the
+										number A1234123 and is due to expire
+										in&nbsp;
+										<Tooltip>
+											<TooltipTrigger as="span">
+												{getDifference(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												)}
+												&nbsp;
+												{getDifferenceUnit(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												)}
+											</TooltipTrigger>
 
-					<MyPassportFormProvider>
-						<MyPassportFormWizard ref={myPassportFormWizardRef} />
-					</MyPassportFormProvider>
-				</Show>
-
-				<Show
-					// TODO
-					when={qPassportApplications.data?.length}>
-					<div class="space-y-8">
-						<Show when={!authnContext().keycloak?.token}>
-							<Alert>
-								<CircleAlert class="size-4" />
-
-								<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
-
-								<AlertDescription>
-									{t("exportAlertDescription")}
-								</AlertDescription>
-							</Alert>
+											<TooltipContent>
+												{(
+													getLatestIssuedApplication()
+														?.issuedAt as Date
+												).toDateString()}
+											</TooltipContent>
+										</Tooltip>
+									</div>
+								</Show>
+							</Typography>
 						</Show>
 
-						<div>
-							<Show
-								when={
-									getLatestIssuedApplication() ||
-									getCurrentApplication()
-								}>
-								<CardHeader class="flex-row items-center justify-between">
-									<div>
-										<CardTitle>
-											Current application
-										</CardTitle>
-									</div>
+						<Show when={getCurrentApplication()}>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<Label class="text-muted-foreground">
+										Application type
+									</Label>
 
-									<Show when={getViewApplicationHref()}>
+									<Show
+										when={
+											getCurrentApplication()
+												?.applicationDetails
+												?.requestType
+										}>
 										<div>
-											<Button
-												size="sm"
-												variant="secondary"
-												as="a"
-												href={
-													getViewApplicationHref() as string
-												}>
-												<div>
-													<Eye />
-												</div>
-												View application
-											</Button>
+											{
+												getCurrentApplication()
+													?.applicationDetails
+													?.requestType
+											}
 										</div>
 									</Show>
-								</CardHeader>
-							</Show>
 
-							<CardContent class="space-y-8">
-								<Show when={getLatestIssuedApplication()}>
-									<Typography variant="h4">
-										<Show
-											when={
-												getDifferenceUnit(
-													getLatestIssuedApplication()
-														?.issuedAt as Date,
-												) === "today"
-											}>
-											<div>
-												Your latest travel document has
-												the number&nbsp; A1234123 &nbsp;
-												and is due to expire &nbsp;
-												today
-											</div>
-										</Show>
-
-										<Show
-											when={
-												getDifferenceUnit(
-													getLatestIssuedApplication()
-														?.issuedAt as Date,
-												) !== "today"
-											}>
-											<div>
-												Your latest travel document has
-												the number A1234123 and is due
-												to expire in&nbsp;
-												<Tooltip>
-													<TooltipTrigger as="span">
-														{getDifference(
-															getLatestIssuedApplication()
-																?.issuedAt as Date,
-														)}
-														&nbsp;
-														{getDifferenceUnit(
-															getLatestIssuedApplication()
-																?.issuedAt as Date,
-														)}
-													</TooltipTrigger>
-
-													<TooltipContent>
-														{(
-															getLatestIssuedApplication()
-																?.issuedAt as Date
-														).toDateString()}
-													</TooltipContent>
-												</Tooltip>
-											</div>
-										</Show>
-									</Typography>
-								</Show>
-
-								<Show when={getCurrentApplication()}>
-									<div class="grid grid-cols-2 gap-4">
-										<div>
-											<Label class="text-muted-foreground">
-												Application type
-											</Label>
-
-											<Show
-												when={
-													getCurrentApplication()
-														?.applicationDetails
-														?.requestType
-												}>
-												<div>
-													{
-														getCurrentApplication()
-															?.applicationDetails
-															?.requestType
-													}
-												</div>
-											</Show>
-
-											<Show
-												when={
-													!getCurrentApplication()
-														?.applicationDetails
-														?.requestType
-												}>
-												<div class="text-muted-foreground">
-													Placeholder
-												</div>
-											</Show>
+									<Show
+										when={
+											!getCurrentApplication()
+												?.applicationDetails
+												?.requestType
+										}>
+										<div class="text-muted-foreground">
+											Placeholder
 										</div>
+									</Show>
+								</div>
 
+								<div>
+									<Label class="text-muted-foreground">
+										Document type
+									</Label>
+
+									<Show
+										when={
+											getCurrentApplication()
+												?.applicationDetails
+												?.documentType
+										}>
 										<div>
-											<Label class="text-muted-foreground">
-												Document type
-											</Label>
-
-											<Show
-												when={
-													getCurrentApplication()
-														?.applicationDetails
-														?.documentType
-												}>
-												<div>
-													{
-														getCurrentApplication()
-															?.applicationDetails
-															?.documentType
-													}
-												</div>
-											</Show>
-
-											<Show
-												when={
-													!getCurrentApplication()
-														?.applicationDetails
-														?.documentType
-												}>
-												<div class="text-muted-foreground">
-													Placeholder
-												</div>
-											</Show>
+											{
+												getCurrentApplication()
+													?.applicationDetails
+													?.documentType
+											}
 										</div>
+									</Show>
 
+									<Show
+										when={
+											!getCurrentApplication()
+												?.applicationDetails
+												?.documentType
+										}>
+										<div class="text-muted-foreground">
+											Placeholder
+										</div>
+									</Show>
+								</div>
+
+								<div>
+									<Label class="text-muted-foreground">
+										Applicant Name
+									</Label>
+
+									<Show
+										when={
+											getCurrentApplication()
+												?.personalDetails?.firstName ||
+											getCurrentApplication()
+												?.personalDetails?.lastName
+										}>
 										<div>
-											<Label class="text-muted-foreground">
-												Applicant Name
-											</Label>
-
-											<Show
-												when={
-													getCurrentApplication()
-														?.personalDetails
-														?.firstName ||
-													getCurrentApplication()
-														?.personalDetails
-														?.lastName
-												}>
-												<div>
-													{[
-														getCurrentApplication()
-															?.personalDetails
-															?.firstName,
-														getCurrentApplication()
-															?.personalDetails
-															?.lastName,
-													]
-														.filter(Boolean)
-														.join(" ")}
-												</div>
-											</Show>
-
-											<Show
-												when={
-													!getCurrentApplication()
-														?.personalDetails
-														?.firstName &&
-													!getCurrentApplication()
-														?.personalDetails
-														?.lastName
-												}>
-												<div class="text-muted-foreground">
-													Placeholder
-												</div>
-											</Show>
+											{[
+												getCurrentApplication()
+													?.personalDetails
+													?.firstName,
+												getCurrentApplication()
+													?.personalDetails?.lastName,
+											]
+												.filter(Boolean)
+												.join(" ")}
 										</div>
+									</Show>
 
-										<div>
-											<Label class="text-muted-foreground">
-												Status
-											</Label>
-
-											<div>
-												<Badge>
-													{toLabel(
-														getCurrentApplication()
-															?.status as MyPassportFormStatus,
-													)}
-												</Badge>
-											</div>
+									<Show
+										when={
+											!getCurrentApplication()
+												?.personalDetails?.firstName &&
+											!getCurrentApplication()
+												?.personalDetails?.lastName
+										}>
+										<div class="text-muted-foreground">
+											Placeholder
 										</div>
-									</div>
+									</Show>
+								</div>
 
-									<div class="flex flex-col gap-2">
-										<Progress
-											value={getProgressByStatus(
+								<div>
+									<Label class="text-muted-foreground">
+										Status
+									</Label>
+
+									<div>
+										<Badge>
+											{toLabel(
 												getCurrentApplication()
 													?.status as MyPassportFormStatus,
-											)}>
-											<div class="flex justify-between">
-												<ProgressLabel>
-													Progress
-												</ProgressLabel>
-												<ProgressValueLabel />
-											</div>
-										</Progress>
-
-										<div class="flex justify-between">
-											<Label description>Draft</Label>
-
-											<Label description>Ready</Label>
-
-											<Label description>Submitted</Label>
-
-											<Label description>Issued</Label>
-										</div>
+											)}
+										</Badge>
 									</div>
-								</Show>
-							</CardContent>
-						</div>
+								</div>
+							</div>
 
-						<Show when={getPreviousApplications().length > 0}>
-							<div>
-								<CardHeader>
-									<CardTitle>Past applications</CardTitle>
-								</CardHeader>
+							<div class="flex flex-col gap-2">
+								<Progress
+									value={getProgressByStatus(
+										getCurrentApplication()
+											?.status as MyPassportFormStatus,
+									)}>
+									<div class="flex justify-between">
+										<ProgressLabel>Progress</ProgressLabel>
+										<ProgressValueLabel />
+									</div>
+								</Progress>
 
-								<CardContent class="flex flex-col gap-4">
-									<TextFieldRoot>
-										<TextField
-											type="text"
-											placeholder="Search ..."
-											// TODO
-											onInput={event =>
-												setSearch(
-													(
-														event.target as HTMLInputElement
-													).value,
-												)
-											}
-										/>
-									</TextFieldRoot>
+								<div class="flex justify-between">
+									<Label description>Draft</Label>
 
-									<DataTable
-										columns={columns}
-										rows={getPreviousApplications}
-										isRowSelectable={false}
-										search={search}
-									/>
-								</CardContent>
+									<Label description>Ready</Label>
+
+									<Label description>Submitted</Label>
+
+									<Label description>Issued</Label>
+								</div>
 							</div>
 						</Show>
-					</div>
-				</Show>
+					</CardContent>
+				</div>
+			</>
+		);
+	};
 
+	const PreviousApplications = () => {
+		return (
+			<>
+				<div>
+					<CardHeader>
+						<CardTitle>Past applications</CardTitle>
+					</CardHeader>
+
+					<CardContent class="flex flex-col gap-4">
+						<TextFieldRoot>
+							<TextField
+								type="text"
+								placeholder="Search ..."
+								// TODO
+								onInput={event =>
+									setSearch(
+										(event.target as HTMLInputElement)
+											.value,
+									)
+								}
+							/>
+						</TextFieldRoot>
+
+						<DataTable
+							columns={columns}
+							rows={getPreviousApplications}
+							isRowSelectable={false}
+							search={search}
+						/>
+					</CardContent>
+				</div>
+			</>
+		);
+	};
+
+	const ExportBanner = () => {
+		return (
+			<>
+				<Alert>
+					<CircleAlert class="size-4" />
+
+					<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
+
+					<AlertDescription>
+						{t("exportAlertDescription")}
+					</AlertDescription>
+				</Alert>
+			</>
+		);
+	};
+
+	const ExportDialog = () => {
+		return (
+			<>
 				<AlertDialog
 					open={show().failedToExportDialog}
 					onOpenChange={onClickCloseExportApplications}>
@@ -637,7 +639,13 @@ export const Home = () => {
 						</AlertDialogFooter>
 					</AlertDialogContent>
 				</AlertDialog>
+			</>
+		);
+	};
 
+	const ImportDialog = () => {
+		return (
+			<>
 				<Dialog
 					open={show().importDialog}
 					onOpenChange={toggleImportDialog}>
@@ -688,373 +696,41 @@ export const Home = () => {
 						</DialogFooter>
 					</DialogContent>
 				</Dialog>
+			</>
+		);
+	};
+
+	return (
+		<>
+			<ActionBar />
+
+			<Suspense fallback={<div>Loading...</div>}>
+				<Show
+					// TODO: in this case show form to enter current passport details
+					when={!qPassportApplications.data?.length}>
+					<Onboarding />
+				</Show>
+
+				<Show
+					// TODO
+					when={qPassportApplications.data?.length}>
+					<div class="space-y-8">
+						<Show when={!authnContext().keycloak?.token}>
+							<ExportBanner />
+						</Show>
+
+						<CurrentApplication />
+
+						<Show when={getPreviousApplications().length > 0}>
+							<PreviousApplications />
+						</Show>
+					</div>
+				</Show>
+
+				<ExportDialog />
+
+				<ImportDialog />
 			</Suspense>
 		</>
 	);
-
-	// return (
-	// 	<div>
-	// 		<div class="flex justify-end gap-4 my-8">
-	// 			<Show when={!authnContext().keycloak?.token}>
-	// 				<Show when={!qPassportApplications.data?.length}>
-	// 					<Button
-	// 						variant="secondary"
-	// 						onClick={toggleImportDialog}>
-	// 						{t("doImport")}
-	// 					</Button>
-	// 				</Show>
-
-	// 				<Show when={qPassportApplications.data?.length}>
-	// 					<Button
-	// 						variant="secondary"
-	// 						onClick={onClickExportApplications}>
-	// 						{t("doExport")}
-	// 					</Button>
-	// 				</Show>
-	// 			</Show>
-
-	// 			<Button
-	// 				as="a"
-	// 				href={toPath(MyPassportForm.New)}
-	// 				onMouseOver={prefetchReferenceData}>
-	// 				{t("doApply")}
-	// 			</Button>
-	// 		</div>
-
-	// 		<Suspense fallback={<div>Loading...</div>}>
-	// 			<Show when={!qPassportApplications.data?.length}>
-	// 				<Typography variant="h3" class="text-center">
-	// 					No applications yet!
-	// 				</Typography>
-	// 			</Show>
-
-	// 			<Show when={qPassportApplications.data?.length}>
-	// 				<div class="space-y-8">
-	// 					<Show when={!authnContext().keycloak?.token}>
-	// 						<Alert>
-	// 							<CircleAlert class="size-4" />
-
-	// 							<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
-
-	// 							<AlertDescription>
-	// 								{t("exportAlertDescription")}
-	// 							</AlertDescription>
-	// 						</Alert>
-	// 					</Show>
-
-	// 					<div class="space-y-2">
-	// 						<Typography
-	// 							variant="small"
-	// 							as="p"
-	// 							class="uppercase">
-	// 							Summary
-	// 						</Typography>
-
-	// 						<Show
-	// 							when={
-	// 								getDifferenceUnit(randomDate) === "today"
-	// 							}>
-	// 							<Typography variant="h3">
-	// 								Your latest travel document has the
-	// 								number&nbsp;
-	// 								<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-	// 									A1234123
-	// 								</span>
-	// 								&nbsp; and is due to expire &nbsp;
-	// 								<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-	// 									today
-	// 								</span>
-	// 							</Typography>
-	// 						</Show>
-
-	// 						<Show
-	// 							when={
-	// 								getDifferenceUnit(randomDate) !== "today"
-	// 							}>
-	// 							<Typography variant="h3">
-	// 								Your latest travel document has the
-	// 								number&nbsp;
-	// 								<span
-	// 									class={cn(
-	// 										"underline underline-offset-4",
-	// 										{
-	// 											"decoration-green-500 dark:decoration-green-900":
-	// 												isValid(randomDate),
-	// 											"decoration-yellow-500 dark:decoration-yellow-900":
-	// 												isTimeToRenew(randomDate),
-	// 											"decoration-red-500 dark:decoration-red-900":
-	// 												isExpired(randomDate),
-	// 										},
-	// 									)}>
-	// 									A1234123
-	// 								</span>
-	// 								&nbsp; and is due to expire in&nbsp;
-	// 								<Tooltip>
-	// 									<TooltipTrigger
-	// 										as="span"
-	// 										class={cn(
-	// 											"underline underline-offset-4",
-	// 											{
-	// 												"decoration-green-500 dark:decoration-green-900":
-	// 													isValid(randomDate),
-	// 												"decoration-yellow-500 dark:decoration-yellow-900":
-	// 													isTimeToRenew(
-	// 														randomDate,
-	// 													),
-	// 												"decoration-red-500 dark:decoration-red-900":
-	// 													isExpired(randomDate),
-	// 											},
-	// 										)}>
-	// 										{getDifference(randomDate)}&nbsp;
-	// 										{getDifferenceUnit(randomDate)}
-	// 									</TooltipTrigger>
-
-	// 									<TooltipContent>
-	// 										{randomDate.toDateString()}
-	// 									</TooltipContent>
-	// 								</Tooltip>
-	// 							</Typography>
-	// 						</Show>
-	// 					</div>
-
-	// 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
-	// 						<For each={qPassportApplications.data}>
-	// 							{item => {
-	// 								const getHref = () => {
-	// 									const url = new URL(location.origin);
-	// 									url.hash = location.hash;
-
-	// 									const searchParams =
-	// 										new URLSearchParams({
-	// 											automergeUrl: item.automergeUrl,
-	// 										});
-
-	// 									url.pathname = generatePath(
-	// 										MyPassportForm.Edit,
-	// 										{
-	// 											uuid: item.uuid,
-	// 										},
-	// 									);
-	// 									url.search = searchParams.toString();
-
-	// 									return url.href;
-	// 								};
-
-	// 								const details = [
-	// 									{
-	// 										label: "Email",
-	// 										description: "test@test.com",
-	// 									},
-	// 									{
-	// 										label: "Mobile number",
-	// 										description: "0234567890",
-	// 									},
-	// 									{
-	// 										label: "Document type",
-	// 										description:
-	// 											"Malaysian passport (64 pages)",
-	// 									},
-	// 									{
-	// 										label: "Current document number",
-	// 										description: "A1234124",
-	// 									},
-	// 									{
-	// 										label: "Status",
-	// 										description: "In progress",
-	// 									},
-	// 								];
-
-	// 								return (
-	// 									<A
-	// 										href={getHref()}
-	// 										class="group hover:scale-105 group-hover:not-hover:scale-95 transition-transform">
-	// 										<Card class="h-full">
-	// 											<CardHeader>
-	// 												<Show
-	// 													when={
-	// 														item.personalDetails
-	// 															.firstName ||
-	// 														item.personalDetails
-	// 															.lastName
-	// 													}>
-	// 													<Tooltip>
-	// 														<TooltipTrigger
-	// 															as={CardTitle}
-	// 															class="truncate">
-	// 															{[
-	// 																item
-	// 																	.personalDetails
-	// 																	.firstName,
-	// 																item
-	// 																	.personalDetails
-	// 																	.lastName,
-	// 															]
-	// 																.filter(
-	// 																	Boolean,
-	// 																)
-	// 																.join(" ")}
-	// 														</TooltipTrigger>
-	// 														<TooltipContent>
-	// 															{[
-	// 																item
-	// 																	.personalDetails
-	// 																	.firstName,
-	// 																item
-	// 																	.personalDetails
-	// 																	.lastName,
-	// 															]
-	// 																.filter(
-	// 																	Boolean,
-	// 																)
-	// 																.join(" ")}
-	// 														</TooltipContent>
-	// 													</Tooltip>
-	// 												</Show>
-
-	// 												<Show
-	// 													when={
-	// 														!item
-	// 															.personalDetails
-	// 															.firstName &&
-	// 														!item
-	// 															.personalDetails
-	// 															.lastName
-	// 													}>
-	// 													<CardTitle class="text-muted-foreground">
-	// 														{[
-	// 															randFirstName(),
-	// 															randLastName(),
-	// 														].join(" ")}
-	// 													</CardTitle>
-	// 												</Show>
-
-	// 												<CardDescription>
-	// 													Malaysian passport
-	// 												</CardDescription>
-	// 											</CardHeader>
-	// 											<CardContent>
-	// 												<For each={details}>
-	// 													{item => (
-	// 														<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-	// 															<div class="space-y-2">
-	// 																<div class="grid grid-cols-3 gap-4 items-center">
-	// 																	<div class="col-span-1">
-	// 																		<span class="flex col-span-1 size-2 bg-sky-500 dark:bg-sky-900" />
-	// 																	</div>
-
-	// 																	<Typography
-	// 																		variant="small"
-	// 																		as="p"
-	// 																		class="w-full col-span-2 text-nowrap">
-	// 																		{
-	// 																			item.label
-	// 																		}
-	// 																	</Typography>
-	// 																</div>
-
-	// 																<Typography
-	// 																	variant="small"
-	// 																	as="p"
-	// 																	class="text-nowrap mx-4">
-	// 																	{
-	// 																		item.description
-	// 																	}
-	// 																</Typography>
-	// 															</div>
-	// 														</div>
-	// 													)}
-	// 												</For>
-	// 											</CardContent>
-
-	// 											<CardFooter>
-	// 												<Button class="w-full group-hover:bg-primary/90">
-	// 													Edit
-	// 												</Button>
-	// 											</CardFooter>
-	// 										</Card>
-	// 									</A>
-	// 								);
-	// 							}}
-	// 						</For>
-	// 					</div>
-	// 				</div>
-	// 			</Show>
-
-	// 			<AlertDialog
-	// 				open={show().failedToExportDialog}
-	// 				onOpenChange={onClickCloseExportApplications}>
-	// 				<AlertDialogContent>
-	// 					<AlertDialogHeader>
-	// 						<AlertDialogTitle>
-	// 							{t("exportFailedDialogTitle")}
-	// 						</AlertDialogTitle>
-	// 						<AlertDialogDescription>
-	// 							{t("exportFailedDialogDescription", [
-	// 								...(mDownloadApplications.data
-	// 									?.invalidUrls ?? []),
-	// 							])}
-	// 						</AlertDialogDescription>
-	// 					</AlertDialogHeader>
-	// 					<AlertDialogFooter>
-	// 						<AlertDialogClose
-	// 							onClick={onClickCloseExportApplications}>
-	// 							{t("doCloseExportFailedDialog")}
-	// 						</AlertDialogClose>
-	// 					</AlertDialogFooter>
-	// 				</AlertDialogContent>
-	// 			</AlertDialog>
-
-	// 			<Dialog
-	// 				open={show().importDialog}
-	// 				onOpenChange={toggleImportDialog}>
-	// 				<DialogContent>
-	// 					<DialogHeader>
-	// 						<DialogTitle>{t("importDialogTitle")}</DialogTitle>
-	// 						<DialogDescription>
-	// 							{t("importDialogDescription")}
-	// 						</DialogDescription>
-
-	// 						<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
-	// 							<Typography variant="small">
-	// 								Drop files here
-	// 							</Typography>
-	// 						</div>
-
-	// 						<input
-	// 							// TODO: proper file input
-	// 							type="file"
-	// 							multiple
-	// 							onChange={onFilesChange}
-	// 						/>
-	// 					</DialogHeader>
-	// 					<DialogFooter>
-	// 						<Button
-	// 							variant="secondary"
-	// 							onClick={toggleImportDialog}>
-	// 							<Show when={mImportApplications.isSuccess}>
-	// 								{t("doFinishImport")}
-	// 							</Show>
-
-	// 							<Show when={mImportApplications.isIdle}>
-	// 								{t("doCloseImportDialog")}
-	// 							</Show>
-	// 						</Button>
-
-	// 						<Button
-	// 							onClick={partial(
-	// 								onClickImportApplications,
-	// 								files(),
-	// 							)}
-	// 							disabled={
-	// 								!files().length ||
-	// 								mImportApplications.isPending
-	// 							}>
-	// 							{t("doImportApplication")}
-	// 						</Button>
-	// 					</DialogFooter>
-	// 				</DialogContent>
-	// 			</Dialog>
-	// 		</Suspense>
-	// 	</div>
-	// );
 };
