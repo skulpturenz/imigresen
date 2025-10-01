@@ -267,14 +267,6 @@ export const Home = () => {
 		<>
 			<div class="flex justify-end gap-4 my-8">
 				<Show when={!authnContext().keycloak?.token}>
-					<Show when={!qPassportApplications.data?.length}>
-						<Button
-							variant="secondary"
-							onClick={toggleImportDialog}>
-							{t("doImport")}
-						</Button>
-					</Show>
-
 					<Show when={qPassportApplications.data?.length}>
 						<Button
 							variant="secondary"
@@ -300,19 +292,34 @@ export const Home = () => {
 				<Show
 					// TODO: in this case show form to enter current passport details
 					when={!qPassportApplications.data?.length}>
-					<Typography variant="h2">
-						Onboard details of your current passport
+					<Typography variant="h2" class="flex justify-between">
+						<span>Onboard details of your current passport</span>
+
+						<div class="flex gap-2">
+							<Button
+								variant="outline"
+								onClick={toggleImportDialog}>
+								{t("doImport")}
+							</Button>
+
+							<Button
+								variant="outline"
+								onClick={onClickExportApplications}>
+								{t("doExport")}
+							</Button>
+						</div>
 					</Typography>
 					<Typography variant="p">
 						Imigresen allows you to manage your Malaysian passport
 						applications online, simplifying the process so that you
-						don't need to scramble for all your documents every time
-						you renew. You could also import any applications you
+						don't need to scramble for your documents every time you
+						renew. You can also import any applications you
 						previously created.
 						<br />
 						<br />
 						Imigresen allows you to work locally and export your
-						data for backup or store your applications in the cloud.
+						data for backup or store them in the cloud by
+						registering.
 					</Typography>
 
 					<MyPassportFormProvider>
