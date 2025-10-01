@@ -26,6 +26,7 @@ import { DataTable } from "ui/table/data-table";
 import { TextField, TextFieldRoot } from "ui/text-field";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
+import { MyPassportFormProvider, MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
 import { MyPassportFormStatus, type RegisteredMyPassportForm } from "./types";
@@ -226,6 +227,25 @@ export const Home = () => {
 		},
 	];
 
+	let myPassportFormWizardRef: any;
+	// TODO: decide how to go about this later. either we allow saving as draft
+	// right now clicking the logo will trigger for the form to be registered and the view will update
+	//
+	// for onboarding or we pass an onboarding prop and submit creates it.
+	// allowing for saving as draft will be very complicated because
+	// we have to only trigger a save if the route changes which is looks like sometimes it saves
+	// as draft and sometimes not or an onboarding prop which registers the form as soon as its dirty
+	// (instead of when they navigate away, component unmount)
+	// also need to consider that once a form is registered the passport applications list will no longer
+	// be empty if it refetches (solid query will refetch when appropriate) causing the entire view to change
+	// so we need some sort of onboarding completed flag
+	//
+	// if register the form when its dirty then we also need to consider what happens if all values get cleared
+	// out
+	// const onClick = () => {
+	// 	myPassportFormWizardRef?.registerApplication();
+	// };
+
 	return (
 		<>
 			<div class="flex justify-end gap-4 my-8">
@@ -247,23 +267,40 @@ export const Home = () => {
 					</Show>
 				</Show>
 
-				<Button
-					as="a"
-					href={toPath(MyPassportForm.New)}
-					onMouseOver={prefetchReferenceData}>
-					<Plus />
+				<Show when={qPassportApplications.data?.length}>
+					<Button
+						as="a"
+						href={toPath(MyPassportForm.New)}
+						onMouseOver={prefetchReferenceData}>
+						<Plus />
 
-					{t("doApply")}
-				</Button>
+						{t("doApply")}
+					</Button>
+				</Show>
 			</div>
 
 			<Suspense fallback={<div>Loading...</div>}>
 				<Show
 					// TODO: in this case show form to enter current passport details
 					when={!qPassportApplications.data?.length}>
-					<Typography variant="h3" class="text-center">
-						No applications yet!
+					<Typography variant="h2">
+						Onboard details of your current passport
 					</Typography>
+					<Typography variant="p">
+						Imigresen allows you to manage your Malaysian passport
+						applications online, simplifying the process so that you
+						don't need to scramble for all your documents every time
+						you renew. You could also import any applications you
+						previously created.
+						<br />
+						<br />
+						Imigresen allows you to work locally and export your
+						data for backup or store your applications in the cloud.
+					</Typography>
+
+					<MyPassportFormProvider>
+						<MyPassportFormWizard ref={myPassportFormWizardRef} />
+					</MyPassportFormProvider>
 				</Show>
 
 				<Show

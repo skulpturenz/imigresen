@@ -108,7 +108,11 @@ export const usePassportApplications = () => {
 
 	const getCurrentApplication = () => {
 		const currentApplication = qPassportApplications.data?.find(
-			application => application.status === MyPassportFormStatus.Draft,
+			application =>
+				[
+					MyPassportFormStatus.Draft,
+					MyPassportFormStatus.Ready,
+				].includes(application.status),
 		);
 
 		return currentApplication;
@@ -122,7 +126,7 @@ export const usePassportApplications = () => {
 
 	const getLatestIssuedApplication = () => {
 		const latestIssuedApplication = qPassportApplications.data?.find(
-			application => Boolean(application.issuedAt),
+			application => application.status === MyPassportFormStatus.Issued,
 		);
 
 		return latestIssuedApplication;

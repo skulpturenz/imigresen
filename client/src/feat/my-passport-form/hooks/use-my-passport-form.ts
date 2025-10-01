@@ -406,6 +406,23 @@ export const useMyPassportForm = () => {
 		refetchPassportApplications().then(proceed);
 	});
 
+	const registerNewForm = async () => {
+		const automergeUrl = handle()?.url;
+
+		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
+
+		await mRegister.mutateAsync({
+			automergeUrl: automergeUrl,
+			user: userContext().profile?.uuid,
+		});
+
+		await queryClient.refetchQueries({
+			queryKey: globalQueryKeys.getPassportApplications(
+				authnContext().keycloak?.token,
+			),
+		});
+	};
+
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
@@ -427,26 +444,6 @@ export const useMyPassportForm = () => {
 		}
 
 		event.preventDefault();
-
-		const registerNewForm = async () => {
-			const automergeUrl = handle()?.url;
-
-			invariant(
-				automergeUrl,
-				"Automerge URL is not defined, check `handle`",
-			);
-
-			await mRegister.mutateAsync({
-				automergeUrl: automergeUrl,
-				user: userContext().profile?.uuid,
-			});
-
-			await queryClient.refetchQueries({
-				queryKey: globalQueryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
-			});
-		};
 
 		registerNewForm().then(proceed);
 	});
@@ -513,6 +510,7 @@ export const useMyPassportForm = () => {
 		isMutating: () => form.submitting || mSubmit.isPending,
 		isDirty,
 		prefillData,
+		registerNewForm,
 		Components: {
 			Form,
 			Field,

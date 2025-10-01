@@ -1,6 +1,6 @@
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
-import { Suspense } from "solid-js";
+import { Suspense, type Component } from "solid-js";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -28,7 +28,12 @@ import { DefaultFooter, MobileFooter } from "./ui/footer";
 import { Hide } from "./ui/hide";
 import { Wizard } from "./ui/wizard";
 
-export const MyPassportForm = () => {
+interface MyPassportFormProps {
+	ref?: any;
+	isOnboarding?: boolean; // TODO
+}
+
+export const MyPassportForm: Component<MyPassportFormProps> = props => {
 	const {
 		show,
 		data,
@@ -41,7 +46,14 @@ export const MyPassportForm = () => {
 		toggleDeleteFrictionDialog,
 		toggleInvalidDataDialog,
 		prefillData,
+		registerNewForm,
 	} = useMyPassportForm();
+
+	props.ref?.({
+		registerApplication: () => {
+			registerNewForm();
+		},
+	});
 
 	const t = useI18n<typeof resources>();
 
