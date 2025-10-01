@@ -13,13 +13,30 @@ import {
 	formatDate,
 	isBefore,
 } from "date-fns";
-import { invariant } from "es-toolkit";
+import { invariant, partial } from "es-toolkit";
 import { CircleAlert, Eye, Plus } from "lucide-solid";
 import { createSignal, Show, Suspense } from "solid-js";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
+import {
+	AlertDialog,
+	AlertDialogClose,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "ui/alert-dialog";
 import { Badge } from "ui/badge";
 import { Button } from "ui/button";
 import { CardContent, CardHeader, CardTitle } from "ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "ui/dialog";
 import { Label } from "ui/label";
 import { Progress, ProgressLabel, ProgressValueLabel } from "ui/progress";
 import { DataTable } from "ui/table/data-table";
@@ -35,13 +52,13 @@ export const Home = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const {
-		show: _show,
+		show: show,
 		qPassportApplications,
-		mImportApplications: _mImportApplications,
-		onClickImportApplications: _onClickImportApplications,
+		mImportApplications: mImportApplications,
+		onClickImportApplications: onClickImportApplications,
 		onClickExportApplications,
-		onClickCloseExportApplications: _onClickCloseExportApplications,
-		mDownloadApplications: _mDownloadApplications,
+		onClickCloseExportApplications: onClickCloseExportApplications,
+		mDownloadApplications: mDownloadApplications,
 		toggleImportDialog,
 		prefetchReferenceData,
 		getCurrentApplication,
@@ -50,12 +67,12 @@ export const Home = () => {
 	} = usePassportApplications();
 
 	// TODO
-	const [_files, _setFiles] = createSignal<File[]>([]);
-	// const _onFilesChange = (event: any) => {
-	// 	const selected: File[] = Array.from(event.target.files);
+	const [files, setFiles] = createSignal<File[]>([]);
+	const onFilesChange = (event: any) => {
+		const selected: File[] = Array.from(event.target.files);
 
-	// 	setFiles(selected);
-	// };
+		setFiles(selected);
+	};
 
 	const [search, setSearch] = createSignal("");
 
@@ -591,6 +608,81 @@ export const Home = () => {
 						</Show>
 					</div>
 				</Show>
+
+				<AlertDialog
+					open={show().failedToExportDialog}
+					onOpenChange={onClickCloseExportApplications}>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								{t("exportFailedDialogTitle")}
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								{t("exportFailedDialogDescription", [
+									...(mDownloadApplications.data
+										?.invalidUrls ?? []),
+								])}
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogClose
+								onClick={onClickCloseExportApplications}>
+								{t("doCloseExportFailedDialog")}
+							</AlertDialogClose>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+
+				<Dialog
+					open={show().importDialog}
+					onOpenChange={toggleImportDialog}>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{t("importDialogTitle")}</DialogTitle>
+							<DialogDescription>
+								{t("importDialogDescription")}
+							</DialogDescription>
+
+							<div class="h-20 border border-border border-dashed mt-2 flex justify-center items-center">
+								<Typography variant="small">
+									Drop files here
+								</Typography>
+							</div>
+
+							<input
+								// TODO: proper file input
+								type="file"
+								multiple
+								onChange={onFilesChange}
+							/>
+						</DialogHeader>
+						<DialogFooter>
+							<Button
+								variant="secondary"
+								onClick={toggleImportDialog}>
+								<Show when={mImportApplications.isSuccess}>
+									{t("doFinishImport")}
+								</Show>
+
+								<Show when={mImportApplications.isIdle}>
+									{t("doCloseImportDialog")}
+								</Show>
+							</Button>
+
+							<Button
+								onClick={partial(
+									onClickImportApplications,
+									files(),
+								)}
+								disabled={
+									!files().length ||
+									mImportApplications.isPending
+								}>
+								{t("doImportApplication")}
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
 			</Suspense>
 		</>
 	);
