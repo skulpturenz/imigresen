@@ -43,7 +43,7 @@ import { DataTable } from "ui/table/data-table";
 import { TextField, TextFieldRoot } from "ui/text-field";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
-import { MyPassportFormProvider, MyPassportFormWizard } from "./external";
+import { MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
 import { MyPassportFormStatus, type RegisteredMyPassportForm } from "./types";
@@ -295,9 +295,7 @@ export const Home = () => {
 					for backup or store them in the cloud by registering.
 				</Typography>
 
-				<MyPassportFormProvider>
-					<MyPassportFormWizard ref={myPassportFormWizardRef} />
-				</MyPassportFormProvider>
+				<MyPassportFormWizard ref={myPassportFormWizardRef} />
 			</>
 		);
 	};
