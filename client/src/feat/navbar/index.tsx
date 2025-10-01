@@ -8,7 +8,7 @@ import { UiContext } from "core/context/ui";
 import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
-import { Logo } from "core/ui/app";
+import { LogoText } from "core/ui/app/logo-text";
 import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import {
@@ -325,7 +325,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 							<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 								<a href="/">
-									<Logo class="size-40" />
+									<LogoText class="size-40" />
 								</a>
 							</div>
 
