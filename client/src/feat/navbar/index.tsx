@@ -325,7 +325,7 @@ export const Navbar: Component<ParentProps> = () => {
 
 							<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 								<a href="/">
-									<LogoText class="size-40" />
+									<LogoText class="w-40 h-auto" />
 								</a>
 							</div>
 

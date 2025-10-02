@@ -290,11 +290,12 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 					</Show>
 				</TableBody>
 			</Table>
-			<div class="flex justify-between gap-40 py-4 items-center">
-				<div class="flex items-center space-x-2">
+			<div class="flex flex-col gap-4 md:flex-row md:justify-between md:gap-40 py-4 md:items-center">
+				<div class="flex flex-col md:flex-row items-center gap-2">
 					<Button
 						variant="outline"
 						size="sm"
+						class="w-full md:max-w-min"
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}>
 						{t("doPreviousPage")}
@@ -302,13 +303,14 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 					<Button
 						variant="outline"
 						size="sm"
+						class="w-full md:max-w-min"
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}>
 						{t("doNextPage")}
 					</Button>
 				</div>
 
-				<div class="flex items-center space-x-2">
+				<div class="flex flex-col md:flex-row items-center gap-2">
 					<Select
 						options={Array.from(
 							{ length: table.getPageCount() },
@@ -317,12 +319,13 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 						placeholder={t("pageOptionPlaceholder")}
 						value={table.getState().pagination.pageIndex + 1}
 						onChange={onChangePage}
+						class="w-full md:max-w-min"
 						itemComponent={props => (
 							<SelectItem item={props.item}>
 								{t("page", props.item.rawValue)}
 							</SelectItem>
 						)}>
-						<SelectTrigger class="w-36">
+						<SelectTrigger class="w-full md:w-36">
 							<SelectValue<number>>
 								{state => t("page", state.selectedOption())}
 							</SelectValue>
@@ -335,12 +338,13 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 						defaultValue={table.getState().pagination.pageSize}
 						onChange={onChangePageSize}
 						placeholder={t("pageSizeOptionPlaceholder")}
+						class="w-full md:max-w-min"
 						itemComponent={props => (
 							<SelectItem item={props.item}>
 								{t("rows", props.item.rawValue)}
 							</SelectItem>
 						)}>
-						<SelectTrigger class="w-36">
+						<SelectTrigger class="w-full md:w-36">
 							<SelectValue<number>>
 								{state => t("rows", state.selectedOption())}
 							</SelectValue>

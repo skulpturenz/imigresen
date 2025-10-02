@@ -1,5 +1,6 @@
 import { spreadProps } from "core/utils";
 import type { Component, JSX, ParentProps } from "solid-js";
+import { cn } from "ui/utils";
 
 export const Logo: Component<
 	ParentProps<JSX.HTMLAttributes<SVGSVGElement>>
@@ -7,7 +8,8 @@ export const Logo: Component<
 	<svg
 		viewBox="0 0 166 41"
 		xmlns="http://www.w3.org/2000/svg"
-		{...spreadProps(props)}>
+		{...spreadProps(props)}
+		class={cn(props.class, "h-auto")}>
 		<path
 			d="M0 5.79411V0.994113H5.44V5.79411H0ZM0 30.3941V8.79411H5.44V30.3941H0Z"
 			fill="currentColor"
