@@ -1,5 +1,8 @@
-import { randBetweenDate, randFirstName, randLastName } from "@ngneat/falso";
-import { A } from "@solidjs/router";
+import type {
+	CellContext,
+	ColumnDef,
+	ColumnDefTemplate,
+} from "@tanstack/solid-table";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
@@ -7,16 +10,17 @@ import { useContext } from "core/context/utils";
 import { toPath } from "core/router/utils";
 import { generatePath } from "core/utils";
 import {
-	addYears,
 	differenceInDays,
 	differenceInMonths,
 	differenceInWeeks,
 	differenceInYears,
+	formatDate,
 	isBefore,
 } from "date-fns";
 import { invariant, partial } from "es-toolkit";
-import { CircleAlert } from "lucide-solid";
-import { createSignal, For, Show, Suspense } from "solid-js";
+import { CircleAlert, Eye, Plus } from "lucide-solid";
+import { createSignal, Show, Suspense } from "solid-js";
+import type { JSX } from "solid-js/h/jsx-runtime";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
 	AlertDialog,
@@ -27,15 +31,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
+import { Badge } from "ui/badge";
 import { Button } from "ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "ui/card";
+import { CardContent, CardHeader, CardTitle } from "ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -44,33 +42,48 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "ui/dialog";
+import { Label } from "ui/label";
+import { Progress, ProgressLabel, ProgressValueLabel } from "ui/progress";
+import { DataTable } from "ui/table/data-table";
+import { TextField, TextFieldRoot } from "ui/text-field";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/tooltip";
 import { Typography } from "ui/typography";
-import { cn } from "ui/utils";
+import { MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
+import {
+	MyPassportFormStatus,
+	type IssuedMyPassportForm,
+	type PersistedMyPassportForm,
+} from "./types";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
 
 	const {
-		show,
+		show: show,
 		qPassportApplications,
-		mImportApplications,
-		onClickImportApplications,
+		mImportApplications: mImportApplications,
+		onClickImportApplications: onClickImportApplications,
 		onClickExportApplications,
-		onClickCloseExportApplications,
-		mDownloadApplications,
+		onClickCloseExportApplications: onClickCloseExportApplications,
+		mDownloadApplications: mDownloadApplications,
 		toggleImportDialog,
 		prefetchReferenceData,
+		getCurrentApplication,
+		getPreviousApplications,
+		getLatestIssuedApplication,
 	} = usePassportApplications();
 
+	// TODO
 	const [files, setFiles] = createSignal<File[]>([]);
 	const onFilesChange = (event: any) => {
 		const selected: File[] = Array.from(event.target.files);
 
 		setFiles(selected);
 	};
+
+	const [search, setSearch] = createSignal("");
 
 	const t = useI18n<typeof resources>();
 
@@ -113,333 +126,549 @@ export const Home = () => {
 
 		const yearsToExpiry = differenceInYears(expiryDate, new Date());
 		if (yearsToExpiry > 1) {
-			return "years";
+			return t("timeUnit.years");
 		}
 
 		const monthsToExpiry = differenceInMonths(expiryDate, new Date());
 		if (monthsToExpiry > 1) {
-			return "months";
+			return t("timeUnit.months");
 		}
 
 		const weeksToExpiry = differenceInWeeks(expiryDate, new Date());
 		if (weeksToExpiry > 1) {
-			return "weeks";
+			return t("timeUnit.weeks");
 		}
 
 		const daysToExpiry = differenceInDays(expiryDate, new Date());
 		if (daysToExpiry === 0) {
-			return "today";
+			return t("timeUnit.today");
 		}
 
-		return "days";
+		return t("timeUnit.days");
 	};
 
-	const randomDate = randBetweenDate({
-		from: new Date().toLocaleDateString("en-us"),
-		to: addYears(new Date(), 5),
-	});
+	const getProgressByStatus = (status: MyPassportFormStatus) => {
+		const progress = [
+			MyPassportFormStatus.Draft,
+			MyPassportFormStatus.Ready,
+			MyPassportFormStatus.Submitted,
+			MyPassportFormStatus.Issued,
+		];
 
-	const isValid = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) === "years" ||
-		(getDifferenceUnit(expiryDate) === "months" &&
-			getDifference(expiryDate) > 6);
+		const currentStatusIdx = progress.findIndex(x => x === status);
+		invariant(currentStatusIdx !== -1, "Invalid status");
 
-	const isTimeToRenew = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) === "months" &&
-		getDifference(expiryDate) <= 6;
+		return ((currentStatusIdx + 1) / progress.length) * 100;
+	};
+	const toLabel = (status: MyPassportFormStatus) => {
+		const statusLabelMap = {
+			[MyPassportFormStatus.Draft]: t("status.draft"),
+			[MyPassportFormStatus.Ready]: t("status.ready"),
+			[MyPassportFormStatus.Submitted]: t("status.submitted"),
+			[MyPassportFormStatus.Issued]: t("status.issued"),
+		};
 
-	const isExpired = (expiryDate: Date) =>
-		getDifferenceUnit(expiryDate) !== "years" &&
-		getDifferenceUnit(expiryDate) !== "months";
+		const label = statusLabelMap[status];
+		invariant(label, "Unknown status");
 
-	return (
-		<div>
-			<div class="flex justify-end gap-4 my-8">
-				<Show when={!authnContext().keycloak?.token}>
-					<Show when={!qPassportApplications.data?.length}>
+		return label;
+	};
+	const getHref = (application: PersistedMyPassportForm) => {
+		const url = new URL(location.origin);
+		url.hash = location.hash;
+
+		const searchParams = new URLSearchParams({
+			automergeUrl: application.automergeUrl,
+		});
+
+		url.pathname = generatePath(MyPassportForm.Edit, {
+			uuid: application.uuid,
+		});
+		url.search = searchParams.toString();
+
+		return url.href;
+	};
+	const getViewApplicationHref = () => {
+		if (getCurrentApplication()) {
+			return getHref(getCurrentApplication() as PersistedMyPassportForm);
+		}
+
+		if (getLatestIssuedApplication()?.automergeUrl) {
+			return getHref(
+				getLatestIssuedApplication() as PersistedMyPassportForm,
+			);
+		}
+
+		return null;
+	};
+
+	const renderColumn: ColumnDefTemplate<CellContext<any, any>> = ({
+		getValue,
+	}) => {
+		if (!getValue()) {
+			return (
+				<span class="text-muted-foreground">{t("placeholder")}</span>
+			);
+		}
+
+		return getValue();
+	};
+
+	const toName = (firstName?: string, lastName?: string) =>
+		[firstName, lastName].filter(Boolean).join(" ");
+
+	const columns: ColumnDef<PersistedMyPassportForm>[] = [
+		{
+			accessorKey: "applicationDetails.requestType",
+			header: t("pastApplications.tableColumns.requestType"),
+			cell: renderColumn,
+		},
+		{
+			accessorKey: "applicationDetails.documentType",
+			header: t("pastApplications.tableColumns.documentType"),
+			cell: renderColumn,
+		},
+		{
+			id: "name",
+			accessorFn: row =>
+				toName(
+					row.personalDetails.firstName,
+					row.personalDetails.lastName,
+				),
+			header: t("pastApplications.tableColumns.name"),
+			cell: renderColumn,
+		},
+		{
+			accessorKey: "status",
+			header: t("pastApplications.tableColumns.status"),
+			cell: ({ getValue }) => {
+				return (
+					<Badge>{toLabel(getValue<MyPassportFormStatus>())}</Badge>
+				);
+			},
+		},
+		{
+			accessorKey: "issuedAt",
+			accessorFn: row => {
+				if (row.status !== MyPassportFormStatus.Issued) {
+					return "";
+				}
+
+				return formatDate(row.issuedAt, "dd-MM-yyyy");
+			},
+			header: t("pastApplications.tableColumns.dateIssued"),
+			cell: renderColumn,
+		},
+		{
+			id: "actions",
+			header: t("pastApplications.tableColumns.actions"),
+			enableSorting: false,
+			cell: ({ row }) => {
+				return (
+					<div class="flex gap-2 items-center">
 						<Button
-							variant="secondary"
+							as="a"
+							variant="ghost"
+							size="icon"
+							href={getHref(row.original)}>
+							<Eye />
+						</Button>
+					</div>
+				);
+			},
+		},
+	];
+
+	const Onboarding = () => {
+		let myPassportFormWizardRef: any;
+		// TODO: decide how to go about this later. either we allow saving as draft
+		// right now clicking the logo will trigger for the form to be registered and the view will update
+		//
+		// for onboarding or we pass an onboarding prop and submit creates it.
+		// allowing for saving as draft will be very complicated because
+		// we have to only trigger a save if the route changes which is looks like sometimes it saves
+		// as draft and sometimes not or an onboarding prop which registers the form as soon as its dirty
+		// (instead of when they navigate away, component unmount)
+		// also need to consider that once a form is registered the passport applications list will no longer
+		// be empty if it refetches (solid query will refetch when appropriate) causing the entire view to change
+		// so we need some sort of onboarding completed flag
+		//
+		// if register the form when its dirty then we also need to consider what happens if all values get cleared
+		// out
+		// const onClick = () => {
+		// 	myPassportFormWizardRef?.registerApplication();
+		// };
+
+		return (
+			<>
+				<Typography
+					variant="h2"
+					class="flex flex-col md:flex-row gap-4 justify-between items-center">
+					<span class="max-w-full sm:max-w-sm md:max-w-full">
+						{t("onboarding.title")}
+					</span>
+
+					<div class="flex w-full md:max-w-min gap-2">
+						<Button
+							variant="outline"
+							class="w-full md:max-w-min"
 							onClick={toggleImportDialog}>
 							{t("doImport")}
 						</Button>
+					</div>
+				</Typography>
+
+				<Typography variant="p" class="whitespace-pre-line">
+					{t("onboarding.description")}
+				</Typography>
+
+				<MyPassportFormWizard ref={myPassportFormWizardRef} />
+			</>
+		);
+	};
+
+	const ActionBar = () => {
+		return (
+			<>
+				<div class="flex justify-end gap-4 my-8">
+					<Show when={!authnContext().keycloak?.token}>
+						<Show when={qPassportApplications.data?.length}>
+							<Button
+								variant="secondary"
+								onClick={onClickExportApplications}>
+								{t("doExport")}
+							</Button>
+						</Show>
 					</Show>
 
 					<Show when={qPassportApplications.data?.length}>
 						<Button
-							variant="secondary"
-							onClick={onClickExportApplications}>
-							{t("doExport")}
+							as="a"
+							href={toPath(MyPassportForm.New)}
+							onMouseOver={prefetchReferenceData}>
+							<Plus />
+
+							{t("doApply")}
 						</Button>
 					</Show>
-				</Show>
+				</div>
+			</>
+		);
+	};
 
-				<Button
-					as="a"
-					href={toPath(MyPassportForm.New)}
-					onMouseOver={prefetchReferenceData}>
-					{t("doApply")}
-				</Button>
-			</div>
+	const CurrentApplication = () => {
+		return (
+			<>
+				<div>
+					<Show
+						when={
+							getLatestIssuedApplication() ||
+							getCurrentApplication()
+						}>
+						<CardHeader class="flex-row items-center justify-between">
+							<div>
+								<CardTitle>
+									{t("currentApplication.title")}
+								</CardTitle>
+							</div>
 
-			<Suspense fallback={<div>Loading...</div>}>
-				<Show when={!qPassportApplications.data?.length}>
-					<Typography variant="h3" class="text-center">
-						No applications yet!
-					</Typography>
-				</Show>
+							<Show when={getViewApplicationHref()}>
+								<div>
+									<Button
+										size="sm"
+										variant="secondary"
+										as="a"
+										href={
+											getViewApplicationHref() as string
+										}>
+										<div>
+											<Eye />
+										</div>
+										{t(
+											"currentApplication.doViewApplication",
+										)}
+									</Button>
+								</div>
+							</Show>
+						</CardHeader>
+					</Show>
 
-				<Show when={qPassportApplications.data?.length}>
-					<div class="space-y-8">
-						<Show when={!authnContext().keycloak?.token}>
-							<Alert>
-								<CircleAlert class="size-4" />
+					<CardContent class="space-y-8">
+						<Show when={getLatestIssuedApplication()}>
+							<Typography variant="h4">
+								<Show
+									when={
+										getDifferenceUnit(
+											getLatestIssuedApplication()
+												?.issuedAt as Date,
+										) === "today"
+									}>
+									<div>
+										{t(
+											"currentApplication.summary.expiresToday",
+											getLatestIssuedApplication() as IssuedMyPassportForm,
+										)}
+									</div>
+								</Show>
 
-								<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
+								<Show
+									when={
+										getDifferenceUnit(
+											getLatestIssuedApplication()
+												?.issuedAt as Date,
+										) !== "today"
+									}>
+									<div>
+										{t(
+											"currentApplication.summary.expiresIn",
+											getLatestIssuedApplication() as IssuedMyPassportForm,
+										)}
+										<Tooltip>
+											<TooltipTrigger as="span">
+												{getDifference(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												)}
+												&nbsp;
+												{getDifferenceUnit(
+													getLatestIssuedApplication()
+														?.issuedAt as Date,
+												)}
+											</TooltipTrigger>
 
-								<AlertDescription>
-									{t("exportAlertDescription")}
-								</AlertDescription>
-							</Alert>
+											<TooltipContent>
+												{(
+													getLatestIssuedApplication()
+														?.issuedAt as Date
+												).toDateString()}
+											</TooltipContent>
+										</Tooltip>
+									</div>
+								</Show>
+							</Typography>
 						</Show>
 
-						<div class="space-y-2">
-							<Typography
-								variant="small"
-								as="p"
-								class="uppercase">
-								Summary
-							</Typography>
+						<Show when={getCurrentApplication()}>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<Label class="text-muted-foreground">
+										{t(
+											"currentApplication.applicationType",
+										)}
+									</Label>
 
-							<Show
-								when={
-									getDifferenceUnit(randomDate) === "today"
-								}>
-								<Typography variant="h3">
-									Your latest travel document has the
-									number&nbsp;
-									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-										A1234123
-									</span>
-									&nbsp; and is due to expire &nbsp;
-									<span class="underline underline-offset-4 decoration-red-500 dark:decoration-red-900">
-										today
-									</span>
-								</Typography>
-							</Show>
-
-							<Show
-								when={
-									getDifferenceUnit(randomDate) !== "today"
-								}>
-								<Typography variant="h3">
-									Your latest travel document has the
-									number&nbsp;
-									<span
-										class={cn(
-											"underline underline-offset-4",
+									<Show
+										when={
+											getCurrentApplication()
+												?.applicationDetails
+												?.requestType
+										}>
+										<div>
 											{
-												"decoration-green-500 dark:decoration-green-900":
-													isValid(randomDate),
-												"decoration-yellow-500 dark:decoration-yellow-900":
-													isTimeToRenew(randomDate),
-												"decoration-red-500 dark:decoration-red-900":
-													isExpired(randomDate),
-											},
-										)}>
-										A1234123
-									</span>
-									&nbsp; and is due to expire in&nbsp;
-									<Tooltip>
-										<TooltipTrigger
-											as="span"
-											class={cn(
-												"underline underline-offset-4",
-												{
-													"decoration-green-500 dark:decoration-green-900":
-														isValid(randomDate),
-													"decoration-yellow-500 dark:decoration-yellow-900":
-														isTimeToRenew(
-															randomDate,
-														),
-													"decoration-red-500 dark:decoration-red-900":
-														isExpired(randomDate),
-												},
-											)}>
-											{getDifference(randomDate)}&nbsp;
-											{getDifferenceUnit(randomDate)}
-										</TooltipTrigger>
+												getCurrentApplication()
+													?.applicationDetails
+													?.requestType
+											}
+										</div>
+									</Show>
 
-										<TooltipContent>
-											{randomDate.toDateString()}
-										</TooltipContent>
-									</Tooltip>
-								</Typography>
-							</Show>
-						</div>
+									<Show
+										when={
+											!getCurrentApplication()
+												?.applicationDetails
+												?.requestType
+										}>
+										<div class="text-muted-foreground">
+											{t("placeholder")}
+										</div>
+									</Show>
+								</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 group">
-							<For each={qPassportApplications.data}>
-								{item => {
-									const getHref = () => {
-										const url = new URL(location.origin);
-										url.hash = location.hash;
+								<div>
+									<Label class="text-muted-foreground">
+										{t("currentApplication.documentType")}
+									</Label>
 
-										const searchParams =
-											new URLSearchParams({
-												automergeUrl: item.automergeUrl,
-											});
-
-										url.pathname = generatePath(
-											MyPassportForm.Edit,
+									<Show
+										when={
+											getCurrentApplication()
+												?.applicationDetails
+												?.documentType
+										}>
+										<div>
 											{
-												uuid: item.uuid,
-											},
-										);
-										url.search = searchParams.toString();
+												getCurrentApplication()
+													?.applicationDetails
+													?.documentType
+											}
+										</div>
+									</Show>
 
-										return url.href;
-									};
+									<Show
+										when={
+											!getCurrentApplication()
+												?.applicationDetails
+												?.documentType
+										}>
+										<div class="text-muted-foreground">
+											{t("placeholder")}
+										</div>
+									</Show>
+								</div>
 
-									const details = [
-										{
-											label: "Email",
-											description: "test@test.com",
-										},
-										{
-											label: "Mobile number",
-											description: "0234567890",
-										},
-										{
-											label: "Document type",
-											description:
-												"Malaysian passport (64 pages)",
-										},
-										{
-											label: "Current document number",
-											description: "A1234124",
-										},
-										{
-											label: "Status",
-											description: "In progress",
-										},
-									];
+								<div>
+									<Label class="text-muted-foreground">
+										{t("currentApplication.name")}
+									</Label>
 
-									return (
-										<A
-											href={getHref()}
-											class="group hover:scale-105 group-hover:not-hover:scale-95 transition-transform">
-											<Card class="h-full">
-												<CardHeader>
-													<Show
-														when={
-															item.personalDetails
-																.firstName ||
-															item.personalDetails
-																.lastName
-														}>
-														<Tooltip>
-															<TooltipTrigger
-																as={CardTitle}
-																class="truncate">
-																{[
-																	item
-																		.personalDetails
-																		.firstName,
-																	item
-																		.personalDetails
-																		.lastName,
-																]
-																	.filter(
-																		Boolean,
-																	)
-																	.join(" ")}
-															</TooltipTrigger>
-															<TooltipContent>
-																{[
-																	item
-																		.personalDetails
-																		.firstName,
-																	item
-																		.personalDetails
-																		.lastName,
-																]
-																	.filter(
-																		Boolean,
-																	)
-																	.join(" ")}
-															</TooltipContent>
-														</Tooltip>
-													</Show>
+									<Show
+										when={
+											getCurrentApplication()
+												?.personalDetails?.firstName ||
+											getCurrentApplication()
+												?.personalDetails?.lastName
+										}>
+										<div>
+											{[
+												getCurrentApplication()
+													?.personalDetails
+													?.firstName,
+												getCurrentApplication()
+													?.personalDetails?.lastName,
+											]
+												.filter(Boolean)
+												.join(" ")}
+										</div>
+									</Show>
 
-													<Show
-														when={
-															!item
-																.personalDetails
-																.firstName &&
-															!item
-																.personalDetails
-																.lastName
-														}>
-														<CardTitle class="text-muted-foreground">
-															{[
-																randFirstName(),
-																randLastName(),
-															].join(" ")}
-														</CardTitle>
-													</Show>
+									<Show
+										when={
+											!getCurrentApplication()
+												?.personalDetails?.firstName &&
+											!getCurrentApplication()
+												?.personalDetails?.lastName
+										}>
+										<div class="text-muted-foreground">
+											{t("placeholder")}
+										</div>
+									</Show>
+								</div>
 
-													<CardDescription>
-														Malaysian passport
-													</CardDescription>
-												</CardHeader>
-												<CardContent>
-													<For each={details}>
-														{item => (
-															<div class="mb-4 grid grid-cols-[20px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-																<div class="space-y-2">
-																	<div class="grid grid-cols-3 gap-4 items-center">
-																		<div class="col-span-1">
-																			<span class="flex col-span-1 size-2 bg-sky-500 dark:bg-sky-900" />
-																		</div>
+								<div>
+									<Label class="text-muted-foreground">
+										{t("currentApplication.status")}
+									</Label>
 
-																		<Typography
-																			variant="small"
-																			as="p"
-																			class="w-full col-span-2 text-nowrap">
-																			{
-																				item.label
-																			}
-																		</Typography>
-																	</div>
+									<div>
+										<Badge>
+											{toLabel(
+												getCurrentApplication()
+													?.status as MyPassportFormStatus,
+											)}
+										</Badge>
+									</div>
+								</div>
+							</div>
 
-																	<Typography
-																		variant="small"
-																		as="p"
-																		class="text-nowrap mx-4">
-																		{
-																			item.description
-																		}
-																	</Typography>
-																</div>
-															</div>
-														)}
-													</For>
-												</CardContent>
+							<div class="flex flex-col gap-2">
+								<Progress
+									value={getProgressByStatus(
+										getCurrentApplication()
+											?.status as MyPassportFormStatus,
+									)}>
+									<div class="flex justify-between">
+										<ProgressLabel>
+											{t("currentApplication.progress")}
+										</ProgressLabel>
 
-												<CardFooter>
-													<Button class="w-full group-hover:bg-primary/90">
-														Edit
-													</Button>
-												</CardFooter>
-											</Card>
-										</A>
-									);
-								}}
-							</For>
-						</div>
-					</div>
-				</Show>
+										<ProgressValueLabel />
+									</div>
+								</Progress>
 
+								<div class="flex justify-between">
+									<Label description>
+										{t("status.draft")}
+									</Label>
+
+									<Label description>
+										{t("status.ready")}
+									</Label>
+
+									<Label description>
+										{t("status.submitted")}
+									</Label>
+
+									<Label description>
+										{t("status.issued")}
+									</Label>
+								</div>
+							</div>
+						</Show>
+					</CardContent>
+				</div>
+			</>
+		);
+	};
+
+	const PastApplications = () => {
+		const onInputSearch: JSX.EventHandlerUnion<
+			HTMLInputElement,
+			InputEvent
+		> = event => {
+			const value = (event.target as HTMLInputElement).value;
+
+			setSearch(value);
+		};
+
+		return (
+			<>
+				<div>
+					<CardHeader>
+						<CardTitle>{t("pastApplications.title")}</CardTitle>
+					</CardHeader>
+
+					<CardContent class="flex flex-col gap-4">
+						<TextFieldRoot>
+							<TextField
+								type="text"
+								placeholder={t(
+									"pastApplications.placeholderSearch",
+								)}
+								onInput={onInputSearch}
+							/>
+						</TextFieldRoot>
+
+						<DataTable
+							columns={columns}
+							rows={getPreviousApplications}
+							isRowSelectable={false}
+							search={search}
+						/>
+					</CardContent>
+				</div>
+			</>
+		);
+	};
+
+	const ExportBanner = () => {
+		return (
+			<>
+				<Alert>
+					<CircleAlert class="size-4" />
+
+					<AlertTitle>{t("exportAlertTitle")}</AlertTitle>
+
+					<AlertDescription>
+						{t("exportAlertDescription")}
+					</AlertDescription>
+				</Alert>
+			</>
+		);
+	};
+
+	const ExportDialog = () => {
+		return (
+			<>
 				<AlertDialog
 					open={show().failedToExportDialog}
 					onOpenChange={onClickCloseExportApplications}>
@@ -463,7 +692,13 @@ export const Home = () => {
 						</AlertDialogFooter>
 					</AlertDialogContent>
 				</AlertDialog>
+			</>
+		);
+	};
 
+	const ImportDialog = () => {
+		return (
+			<>
 				<Dialog
 					open={show().importDialog}
 					onOpenChange={toggleImportDialog}>
@@ -514,7 +749,37 @@ export const Home = () => {
 						</DialogFooter>
 					</DialogContent>
 				</Dialog>
+			</>
+		);
+	};
+
+	return (
+		<>
+			<ActionBar />
+
+			<Suspense fallback={<div>Loading...</div>}>
+				<Show when={!qPassportApplications.data?.length}>
+					<Onboarding />
+				</Show>
+
+				<Show when={qPassportApplications.data?.length}>
+					<div class="space-y-8">
+						<Show when={!authnContext().keycloak?.token}>
+							<ExportBanner />
+						</Show>
+
+						<CurrentApplication />
+
+						<Show when={getPreviousApplications().length > 0}>
+							<PastApplications />
+						</Show>
+					</div>
+				</Show>
+
+				<ExportDialog />
+
+				<ImportDialog />
 			</Suspense>
-		</div>
+		</>
 	);
 };

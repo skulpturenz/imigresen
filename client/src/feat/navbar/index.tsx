@@ -8,6 +8,7 @@ import { UiContext } from "core/context/ui";
 import { UserContext, type UserProfile } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { type RouteInternalProps, type RouteProps } from "core/router/route";
+import { LogoText } from "core/ui/app/logo-text";
 import { flatMapDeep } from "es-toolkit";
 import { LogOut, Menu, Moon, Settings, Sun, User, X } from "lucide-solid";
 import {
@@ -44,7 +45,6 @@ import type { NavbarItem } from "./types";
 import { sortNavbarItems, sortNavigationRoutes } from "./utils";
 
 const resources = {
-	logoAlt: "Imigresen",
 	doLogin: "Login",
 	doRegister: "Register",
 	doSwitchTheme: (nextTheme: "light" | "dark") =>
@@ -320,17 +320,13 @@ export const Navbar: Component<ParentProps> = () => {
 			<nav class="py-4">
 				<div class={cn(styles.contentContainer)}>
 					<div class={cn(styles.narrowContentContainer, "space-y-4")}>
-						<div class="relative flex h-16 items-center justify-between">
+						<div class="relative flex h-16 justify-between items-center">
 							<MobileMenuTrigger />
 
 							<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-								<div class="flex shrink-0 items-center">
-									<a
-										href="/"
-										class="flex items-center gap-3 sm:gap-4 font-black lowercase tracking-tighter text-4xl sm:text-4xl">
-										{resources.logoAlt}
-									</a>
-								</div>
+								<a href="/">
+									<LogoText class="size-40" />
+								</a>
 							</div>
 
 							<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">

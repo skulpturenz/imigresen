@@ -16,7 +16,10 @@ import {
 } from "@solidjs/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { selectMyPassportForm } from "common/epic/my-passport-form/select/select-my-passport-form";
-import { MyPassportFormVersionLatest } from "common/epic/my-passport-form/types";
+import {
+	MyPassportFormStatus,
+	MyPassportFormVersionLatest,
+} from "common/epic/my-passport-form/types";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
 import { AuthnContext } from "core/context/authn";
@@ -161,6 +164,7 @@ export const useMyPassportForm = () => {
 
 		const handle = repo.create<Partial<MyPassportForm>>({
 			version: MyPassportFormVersionLatest,
+			status: MyPassportFormStatus.Draft,
 		});
 
 		await handle.whenReady();
@@ -402,6 +406,23 @@ export const useMyPassportForm = () => {
 		refetchPassportApplications().then(proceed);
 	});
 
+	const registerNewForm = async () => {
+		const automergeUrl = handle()?.url;
+
+		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
+
+		await mRegister.mutateAsync({
+			automergeUrl: automergeUrl,
+			user: userContext().profile?.uuid,
+		});
+
+		await queryClient.refetchQueries({
+			queryKey: globalQueryKeys.getPassportApplications(
+				authnContext().keycloak?.token,
+			),
+		});
+	};
+
 	useBeforeLeave(event => {
 		if (
 			event.defaultPrevented ||
@@ -423,26 +444,6 @@ export const useMyPassportForm = () => {
 		}
 
 		event.preventDefault();
-
-		const registerNewForm = async () => {
-			const automergeUrl = handle()?.url;
-
-			invariant(
-				automergeUrl,
-				"Automerge URL is not defined, check `handle`",
-			);
-
-			await mRegister.mutateAsync({
-				automergeUrl: automergeUrl,
-				user: userContext().profile?.uuid,
-			});
-
-			await queryClient.refetchQueries({
-				queryKey: globalQueryKeys.getPassportApplications(
-					authnContext().keycloak?.token,
-				),
-			});
-		};
 
 		registerNewForm().then(proceed);
 	});
@@ -509,6 +510,7 @@ export const useMyPassportForm = () => {
 		isMutating: () => form.submitting || mSubmit.isPending,
 		isDirty,
 		prefillData,
+		registerNewForm,
 		Components: {
 			Form,
 			Field,

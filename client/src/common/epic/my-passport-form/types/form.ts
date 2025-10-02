@@ -1,3 +1,4 @@
+import type { MyPassportFormStatus } from "./my-passport-form-status.enum";
 import type { MyPassportFormVersion } from "./my-passport-form-version.enum";
 
 export type MyPassportForm = {
@@ -7,6 +8,7 @@ export type MyPassportForm = {
 	previousDocuments: PreviousDocuments;
 	declaration: Declaration;
 	version?: MyPassportFormVersion;
+	status: MyPassportFormStatus;
 };
 
 export type PersonalDetails = {

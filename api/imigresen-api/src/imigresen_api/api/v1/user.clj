@@ -102,7 +102,7 @@
      ["/config/im42" {:get {:summary "Get IM42 config"
                             :handler (fn [{:keys [parameters]
                                            :as _req}]
-                                       (-> (imi-im42/get-im42-config-by-user-uuid
+                                       (-> (imi-im42/user->im42-config
                                             (truss/have imi-user/active-by-uuid?
                                                         (get-in parameters [:path :uuid])
                                                         :data {:type :not-found}))
