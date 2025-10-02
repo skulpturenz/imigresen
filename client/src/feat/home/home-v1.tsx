@@ -304,7 +304,7 @@ export const Home = () => {
 				<Typography
 					variant="h2"
 					class="flex flex-col md:flex-row gap-4 justify-between items-center">
-					<span class="max-w-full sm:max-w-sm md:max-w-full">
+					<span class="max-w-full md:max-w-full self-start md:self-center">
 						{t("onboarding.title")}
 					</span>
 
