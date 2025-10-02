@@ -47,8 +47,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 			user,
 		});
 
-		// TODO: update types
-		const getUuid = (document: Record<string, any>) =>
+		const getUuid = (document: PersistedMyPassportForm) =>
 			document.uuid as string;
 
 		if (!automergeUrls.length) {

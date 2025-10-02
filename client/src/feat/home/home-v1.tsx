@@ -397,7 +397,6 @@ export const Home = () => {
 						<Show when={getLatestIssuedApplication()}>
 							<Typography variant="h4">
 								<Show
-									// TODO
 									when={
 										getDifferenceUnit(
 											getLatestIssuedApplication()
@@ -413,7 +412,6 @@ export const Home = () => {
 								</Show>
 
 								<Show
-									// TODO
 									when={
 										getDifferenceUnit(
 											getLatestIssuedApplication()
@@ -764,9 +762,7 @@ export const Home = () => {
 					<Onboarding />
 				</Show>
 
-				<Show
-					// TODO
-					when={qPassportApplications.data?.length}>
+				<Show when={qPassportApplications.data?.length}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<ExportBanner />
