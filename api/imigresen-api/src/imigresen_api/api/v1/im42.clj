@@ -35,6 +35,7 @@
                                                                                 (ds/opt :automerge-url) ::imi-im42-spec/automerge-url
                                                                                 (ds/opt :completed-at) ::imi-im42-spec/maybe-offset-date
                                                                                 (ds/opt :issued-at) ::imi-im42-spec/maybe-offset-date
+                                                                                (ds/opt :passport-number) ::imi-im42-spec/passport-number
                                                                                 (ds/opt :personal-details) imi-im42-spec/personal-details
                                                                                 (ds/opt :application-details) imi-im42-spec/application-details
                                                                                 (ds/opt :address-details) imi-im42-spec/address-details
