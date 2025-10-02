@@ -51,7 +51,11 @@ import { Typography } from "ui/typography";
 import { MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
-import { MyPassportFormStatus, type RegisteredMyPassportForm } from "./types";
+import {
+	MyPassportFormStatus,
+	type IssuedMyPassportForm,
+	type PersistedMyPassportForm,
+} from "./types";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -169,7 +173,7 @@ export const Home = () => {
 
 		return label;
 	};
-	const getHref = (application: RegisteredMyPassportForm) => {
+	const getHref = (application: PersistedMyPassportForm) => {
 		const url = new URL(location.origin);
 		url.hash = location.hash;
 
@@ -186,12 +190,12 @@ export const Home = () => {
 	};
 	const getViewApplicationHref = () => {
 		if (getCurrentApplication()) {
-			return getHref(getCurrentApplication() as RegisteredMyPassportForm);
+			return getHref(getCurrentApplication() as PersistedMyPassportForm);
 		}
 
 		if (getLatestIssuedApplication()?.automergeUrl) {
 			return getHref(
-				getLatestIssuedApplication() as RegisteredMyPassportForm,
+				getLatestIssuedApplication() as PersistedMyPassportForm,
 			);
 		}
 
@@ -213,7 +217,7 @@ export const Home = () => {
 	const toName = (firstName?: string, lastName?: string) =>
 		[firstName, lastName].filter(Boolean).join(" ");
 
-	const columns: ColumnDef<RegisteredMyPassportForm>[] = [
+	const columns: ColumnDef<PersistedMyPassportForm>[] = [
 		{
 			accessorKey: "applicationDetails.requestType",
 			header: t("pastApplications.tableColumns.requestType"),
@@ -246,7 +250,7 @@ export const Home = () => {
 		{
 			accessorKey: "issuedAt",
 			accessorFn: row => {
-				if (!row.issuedAt) {
+				if (row.status !== MyPassportFormStatus.Issued) {
 					return "";
 				}
 
@@ -401,9 +405,10 @@ export const Home = () => {
 										) === "today"
 									}>
 									<div>
-										Your latest travel document has the
-										number&nbsp; A1234123 &nbsp; and is due
-										to expire &nbsp; today
+										{t(
+											"currentApplication.summary.expiresToday",
+											getLatestIssuedApplication() as IssuedMyPassportForm,
+										)}
 									</div>
 								</Show>
 
@@ -416,9 +421,10 @@ export const Home = () => {
 										) !== "today"
 									}>
 									<div>
-										Your latest travel document has the
-										number A1234123 and is due to expire
-										in&nbsp;
+										{t(
+											"currentApplication.summary.expiresIn",
+											getLatestIssuedApplication() as IssuedMyPassportForm,
+										)}
 										<Tooltip>
 											<TooltipTrigger as="span">
 												{getDifference(

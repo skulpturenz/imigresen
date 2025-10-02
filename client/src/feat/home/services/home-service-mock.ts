@@ -9,9 +9,9 @@ import {
 	type GetAutomergeUrlsVariables,
 	type GetPassportApplicationsVariables,
 	type ImportApplicationsVariables,
+	type PersistedMyPassportForm,
 	type PromiseSettledResultValue,
 	type RegisterApplicationVariables,
-	type RegisteredMyPassportForm,
 } from "feat/home/types";
 import { makeTimeout, readJson } from "feat/home/utils";
 import { createStorage } from "unstorage";
@@ -31,7 +31,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		);
 		const localItems = await storage.getItems<string>(localKeys);
 
-		return localItems.map<Partial<RegisteredMyPassportForm>>(
+		return localItems.map<Partial<PersistedMyPassportForm>>(
 			({ key, value }) => ({
 				uuid: key.split(":").at(-1),
 				automergeUrl: value,
@@ -58,7 +58,7 @@ export const homeService = (repo: Repo, _token?: string) => {
 		const draftDocuments = await Promise.allSettled(
 			automergeUrls?.map(async form => {
 				const handle = await repo.find<
-					Omit<RegisteredMyPassportForm, "uuid" | "automergeUrl">
+					Omit<PersistedMyPassportForm, "uuid" | "automergeUrl">
 				>(form.automergeUrl as AnyDocumentId);
 
 				// this usually happens if the doc does not exist on the remote or locally
@@ -119,9 +119,9 @@ export const homeService = (repo: Repo, _token?: string) => {
 		);
 
 		const allDocuments = [
-			...draftDocuments.map<RegisteredMyPassportForm>(application => {
+			...draftDocuments.map<PersistedMyPassportForm>(application => {
 				return {
-					...(application.doc as RegisteredMyPassportForm),
+					...(application.doc as PersistedMyPassportForm),
 					uuid: application.uuid as string,
 					automergeUrl: application.automergeUrl as string,
 				};

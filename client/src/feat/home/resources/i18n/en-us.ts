@@ -1,4 +1,5 @@
 import { CoreRouteTitle } from "core/constants/core-route.enum";
+import type { IssuedMyPassportForm } from "feat/home/types";
 
 export const resources = {
 	metaTitle: CoreRouteTitle.Home,
@@ -52,6 +53,12 @@ export const resources = {
 		name: "Applicant name",
 		status: "Status",
 		progress: "Progress",
+		summary: {
+			expiresToday: (form: IssuedMyPassportForm) =>
+				`Your latest travel document has the number ${form.passportNumber} and is due to expire today`,
+			expiresIn: (form: IssuedMyPassportForm) =>
+				`Your latest travel document has the number ${form.passportNumber} and is due to expire in `,
+		},
 	},
 	pastApplications: {
 		title: "Past applications",

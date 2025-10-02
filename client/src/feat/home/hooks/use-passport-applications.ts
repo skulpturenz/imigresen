@@ -109,10 +109,8 @@ export const usePassportApplications = () => {
 	const getCurrentApplication = () => {
 		const currentApplication = qPassportApplications.data?.find(
 			application =>
-				[
-					MyPassportFormStatus.Draft,
-					MyPassportFormStatus.Ready,
-				].includes(application.status),
+				application.status === MyPassportFormStatus.Draft ||
+				application.status === MyPassportFormStatus.Ready,
 		);
 
 		return currentApplication;
