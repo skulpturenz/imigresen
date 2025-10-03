@@ -160,8 +160,8 @@ func main() {
 		instanceGroupManager *compute.InstanceGroupManager
 	}
 	setupDev := func(ctx *pulumi.Context) (*devResources, error) {
-		REGION := "us-central1"
-		ZONE := "us-central1-a"
+		REGION := "australia-southeast1"
+		ZONE := "australia-southeast1-a"
 
 		static, err := compute.NewAddress(ctx, fmt.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()), &compute.AddressArgs{
 			Name:   pulumi.Sprintf("%s-dev", COMPUTE_INSTANCE_NAME.Value()),
@@ -210,10 +210,10 @@ func main() {
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
 			// Enable root login: https://cloud.google.com/compute/docs/connect/root-ssh
-			MetadataStartupScript: pulumi.Sprintf(`#! /bin/bash 
+			MetadataStartupScript: pulumi.Sprintf(`#! /bin/bash
 				curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 				sudo bash add-google-cloud-ops-agent-repo.sh --also-install
-				
+
 				sudo apt update &&
 				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
@@ -222,7 +222,7 @@ func main() {
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
 				sudo grep -qxF 'vm.max_map_count=262144' /etc/sysctl.conf || echo vm.max_map_count=262144 | sudo tee -a /etc/sysctl.conf &&
 				sudo sysctl -p &&
-				sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy && 
+				sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy &&
 				echo "dns_cloudflare_api_token = %s" | sudo tee /etc/letsencrypt/dnscloudflare.ini &&
 				echo "#! /bin/bash sudo docker service ls -q | xargs -n1 sudo docker service update --force" | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
@@ -233,7 +233,7 @@ func main() {
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
 					--dns-cloudflare-propagation-seconds 60
-				
+
 				# Enable root login and restart sshd
 				sudo sed -i 's/PermitRootLogin no/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config
 				sudo systemctl restart sshd`, CLOUDFLARE_API_TOKEN.Value()),
