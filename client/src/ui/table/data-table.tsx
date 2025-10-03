@@ -28,6 +28,7 @@ import {
 	Switch,
 	type Accessor,
 } from "solid-js";
+import type { JSX } from "solid-js/h/jsx-runtime";
 import { Button } from "ui/button";
 import { Checkbox, CheckboxControl } from "ui/checkbox";
 import {
@@ -206,7 +207,12 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 		debugTable: import.meta.env.DEV,
 	});
 
-	const onChangePage = (page: number | null) => {
+	const onChangePage: JSX.ChangeEventHandler<
+		HTMLSelectElement,
+		Event
+	> = event => {
+		const page = Number(event.target.value) || null;
+
 		const newPageIdx = (page ?? 1) - 1;
 
 		if (table.getState().pagination.pageIndex !== newPageIdx) {
@@ -214,7 +220,12 @@ export const DataTableWithoutI18n = <TRow,>(props: DataTableProps<TRow>) => {
 		}
 	};
 
-	const onChangePageSize = (pageSize: number | null) => {
+	const onChangePageSize: JSX.ChangeEventHandler<
+		HTMLSelectElement,
+		Event
+	> = event => {
+		const pageSize = Number(event?.target.value) || null;
+
 		const newPageSize = (pageSize ??
 			withDefaults.initialPageSize) as number;
 

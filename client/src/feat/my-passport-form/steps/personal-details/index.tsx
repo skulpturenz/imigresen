@@ -3,11 +3,7 @@ import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
 import { localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
-import {
-	type MyPassportForm,
-	type Option,
-	type StepProps,
-} from "feat/my-passport-form/types";
+import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
@@ -24,6 +20,7 @@ import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
 import { Label } from "ui/label";
 import {
+	Select,
 	SelectClearSelection,
 	SelectContent,
 	SelectErrorMessage,
@@ -31,7 +28,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "ui/select";
-import { ModularFormsSelect } from "ui/select/modular-forms-select";
 import {
 	TextField,
 	TextFieldDescription,
@@ -247,15 +243,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{t("form.personalDetails.genderCode.label")}
 								</Label>
 
-								<ModularFormsSelect<
-									Option<string, string>,
-									MyPassportForm,
-									never,
-									"input"
-								>
-									{...field}
+								<Select
 									{...fieldProps}
-									form={props.form}
 									value={genderOptions().find(
 										option => option.key === field.value,
 									)}
@@ -298,7 +287,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									<SelectErrorMessage>
 										{field.error}
 									</SelectErrorMessage>
-								</ModularFormsSelect>
+								</Select>
 							</InputGroup>
 						</>
 					)}
@@ -316,15 +305,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 									)}
 								</Label>
 
-								<ModularFormsSelect<
-									Option<string, string>,
-									MyPassportForm,
-									never,
-									"input"
-								>
-									{...field}
+								<Select
 									{...fieldProps}
-									form={props.form}
 									value={relationshipStatusOptions().find(
 										option => option.key === field.value,
 									)}
@@ -371,7 +353,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									<SelectErrorMessage>
 										{field.error}
 									</SelectErrorMessage>
-								</ModularFormsSelect>
+								</Select>
 							</InputGroup>
 						</>
 					)}

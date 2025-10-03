@@ -3,7 +3,6 @@ import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import {
 	DocumentType,
 	RequestType,
-	type MyPassportForm,
 	type Option,
 	type StepProps,
 } from "feat/my-passport-form/types";
@@ -13,13 +12,13 @@ import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import type { Component } from "solid-js";
 import { Label } from "ui/label";
 import {
+	Select,
 	SelectClearSelection,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "ui/select";
-import { ModularFormsSelect } from "ui/select/modular-forms-select";
 import {
 	TextField,
 	TextFieldDescription,
@@ -71,15 +70,8 @@ export const ApplicationDetails: Component<StepProps> = props => {
 									)}
 								</Label>
 
-								<ModularFormsSelect<
-									Option<string, string>,
-									MyPassportForm,
-									never,
-									"input"
-								>
-									{...field}
+								<Select
 									{...fieldProps}
-									form={props.form}
 									value={documentTypeOptions().find(
 										option => option.key === field.value,
 									)}
@@ -121,7 +113,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent />
-								</ModularFormsSelect>
+								</Select>
 							</InputGroup>
 						</>
 					)}
@@ -140,15 +132,8 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<ModularFormsSelect<
-										Option<string, string>,
-										MyPassportForm,
-										never,
-										"input"
-									>
-										{...field}
+									<Select
 										{...fieldProps}
-										form={props.form}
 										value={requestTypeOptions().find(
 											option =>
 												option.key === field.value,
@@ -193,7 +178,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 											</SelectValue>
 										</SelectTrigger>
 										<SelectContent />
-									</ModularFormsSelect>
+									</Select>
 								</InputGroup>
 							</>
 						)}
