@@ -124,7 +124,12 @@ export const AutocorrectTextField = <
 		);
 	};
 
-	const onSelectChange = (value: string | null) => {
+	const onSelectChange: JSX.ChangeEventHandler<
+		HTMLSelectElement,
+		Event
+	> = event => {
+		const value = event?.target.value;
+
 		if (value === null) {
 			return;
 		}

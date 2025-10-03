@@ -1,13 +1,21 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import {
+	Select as SelectPrimitive,
 	type SelectContentProps,
 	type SelectItemProps,
+	type SelectRootProps,
 	type SelectTriggerProps,
-	Select as SelectPrimitive,
 } from "@kobalte/core/select";
 import { spreadProps } from "core/utils";
 import { Check, ChevronDown, X } from "lucide-solid";
-import type { Component, ParentProps, ValidComponent } from "solid-js";
+import {
+	createSignal,
+	splitProps,
+	type Component,
+	type JSX,
+	type ParentProps,
+	type ValidComponent,
+} from "solid-js";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -15,7 +23,41 @@ const resources = {
 	srOnlyShowOptions: "Show options",
 };
 
-export const Select = SelectPrimitive;
+export type SelectProps<
+	Option,
+	OptGroup = never,
+	T extends ValidComponent = "div",
+> = Omit<
+	SelectRootProps<Option, OptGroup, T>,
+	"ref" | "onInput" | "onChange" | "onBlur"
+> &
+	Pick<
+		JSX.SelectHTMLAttributes<HTMLSelectElement>,
+		"ref" | "onInput" | "onChange" | "onBlur"
+	>;
+
+export const Select = <
+	Option,
+	OptGroup = never,
+	T extends ValidComponent = "div",
+>(
+	props: PolymorphicProps<T, SelectProps<Option, OptGroup, T>>,
+) => {
+	const [value, setValue] = createSignal(props.value);
+	const [selectProps, others] = splitProps(props, [
+		"ref",
+		"onInput",
+		"onChange",
+		"onBlur",
+	]);
+
+	return (
+		<SelectPrimitive {...others} value={value()} onChange={setValue}>
+			{props.children}
+			<SelectPrimitive.HiddenSelect {...selectProps} />
+		</SelectPrimitive>
+	);
+};
 
 export const SelectValue = SelectPrimitive.Value;
 
