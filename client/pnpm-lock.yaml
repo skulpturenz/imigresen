@@ -139,13 +139,13 @@ importers:
         version: 2.1.0
       '@chromatic-com/storybook':
         specifier: latest
-        version: 3.2.7(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
+        version: 4.1.1(storybook@8.6.14(prettier@3.6.2))
       '@eslint/js':
         specifier: ^9.32.0
         version: 9.32.0
       '@formbricks/js':
         specifier: latest
-        version: 4.1.0
+        version: 4.2.0
       '@ngneat/falso':
         specifier: ^8.0.2
         version: 8.0.2
@@ -175,10 +175,10 @@ importers:
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
       '@tailwindcss/container-queries':
         specifier: ^0.1.1
-        version: 0.1.1(tailwindcss@4.1.11)
+        version: 0.1.1(tailwindcss@4.1.14)
       '@tailwindcss/forms':
         specifier: ^0.5.10
-        version: 0.5.10(tailwindcss@4.1.11)
+        version: 0.5.10(tailwindcss@4.1.14)
       '@testing-library/jest-dom':
         specifier: ^6.6.4
         version: 6.6.4
@@ -243,11 +243,11 @@ importers:
         specifier: 1.0.0-beta.7
         version: 1.0.0-beta.7(patch_hash=3860d01e3a5441bb51eca26a573a3fdb8b71e1213376e89f0c82784a812e403c)(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(solid-js@1.9.7)(storybook@8.6.14(prettier@3.6.2))(vite-plugin-solid@2.11.7(@testing-library/jest-dom@6.6.4)(solid-js@1.9.7)(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)))(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
       tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.11
+        specifier: ^4.1.14
+        version: 4.1.14
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.1.11)
+        version: 1.0.7(tailwindcss@4.1.14)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -432,11 +432,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@chromatic-com/storybook@3.2.7':
-    resolution: {integrity: sha512-fCGhk4cd3VA8RNg55MZL5CScdHqljsQcL9g6Ss7YuobHpSo9yytEWNdgMd5QxAHSPBlLGFHjnSmliM3G/BeBqw==}
-    engines: {node: '>=16.0.0', yarn: '>=1.22.18'}
+  '@chromatic-com/storybook@4.1.1':
+    resolution: {integrity: sha512-+Ib4cHtEjKl/Do+4LyU0U1FhLPbIU2Q/zgbOKHBCV+dTC4T3/vGzPqiGsgkdnZyTsK/zXg96LMPSPC4jjOiapg==}
+    engines: {node: '>=20.0.0', yarn: '>=1.22.18'}
     peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+      storybook: ^0.0.0-0 || ^9.0.0 || ^9.1.0-0 || ^9.2.0-0 || ^10.0.0-0
 
   '@corvu/dialog@0.2.4':
     resolution: {integrity: sha512-n54vJq+fOy8GVrnYBdJpD6JXNuyx7LOeMrRxwzAvZnYGpW8+AA12tnb/P/2emJj/HjOO5otheGKb0breshdFlA==}
@@ -706,8 +706,8 @@ packages:
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
-  '@formbricks/js@4.1.0':
-    resolution: {integrity: sha512-AvM4pmsxI/MKTVUbezH8nAb6sayTL69/i+Wmc1zYM//CBX2gVA90lBoJ/tqDZaIGH/A5eUuQY0qsWrFcohuXRw==}
+  '@formbricks/js@4.2.0':
+    resolution: {integrity: sha512-SwTGGNjAPjJpVVM8Cr+K70s+uDe20VdcOAZJJ+EEuKOZeot40dGeXVnYYwe4FmPa/uLWp/Vr7rhe3S/mfC/Jyw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -802,6 +802,9 @@ packages:
     resolution: {integrity: sha512-issNZ3xl4tj+1K7KT4dNTQaRq5SmVUXgUPeGTMjtrAzCeTnwM/u6vUxSuTY2bcMw4GzTxreFXLx1xMMhrFkt0A==}
     peerDependencies:
       solid-js: ^1.3.1
+
+  '@neoconfetti/react@1.0.0':
+    resolution: {integrity: sha512-klcSooChXXOzIm+SE5IISIAn3bYzYfPjbX7D7HoqZL84oAfgREeSg5vSIaSFH+DaGzzvImTyWe1OyrJ67vik4A==}
 
   '@ngneat/falso@8.0.2':
     resolution: {integrity: sha512-vhPtuoHoxE5JGWPSPBqEyTXcjI4MAn8GllR+Vs8FfpAQu2sQRd4PJc3e8kc9vdbdhYHx1C9HmbECgtGLK30z4w==}
@@ -2136,8 +2139,8 @@ packages:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
 
-  chromatic@11.29.0:
-    resolution: {integrity: sha512-yisBlntp9hHVj19lIQdpTlcYIXuU9H/DbFuu6tyWHmj6hWT2EtukCCcxYXL78XdQt1vm2GfIrtgtKpj/Rzmo4A==}
+  chromatic@12.2.0:
+    resolution: {integrity: sha512-GswmBW9ZptAoTns1BMyjbm55Z7EsIJnUvYKdQqXIBZIKbGErmpA+p4c0BYA+nzw5B0M+rb3Iqp1IaH8TFwIQew==}
     hasBin: true
     peerDependencies:
       '@chromatic-com/cypress': ^0.*.* || ^1.0.0
@@ -3601,12 +3604,6 @@ packages:
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
-  react-confetti@6.4.0:
-    resolution: {integrity: sha512-5MdGUcqxrTU26I2EU7ltkWPwxvucQTuqMm8dUz72z2YMqTD6s9vMcDUysk7n9jnC+lXuCPeJJ7Knf98VEYE9Rg==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.1 || ^18.0.0 || ^19.0.0
-
   react-dom@19.1.0:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
@@ -3774,6 +3771,7 @@ packages:
 
   solid-automerge@1.0.10:
     resolution: {integrity: sha512-6ajYmweGpgVtTLDrYb/DrKj9bCAVuF2ZCNlkT8WKWGyc8O8Ve89M20y8Z9a84COGWKtCAExsoERvxwjRs+9xBQ==}
+    deprecated: 'wonderful news! this is now an official part of automerge-repo: @automerge/automerge-repo-solid-primitives'
     peerDependencies:
       solid-js: ^1.9.4
 
@@ -3872,6 +3870,7 @@ packages:
   storybook-solidjs@1.0.0-beta.7:
     resolution: {integrity: sha512-PgquZC4FiNPCDOIXuXYOco01vMHCXBBAr3Y/a9ylF4+0vOTcL2RAqieUmTbZhBxVWZIm+nPIyOlz8UqhwcgLtQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: 'This package is deprecated. Use storybook-solidjs-vite instead: https://www.npmjs.com/package/storybook-solidjs-vite'
     peerDependencies:
       '@storybook/test': '*'
       solid-js: ~1.9.0
@@ -3960,6 +3959,9 @@ packages:
 
   tailwindcss@4.1.11:
     resolution: {integrity: sha512-2E9TBm6MDD/xKYe+dvJZAmg3yxIEDNRc0jwlNyDg/4Fil2QcSLjFKGVff0lAf1jjeaArlG/M75Ey/EYr/OJtBA==}
+
+  tailwindcss@4.1.14:
+    resolution: {integrity: sha512-b7pCxjGO98LnxVkKjaZSDeNuljC4ueKUddjENJOADtubtdo8llTaJy7HwBMeLNSSo2N5QIAgklslK1+Ir8r6CA==}
 
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
@@ -4056,9 +4058,6 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
-
-  tween-functions@1.2.0:
-    resolution: {integrity: sha512-PZBtLYcCLtEcjL14Fzb1gSxPBeL7nWvGhO5ZFPGqziCcr8uvHp0NDmdjBchp6KHL+tExcg0m3NISmKxhU394dA==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4806,18 +4805,17 @@ snapshots:
   '@cbor-extract/cbor-extract-win32-x64@2.2.0':
     optional: true
 
-  '@chromatic-com/storybook@3.2.7(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))':
+  '@chromatic-com/storybook@4.1.1(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
-      chromatic: 11.29.0
+      '@neoconfetti/react': 1.0.0
+      chromatic: 12.2.0
       filesize: 10.1.6
       jsonfile: 6.1.0
-      react-confetti: 6.4.0(react@19.1.0)
       storybook: 8.6.14(prettier@3.6.2)
       strip-ansi: 7.1.0
     transitivePeerDependencies:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
-      - react
 
   '@corvu/dialog@0.2.4(solid-js@1.9.7)':
     dependencies:
@@ -5024,7 +5022,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
-  '@formbricks/js@4.1.0': {}
+  '@formbricks/js@4.2.0': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -5144,6 +5142,8 @@ snapshots:
       valibot: 1.1.0(typescript@5.8.3)
     transitivePeerDependencies:
       - typescript
+
+  '@neoconfetti/react@1.0.0': {}
 
   '@ngneat/falso@8.0.2':
     dependencies:
@@ -5629,14 +5629,14 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tailwindcss/container-queries@0.1.1(tailwindcss@4.1.11)':
+  '@tailwindcss/container-queries@0.1.1(tailwindcss@4.1.14)':
     dependencies:
-      tailwindcss: 4.1.11
+      tailwindcss: 4.1.14
 
-  '@tailwindcss/forms@0.5.10(tailwindcss@4.1.11)':
+  '@tailwindcss/forms@0.5.10(tailwindcss@4.1.14)':
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 4.1.11
+      tailwindcss: 4.1.14
 
   '@tailwindcss/node@4.1.11':
     dependencies:
@@ -6863,7 +6863,7 @@ snapshots:
 
   chownr@3.0.0: {}
 
-  chromatic@11.29.0: {}
+  chromatic@12.2.0: {}
 
   class-variance-authority@0.7.1:
     dependencies:
@@ -8290,11 +8290,6 @@ snapshots:
 
   radix3@1.1.2: {}
 
-  react-confetti@6.4.0(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      tween-functions: 1.2.0
-
   react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -8708,11 +8703,13 @@ snapshots:
 
   tailwind-merge@3.3.1: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.1.11):
+  tailwindcss-animate@1.0.7(tailwindcss@4.1.14):
     dependencies:
-      tailwindcss: 4.1.11
+      tailwindcss: 4.1.14
 
   tailwindcss@4.1.11: {}
+
+  tailwindcss@4.1.14: {}
 
   tapable@2.2.2: {}
 
@@ -8788,8 +8785,6 @@ snapshots:
       strip-bom: 3.0.0
 
   tslib@2.8.1: {}
-
-  tween-functions@1.2.0: {}
 
   type-check@0.4.0:
     dependencies:
