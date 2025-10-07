@@ -1,8 +1,15 @@
 import { withParents } from "core/utils";
-import { MyPassportFormProvider } from "feat/my-passport-form/context";
-import { MyPassportForm as _MyPassportFormWizard } from "feat/my-passport-form/my-passport-form";
-import { withI18n as withMyPassportFormWizardI18n } from "feat/my-passport-form/resources";
+import { lazy } from "solid-js";
 
-export const MyPassportFormWizard = withMyPassportFormWizardI18n(
-	withParents(MyPassportFormProvider)(_MyPassportFormWizard),
-);
+export const MyPassportFormWizard = lazy(async () => {
+	const { MyPassportFormProvider } = await import(
+		"feat/my-passport-form/context"
+	);
+	const { withI18n } = await import("feat/my-passport-form/resources");
+
+	return import("feat/my-passport-form/my-passport-form").then(exports => ({
+		default: withI18n(
+			withParents(MyPassportFormProvider)(exports.MyPassportForm),
+		),
+	}));
+});
