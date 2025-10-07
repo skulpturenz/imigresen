@@ -1,10 +1,19 @@
 import {
-	Combobox as ComboboxPrimitive,
 	createListCollection as arkCreateListCollection,
+	Combobox as ComboboxPrimitive,
+	type ComboboxInputValueChangeDetails,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
-import { children, type Component, type ParentProps } from "solid-js";
+import {
+	children,
+	createUniqueId,
+	For,
+	splitProps,
+	type Component,
+	type JSX,
+	type ParentProps,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "ui/utils";
 
@@ -20,14 +29,29 @@ export type {
 
 export const createListCollection = arkCreateListCollection;
 
+// TODO: add a story with multiple combobox
 export interface ComboboxProps<TCollection extends string | Record<string, any>>
-	extends Omit<ComboboxPrimitive.RootProps<TCollection>, "value"> {
+	extends Omit<
+			ComboboxPrimitive.RootProps<TCollection>,
+			"value" | "onBlur" | "onChange" | "ref" | "onInput"
+		>,
+		Pick<
+			JSX.SelectHTMLAttributes<HTMLSelectElement>,
+			"ref" | "onInput" | "onChange" | "onBlur"
+		> {
 	value?: string | string[];
 }
 
 export const Combobox = <TCollection extends string | Record<string, any>>(
 	props: ComboboxProps<TCollection>,
 ) => {
+	const [selectProps, others] = splitProps(props, [
+		"ref",
+		"onInput",
+		"onChange",
+		"onBlur",
+		"name",
+	]);
 	const getValue = (props: ComboboxProps<TCollection>) => {
 		if (!props.value) {
 			return [];
@@ -40,11 +64,51 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		return [props.value];
 	};
 
+	// TODO: since the ref is at the hidden select
+	// we want to forward any focus to the main combobox. same with onblur
+	let selectRef: any;
+	const onChange = (details: ComboboxInputValueChangeDetails) => {
+		console.log(details);
+
+		(selectRef as HTMLSelectElement)?.dispatchEvent(
+			new Event("change", { bubbles: true }),
+		);
+
+		// TODO: not so sure this will work with multiple input values
+		// because with `multiple=true` will input value change?
+		// since input can only hold 1 value
+		props.onInputValueChange?.(details);
+	};
+
+	const hiddenSelectId = createUniqueId();
+
 	return (
 		<ComboboxPrimitive.Root
-			{...spreadProps(props)}
+			{...others}
 			value={getValue(props)}
-		/>
+			onInputValueChange={onChange}>
+			{props.children}
+
+			<select
+				{...selectProps}
+				id={hiddenSelectId}
+				ref={selectRef}
+				onChange={event => {
+					// TODO
+					console.log(event.target.options);
+
+					// TODO: this is one render behind
+					console.log(event.target.value);
+				}}
+				class="hidden"
+				multiple={props.multiple}>
+				<For each={getValue(props)}>
+					{value => {
+						return <option value={value} selected />;
+					}}
+				</For>
+			</select>
+		</ComboboxPrimitive.Root>
 	);
 };
 

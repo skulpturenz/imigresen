@@ -41,7 +41,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 	const statesCollection = createMemo(() =>
 		createListCollection({
-			items: props.dropdownOptions()?.personalDetailsStateOptions ?? [],
+			items:
+				(["Hello", "world"] ||
+					props.dropdownOptions()?.personalDetailsStateOptions) ??
+				[],
 			groupSort: localeAsc,
 		}),
 	);

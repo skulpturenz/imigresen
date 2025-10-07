@@ -27,6 +27,7 @@ export type ModularFormsComboboxProps<
 	"onInputValueChange"
 >;
 
+// TODO: remove
 export const ModularFormsCombobox = <
 	TCollection extends string | Record<string, any>,
 	TFieldValues extends FieldValues,
@@ -45,6 +46,7 @@ export const ModularFormsCombobox = <
 	return (
 		<Combobox
 			{...spreadProps(rest)}
+			value={props.value}
 			inputValue={props.value ?? ""}
 			onInputValueChange={onInputValueChange}
 		/>
