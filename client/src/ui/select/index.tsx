@@ -79,8 +79,8 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 		{...spreadProps(props)}
 		class={cn(
 			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background",
-			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none",
-			"focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed",
+			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-within:outline-none",
+			"focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 disabled:cursor-not-allowed",
 			"disabled:opacity-50 [&>span]:line-clamp-1 transition-shadow relative",
 			props.class,
 		)}>
