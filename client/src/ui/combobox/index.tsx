@@ -1,165 +1,207 @@
 import {
 	Combobox as ComboboxPrimitive,
-	createListCollection as arkCreateListCollection,
-} from "@ark-ui/solid/combobox";
-import { spreadProps } from "core/utils";
-import { Check, ChevronsDownUp, X } from "lucide-solid";
-import { children, type Component, type ParentProps } from "solid-js";
-import { Portal } from "solid-js/web";
+	type ComboboxContentProps,
+	type ComboboxInputProps,
+	type ComboboxItemProps,
+	type ComboboxRootProps,
+	type ComboboxTriggerProps,
+} from "@kobalte/core/combobox";
+import type { PolymorphicProps } from "@kobalte/core/polymorphic";
+import { Check, ChevronsUpDown, X } from "lucide-solid";
+import {
+	createSignal,
+	splitProps,
+	type Component,
+	type JSX,
+	type ParentProps,
+	type ValidComponent,
+	type VoidProps,
+} from "solid-js";
 import { cn } from "ui/utils";
 
-export const resources = {
-	triggerSrOnly: "Expand",
-	itemCheckedSrOnly: "Selected",
-};
+export const ComboboxHiddenSelect = ComboboxPrimitive.HiddenSelect;
 
-export type {
-	ComboboxInputValueChangeDetails,
-	ComboboxSelectionDetails,
-} from "@ark-ui/solid/combobox";
+export type ComboboxProps<
+	Option,
+	OptGroup = never,
+	T extends ValidComponent = "div",
+> = Omit<
+	ComboboxRootProps<Option, OptGroup, T>,
+	"ref" | "onInput" | "onChange" | "onBlur"
+> &
+	Pick<
+		JSX.SelectHTMLAttributes<HTMLSelectElement>,
+		"ref" | "onInput" | "onChange" | "onBlur"
+	>;
 
-export const createListCollection = arkCreateListCollection;
-
-export interface ComboboxProps<TCollection extends string | Record<string, any>>
-	extends Omit<ComboboxPrimitive.RootProps<TCollection>, "value"> {
-	value?: string | string[];
-}
-
-export const Combobox = <TCollection extends string | Record<string, any>>(
-	props: ComboboxProps<TCollection>,
+export const Combobox = <
+	Option,
+	OptGroup = never,
+	T extends ValidComponent = "div",
+>(
+	props: PolymorphicProps<T, ComboboxProps<Option, OptGroup, T>>,
 ) => {
-	const getValue = (props: ComboboxProps<TCollection>) => {
-		if (!props.value) {
-			return [];
-		}
-
-		if (Array.isArray(props.value)) {
-			return props.value;
-		}
-
-		return [props.value];
-	};
+	const [value, setValue] = createSignal(props.value);
+	const [comboboxProps, others] = splitProps(props, [
+		"ref",
+		"onInput",
+		"onChange",
+		"onBlur",
+	]);
 
 	return (
-		<ComboboxPrimitive.Root
-			{...spreadProps(props)}
-			value={getValue(props)}
+		<ComboboxPrimitive {...others} value={value()} onChange={setValue}>
+			{props.children}
+
+			<ComboboxHiddenSelect {...comboboxProps} />
+		</ComboboxPrimitive>
+	);
+};
+
+export const ComboboxDescription = ComboboxPrimitive.Description;
+export const ComboboxErrorMessage = ComboboxPrimitive.ErrorMessage;
+export const ComboboxItemDescription = ComboboxPrimitive.ItemDescription;
+
+type comboboxInputProps<T extends ValidComponent = "input"> = VoidProps<
+	ComboboxInputProps<T> & {
+		class?: string;
+	}
+>;
+
+export const ComboboxInput = <T extends ValidComponent = "input">(
+	props: PolymorphicProps<T, comboboxInputProps<T>>,
+) => {
+	const [local, rest] = splitProps(props as comboboxInputProps, ["class"]);
+
+	return (
+		<ComboboxPrimitive.Input
+			class={cn(
+				"h-full bg-transparent text-sm placeholder:text-muted-foreground",
+				"focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+				"border-0 focus:ring-0",
+				local.class,
+			)}
+			{...rest}
 		/>
 	);
 };
 
-export const ComboboxItemGroup = ComboboxPrimitive.ItemGroup;
+type comboboxTriggerProps<T extends ValidComponent = "button"> = ParentProps<
+	ComboboxTriggerProps<T> & {
+		class?: string;
+	}
+>;
 
-export const ComboxboxItemGroupLabel = (
-	props: ComboboxPrimitive.ItemGroupLabelProps,
-) => (
-	<ComboboxPrimitive.ItemGroupLabel
-		{...spreadProps(props)}
-		class={cn("text-sm font-bold py-1.5 pr-2 pl-8", props.class)}>
-		{props.children}
-	</ComboboxPrimitive.ItemGroupLabel>
-);
-
-export const ComboboxInput = (props: ComboboxPrimitive.InputProps) => (
-	<ComboboxPrimitive.Input
-		{...spreadProps(props)}
-		ref={props.ref}
-		class={cn(
-			"h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
-			"border-0 focus:border-0 focus:shadow-none focus:ring-0",
-			"disabled:cursor-not-allowed disabled:opacity-50 w-full",
-			props.class,
-		)}
-	/>
-);
-
-export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
-	<ComboboxPrimitive.Control>
-		<ComboboxPrimitive.Trigger
-			{...spreadProps(props)}
-			ref={props.ref}
-			class={cn(
-				"relative flex h-10 w-full items-center justify-between rounded-md border border-input px-3 has-[:focus-visible]:ring-2",
-				"has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 transition has-[:focus-visible]:ring-offset-background",
-				"disabled:cursor-not-allowed disabled:opacity-50",
-				props.class,
-			)}>
-			{props.children}
-
-			<div class="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground">
-				<ChevronsDownUp class="h-4 w-4">
-					<span class="sr-only">{resources.triggerSrOnly}</span>
-				</ChevronsDownUp>
-			</div>
-		</ComboboxPrimitive.Trigger>
-	</ComboboxPrimitive.Control>
-);
-
-export const ComboboxContent = (props: ComboboxPrimitive.ContentProps) => {
-	const getChildren = children(() => props.children);
+export const ComboboxTrigger = <T extends ValidComponent = "button">(
+	props: PolymorphicProps<T, comboboxTriggerProps<T>>,
+) => {
+	const [local, rest] = splitProps(props as comboboxTriggerProps, [
+		"class",
+		"children",
+	]);
 
 	return (
-		<Portal>
-			<ComboboxPrimitive.Positioner>
-				<ComboboxPrimitive.Content
-					{...spreadProps(props)}
-					ref={props.ref}
-					class={cn(
-						"relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground",
-						'shadow-md data-[state="open"]:animate-in data-[state="closed"]:animate-out data-[state="closed"]:fade-out-0',
-						'data-[state="open"]:fade-in-0 data-[state="closed"]:zoom-out-95 data-[state="open"]:zoom-in-95',
-						"max-h-[50vh] overflow-scroll",
-						(getChildren() as unknown[]).length > 0
-							? "visible"
-							: "hidden",
-						props.class,
-					)}>
-					<div class="p-1">{props.children}</div>
-				</ComboboxPrimitive.Content>
-			</ComboboxPrimitive.Positioner>
-		</Portal>
+		<ComboboxPrimitive.Control>
+			<ComboboxPrimitive.Trigger
+				class={cn(
+					"flex h-9 w-full items-center justify-between rounded-md border border-input px-3 shadow-sm",
+					"focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:outline-none ring-offset-background",
+					local.class,
+				)}
+				{...rest}>
+				{local.children}
+				<ComboboxPrimitive.Icon class="flex h-3.5 w-3.5 items-center justify-center">
+					<ChevronsUpDown class="size-4 opacity-50" />
+				</ComboboxPrimitive.Icon>
+			</ComboboxPrimitive.Trigger>
+		</ComboboxPrimitive.Control>
 	);
 };
 
-export const ComboboxItem = (props: ComboboxPrimitive.ItemProps) => (
-	<ComboboxPrimitive.Item
-		{...spreadProps(props)}
-		ref={props.ref}
-		class={cn(
-			"relative h-10 flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8",
-			"text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-accent",
-			"data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50",
-			props.class,
-		)}>
-		<ComboboxPrimitive.ItemIndicator
-			class={cn(
-				"absolute left-2 flex h-3.5 w-3.5 items-center justify-center text-foreground",
-				"data-[highlighted]:text-accent-foreground",
-			)}>
-			<Check class="h-4 w-4">
-				<span class="sr-only">{resources.itemCheckedSrOnly}</span>
-			</Check>
-		</ComboboxPrimitive.ItemIndicator>
+type comboboxContentProps<T extends ValidComponent = "div"> =
+	ComboboxContentProps<T> & {
+		class?: string;
+	};
 
-		<ComboboxPrimitive.ItemText>
-			{props.children}
-		</ComboboxPrimitive.ItemText>
-	</ComboboxPrimitive.Item>
-);
+export const ComboboxContent = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, comboboxContentProps<T>>,
+) => {
+	const [local, rest] = splitProps(props as comboboxContentProps, ["class"]);
+
+	return (
+		<ComboboxPrimitive.Portal>
+			<ComboboxPrimitive.Content
+				class={cn(
+					"relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover",
+					"text-popover-foreground shadow-md data-[expanded]:animate-in",
+					"data-[closed]:animate-out data-[closed]:fade-out-0 data-[expanded]:fade-in-0",
+					"data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95",
+					"origin-[--kb-combobox-content-transform-origin]",
+					local.class,
+				)}
+				{...rest}>
+				<ComboboxPrimitive.Listbox class="p-1" />
+			</ComboboxPrimitive.Content>
+		</ComboboxPrimitive.Portal>
+	);
+};
+
+type comboboxItemProps<T extends ValidComponent = "li"> = ParentProps<
+	ComboboxItemProps<T> & {
+		class?: string;
+	}
+>;
+
+export const ComboboxItem = <T extends ValidComponent = "li">(
+	props: PolymorphicProps<T, comboboxItemProps<T>>,
+) => {
+	const [local, rest] = splitProps(props as comboboxItemProps, [
+		"class",
+		"children",
+	]);
+
+	return (
+		<ComboboxPrimitive.Item
+			class={cn(
+				"relative flex w-full cursor-default select-none items-center rounded-sm",
+				"py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none",
+				"data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+				"data-[disabled]:opacity-50",
+				local.class,
+			)}
+			{...rest}>
+			<ComboboxPrimitive.ItemIndicator class="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+				<Check class="size-4" />
+			</ComboboxPrimitive.ItemIndicator>
+			<ComboboxPrimitive.ItemLabel>
+				{local.children}
+			</ComboboxPrimitive.ItemLabel>
+		</ComboboxPrimitive.Item>
+	);
+};
+
+export interface ComboboxClearSelectionProps {
+	onClear: () => void;
+}
 
 export const ComboboxClearSelection: Component<
-	ParentProps<ComboboxPrimitive.ClearTriggerProps>
+	ComboboxClearSelectionProps
 > = props => {
+	const onPointerDown = (event: MouseEvent) => {
+		event.stopImmediatePropagation();
+	};
+
 	return (
-		<ComboboxPrimitive.ClearTrigger
-			{...spreadProps(props)}
+		<button
 			class={cn(
-				"absolute right-8 top-[30%] cursor-pointer",
-				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
-				"focus-visible:ring-offset-background",
-				props.class,
-			)}>
+				"absolute right-8 top-[30%] bg-muted cursor-pointer",
+				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring",
+				"focus:outline-none focus-visible:ring-offset-background",
+			)}
+			onPointerDown={onPointerDown}
+			onClick={props.onClear}
+			tabIndex={0}>
 			<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
-		</ComboboxPrimitive.ClearTrigger>
+		</button>
 	);
 };

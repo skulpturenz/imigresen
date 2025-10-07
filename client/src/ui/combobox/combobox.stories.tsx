@@ -1,4 +1,5 @@
-import { createMemo, createSignal, For } from "solid-js";
+import { createFilter } from "@kobalte/core";
+import { createSignal, type JSX } from "solid-js";
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import {
 	Combobox,
@@ -6,8 +7,6 @@ import {
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
-	createListCollection,
-	type ComboboxInputValueChangeDetails,
 } from "ui/combobox";
 
 export default {
@@ -32,39 +31,40 @@ export const Default: Story<typeof Combobox> = {
 			"SolidStart",
 			"Nuxt.js",
 		];
-		const [items, setItems] = createSignal(initialItems);
-		const collection = createMemo(() =>
-			createListCollection({ items: items() }),
-		);
+		const [items, setItems] = createSignal<string[]>([]);
 
-		const handleInputChange = (
-			details: ComboboxInputValueChangeDetails,
-		) => {
+		const filter = createFilter({ sensitivity: "base" });
+		const handleInputChange: JSX.ChangeEventHandler<
+			HTMLSelectElement,
+			Event
+		> = event => {
+			const options = [...event.target.options]
+				.filter(option => option.selected)
+				.map(option => option.value);
+
 			setItems(
 				initialItems.filter(item =>
-					item
-						.toLowerCase()
-						.includes(details.inputValue.toLowerCase()),
+					options.some(value => filter.contains(item, value)),
 				),
 			);
 		};
 
 		return (
 			<Combobox
-				collection={collection()}
+				options={initialItems}
 				placeholder="Search framework..."
-				onInputValueChange={handleInputChange}>
+				value={items()}
+				onChange={handleInputChange}
+				itemComponent={props => (
+					<ComboboxItem item={props.item}>
+						{props.item.rawValue}
+					</ComboboxItem>
+				)}>
 				<ComboboxTrigger>
 					<ComboboxInput />
 				</ComboboxTrigger>
 
-				<ComboboxContent>
-					<For each={collection().items}>
-						{item => (
-							<ComboboxItem item={item}>{item}</ComboboxItem>
-						)}
-					</For>
-				</ComboboxContent>
+				<ComboboxContent />
 			</Combobox>
 		);
 	},
