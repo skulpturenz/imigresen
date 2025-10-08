@@ -93,12 +93,13 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		} else if (type === "item-select" && !props.multiple) {
 			setValue([details.inputValue]);
 		} else if (type === "input-change" && !props.multiple) {
-			console.log(details.inputValue);
-			// TODO
-			// setValue([details.inputValue]);
+			// TODO: something is going wrong here
+			// think there are two updates clashing
+			// if we don't dispatch the input event then custom values are captured correctly
+			// but if we do then one character gets sent but the entire thing resets
+			// so it looks like input is being blocked
+			setValue([details.inputValue]);
 		}
-
-		console.log("details", details);
 
 		(selectRef as HTMLSelectElement)?.dispatchEvent(
 			new Event("input", { bubbles: true }),
@@ -116,8 +117,6 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		HTMLSelectElement,
 		Event
 	> = event => {
-		console.log("HERE!", event.target.value);
-
 		if (typeof props.onChange !== "function") {
 			return;
 		}
@@ -126,7 +125,7 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		if (values.length !== 1) {
 			event.target.value = "";
 		} else {
-			event.target.value = values.at(0) as string;
+			event.target.value = values.at(0) ?? "";
 		}
 
 		props.onChange(event);

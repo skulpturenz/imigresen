@@ -544,6 +544,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 										{...fieldProps}
 										allowCustomValue
 										value={field.value}
+										inputValue={field.value}
 										collection={statesCollection()}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
