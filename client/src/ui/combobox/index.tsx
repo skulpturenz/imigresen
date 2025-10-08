@@ -4,6 +4,7 @@ import {
 	type ComboboxInputValueChangeDetails,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
+import { invariant } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -78,11 +79,29 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 	// we want to forward any focus to the main combobox. same with onblur
 	let selectRef: any;
 	const onChange = (details: ComboboxInputValueChangeDetails) => {
-		// TODO: handle `multiple` case
-		setValue([details.inputValue]);
+		const type = details.reason;
+
+		invariant(
+			!(type === "input-change" && props.multiple),
+			"Custom value with multiple select options",
+		);
+
+		if (type === "clear-trigger") {
+			setValue([]);
+		} else if (type === "item-select" && props.multiple) {
+			setValue(currentValue => [...currentValue, details.inputValue]);
+		} else if (type === "item-select" && !props.multiple) {
+			setValue([details.inputValue]);
+		} else if (type === "input-change" && !props.multiple) {
+			console.log(details.inputValue);
+			// TODO
+			// setValue([details.inputValue]);
+		}
+
+		console.log("details", details);
 
 		(selectRef as HTMLSelectElement)?.dispatchEvent(
-			new Event("change", { bubbles: true }),
+			new Event("input", { bubbles: true }),
 		);
 	};
 
@@ -97,6 +116,8 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		HTMLSelectElement,
 		Event
 	> = event => {
+		console.log("HERE!", event.target.value);
+
 		if (typeof props.onChange !== "function") {
 			return;
 		}
@@ -123,7 +144,9 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 				id={hiddenSelectId}
 				ref={ref}
 				onChange={onChangeHiddenSelect}
-				multiple={props.multiple}>
+				multiple={props.multiple}
+				tabIndex={-1}
+				class="hidden">
 				<For each={value()}>
 					{value => {
 						return (

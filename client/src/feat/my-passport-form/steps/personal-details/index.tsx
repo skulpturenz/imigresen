@@ -543,21 +543,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									<Combobox
 										{...fieldProps}
 										allowCustomValue
-										// TODO
-										onChange={event => {
-											// TODO: something about manually dispatching the event
-											// is causing modular forms to not set things correctly
-											/// works for select with hidden select so should be possible
-											// setValue(
-											// 	props.form,
-											// 	field.name,
-											// 	event.target.value,
-											// );
-
-											// TODO: remove
-											console.log(event);
-										}}
-										inputValue={field.value}
+										value={field.value}
 										collection={statesCollection()}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
