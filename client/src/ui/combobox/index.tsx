@@ -7,12 +7,14 @@ import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
+	createSignal,
 	createUniqueId,
 	For,
 	splitProps,
 	type Component,
 	type JSX,
 	type ParentProps,
+	type Ref,
 } from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "ui/utils";
@@ -33,7 +35,14 @@ export const createListCollection = arkCreateListCollection;
 export interface ComboboxProps<TCollection extends string | Record<string, any>>
 	extends Omit<
 			ComboboxPrimitive.RootProps<TCollection>,
-			"value" | "onBlur" | "onChange" | "ref" | "onInput"
+			| "value"
+			| "onBlur"
+			| "onChange"
+			| "ref"
+			| "onInput"
+			| "onInputValueChange" // TODO
+			| "onValueChange" // TODO
+			| "onSelect" // TODO
 		>,
 		Pick<
 			JSX.SelectHTMLAttributes<HTMLSelectElement>,
@@ -63,48 +72,65 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 
 		return [props.value];
 	};
+	const [value, setValue] = createSignal<string[]>(getValue(props));
 
 	// TODO: since the ref is at the hidden select
 	// we want to forward any focus to the main combobox. same with onblur
 	let selectRef: any;
 	const onChange = (details: ComboboxInputValueChangeDetails) => {
-		console.log(details);
+		// TODO: handle `multiple` case
+		setValue([details.inputValue]);
 
 		(selectRef as HTMLSelectElement)?.dispatchEvent(
 			new Event("change", { bubbles: true }),
 		);
-
-		// TODO: not so sure this will work with multiple input values
-		// because with `multiple=true` will input value change?
-		// since input can only hold 1 value
-		props.onInputValueChange?.(details);
 	};
 
 	const hiddenSelectId = createUniqueId();
 
+	const ref = (ref: Ref<HTMLSelectElement>) => {
+		props.ref = ref;
+		selectRef = ref;
+	};
+
+	const onChangeHiddenSelect: JSX.ChangeEventHandlerUnion<
+		HTMLSelectElement,
+		Event
+	> = event => {
+		if (typeof props.onChange !== "function") {
+			return;
+		}
+
+		const values = value();
+		if (values.length !== 1) {
+			event.target.value = "";
+		} else {
+			event.target.value = values.at(0) as string;
+		}
+
+		props.onChange(event);
+	};
+
 	return (
 		<ComboboxPrimitive.Root
 			{...others}
-			value={getValue(props)}
+			value={value()}
 			onInputValueChange={onChange}>
 			{props.children}
 
 			<select
 				{...selectProps}
 				id={hiddenSelectId}
-				ref={selectRef}
-				onChange={event => {
-					// TODO
-					console.log(event.target.options);
-
-					// TODO: this is one render behind
-					console.log(event.target.value);
-				}}
-				class="hidden"
+				ref={ref}
+				onChange={onChangeHiddenSelect}
 				multiple={props.multiple}>
-				<For each={getValue(props)}>
+				<For each={value()}>
 					{value => {
-						return <option value={value} selected />;
+						return (
+							<option value={value} selected>
+								{value}
+							</option>
+						);
 					}}
 				</For>
 			</select>

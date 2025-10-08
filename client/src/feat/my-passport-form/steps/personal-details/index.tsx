@@ -9,6 +9,7 @@ import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { createMemo, For, Show, type Component } from "solid-js";
 import {
+	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
@@ -16,7 +17,6 @@ import {
 	ComboboxTrigger,
 	createListCollection,
 } from "ui/combobox";
-import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
 import { Label } from "ui/label";
 import {
@@ -246,11 +246,14 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{t("form.personalDetails.genderCode.label")}
 								</Label>
 
+								{"HERE" + field.value}
 								<Select
 									{...fieldProps}
 									value={genderOptions().find(
 										option => option.key === field.value,
 									)}
+									// TODO
+									onChange={console.log}
 									options={genderOptions()}
 									optionValue={gender => gender.key}
 									optionTextValue={gender => gender.label}
@@ -536,18 +539,31 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<ModularFormsCombobox
-										// TODO: need to revisit
-										{...field}
+									{"HELLO " + field.value}
+									<Combobox
+										{...fieldProps}
 										allowCustomValue
-										form={props.form}
+										// TODO
+										onChange={event => {
+											// TODO: something about manually dispatching the event
+											// is causing modular forms to not set things correctly
+											/// works for select with hidden select so should be possible
+											// setValue(
+											// 	props.form,
+											// 	field.name,
+											// 	event.target.value,
+											// );
+
+											// TODO: remove
+											console.log(event);
+										}}
 										inputValue={field.value}
 										collection={statesCollection()}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
 										)}>
 										<ComboboxTrigger>
-											<ComboboxInput {...fieldProps} />
+											<ComboboxInput />
 
 											<ComboboxClearSelection />
 										</ComboboxTrigger>
@@ -562,7 +578,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 												)}
 											</For>
 										</ComboboxContent>
-									</ModularFormsCombobox>
+									</Combobox>
 
 									<Show when={!styles.device.hasHover()}>
 										<Label description>
