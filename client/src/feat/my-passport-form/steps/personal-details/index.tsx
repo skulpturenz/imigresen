@@ -246,14 +246,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 									{t("form.personalDetails.genderCode.label")}
 								</Label>
 
-								{"HERE" + field.value}
 								<Select
 									{...fieldProps}
 									value={genderOptions().find(
 										option => option.key === field.value,
 									)}
-									// TODO
-									onChange={console.log}
 									options={genderOptions()}
 									optionValue={gender => gender.key}
 									optionTextValue={gender => gender.label}
@@ -539,10 +536,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									{"HELLO " + field.value}
 									<Combobox
 										{...fieldProps}
-										allowCustomValue
 										value={field.value}
 										inputValue={field.value}
 										collection={statesCollection()}

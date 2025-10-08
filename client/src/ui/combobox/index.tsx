@@ -1,10 +1,9 @@
 import {
 	createListCollection as arkCreateListCollection,
 	Combobox as ComboboxPrimitive,
-	type ComboboxInputValueChangeDetails,
+	type ComboboxValueChangeDetails,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
-import { invariant } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -78,28 +77,8 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 	// TODO: since the ref is at the hidden select
 	// we want to forward any focus to the main combobox. same with onblur
 	let selectRef: any;
-	const onChange = (details: ComboboxInputValueChangeDetails) => {
-		const type = details.reason;
-
-		invariant(
-			!(type === "input-change" && props.multiple),
-			"Custom value with multiple select options",
-		);
-
-		if (type === "clear-trigger") {
-			setValue([]);
-		} else if (type === "item-select" && props.multiple) {
-			setValue(currentValue => [...currentValue, details.inputValue]);
-		} else if (type === "item-select" && !props.multiple) {
-			setValue([details.inputValue]);
-		} else if (type === "input-change" && !props.multiple) {
-			// TODO: something is going wrong here
-			// think there are two updates clashing
-			// if we don't dispatch the input event then custom values are captured correctly
-			// but if we do then one character gets sent but the entire thing resets
-			// so it looks like input is being blocked
-			setValue([details.inputValue]);
-		}
+	const onChange = (details: ComboboxValueChangeDetails) => {
+		setValue(details.value);
 
 		(selectRef as HTMLSelectElement)?.dispatchEvent(
 			new Event("input", { bubbles: true }),
@@ -131,11 +110,39 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		props.onChange(event);
 	};
 
+	const onClickHiddenSelect = () => {
+		const buttonElement = document.querySelector<HTMLButtonElement>(
+			`div:has(+ #${hiddenSelectId}) > button`,
+		);
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`div:has(+ #${hiddenSelectId}) > button > input`,
+		);
+
+		buttonElement?.click();
+		inputElement?.focus();
+	};
+
+	const onFocusHiddenSelect = () => {
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`div:has(+ #${hiddenSelectId}) > button > input`,
+		);
+
+		inputElement?.focus();
+	};
+
+	const onBlurHiddenSelect = () => {
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`div:has(+ #${hiddenSelectId}) > button > input`,
+		);
+
+		inputElement?.blur();
+	};
+
 	return (
 		<ComboboxPrimitive.Root
 			{...others}
 			value={value()}
-			onInputValueChange={onChange}>
+			onValueChange={onChange}>
 			{props.children}
 
 			<select
@@ -144,8 +151,10 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 				ref={ref}
 				onChange={onChangeHiddenSelect}
 				multiple={props.multiple}
-				tabIndex={-1}
-				class="hidden">
+				onClick={onClickHiddenSelect} // because ref is attached to this
+				onFocus={onFocusHiddenSelect} // because ref is attached to this
+				onBlur={onBlurHiddenSelect} // because ref is attached to this
+				class="absolute opacity-0">
 				<For each={value()}>
 					{value => {
 						return (
