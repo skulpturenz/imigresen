@@ -14,7 +14,6 @@ import {
 	type Component,
 	type JSX,
 	type ParentProps,
-	type Ref,
 } from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "ui/utils";
@@ -35,14 +34,7 @@ export const createListCollection = arkCreateListCollection;
 export interface ComboboxProps<TCollection extends string | Record<string, any>>
 	extends Omit<
 			ComboboxPrimitive.RootProps<TCollection>,
-			| "value"
-			| "onBlur"
-			| "onChange"
-			| "ref"
-			| "onInput"
-			| "onInputValueChange" // TODO
-			| "onValueChange" // TODO
-			| "onSelect" // TODO
+			"value" | "onBlur" | "onChange" | "ref" | "onInput"
 		>,
 		Pick<
 			JSX.SelectHTMLAttributes<HTMLSelectElement>,
@@ -74,20 +66,17 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 	};
 	const [value, setValue] = createSignal<string[]>(getValue(props));
 
-	// TODO: since the ref is at the hidden select
-	// we want to forward any focus to the main combobox. same with onblur
-	let selectRef: any;
-	const onChange = (details: ComboboxValueChangeDetails) => {
+	let selectRef: HTMLSelectElement;
+	const onValueChange = (details: ComboboxValueChangeDetails) => {
 		setValue(details.value);
 
-		(selectRef as HTMLSelectElement)?.dispatchEvent(
-			new Event("input", { bubbles: true }),
-		);
+		selectRef?.dispatchEvent(new Event("input", { bubbles: true }));
+		props.onValueChange?.(details);
 	};
 
 	const hiddenSelectId = createUniqueId();
 
-	const ref = (ref: Ref<HTMLSelectElement>) => {
+	const ref = (ref: HTMLSelectElement) => {
 		props.ref = ref;
 		selectRef = ref;
 	};
@@ -142,7 +131,7 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		<ComboboxPrimitive.Root
 			{...others}
 			value={value()}
-			onValueChange={onChange}>
+			onValueChange={onValueChange}>
 			{props.children}
 
 			<select
@@ -158,7 +147,7 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 				<For each={value()}>
 					{value => {
 						return (
-							<option value={value} selected>
+							<option value={value} selected={props.multiple}>
 								{value}
 							</option>
 						);
