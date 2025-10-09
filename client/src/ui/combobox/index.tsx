@@ -7,6 +7,7 @@ import { spreadProps } from "core/utils";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
+	createEffect,
 	createSignal,
 	createUniqueId,
 	For,
@@ -65,6 +66,15 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		return [props.value];
 	};
 	const [value, setValue] = createSignal<string[]>(getValue(props));
+
+	// if `value` changes then we want to keep our local version in sync
+	// but because we don't trigger `onValueChange` we don't end up dispatching
+	// a change event. otherwise we're gonna run into loops where the value
+	// changes from outside which causes us to update our copy and dispatch an event
+	// which causes value to change again (array) and so on and so forth
+	createEffect(() => {
+		setValue(getValue(props));
+	});
 
 	let selectRef: HTMLSelectElement;
 	const onValueChange = (details: ComboboxValueChangeDetails) => {
