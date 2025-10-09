@@ -1,3 +1,4 @@
+import { useListCollection } from "@ark-ui/solid/combobox";
 import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
@@ -7,7 +8,7 @@ import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { createMemo, For, Show, type Component } from "solid-js";
+import { createSignal, For, Show, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -15,7 +16,6 @@ import {
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
-	createListCollection,
 } from "ui/combobox";
 import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
 import { Label } from "ui/label";
@@ -39,15 +39,20 @@ import {
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const statesCollection = createMemo(() =>
-		createListCollection({
-			items:
-				(["Hello", "world"] ||
-					props.dropdownOptions()?.personalDetailsStateOptions) ??
-				[],
-			groupSort: localeAsc,
-		}),
-	);
+	const {
+		collection: statesCollection,
+		filter,
+		upsert,
+		update,
+		remove,
+	} = useListCollection({
+		initialItems:
+			(["Hello", "world"] ||
+				props.dropdownOptions()?.personalDetailsStateOptions) ??
+			[],
+		groupSort: localeAsc,
+	});
+	const [inputValue, setInputValue] = createSignal("");
 
 	const genderOptions = () => {
 		const options = Object.entries<string>(
@@ -539,8 +544,53 @@ export const PersonalDetails: Component<StepProps> = props => {
 									<Combobox
 										{...fieldProps}
 										value={field.value}
-										inputValue={field.value}
+										inputValue={inputValue()}
+										allowCustomValue
 										collection={statesCollection()}
+										onInputValueChange={details => {
+											setInputValue(details.inputValue);
+
+											if (
+												details.reason !==
+													"input-change" &&
+												details.reason !== "item-select"
+											) {
+												return;
+											}
+
+											const hasMatchingValue =
+												statesCollection().items.some(
+													item =>
+														item
+															.toLowerCase()
+															.includes(
+																details.inputValue.toLowerCase(),
+															),
+												);
+
+											if (!hasMatchingValue) {
+												// TODO: right now just creates many options while typing
+												// we need an object and the `value` for each item should be
+												// the place holder value for a new item
+												// just trying custom options
+												upsert(
+													details.inputValue,
+													details.inputValue,
+												);
+											} else if (
+												!details.inputValue.trim()
+													.length &&
+												statesCollection().lastValue
+											) {
+												// TODO: right now just creates many options while typing
+												// we need an object and the `value` for each item should be
+												// the place holder value for a new item
+												// just trying custom options
+												remove(details.inputValue);
+											}
+
+											filter(details.inputValue);
+										}}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
 										)}>
@@ -553,11 +603,30 @@ export const PersonalDetails: Component<StepProps> = props => {
 										<ComboboxContent>
 											<For
 												each={statesCollection().items}>
-												{item => (
-													<ComboboxItem item={item}>
-														{item}
-													</ComboboxItem>
-												)}
+												{item => {
+													if (
+														!props
+															.dropdownOptions()
+															?.personalDetailsStateOptions.some(
+																option =>
+																	option ===
+																	item,
+															)
+													) {
+														return (
+															<ComboboxItem
+																item={item}>
+																+ Create {item}
+															</ComboboxItem>
+														);
+													}
+													return (
+														<ComboboxItem
+															item={item}>
+															{item}
+														</ComboboxItem>
+													);
+												}}
 											</For>
 										</ComboboxContent>
 									</Combobox>

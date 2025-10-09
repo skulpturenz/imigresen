@@ -137,6 +137,10 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		inputElement?.blur();
 	};
 
+	createEffect(() => {
+		console.log(others.collection.items);
+	});
+
 	return (
 		<ComboboxPrimitive.Root
 			{...others}
