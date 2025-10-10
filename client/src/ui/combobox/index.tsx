@@ -68,8 +68,9 @@ export interface ComboboxStandardValueProps<TCollectionItem>
 export interface ComboboxCustomValueProps<TCollectionItem>
 	extends ComboboxBaseProps<TCollectionItem> {
 	allowCustomValue: true;
-	toOption?: (value: string) => TCollectionItem;
+	toOption?: (value: string, customValueKey: string) => TCollectionItem;
 	toLabel?: (value: TCollectionItem) => string;
+	onCreateCustomValue?: (inputValue: string) => void | Promise<void>;
 }
 
 export type ComboboxProps<TCollectionItem> =
@@ -107,9 +108,16 @@ export const Combobox = <TCollectionItem,>(
 	);
 
 	const NEW_ITEM_VALUE = `combobox-custom-item:${createUniqueId()}`;
+	const [options, setOptions] = createSignal(
+		listCollectionProps.options ?? [],
+	);
 	const listCollection = useListCollection({
 		...listCollectionProps,
-		initialItems: listCollectionProps.options ?? [],
+		initialItems: options(),
+	});
+
+	createEffect(() => {
+		listCollection.set(options());
 	});
 
 	const itemToValue = (item: TCollectionItem) => {
@@ -157,35 +165,42 @@ export const Combobox = <TCollectionItem,>(
 		setValue(getValue(props));
 	});
 
-	let selectRef: HTMLSelectElement;
-	const onValueChange = (details: ComboboxValueChangeDetails) => {
-		setValue(details.value);
-
-		selectRef?.dispatchEvent(new Event("input", { bubbles: true }));
-		props.onValueChange?.(details);
-	};
-
 	const isNewOptionValue = (inputValue: string) => {
 		if (!inputValue.trim()) {
 			return false;
 		}
 
-		return !props.options.some(
-			option => itemToString(option) === inputValue,
-		);
+		return !options().some(option => itemToString(option) === inputValue);
 	};
 
 	const getExistingNewOptionValue = () => {
-		const existingOptionValues = new Set(
-			props.options.map(itemToValue) ?? [],
-		);
 		const existingNewOptionValue = listCollection
 			.collection()
 			.items.find(value => {
-				return !existingOptionValues.has(value);
+				return isNewOptionValue(itemToValue(value));
 			});
 
 		return existingNewOptionValue;
+	};
+
+	let selectRef: HTMLSelectElement;
+	const onValueChange = (details: ComboboxValueChangeDetails) => {
+		if (props.allowCustomValue && details.value.some(isNewOptionValue)) {
+			// allow for refetching new list of options and setting appropriately
+			// only one custom value at a time
+			props.onCreateCustomValue?.(
+				itemToValue(
+					details.value.find(isNewOptionValue) as TCollectionItem,
+				),
+			);
+
+			setOptions(listCollection.collection().items);
+		}
+
+		setValue(details.value);
+
+		selectRef?.dispatchEvent(new Event("input", { bubbles: true }));
+		props.onValueChange?.(details);
 	};
 
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
@@ -205,13 +220,15 @@ export const Combobox = <TCollectionItem,>(
 			if (existingNewOptionValue) {
 				listCollection.update(
 					itemToValue(existingNewOptionValue),
-					(props.toOption?.(details.inputValue) ??
+					(props.toOption?.(details.inputValue, NEW_ITEM_VALUE) ??
 						details.inputValue) as TCollectionItem,
 				);
 			} else {
+				// with objects the key of the `item` has to be `NEW_ITEM_VALUE`
+				// https://ark-ui.com/docs/components/combobox#creatable-options
 				listCollection.upsert(
 					NEW_ITEM_VALUE,
-					(props.toOption?.(details.inputValue) ??
+					(props.toOption?.(details.inputValue, NEW_ITEM_VALUE) ??
 						details.inputValue) as TCollectionItem,
 				);
 			}
@@ -219,6 +236,19 @@ export const Combobox = <TCollectionItem,>(
 			const existingNewOptionValue = getExistingNewOptionValue();
 
 			listCollection.remove(existingNewOptionValue as TCollectionItem);
+		} else if (
+			!isNewOptionValue(details.inputValue) &&
+			listCollection
+				.collection()
+				.filter(
+					(_itemString, _idx, item) =>
+						itemToValue(item) === details.inputValue,
+				).size === 1 &&
+			listCollection.collection().lastValue
+		) {
+			listCollection.remove(
+				listCollection.collection().lastValue as string,
+			);
 		}
 
 		listCollection.filter(details.inputValue);
@@ -277,6 +307,14 @@ export const Combobox = <TCollectionItem,>(
 		inputElement?.blur();
 	};
 
+	const onInteractOutside = () => {
+		if (inputValue() || value().length !== 1) {
+			return;
+		}
+
+		setInputValue(itemToString(value().at(0) as TCollectionItem));
+	};
+
 	return (
 		<ComboboxContext.Provider
 			value={{
@@ -289,7 +327,8 @@ export const Combobox = <TCollectionItem,>(
 				value={value()}
 				inputValue={inputValue()}
 				onValueChange={onValueChange}
-				onInputValueChange={onInputValueChange}>
+				onInputValueChange={onInputValueChange}
+				onInteractOutside={onInteractOutside}>
 				{props.children}
 
 				<select
@@ -316,8 +355,6 @@ export const Combobox = <TCollectionItem,>(
 		</ComboboxContext.Provider>
 	);
 };
-
-export const ComboboxItemGroup = ComboboxPrimitive.ItemGroup;
 
 export const ComboxboxItemGroupLabel = (
 	props: ComboboxPrimitive.ItemGroupLabelProps,
@@ -404,17 +441,16 @@ export const ComboboxContent = <
 					<div class="p-1">
 						<For
 							fallback={props.fallback}
-							each={
-								(comboboxContext?.collection?.().items ??
-									[]) as any
-							}>
-							{(item, idx) =>
-								props.children(
-									item,
-									comboboxContext.isNewOptionValue,
-									idx,
-								)
-							}
+							each={comboboxContext.collection().items}>
+							{(item, idx) => (
+								<>
+									{props.children(
+										item,
+										comboboxContext.isNewOptionValue,
+										idx,
+									)}
+								</>
+							)}
 						</For>
 					</div>
 				</ComboboxPrimitive.Content>
