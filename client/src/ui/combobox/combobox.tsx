@@ -186,7 +186,7 @@ export const Combobox = <TCollectionItem,>(
 	});
 
 	const isNewOptionValue = (inputValue: string) => {
-		if (!inputValue.trim()) {
+		if (!inputValue?.trim()) {
 			return false;
 		}
 
@@ -346,6 +346,7 @@ export const Combobox = <TCollectionItem,>(
 			value().length > 1
 		) {
 			setInputValue("");
+			listCollection.filter("");
 		}
 
 		// in the case of single selection, we want to reset it to the selected option if:
@@ -355,6 +356,8 @@ export const Combobox = <TCollectionItem,>(
 		if (!isNewOptionValue(inputValue()) && isSelectedOption) {
 			return;
 		}
+
+		listCollection.filter("");
 
 		const newInputValue = value().length
 			? itemToString(
