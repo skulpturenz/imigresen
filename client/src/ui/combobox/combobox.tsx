@@ -242,6 +242,12 @@ export const Combobox = <TCollectionItem,>(
 			return;
 		}
 
+		if (details.reason === "clear-trigger") {
+			const existingNewOptionValue = getExistingNewOptionValue();
+
+			listCollection.remove(existingNewOptionValue as TCollectionItem);
+		}
+
 		if (!["input-change", "item-select"].includes(details.reason ?? "")) {
 			return;
 		}
