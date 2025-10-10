@@ -313,7 +313,11 @@ export const Combobox = <TCollectionItem,>(
 		/// @ts-expect-error: ark doesn't export `InteractOutsideEvent`
 		props.onInteractOutside?.(...args);
 
-		if (!isNewOptionValue(inputValue()) || value().length > 1) {
+		if (!isNewOptionValue(inputValue()) && value().length > 1) {
+			setInputValue("");
+		}
+
+		if (!isNewOptionValue(inputValue())) {
 			return;
 		}
 
