@@ -321,12 +321,6 @@ export const Combobox = <TCollectionItem,>(
 		inputElement?.blur();
 	};
 
-	createEffect(() => {
-		console.log("options", [...options()]);
-		console.log("items", listCollection.collection().items);
-		console.log("inputValue", inputValue());
-	});
-
 	const onInteractOutside = (...args: any[]) => {
 		listCollection.filter("");
 
