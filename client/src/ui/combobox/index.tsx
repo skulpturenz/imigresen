@@ -9,7 +9,7 @@ import {
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
-import { flow, invariant, isPlainObject, uniqBy } from "es-toolkit";
+import { flow, identity, invariant, isPlainObject, uniqBy } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -237,12 +237,12 @@ export const Combobox = <TCollectionItem,>(
 						details.inputValue) as TCollectionItem,
 				);
 			} else {
+				const toOption = props.toOption ?? identity<any>;
 				// with objects the key of the `item` has to be `NEW_ITEM_VALUE`
 				// https://ark-ui.com/docs/components/combobox#creatable-options
 				listCollection.upsert(
 					NEW_ITEM_VALUE,
-					(props.toOption?.(details.inputValue) ??
-						details.inputValue) as TCollectionItem,
+					toOption(details.inputValue),
 				);
 			}
 		} else if (!details.inputValue.trim()) {
