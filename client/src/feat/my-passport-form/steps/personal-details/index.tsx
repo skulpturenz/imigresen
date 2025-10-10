@@ -8,7 +8,7 @@ import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { createSignal, For, Show, type Component } from "solid-js";
+import { createSignal, Show, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -560,34 +560,29 @@ export const PersonalDetails: Component<StepProps> = props => {
 										</ComboboxTrigger>
 
 										<ComboboxContent>
-											<For
-												each={statesCollection().items}>
-												{item => {
-													if (
-														!props
-															.dropdownOptions()
-															?.personalDetailsStateOptions.some(
-																option =>
-																	option ===
-																	item,
-															)
-													) {
-														return (
-															<ComboboxItem
-																item={item}>
-																+ Create {item}
-															</ComboboxItem>
-														);
-													}
-
+											{(item: string) => {
+												if (
+													!props
+														.dropdownOptions()
+														?.personalDetailsStateOptions.some(
+															option =>
+																option === item,
+														)
+												) {
 													return (
 														<ComboboxItem
 															item={item}>
-															{item}
+															+ Create {item}
 														</ComboboxItem>
 													);
-												}}
-											</For>
+												}
+
+												return (
+													<ComboboxItem item={item}>
+														{item}
+													</ComboboxItem>
+												);
+											}}
 										</ComboboxContent>
 									</Combobox>
 

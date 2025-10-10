@@ -5,18 +5,21 @@ import {
 	type CollectionItem,
 	type ComboboxInputValueChangeDetails,
 	type ComboboxValueChangeDetails,
+	type ListCollection,
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
 import { isPlainObject } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
-	children,
+	createContext,
 	createEffect,
 	createSignal,
 	createUniqueId,
 	For,
 	splitProps,
+	useContext,
+	type Accessor,
 	type Component,
 	type JSX,
 	type ParentProps,
@@ -72,6 +75,16 @@ export interface ComboboxCustomValueProps<TCollectionItem>
 export type ComboboxProps<TCollectionItem> =
 	| ComboboxStandardValueProps<TCollectionItem>
 	| ComboboxCustomValueProps<TCollectionItem>;
+
+interface ComboboxContext {
+	collection: Accessor<ListCollection<any>>;
+}
+const ComboboxContext = createContext<ComboboxContext>({
+	collection: () =>
+		createListCollection({
+			items: [] as any[],
+		}),
+});
 
 export const Combobox = <TCollectionItem,>(
 	props: ComboboxProps<TCollectionItem>,
@@ -171,7 +184,7 @@ export const Combobox = <TCollectionItem,>(
 			);
 		};
 
-		if (isNewOptionValue()) {
+		const getExistingNewOptionValue = () => {
 			const existingOptionValues = new Set(
 				props.options.map(itemToValue) ?? [],
 			);
@@ -180,6 +193,12 @@ export const Combobox = <TCollectionItem,>(
 				.items.find(value => {
 					return !existingOptionValues.has(value);
 				});
+
+			return existingNewOptionValue;
+		};
+
+		if (isNewOptionValue()) {
+			const existingNewOptionValue = getExistingNewOptionValue();
 
 			if (existingNewOptionValue) {
 				listCollection.update(
@@ -195,7 +214,9 @@ export const Combobox = <TCollectionItem,>(
 				);
 			}
 		} else if (!details.inputValue.trim()) {
-			listCollection.remove(NEW_ITEM_VALUE);
+			const existingNewOptionValue = getExistingNewOptionValue();
+
+			listCollection.remove(existingNewOptionValue as TCollectionItem);
 		}
 
 		listCollection.filter(details.inputValue);
@@ -255,36 +276,41 @@ export const Combobox = <TCollectionItem,>(
 	};
 
 	return (
-		<ComboboxPrimitive.Root
-			{...others}
-			collection={listCollection.collection()}
-			value={value()}
-			inputValue={inputValue()}
-			onValueChange={onValueChange}
-			onInputValueChange={onInputValueChange}>
-			{props.children}
+		<ComboboxContext.Provider
+			value={{
+				collection: listCollection.collection,
+			}}>
+			<ComboboxPrimitive.Root
+				{...others}
+				collection={listCollection.collection()}
+				value={value()}
+				inputValue={inputValue()}
+				onValueChange={onValueChange}
+				onInputValueChange={onInputValueChange}>
+				{props.children}
 
-			<select
-				{...selectProps}
-				id={hiddenSelectId}
-				ref={ref}
-				onChange={onChangeHiddenSelect}
-				multiple={props.multiple}
-				onClick={onClickHiddenSelect} // because ref is attached to this
-				onFocus={onFocusHiddenSelect} // because ref is attached to this
-				onBlur={onBlurHiddenSelect} // because ref is attached to this
-				class="absolute opacity-0">
-				<For each={value()}>
-					{value => {
-						return (
-							<option value={value} selected={props.multiple}>
-								{value}
-							</option>
-						);
-					}}
-				</For>
-			</select>
-		</ComboboxPrimitive.Root>
+				<select
+					{...selectProps}
+					id={hiddenSelectId}
+					ref={ref}
+					onChange={onChangeHiddenSelect}
+					multiple={props.multiple}
+					onClick={onClickHiddenSelect} // because ref is attached to this
+					onFocus={onFocusHiddenSelect} // because ref is attached to this
+					onBlur={onBlurHiddenSelect} // because ref is attached to this
+					class="absolute opacity-0">
+					<For each={value()}>
+						{value => {
+							return (
+								<option value={value} selected={props.multiple}>
+									{value}
+								</option>
+							);
+						}}
+					</For>
+				</select>
+			</ComboboxPrimitive.Root>
+		</ComboboxContext.Provider>
 	);
 };
 
@@ -335,8 +361,25 @@ export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
 	</ComboboxPrimitive.Control>
 );
 
-export const ComboboxContent = (props: ComboboxPrimitive.ContentProps) => {
-	const getChildren = children(() => props.children);
+export interface ComboboxContextProps<
+	T extends readonly any[],
+	U extends JSX.Element,
+> extends Omit<ComboboxPrimitive.ContentProps, "children"> {
+	fallback?: JSX.Element;
+	children: (item: T[number], index: Accessor<number>) => U;
+}
+
+export const ComboboxContent = <
+	T extends readonly any[],
+	U extends JSX.Element,
+>(
+	props: ComboboxContextProps<T, U>,
+) => {
+	const comboboxContext = useContext(ComboboxContext);
+
+	createEffect(() => {
+		console.log(comboboxContext.collection().items);
+	});
 
 	return (
 		<Portal>
@@ -349,12 +392,20 @@ export const ComboboxContent = (props: ComboboxPrimitive.ContentProps) => {
 						'shadow-md data-[state="open"]:animate-in data-[state="closed"]:animate-out data-[state="closed"]:fade-out-0',
 						'data-[state="open"]:fade-in-0 data-[state="closed"]:zoom-out-95 data-[state="open"]:zoom-in-95',
 						"max-h-[50vh] overflow-scroll",
-						(getChildren() as unknown[]).length > 0
+						comboboxContext.collection().items.length
 							? "visible"
 							: "hidden",
 						props.class,
 					)}>
-					<div class="p-1">{props.children}</div>
+					<div class="p-1">
+						<For
+							each={
+								(comboboxContext?.collection?.().items ??
+									[]) as any
+							}>
+							{props.children}
+						</For>
+					</div>
 				</ComboboxPrimitive.Content>
 			</ComboboxPrimitive.Positioner>
 		</Portal>
