@@ -559,11 +559,8 @@ export const PersonalDetails: Component<StepProps> = props => {
 											<ComboboxClearSelection />
 										</ComboboxTrigger>
 
-										<ComboboxContent>
-											{(
-												item: string,
-												isNewOptionValue,
-											) => {
+										<ComboboxContent<string>>
+											{(item, isNewOptionValue) => {
 												if (isNewOptionValue(item)) {
 													return (
 														<ComboboxItem

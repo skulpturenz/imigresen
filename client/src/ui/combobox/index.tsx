@@ -9,7 +9,7 @@ import {
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
-import { isPlainObject } from "es-toolkit";
+import { flow, isPlainObject } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	createContext,
@@ -78,9 +78,10 @@ export type ComboboxProps<TCollectionItem> =
 	| ComboboxStandardValueProps<TCollectionItem>
 	| ComboboxCustomValueProps<TCollectionItem>;
 
-interface ComboboxContext {
-	collection: Accessor<ListCollection<any>>;
+interface ComboboxContext<TCollectionItem = any> {
+	collection: Accessor<ListCollection<TCollectionItem>>;
 	isNewOptionValue: (inputValue: string) => boolean;
+	itemToString: (item: TCollectionItem) => string;
 }
 const ComboboxContext = createContext<ComboboxContext>({
 	collection: () =>
@@ -88,6 +89,7 @@ const ComboboxContext = createContext<ComboboxContext>({
 			items: [] as any[],
 		}),
 	isNewOptionValue: () => false,
+	itemToString: () => "",
 });
 
 export const Combobox = <TCollectionItem,>(
@@ -323,6 +325,7 @@ export const Combobox = <TCollectionItem,>(
 			value={{
 				collection: listCollection.collection,
 				isNewOptionValue,
+				itemToString,
 			}}>
 			<ComboboxPrimitive.Root
 				{...others}
@@ -404,25 +407,27 @@ export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
 	</ComboboxPrimitive.Control>
 );
 
-export interface ComboboxContextProps<
-	T extends readonly any[],
-	U extends JSX.Element,
+export interface ComboboxContentProps<
+	TCollectionItem = any,
+	U extends JSX.Element = JSX.Element,
 > extends Omit<ComboboxPrimitive.ContentProps, "children"> {
 	fallback?: JSX.Element;
 	children: (
-		item: T[number],
-		isNewOptionValue: (item: T[number]) => boolean,
+		item: TCollectionItem,
+		isNewOptionValue: (item: TCollectionItem) => boolean,
 		index: Accessor<number>,
 	) => U;
 }
 
 export const ComboboxContent = <
-	T extends readonly any[],
-	U extends JSX.Element,
+	TCollectionItem = unknown,
+	U extends JSX.Element = JSX.Element,
 >(
-	props: ComboboxContextProps<T, U>,
+	props: ComboboxContentProps<TCollectionItem, U>,
 ) => {
-	const comboboxContext = useContext(ComboboxContext);
+	const comboboxContext = useContext(
+		ComboboxContext,
+	) as ComboboxContext<TCollectionItem>;
 
 	return (
 		<Portal>
@@ -449,7 +454,10 @@ export const ComboboxContent = <
 								<>
 									{props.children(
 										item,
-										comboboxContext.isNewOptionValue,
+										flow(
+											comboboxContext.itemToString,
+											comboboxContext.isNewOptionValue,
+										),
 										idx,
 									)}
 								</>
