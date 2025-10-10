@@ -510,69 +510,61 @@ export const PersonalDetails: Component<StepProps> = props => {
 					// TODO: error message
 					return (
 						<>
-							<Show
-								when={getValue(
-									props.form,
-									"personalDetails.countryOfBirthCode",
-								)}>
-								<InputGroup>
-									<Label
-										info={t(
-											"form.personalDetails.stateOfBirth.info",
-										)}>
-										{t(
-											"form.personalDetails.stateOfBirth.label",
-										)}
-									</Label>
+							<InputGroup>
+								<Label
+									info={t(
+										"form.personalDetails.stateOfBirth.info",
+									)}>
+									{t(
+										"form.personalDetails.stateOfBirth.label",
+									)}
+								</Label>
 
-									<Combobox
-										{...fieldProps}
-										options={
-											props.dropdownOptions()
-												?.personalDetailsStateOptions ??
-											[]
-										}
-										groupSort={localeAsc}
-										value={field.value}
-										allowCustomValue
-										placeholder={t(
-											"form.personalDetails.stateOfBirth.placeholder",
-										)}>
-										<ComboboxTrigger>
-											<ComboboxInput />
+								<Combobox
+									{...fieldProps}
+									options={
+										props.dropdownOptions()
+											?.personalDetailsStateOptions ?? []
+									}
+									groupSort={localeAsc}
+									value={field.value}
+									allowCustomValue
+									placeholder={t(
+										"form.personalDetails.stateOfBirth.placeholder",
+									)}>
+									<ComboboxTrigger>
+										<ComboboxInput />
 
-											<ComboboxClearSelection />
-										</ComboboxTrigger>
+										<ComboboxClearSelection />
+									</ComboboxTrigger>
 
-										<ComboboxContent<string>>
-											{(item, isNewOptionValue) => {
-												if (isNewOptionValue(item)) {
-													return (
-														<ComboboxItem
-															item={item}>
-															+ Create {item}
-														</ComboboxItem>
-													);
-												}
-
+									<ComboboxContent<string>>
+										{(item, isNewOptionValue) => {
+											if (isNewOptionValue(item)) {
 												return (
 													<ComboboxItem item={item}>
-														{item}
+														+ Create {item}
 													</ComboboxItem>
 												);
-											}}
-										</ComboboxContent>
-									</Combobox>
+											}
 
-									<Show when={!styles.device.hasHover()}>
-										<Label description>
-											{t(
-												"form.personalDetails.stateOfBirth.info",
-											)}
-										</Label>
-									</Show>
-								</InputGroup>
-							</Show>
+											return (
+												<ComboboxItem item={item}>
+													{item}
+												</ComboboxItem>
+											);
+										}}
+									</ComboboxContent>
+								</Combobox>
+
+								<Show when={!styles.device.hasHover()}>
+									<Label description>
+										{t(
+											"form.personalDetails.stateOfBirth.info",
+										)}
+									</Label>
+								</Show>
+							</InputGroup>
 						</>
 					);
 				}}
