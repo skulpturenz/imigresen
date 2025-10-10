@@ -8,7 +8,7 @@ import {
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
-import { invariant } from "es-toolkit";
+import { isPlainObject } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -94,9 +94,31 @@ export const Combobox = <TCollectionItem,>(
 	const NEW_ITEM_VALUE = `combobox-custom-item:${createUniqueId()}`;
 	const listCollection = useListCollection({
 		...listCollectionProps,
-		initialItems: listCollectionProps.options,
+		initialItems: listCollectionProps.options ?? [],
 	});
 
+	const itemToValue = (item: TCollectionItem) => {
+		if (props.itemToValue) {
+			return props.itemToValue(item);
+		}
+
+		if (isPlainObject(item) && item.value) {
+			return item.value;
+		}
+
+		return item;
+	};
+	const itemToString = (item: TCollectionItem) => {
+		if (props.itemToString) {
+			return props.itemToString(item);
+		}
+
+		if (isPlainObject(item) && item.label) {
+			return item.label;
+		}
+
+		return item;
+	};
 	const getValue = (props: ComboboxProps<TCollectionItem>) => {
 		if (!props.value) {
 			return [];
@@ -140,28 +162,38 @@ export const Combobox = <TCollectionItem,>(
 		}
 
 		const isNewOptionValue = () => {
-			return !listCollection.collection().items.some(item => {
-				if (props.toLabel) {
-					return (
-						props.toLabel(item).toLowerCase() === details.inputValue
-					);
-				}
+			if (!details.inputValue.trim()) {
+				return false;
+			}
 
-				invariant(
-					typeof item === "string" || typeof item === "number",
-					"Strict equality comparison for referential option items",
-				);
-
-				return item === details.inputValue;
-			});
+			return !props.options.some(
+				option => itemToString(option) === details.inputValue,
+			);
 		};
 
 		if (isNewOptionValue()) {
-			listCollection.upsert(
-				NEW_ITEM_VALUE,
-				(props.toOption?.(details.inputValue) ??
-					details.inputValue) as TCollectionItem,
+			const existingOptionValues = new Set(
+				props.options.map(itemToValue) ?? [],
 			);
+			const existingNewOptionValue = listCollection
+				.collection()
+				.items.find(value => {
+					return !existingOptionValues.has(value);
+				});
+
+			if (existingNewOptionValue) {
+				listCollection.update(
+					itemToValue(existingNewOptionValue),
+					(props.toOption?.(details.inputValue) ??
+						details.inputValue) as TCollectionItem,
+				);
+			} else {
+				listCollection.upsert(
+					NEW_ITEM_VALUE,
+					(props.toOption?.(details.inputValue) ??
+						details.inputValue) as TCollectionItem,
+				);
+			}
 		} else if (!details.inputValue.trim()) {
 			listCollection.remove(NEW_ITEM_VALUE);
 		}

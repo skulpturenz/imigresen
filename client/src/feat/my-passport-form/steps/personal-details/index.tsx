@@ -549,7 +549,6 @@ export const PersonalDetails: Component<StepProps> = props => {
 											[]
 										}
 										value={field.value}
-										inputValue={inputValue()}
 										allowCustomValue
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
@@ -580,6 +579,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 															</ComboboxItem>
 														);
 													}
+
 													return (
 														<ComboboxItem
 															item={item}>
