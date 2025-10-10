@@ -269,12 +269,14 @@ export const Combobox = <TCollectionItem,>(
 		selectRef = ref;
 	};
 
+	const COMBOBOX_TRIGGER_SELECTOR = `div:has(+ [id="${hiddenSelectId}"])`;
+
 	const onClickHiddenSelect = () => {
 		const buttonElement = document.querySelector<HTMLButtonElement>(
-			`div:has(+ [id="${hiddenSelectId}"]) > button`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button`,
 		);
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
 		);
 
 		buttonElement?.click();
@@ -283,7 +285,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onFocusHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
 		);
 
 		inputElement?.focus();
@@ -291,7 +293,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onBlurHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
 		);
 
 		inputElement?.blur();
@@ -585,7 +587,7 @@ export const Searchbox = <TCollectionItem,>(
 		inputRef = ref;
 	};
 
-	const COMBOBOX_TRIGGER_SELECTOR = `div:has(+ [id="${hiddenInputId}"]) > div`;
+	const COMBOBOX_TRIGGER_SELECTOR = `div:has(+ [id="${hiddenInputId}"])`;
 
 	const onClickHiddenInput = () => {
 		const buttonElement = document.querySelector<HTMLButtonElement>(
@@ -629,19 +631,19 @@ export const Searchbox = <TCollectionItem,>(
 				onInputValueChange={onInputValueChange}
 				allowCustomValue>
 				{props.children}
-			</ComboboxPrimitive.Root>
 
-			<input
-				type="hidden"
-				{...hiddenInputProps}
-				id={hiddenInputId}
-				value={inputValue()}
-				onClick={onClickHiddenInput} // because ref is attached to this
-				onFocus={onFocusHiddenInput} // because ref is attached to this
-				onBlur={onBlurHiddenInput} // because ref is attached to this
-				ref={ref}
-				class="absolute opacity-0 pointer-events-none"
-			/>
+				<input
+					type="hidden"
+					{...hiddenInputProps}
+					id={hiddenInputId}
+					value={inputValue()}
+					onClick={onClickHiddenInput} // because ref is attached to this
+					onFocus={onFocusHiddenInput} // because ref is attached to this
+					onBlur={onBlurHiddenInput} // because ref is attached to this
+					ref={ref}
+					class="absolute opacity-0 pointer-events-none"
+				/>
+			</ComboboxPrimitive.Root>
 		</>
 	);
 };
