@@ -68,7 +68,8 @@ export interface ComboboxStandardValueProps<TCollectionItem>
 export interface ComboboxCustomValueProps<TCollectionItem>
 	extends ComboboxBaseProps<TCollectionItem> {
 	allowCustomValue: true;
-	toOption?: (value: string, customValueKey: string) => TCollectionItem;
+	customValueKey?: string;
+	toOption?: (value: string) => TCollectionItem;
 	toLabel?: (value: TCollectionItem) => string;
 	onCreateCustomValue?: (inputValue: string) => void | Promise<void>;
 }
@@ -107,7 +108,10 @@ export const Combobox = <TCollectionItem,>(
 		],
 	);
 
-	const NEW_ITEM_VALUE = `combobox-custom-item:${createUniqueId()}`;
+	const NEW_ITEM_VALUE =
+		props.allowCustomValue && props.customValueKey
+			? props.customValueKey
+			: `combobox-custom-item:${createUniqueId()}`;
 	const [options, setOptions] = createSignal(
 		listCollectionProps.options ?? [],
 	);
@@ -204,6 +208,7 @@ export const Combobox = <TCollectionItem,>(
 	};
 
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		const initialInputValue = inputValue();
 		setInputValue(details.inputValue);
 
 		if (!props.allowCustomValue) {
@@ -220,7 +225,7 @@ export const Combobox = <TCollectionItem,>(
 			if (existingNewOptionValue) {
 				listCollection.update(
 					itemToValue(existingNewOptionValue),
-					(props.toOption?.(details.inputValue, NEW_ITEM_VALUE) ??
+					(props.toOption?.(details.inputValue) ??
 						details.inputValue) as TCollectionItem,
 				);
 			} else {
@@ -228,7 +233,7 @@ export const Combobox = <TCollectionItem,>(
 				// https://ark-ui.com/docs/components/combobox#creatable-options
 				listCollection.upsert(
 					NEW_ITEM_VALUE,
-					(props.toOption?.(details.inputValue, NEW_ITEM_VALUE) ??
+					(props.toOption?.(details.inputValue) ??
 						details.inputValue) as TCollectionItem,
 				);
 			}
@@ -236,19 +241,14 @@ export const Combobox = <TCollectionItem,>(
 			const existingNewOptionValue = getExistingNewOptionValue();
 
 			listCollection.remove(existingNewOptionValue as TCollectionItem);
-		} else if (
+		}
+		// when custom value is allowed and the custom value changes to an existing value we
+		// want to remove the custom value that we added before
+		else if (
 			!isNewOptionValue(details.inputValue) &&
-			listCollection
-				.collection()
-				.filter(
-					(_itemString, _idx, item) =>
-						itemToValue(item) === details.inputValue,
-				).size === 1 &&
-			listCollection.collection().lastValue
+			details.reason === "input-change"
 		) {
-			listCollection.remove(
-				listCollection.collection().lastValue as string,
-			);
+			listCollection.remove(initialInputValue);
 		}
 
 		listCollection.filter(details.inputValue);
@@ -281,10 +281,10 @@ export const Combobox = <TCollectionItem,>(
 
 	const onClickHiddenSelect = () => {
 		const buttonElement = document.querySelector<HTMLButtonElement>(
-			`div:has(+ #${hiddenSelectId}) > button`,
+			`div:has(+ [id="${hiddenSelectId}"]) > button`,
 		);
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ #${hiddenSelectId}) > button > input`,
+			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
 		);
 
 		buttonElement?.click();
@@ -293,7 +293,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onFocusHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ #${hiddenSelectId}) > button > input`,
+			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
 		);
 
 		inputElement?.focus();
@@ -301,7 +301,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onBlurHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`div:has(+ #${hiddenSelectId}) > button > input`,
+			`div:has(+ [id="${hiddenSelectId}"]) > button > input`,
 		);
 
 		inputElement?.blur();
@@ -343,7 +343,7 @@ export const Combobox = <TCollectionItem,>(
 					onClick={onClickHiddenSelect} // because ref is attached to this
 					onFocus={onFocusHiddenSelect} // because ref is attached to this
 					onBlur={onBlurHiddenSelect} // because ref is attached to this
-					class="absolute opacity-0">
+					class="absolute opacity-0 pointer-events-none">
 					<For each={value()}>
 						{value => {
 							return (
