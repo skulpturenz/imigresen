@@ -307,7 +307,10 @@ export const Combobox = <TCollectionItem,>(
 		inputElement?.blur();
 	};
 
-	const onInteractOutside = () => {
+	const onInteractOutside = (...args: any[]) => {
+		/// @ts-expect-error: ark doesn't export `InteractOutsideEvent`
+		props.onInteractOutside?.(...args);
+
 		if (inputValue() || value().length !== 1) {
 			return;
 		}
