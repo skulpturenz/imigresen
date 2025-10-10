@@ -543,54 +543,14 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 									<Combobox
 										{...fieldProps}
+										options={
+											props.dropdownOptions()
+												?.personalDetailsStateOptions ??
+											[]
+										}
 										value={field.value}
 										inputValue={inputValue()}
 										allowCustomValue
-										collection={statesCollection()}
-										onInputValueChange={details => {
-											setInputValue(details.inputValue);
-
-											if (
-												details.reason !==
-													"input-change" &&
-												details.reason !== "item-select"
-											) {
-												return;
-											}
-
-											const hasMatchingValue =
-												statesCollection().items.some(
-													item =>
-														item
-															.toLowerCase()
-															.includes(
-																details.inputValue.toLowerCase(),
-															),
-												);
-
-											if (!hasMatchingValue) {
-												// TODO: right now just creates many options while typing
-												// we need an object and the `value` for each item should be
-												// the place holder value for a new item
-												// just trying custom options
-												upsert(
-													details.inputValue,
-													details.inputValue,
-												);
-											} else if (
-												!details.inputValue.trim()
-													.length &&
-												statesCollection().lastValue
-											) {
-												// TODO: right now just creates many options while typing
-												// we need an object and the `value` for each item should be
-												// the place holder value for a new item
-												// just trying custom options
-												remove(details.inputValue);
-											}
-
-											filter(details.inputValue);
-										}}
 										placeholder={t(
 											"form.personalDetails.stateOfBirth.placeholder",
 										)}>

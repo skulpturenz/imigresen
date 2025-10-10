@@ -1,9 +1,14 @@
 import {
 	createListCollection as arkCreateListCollection,
 	Combobox as ComboboxPrimitive,
+	useListCollection,
+	type CollectionItem,
+	type ComboboxInputValueChangeDetails,
 	type ComboboxValueChangeDetails,
+	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
+import { invariant } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -31,30 +36,67 @@ export type {
 
 export const createListCollection = arkCreateListCollection;
 
-// TODO: add a story with multiple combobox
-export interface ComboboxProps<TCollection extends string | Record<string, any>>
+export interface ComboboxBaseProps<TCollectionItem>
 	extends Omit<
-			ComboboxPrimitive.RootProps<TCollection>,
-			"value" | "onBlur" | "onChange" | "ref" | "onInput"
+			ComboboxPrimitive.RootProps<CollectionItem>,
+			| "value"
+			| "onBlur"
+			| "onChange"
+			| "ref"
+			| "onInput"
+			| "collection"
+			| "onInputValueChange"
 		>,
 		Pick<
 			JSX.SelectHTMLAttributes<HTMLSelectElement>,
 			"ref" | "onInput" | "onChange" | "onBlur"
-		> {
+		>,
+		Omit<UseListCollectionProps<TCollectionItem>, "initialItems"> {
+	options: TCollectionItem[];
 	value?: string | string[];
 }
 
-export const Combobox = <TCollection extends string | Record<string, any>>(
-	props: ComboboxProps<TCollection>,
+export interface ComboboxStandardValueProps<TCollectionItem>
+	extends ComboboxBaseProps<TCollectionItem> {
+	allowCustomValue?: never | false;
+}
+
+export interface ComboboxCustomValueProps<TCollectionItem>
+	extends ComboboxBaseProps<TCollectionItem> {
+	allowCustomValue: true;
+	toOption?: (value: string) => TCollectionItem;
+	toLabel?: (value: TCollectionItem) => string;
+}
+
+export type ComboboxProps<TCollectionItem> =
+	| ComboboxStandardValueProps<TCollectionItem>
+	| ComboboxCustomValueProps<TCollectionItem>;
+
+export const Combobox = <TCollectionItem,>(
+	props: ComboboxProps<TCollectionItem>,
 ) => {
-	const [selectProps, others] = splitProps(props, [
-		"ref",
-		"onInput",
-		"onChange",
-		"onBlur",
-		"name",
-	]);
-	const getValue = (props: ComboboxProps<TCollection>) => {
+	const [selectProps, listCollectionProps, others] = splitProps(
+		props,
+		["ref", "onInput", "onChange", "onBlur", "name"],
+		[
+			"options",
+			"filter",
+			"limit",
+			"groupBy",
+			"groupSort",
+			"itemToValue",
+			"itemToString",
+			"isItemDisabled",
+		],
+	);
+
+	const NEW_ITEM_VALUE = `combobox-custom-item:${createUniqueId()}`;
+	const listCollection = useListCollection({
+		...listCollectionProps,
+		initialItems: listCollectionProps.options,
+	});
+
+	const getValue = (props: ComboboxProps<TCollectionItem>) => {
 		if (!props.value) {
 			return [];
 		}
@@ -66,6 +108,7 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		return [props.value];
 	};
 	const [value, setValue] = createSignal<string[]>(getValue(props));
+	const [inputValue, setInputValue] = createSignal<string>("");
 
 	// if `value` changes then we want to keep our local version in sync
 	// but because we don't trigger `onValueChange` we don't end up dispatching
@@ -84,7 +127,48 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		props.onValueChange?.(details);
 	};
 
-	const hiddenSelectId = createUniqueId();
+	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		setInputValue(details.inputValue);
+
+		if (!props.allowCustomValue) {
+			return;
+		}
+
+		if (!["input-change", "item-select"].includes(details.reason ?? "")) {
+			return;
+		}
+
+		const isNewOptionValue = () => {
+			return !listCollection.collection().items.some(item => {
+				if (props.toLabel) {
+					return (
+						props.toLabel(item).toLowerCase() === details.inputValue
+					);
+				}
+
+				invariant(
+					typeof item === "string" || typeof item === "number",
+					"Strict equality comparison for referential option items",
+				);
+
+				return item === details.inputValue;
+			});
+		};
+
+		if (isNewOptionValue()) {
+			listCollection.upsert(
+				NEW_ITEM_VALUE,
+				(props.toOption?.(details.inputValue) ??
+					details.inputValue) as TCollectionItem,
+			);
+		} else if (!details.inputValue.trim()) {
+			listCollection.remove(NEW_ITEM_VALUE);
+		}
+
+		listCollection.filter(details.inputValue);
+	};
+
+	const hiddenSelectId = `combobox-hidden-select:${createUniqueId()}`;
 
 	const ref = (ref: HTMLSelectElement) => {
 		props.ref = ref;
@@ -137,15 +221,14 @@ export const Combobox = <TCollection extends string | Record<string, any>>(
 		inputElement?.blur();
 	};
 
-	createEffect(() => {
-		console.log(others.collection.items);
-	});
-
 	return (
 		<ComboboxPrimitive.Root
 			{...others}
+			collection={listCollection.collection()}
 			value={value()}
-			onValueChange={onValueChange}>
+			inputValue={inputValue()}
+			onValueChange={onValueChange}
+			onInputValueChange={onInputValueChange}>
 			{props.children}
 
 			<select
