@@ -9,13 +9,13 @@ import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { createMemo, For, type Component } from "solid-js";
 import {
-	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
 	createListCollection,
+	Searchbox,
 	type ComboboxInputValueChangeDetails,
 	type ComboboxSelectionDetails,
 } from "ui/combobox";
@@ -31,9 +31,10 @@ import {
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const { autofillOptions, onChangeOption, getOptions } = useAddressAutofill({
-		form: props.form,
-	});
+	const { autofillOptions, onChangeOption, getOptions, onClear } =
+		useAddressAutofill({
+			form: props.form,
+		});
 
 	const autofillCollection = createMemo(() =>
 		createListCollection({
@@ -56,10 +57,7 @@ export const AddressDetails: Component<StepProps> = props => {
 		<>
 			<div class="col-span-full">
 				<props.Field name="addressDetails.streetAddress">
-					{(
-						field,
-						{ onChange: _onChange, onInput: _onInput, ...rest },
-					) => {
+					{(field, fieldProps) => {
 						return (
 							<>
 								<InputGroup>
@@ -69,17 +67,17 @@ export const AddressDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<Combobox
-										{...field}
-										inputValue={field.value}
-										allowCustomValue
-										collection={autofillCollection()}
+									<Searchbox
+										{...fieldProps}
+										value={field.value}
+										options={autofillOptions()}
 										onInputValueChange={
 											onStreetAddressChange
 										}
-										onSelect={onSelectStreetAddress}>
+										onSelect={onSelectStreetAddress}
+										onClear={onClear}>
 										<ComboboxTrigger>
-											<ComboboxInput {...rest} />
+											<ComboboxInput />
 
 											<ComboboxClearSelection />
 										</ComboboxTrigger>
@@ -96,7 +94,7 @@ export const AddressDetails: Component<StepProps> = props => {
 												)}
 											</For>
 										</ComboboxContent>
-									</Combobox>
+									</Searchbox>
 								</InputGroup>
 							</>
 						);

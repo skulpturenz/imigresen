@@ -9,14 +9,16 @@ import {
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
 import { spreadProps } from "core/utils";
-import { flow, isPlainObject } from "es-toolkit";
+import { flow, invariant, isPlainObject, uniqBy } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
+	children,
 	createContext,
 	createEffect,
 	createSignal,
 	createUniqueId,
 	For,
+	Show,
 	splitProps,
 	useContext,
 	type Accessor,
@@ -83,14 +85,7 @@ interface ComboboxContext<TCollectionItem = any> {
 	isNewOptionValue: (inputValue: string) => boolean;
 	itemToString: (item: TCollectionItem) => string;
 }
-const ComboboxContext = createContext<ComboboxContext>({
-	collection: () =>
-		createListCollection({
-			items: [] as any[],
-		}),
-	isNewOptionValue: () => false,
-	itemToString: () => "",
-});
+const ComboboxContext = createContext<ComboboxContext | null>(null);
 
 export const Combobox = <TCollectionItem,>(
 	props: ComboboxProps<TCollectionItem>,
@@ -117,14 +112,6 @@ export const Combobox = <TCollectionItem,>(
 	const [options, setOptions] = createSignal(
 		listCollectionProps.options ?? [],
 	);
-	const listCollection = useListCollection({
-		...listCollectionProps,
-		initialItems: options(),
-	});
-
-	createEffect(() => {
-		listCollection.set(options());
-	});
 
 	const itemToValue = (item: TCollectionItem) => {
 		if (props.itemToValue) {
@@ -148,6 +135,15 @@ export const Combobox = <TCollectionItem,>(
 
 		return item;
 	};
+	const listCollection = useListCollection({
+		...listCollectionProps,
+		initialItems: options(),
+	});
+
+	createEffect(() => {
+		listCollection.set(options());
+	});
+
 	const getValue = (props: ComboboxProps<TCollectionItem>) => {
 		if (!props.value) {
 			return [];
@@ -263,24 +259,6 @@ export const Combobox = <TCollectionItem,>(
 		selectRef = ref;
 	};
 
-	const onChangeHiddenSelect: JSX.ChangeEventHandlerUnion<
-		HTMLSelectElement,
-		Event
-	> = event => {
-		if (typeof props.onChange !== "function") {
-			return;
-		}
-
-		const values = value();
-		if (values.length !== 1) {
-			event.target.value = "";
-		} else {
-			event.target.value = values.at(0) ?? "";
-		}
-
-		props.onChange(event);
-	};
-
 	const onClickHiddenSelect = () => {
 		const buttonElement = document.querySelector<HTMLButtonElement>(
 			`div:has(+ [id="${hiddenSelectId}"]) > button`,
@@ -373,7 +351,6 @@ export const Combobox = <TCollectionItem,>(
 					{...selectProps}
 					id={hiddenSelectId}
 					ref={ref}
-					onChange={onChangeHiddenSelect}
 					multiple={props.multiple}
 					onClick={onClickHiddenSelect} // because ref is attached to this
 					onFocus={onFocusHiddenSelect} // because ref is attached to this
@@ -391,6 +368,261 @@ export const Combobox = <TCollectionItem,>(
 				</select>
 			</ComboboxPrimitive.Root>
 		</ComboboxContext.Provider>
+	);
+};
+
+export interface SearchboxProps<TCollectionItem>
+	extends Omit<
+			ComboboxPrimitive.RootProps<CollectionItem>,
+			| "value"
+			| "onBlur"
+			| "onChange"
+			| "ref"
+			| "onInput"
+			| "collection"
+			| "inputValue"
+			| "allowCustomValue"
+			| "onValueChange"
+		>,
+		Pick<
+			JSX.InputHTMLAttributes<HTMLInputElement>,
+			"ref" | "onInput" | "onChange" | "onBlur"
+		>,
+		Omit<UseListCollectionProps<TCollectionItem>, "initialItems"> {
+	options: TCollectionItem[];
+	value?: string;
+	onClear?: () => void;
+}
+
+// The main differences between `Searchbox` and `Combobox` are:
+// - we use a hidden input instead of hidden select
+// - how new option values are determined
+//   - we look at `props.options` instead of an internal copy of `options`
+//   - with `Combobox` every time we add a new option it gets added to `options`.
+//     the main thing is that we have to select a new option for it to get added,
+//     with `Searchbox` we add a new option whenever the input value changes
+// - changing the input value will unselect any selected option
+//   - there can be multiple locations with the same street address so we can't just match
+//     by street address
+export const Searchbox = <TCollectionItem,>(
+	props: SearchboxProps<TCollectionItem>,
+) => {
+	const [hiddenInputProps, listCollectionProps, others] = splitProps(
+		props,
+		["ref", "onInput", "onChange", "onBlur", "name"],
+		[
+			"options",
+			"filter",
+			"limit",
+			"groupBy",
+			"groupSort",
+			"itemToValue",
+			"itemToString",
+			"isItemDisabled",
+		],
+	);
+
+	const itemToValue = (item: TCollectionItem) => {
+		if (props.itemToValue) {
+			return props.itemToValue(item);
+		}
+
+		if (isPlainObject(item) && item.value) {
+			return item.value;
+		}
+
+		return item;
+	};
+	const itemToString = (item: TCollectionItem) => {
+		if (props.itemToString) {
+			return props.itemToString(item);
+		}
+
+		if (isPlainObject(item) && item.label) {
+			return item.label;
+		}
+
+		return item;
+	};
+	const getValue = (props: SearchboxProps<TCollectionItem>) => {
+		if (!props.value) {
+			return [];
+		}
+
+		if (Array.isArray(props.value)) {
+			return props.value;
+		}
+
+		return [props.value];
+	};
+
+	const NEW_ITEM_VALUE = `combobox-custom-item:${createUniqueId()}`;
+	const listCollection = useListCollection({
+		...listCollectionProps,
+		initialItems: listCollectionProps.options,
+		// custom comparison
+		// because the selected option can either be a custom search string
+		// or a valid item from `props.options`
+		// compared to `Combobox` where when a custom option is selected we
+		// `toOption` it so it's a homogenous collection
+		itemToString,
+		itemToValue,
+	});
+
+	const [value, setValue] = createSignal<string[]>(getValue(props));
+	const [inputValue, setInputValue] = createSignal<string>(props.value ?? "");
+
+	createEffect(() => {
+		setInputValue(props.value ?? "");
+		setValue(getValue(props));
+	});
+
+	const isNewOptionValue = (inputValue: string) => {
+		if (!inputValue.trim()) {
+			return false;
+		}
+
+		return !props.options.some(
+			option => itemToString(option) === inputValue,
+		);
+	};
+
+	const getExistingNewOptionValue = () => {
+		const existingNewOptionValue = listCollection
+			.collection()
+			.items.find(value => {
+				return isNewOptionValue(itemToValue(value));
+			});
+
+		return existingNewOptionValue;
+	};
+
+	let inputRef: HTMLInputElement;
+
+	const onValueChange = (details: ComboboxValueChangeDetails) => {
+		const newOptions = uniqBy(
+			[...props.options, ...listCollection.collection().items],
+			itemToValue,
+		);
+
+		listCollection.set(newOptions);
+		setValue(details.value);
+	};
+
+	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
+		const initialInputValue = inputValue();
+		setInputValue(details.inputValue);
+
+		if (
+			!["input-change", "item-select", "clear-trigger"].includes(
+				details.reason ?? "",
+			)
+		) {
+			return;
+		}
+
+		if (isNewOptionValue(details.inputValue)) {
+			const existingNewOptionValue = getExistingNewOptionValue();
+
+			if (existingNewOptionValue) {
+				listCollection.update(
+					itemToValue(existingNewOptionValue),
+					details.inputValue as TCollectionItem,
+				);
+			} else {
+				listCollection.upsert(
+					NEW_ITEM_VALUE,
+					details.inputValue as TCollectionItem,
+				);
+			}
+		} else if (!details.inputValue.trim()) {
+			const existingNewOptionValue = getExistingNewOptionValue();
+
+			listCollection.remove(existingNewOptionValue as TCollectionItem);
+		}
+		// when custom value is allowed and the custom value changes to an existing value we
+		// want to remove the custom value that we added before
+		else if (
+			!isNewOptionValue(details.inputValue) &&
+			details.reason === "input-change"
+		) {
+			listCollection.remove(initialInputValue);
+		}
+
+		if (details.reason === "clear-trigger") {
+			props.onClear?.();
+		}
+
+		props.onInputValueChange?.(details);
+		inputRef?.dispatchEvent(new Event("input", { bubbles: true }));
+		listCollection.filter(details.inputValue);
+	};
+
+	const hiddenInputId = `combobox-hidden-input:${createUniqueId()}`;
+
+	const ref = (ref: HTMLInputElement) => {
+		props.ref = ref;
+		inputRef = ref;
+	};
+
+	const COMBOBOX_TRIGGER_SELECTOR = `div:has(+ [id="${hiddenInputId}"]) > div`;
+
+	const onClickHiddenInput = () => {
+		const buttonElement = document.querySelector<HTMLButtonElement>(
+			`${COMBOBOX_TRIGGER_SELECTOR} > button`,
+		);
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+		);
+
+		buttonElement?.click();
+		inputElement?.focus();
+	};
+
+	const onFocusHiddenInput = () => {
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+		);
+
+		inputElement?.focus();
+	};
+
+	const onBlurHiddenInput = () => {
+		const inputElement = document.querySelector<HTMLInputElement>(
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+		);
+
+		inputElement?.blur();
+	};
+
+	// it's not wrapped in the provider because the internal collection
+	// with custom values should not be rendered
+	// a search string is not an option which should be displayed
+	return (
+		<>
+			<ComboboxPrimitive.Root
+				{...others}
+				collection={listCollection.collection()}
+				value={value()}
+				inputValue={inputValue()}
+				onValueChange={onValueChange}
+				onInputValueChange={onInputValueChange}
+				allowCustomValue>
+				{props.children}
+			</ComboboxPrimitive.Root>
+
+			<input
+				type="hidden"
+				{...hiddenInputProps}
+				id={hiddenInputId}
+				value={inputValue()}
+				onClick={onClickHiddenInput} // because ref is attached to this
+				onFocus={onFocusHiddenInput} // because ref is attached to this
+				onBlur={onBlurHiddenInput} // because ref is attached to this
+				ref={ref}
+				class="absolute opacity-0 pointer-events-none"
+			/>
+		</>
 	);
 };
 
@@ -444,11 +676,13 @@ export interface ComboboxContentProps<
 	U extends JSX.Element = JSX.Element,
 > extends Omit<ComboboxPrimitive.ContentProps, "children"> {
 	fallback?: JSX.Element;
-	children: (
-		item: TCollectionItem,
-		isNewOptionValue: (item: TCollectionItem) => boolean,
-		index: Accessor<number>,
-	) => U;
+	children:
+		| ((
+				item: TCollectionItem,
+				isNewOptionValue: (item: TCollectionItem) => boolean,
+				index: Accessor<number>,
+		  ) => U)
+		| JSX.Element;
 }
 
 export const ComboboxContent = <
@@ -457,9 +691,19 @@ export const ComboboxContent = <
 >(
 	props: ComboboxContentProps<TCollectionItem, U>,
 ) => {
-	const comboboxContext = useContext(
-		ComboboxContext,
-	) as ComboboxContext<TCollectionItem>;
+	const comboboxContext = useContext(ComboboxContext);
+
+	const isHidden = () => {
+		if (comboboxContext) {
+			return (
+				!comboboxContext.collection().items.length && !props.fallback
+			);
+		}
+
+		const resolved = children(() => props.children as JSX.Element);
+
+		return !resolved.toArray().length;
+	};
 
 	return (
 		<Portal>
@@ -472,29 +716,44 @@ export const ComboboxContent = <
 						'shadow-md data-[state="open"]:animate-in data-[state="closed"]:animate-out data-[state="closed"]:fade-out-0',
 						'data-[state="open"]:fade-in-0 data-[state="closed"]:zoom-out-95 data-[state="open"]:zoom-in-95',
 						"max-h-[50vh] overflow-scroll",
-						!comboboxContext.collection().items.length &&
-							!props.fallback
-							? "hidden"
-							: "visible",
+						isHidden() ? "hidden" : "visible",
 						props.class,
 					)}>
 					<div class="p-1">
-						<For
-							fallback={props.fallback}
-							each={comboboxContext.collection().items}>
-							{(item, idx) => (
-								<>
-									{props.children(
-										item,
-										flow(
-											comboboxContext.itemToString,
-											comboboxContext.isNewOptionValue,
-										),
-										idx,
-									)}
-								</>
-							)}
-						</For>
+						<Show when={comboboxContext}>
+							<For
+								fallback={props.fallback}
+								each={comboboxContext?.collection().items}>
+								{(item, idx) => {
+									invariant(
+										comboboxContext,
+										"Must be used within a ComboboxContext",
+									);
+
+									invariant(
+										typeof props.children === "function",
+										"ComboboxContent used within a context without a render function as `children`",
+									);
+
+									return (
+										<>
+											{props.children(
+												item,
+												flow(
+													comboboxContext.itemToString,
+													comboboxContext.isNewOptionValue,
+												),
+												idx,
+											)}
+										</>
+									);
+								}}
+							</For>
+						</Show>
+
+						<Show when={!comboboxContext}>
+							{props.children as unknown as JSX.Element}
+						</Show>
 					</div>
 				</ComboboxPrimitive.Content>
 			</ComboboxPrimitive.Positioner>

@@ -163,11 +163,28 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 		);
 	};
 
+	const onClear = () => {
+		setValues(
+			props.form,
+			{
+				addressDetails: {
+					postcode: "",
+					streetAddress: "",
+					countryCode: "",
+					state: "",
+					city: "",
+				},
+			},
+			{ shouldDirty: false, shouldValidate: false },
+		);
+	};
+
 	return {
 		getOptions: debouncedGetOptions,
 		autofillOptions,
 		getSuggestionDetails,
 		onChangeOption,
+		onClear,
 	};
 };
 
