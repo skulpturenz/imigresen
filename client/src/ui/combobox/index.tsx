@@ -313,16 +313,40 @@ export const Combobox = <TCollectionItem,>(
 		/// @ts-expect-error: ark doesn't export `InteractOutsideEvent`
 		props.onInteractOutside?.(...args);
 
-		if (!isNewOptionValue(inputValue()) && value().length > 1) {
+		const isSelectedOption = value().some(
+			value =>
+				itemToValue(
+					listCollection
+						.collection()
+						.find(inputValue()) as TCollectionItem,
+				) === value,
+		);
+
+		// in the case of multiple selections, we want to reset the input value to blank if:
+		// - its not a new option
+		// - the input value is an existing option but the selected options don't include it
+		//   - changing the input value does not select the option
+		if (
+			(!isNewOptionValue(inputValue()) || !isSelectedOption) &&
+			value().length > 1
+		) {
 			setInputValue("");
 		}
 
-		if (!isNewOptionValue(inputValue())) {
+		// in the case of single selection, we want to reset it to the selected option if:
+		// - its not a new option value (has not been created yet)
+		// - the input value is an existing option but the selected option is different
+		//   - changing the input value does not select the option
+		if (!isNewOptionValue(inputValue()) && isSelectedOption) {
 			return;
 		}
 
 		const newInputValue = value().length
-			? itemToString(value().at(0) as TCollectionItem)
+			? itemToString(
+					listCollection
+						.collection()
+						.find(value().at(0)) as TCollectionItem,
+				)
 			: "";
 
 		setInputValue(newInputValue);
