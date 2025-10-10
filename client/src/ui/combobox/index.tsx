@@ -118,7 +118,12 @@ export const Combobox = <TCollectionItem,>(
 			return props.itemToValue(item);
 		}
 
-		if (isPlainObject(item) && item.value) {
+		if (isPlainObject(item)) {
+			invariant(
+				item.value,
+				"Specify a custom `itemToValue`, see: https://ark-ui.com/docs/collections/list-collection",
+			);
+
 			return item.value;
 		}
 
@@ -129,7 +134,12 @@ export const Combobox = <TCollectionItem,>(
 			return props.itemToString(item);
 		}
 
-		if (isPlainObject(item) && item.label) {
+		if (isPlainObject(item)) {
+			invariant(
+				item.label,
+				"Specify a custom `itemToString`, see: https://ark-ui.com/docs/collections/list-collection",
+			);
+
 			return item.label;
 		}
 
@@ -427,7 +437,12 @@ export const Searchbox = <TCollectionItem,>(
 			return props.itemToValue(item);
 		}
 
-		if (isPlainObject(item) && item.value) {
+		if (isPlainObject(item)) {
+			invariant(
+				item.value,
+				"Specify a custom `itemToValue`, see: https://ark-ui.com/docs/collections/list-collection",
+			);
+
 			return item.value;
 		}
 
@@ -438,7 +453,12 @@ export const Searchbox = <TCollectionItem,>(
 			return props.itemToString(item);
 		}
 
-		if (isPlainObject(item) && item.label) {
+		if (isPlainObject(item)) {
+			invariant(
+				item.label,
+				"Specify a custom `itemToString`, see: https://ark-ui.com/docs/collections/list-collection",
+			);
+
 			return item.label;
 		}
 
