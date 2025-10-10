@@ -46,6 +46,7 @@ export interface ComboboxBaseProps<TCollectionItem>
 			| "onInput"
 			| "collection"
 			| "onInputValueChange"
+			| "inputValue"
 		>,
 		Pick<
 			JSX.SelectHTMLAttributes<HTMLSelectElement>,
