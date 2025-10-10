@@ -78,12 +78,14 @@ export type ComboboxProps<TCollectionItem> =
 
 interface ComboboxContext {
 	collection: Accessor<ListCollection<any>>;
+	isNewOptionValue: (inputValue: string) => boolean;
 }
 const ComboboxContext = createContext<ComboboxContext>({
 	collection: () =>
 		createListCollection({
 			items: [] as any[],
 		}),
+	isNewOptionValue: () => false,
 });
 
 export const Combobox = <TCollectionItem,>(
@@ -163,6 +165,29 @@ export const Combobox = <TCollectionItem,>(
 		props.onValueChange?.(details);
 	};
 
+	const isNewOptionValue = (inputValue: string) => {
+		if (!inputValue.trim()) {
+			return false;
+		}
+
+		return !props.options.some(
+			option => itemToString(option) === inputValue,
+		);
+	};
+
+	const getExistingNewOptionValue = () => {
+		const existingOptionValues = new Set(
+			props.options.map(itemToValue) ?? [],
+		);
+		const existingNewOptionValue = listCollection
+			.collection()
+			.items.find(value => {
+				return !existingOptionValues.has(value);
+			});
+
+		return existingNewOptionValue;
+	};
+
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
 		setInputValue(details.inputValue);
 
@@ -174,30 +199,7 @@ export const Combobox = <TCollectionItem,>(
 			return;
 		}
 
-		const isNewOptionValue = () => {
-			if (!details.inputValue.trim()) {
-				return false;
-			}
-
-			return !props.options.some(
-				option => itemToString(option) === details.inputValue,
-			);
-		};
-
-		const getExistingNewOptionValue = () => {
-			const existingOptionValues = new Set(
-				props.options.map(itemToValue) ?? [],
-			);
-			const existingNewOptionValue = listCollection
-				.collection()
-				.items.find(value => {
-					return !existingOptionValues.has(value);
-				});
-
-			return existingNewOptionValue;
-		};
-
-		if (isNewOptionValue()) {
+		if (isNewOptionValue(details.inputValue)) {
 			const existingNewOptionValue = getExistingNewOptionValue();
 
 			if (existingNewOptionValue) {
@@ -279,6 +281,7 @@ export const Combobox = <TCollectionItem,>(
 		<ComboboxContext.Provider
 			value={{
 				collection: listCollection.collection,
+				isNewOptionValue,
 			}}>
 			<ComboboxPrimitive.Root
 				{...others}
@@ -366,7 +369,11 @@ export interface ComboboxContextProps<
 	U extends JSX.Element,
 > extends Omit<ComboboxPrimitive.ContentProps, "children"> {
 	fallback?: JSX.Element;
-	children: (item: T[number], index: Accessor<number>) => U;
+	children: (
+		item: T[number],
+		isNewOptionValue: (item: T[number]) => boolean,
+		index: Accessor<number>,
+	) => U;
 }
 
 export const ComboboxContent = <
@@ -376,10 +383,6 @@ export const ComboboxContent = <
 	props: ComboboxContextProps<T, U>,
 ) => {
 	const comboboxContext = useContext(ComboboxContext);
-
-	createEffect(() => {
-		console.log(comboboxContext.collection().items);
-	});
 
 	return (
 		<Portal>
@@ -392,18 +395,26 @@ export const ComboboxContent = <
 						'shadow-md data-[state="open"]:animate-in data-[state="closed"]:animate-out data-[state="closed"]:fade-out-0',
 						'data-[state="open"]:fade-in-0 data-[state="closed"]:zoom-out-95 data-[state="open"]:zoom-in-95',
 						"max-h-[50vh] overflow-scroll",
-						comboboxContext.collection().items.length
-							? "visible"
-							: "hidden",
+						!comboboxContext.collection().items.length &&
+							!props.fallback
+							? "hidden"
+							: "visible",
 						props.class,
 					)}>
 					<div class="p-1">
 						<For
+							fallback={props.fallback}
 							each={
 								(comboboxContext?.collection?.().items ??
 									[]) as any
 							}>
-							{props.children}
+							{(item, idx) =>
+								props.children(
+									item,
+									comboboxContext.isNewOptionValue,
+									idx,
+								)
+							}
 						</For>
 					</div>
 				</ComboboxPrimitive.Content>

@@ -560,15 +560,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 										</ComboboxTrigger>
 
 										<ComboboxContent>
-											{(item: string) => {
-												if (
-													!props
-														.dropdownOptions()
-														?.personalDetailsStateOptions.some(
-															option =>
-																option === item,
-														)
-												) {
+											{(
+												item: string,
+												isNewOptionValue,
+											) => {
+												if (isNewOptionValue(item)) {
 													return (
 														<ComboboxItem
 															item={item}>
