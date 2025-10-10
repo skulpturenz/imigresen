@@ -232,6 +232,10 @@ export const Combobox = <TCollectionItem,>(
 		const initialInputValue = inputValue();
 		setInputValue(details.inputValue);
 
+		if (details.reason === "clear-trigger") {
+			listCollection.filter("");
+		}
+
 		if (!props.allowCustomValue) {
 			listCollection.filter(details.inputValue);
 
