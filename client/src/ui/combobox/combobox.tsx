@@ -205,6 +205,7 @@ export const Combobox = <TCollectionItem,>(
 
 	let selectRef: HTMLSelectElement;
 	const onValueChange = (details: ComboboxValueChangeDetails) => {
+		listCollection.filter("");
 		if (props.allowCustomValue && details.value.some(isNewOptionValue)) {
 			// allow for refetching new list of options and setting appropriately
 			// only one custom value at a time
@@ -229,12 +230,7 @@ export const Combobox = <TCollectionItem,>(
 	};
 
 	const onInputValueChange = (details: ComboboxInputValueChangeDetails) => {
-		const initialInputValue = inputValue();
 		setInputValue(details.inputValue);
-
-		if (details.reason === "clear-trigger") {
-			listCollection.filter("");
-		}
 
 		if (!props.allowCustomValue) {
 			listCollection.filter(details.inputValue);
@@ -243,12 +239,15 @@ export const Combobox = <TCollectionItem,>(
 		}
 
 		if (details.reason === "clear-trigger") {
-			const existingNewOptionValue = getExistingNewOptionValue();
-
-			listCollection.remove(existingNewOptionValue as TCollectionItem);
+			listCollection.set(options());
 		}
 
-		if (!["input-change", "item-select"].includes(details.reason ?? "")) {
+		if (
+			details.reason !== "input-change" &&
+			details.reason !== "item-select"
+		) {
+			listCollection.filter("");
+
 			return;
 		}
 
@@ -270,10 +269,10 @@ export const Combobox = <TCollectionItem,>(
 					toOption(details.inputValue),
 				);
 			}
-		} else if (!details.inputValue.trim()) {
-			const existingNewOptionValue = getExistingNewOptionValue();
 
-			listCollection.remove(existingNewOptionValue as TCollectionItem);
+			listCollection.filter(details.inputValue);
+		} else if (!details.inputValue.trim()) {
+			listCollection.set(options());
 		}
 		// when custom value is allowed and the custom value changes to an existing value we
 		// want to remove the custom value that we added before
@@ -281,10 +280,8 @@ export const Combobox = <TCollectionItem,>(
 			!isNewOptionValue(details.inputValue) &&
 			details.reason === "input-change"
 		) {
-			listCollection.remove(initialInputValue);
+			listCollection.set(options());
 		}
-
-		listCollection.filter(details.inputValue);
 	};
 
 	const hiddenSelectId = `combobox-hidden-select:${createUniqueId()}`;
@@ -324,7 +321,15 @@ export const Combobox = <TCollectionItem,>(
 		inputElement?.blur();
 	};
 
+	createEffect(() => {
+		console.log("options", [...options()]);
+		console.log("items", listCollection.collection().items);
+		console.log("inputValue", inputValue());
+	});
+
 	const onInteractOutside = (...args: any[]) => {
+		listCollection.filter("");
+
 		/// @ts-expect-error: ark doesn't export `InteractOutsideEvent`
 		props.onInteractOutside?.(...args);
 
@@ -346,7 +351,6 @@ export const Combobox = <TCollectionItem,>(
 			value().length > 1
 		) {
 			setInputValue("");
-			listCollection.filter("");
 		}
 
 		// in the case of single selection, we want to reset it to the selected option if:
@@ -356,8 +360,6 @@ export const Combobox = <TCollectionItem,>(
 		if (!isNewOptionValue(inputValue()) && isSelectedOption) {
 			return;
 		}
-
-		listCollection.filter("");
 
 		const newInputValue = value().length
 			? itemToString(
