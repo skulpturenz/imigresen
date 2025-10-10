@@ -32,7 +32,15 @@ export interface SearchboxProps<TCollectionItem>
 			JSX.InputHTMLAttributes<HTMLInputElement>,
 			"ref" | "onInput" | "onChange" | "onBlur"
 		>,
-		Omit<UseListCollectionProps<TCollectionItem>, "initialItems"> {
+		Omit<
+			UseListCollectionProps<TCollectionItem>,
+			| "initialItems"
+			| "filter"
+			| "limit"
+			| "groupBy"
+			| "groupSort"
+			| "isItemDisabled"
+		> {
 	options: TCollectionItem[];
 	value?: string;
 	onClear?: () => void;
@@ -54,16 +62,7 @@ export const Searchbox = <TCollectionItem,>(
 	const [hiddenInputProps, listCollectionProps, others] = splitProps(
 		props,
 		["ref", "onInput", "onChange", "onBlur", "name"],
-		[
-			"options",
-			"filter",
-			"limit",
-			"groupBy",
-			"groupSort",
-			"itemToValue",
-			"itemToString",
-			"isItemDisabled",
-		],
+		["options", "itemToValue", "itemToString"],
 	);
 
 	const itemToValue = (item: TCollectionItem) => {

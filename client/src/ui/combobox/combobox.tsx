@@ -8,8 +8,9 @@ import {
 	type ListCollection,
 	type UseListCollectionProps,
 } from "@ark-ui/solid/combobox";
+import { useFilter } from "@ark-ui/solid/locale";
 import { spreadProps } from "core/utils";
-import { flow, identity, invariant, isPlainObject } from "es-toolkit";
+import { flow, identity, invariant, isPlainObject, uniqBy } from "es-toolkit";
 import { Check, ChevronsDownUp, X } from "lucide-solid";
 import {
 	children,
@@ -145,13 +146,20 @@ export const Combobox = <TCollectionItem,>(
 
 		return item;
 	};
+
+	const filterFn = useFilter({ sensitivity: "base" });
 	const listCollection = useListCollection({
 		...listCollectionProps,
 		initialItems: options(),
+		filter: listCollectionProps.filter ?? filterFn().contains,
 	});
 
 	createEffect(() => {
 		listCollection.set(options());
+	});
+
+	createEffect(() => {
+		setOptions(listCollectionProps.options ?? []);
 	});
 
 	const getValue = (props: ComboboxProps<TCollectionItem>) => {
@@ -206,7 +214,12 @@ export const Combobox = <TCollectionItem,>(
 				),
 			);
 
-			setOptions(listCollection.collection().items);
+			const newOptions = uniqBy(
+				[...options(), ...listCollection.collection().items],
+				itemToValue,
+			);
+
+			setOptions(newOptions);
 		}
 
 		setValue(details.value);
@@ -220,6 +233,8 @@ export const Combobox = <TCollectionItem,>(
 		setInputValue(details.inputValue);
 
 		if (!props.allowCustomValue) {
+			listCollection.filter(details.inputValue);
+
 			return;
 		}
 

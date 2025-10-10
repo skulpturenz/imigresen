@@ -1,4 +1,3 @@
-import { useListCollection } from "@ark-ui/solid/combobox";
 import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
@@ -8,7 +7,7 @@ import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { createSignal, Show, type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -38,21 +37,6 @@ import {
 
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
-
-	const {
-		collection: statesCollection,
-		filter,
-		upsert,
-		update,
-		remove,
-	} = useListCollection({
-		initialItems:
-			(["Hello", "world"] ||
-				props.dropdownOptions()?.personalDetailsStateOptions) ??
-			[],
-		groupSort: localeAsc,
-	});
-	const [inputValue, setInputValue] = createSignal("");
 
 	const genderOptions = () => {
 		const options = Object.entries<string>(
@@ -548,6 +532,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 												?.personalDetailsStateOptions ??
 											[]
 										}
+										groupSort={localeAsc}
 										value={field.value}
 										allowCustomValue
 										placeholder={t(

@@ -7,19 +7,18 @@ import type { StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { createMemo, For, type Component } from "solid-js";
+import { For, type Component } from "solid-js";
 import {
+	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
-	createListCollection,
 	Searchbox,
 	type ComboboxInputValueChangeDetails,
 	type ComboboxSelectionDetails,
 } from "ui/combobox";
-import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { Label } from "ui/label";
 import {
 	TextField,
@@ -36,22 +35,10 @@ export const AddressDetails: Component<StepProps> = props => {
 			form: props.form,
 		});
 
-	const autofillCollection = createMemo(() =>
-		createListCollection({
-			items: autofillOptions(),
-		}),
-	);
 	const onStreetAddressChange = (details: ComboboxInputValueChangeDetails) =>
 		getOptions(details.inputValue);
 	const onSelectStreetAddress = (details: ComboboxSelectionDetails) =>
 		onChangeOption(details.itemValue);
-
-	const statesCollection = createMemo(() =>
-		createListCollection({
-			items: props.dropdownOptions()?.addressDetailsStateOptions ?? [],
-			groupSort: localeAsc,
-		}),
-	);
 
 	return (
 		<>
@@ -83,10 +70,7 @@ export const AddressDetails: Component<StepProps> = props => {
 										</ComboboxTrigger>
 
 										<ComboboxContent>
-											<For
-												each={
-													autofillCollection().items
-												}>
+											<For each={autofillOptions()}>
 												{item => (
 													<ComboboxItem item={item}>
 														{formatOption(item)}
@@ -175,10 +159,7 @@ export const AddressDetails: Component<StepProps> = props => {
 
 				<div>
 					<props.Field name="addressDetails.state">
-						{(
-							field,
-							{ onChange: _onChange, onInput: _onInput, ...rest },
-						) => {
+						{(field, fieldProps) => {
 							return (
 								<>
 									<InputGroup>
@@ -188,12 +169,16 @@ export const AddressDetails: Component<StepProps> = props => {
 											)}
 										</Label>
 
-										<ModularFormsCombobox
-											{...field}
+										<Combobox
+											{...fieldProps}
 											name={field.name}
-											form={props.form}
 											allowCustomValue
-											collection={statesCollection()}
+											options={
+												props.dropdownOptions()
+													?.addressDetailsStateOptions ??
+												[]
+											}
+											groupSort={localeAsc}
 											placeholder={t(
 												"form.addressDetails.state.placeholder",
 											)}
@@ -204,25 +189,36 @@ export const AddressDetails: Component<StepProps> = props => {
 												)
 											}>
 											<ComboboxTrigger>
-												<ComboboxInput {...rest} />
+												<ComboboxInput />
 
 												<ComboboxClearSelection />
 											</ComboboxTrigger>
 
 											<ComboboxContent>
-												<For
-													each={
-														statesCollection().items
-													}>
-													{item => (
+												{(
+													item: string,
+													isNewOptionValue,
+												) => {
+													if (
+														isNewOptionValue(item)
+													) {
+														return (
+															<ComboboxItem
+																item={item}>
+																+ Create {item}
+															</ComboboxItem>
+														);
+													}
+
+													return (
 														<ComboboxItem
 															item={item}>
 															{item}
 														</ComboboxItem>
-													)}
-												</For>
+													);
+												}}
 											</ComboboxContent>
-										</ModularFormsCombobox>
+										</Combobox>
 									</InputGroup>
 								</>
 							);
