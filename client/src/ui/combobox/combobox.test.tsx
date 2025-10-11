@@ -1,5 +1,11 @@
-/* eslint-disable-next-line */
-import { cleanup, fireEvent, render, screen } from "@solidjs/testing-library";
+import {
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
 import { uniqueId } from "es-toolkit/compat";
 import { Show } from "solid-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -492,119 +498,162 @@ describe("<Combobox />", () => {
 		expect(comboboxContent.getAttribute("data-state")).toBe("open");
 	});
 
-	// TODO: interact outside not triggered
-	it.skip("resets input value to selected option when it loses focus", async () => {
+	it("resets input value to selected option when it loses focus", async () => {
+		userEvent.setup();
+
+		const TRIGGER_TEST_ID = uniqueId("combobox-trigger");
+		const INPUT_TEST_ID = uniqueId("combobox-input");
+		const OPTION_TEST_IDS = {
+			a: uniqueId("combobox-item-a"),
+		};
+
 		let ref: HTMLSelectElement | undefined;
 
 		render(() => (
-			<Combobox
-				ref={element => {
-					ref = element;
-				}}
-				options={["a"]}
-				allowCustomValue>
-				<ComboboxTrigger data-testid="combobox-trigger">
-					<ComboboxInput data-testid="combobox-input" />
-				</ComboboxTrigger>
+			<>
+				<button />
+				<Combobox
+					ref={element => {
+						ref = element;
+					}}
+					options={["a"]}
+					allowCustomValue>
+					<ComboboxTrigger data-testid={TRIGGER_TEST_ID}>
+						<ComboboxInput data-testid={INPUT_TEST_ID} />
+					</ComboboxTrigger>
 
-				<ComboboxContent>
-					{(item: string, isNewOptionValue) => (
-						<ComboboxItem
-							item={item}
-							data-testid={`combobox-item-${item}`}>
-							<Show when={isNewOptionValue(item)}>
-								Create {item}
-							</Show>
+					<ComboboxContent>
+						{(item: string, isNewOptionValue) => (
+							<ComboboxItem
+								item={item}
+								data-testid={
+									OPTION_TEST_IDS[
+										item as keyof typeof OPTION_TEST_IDS
+									]
+								}>
+								<Show when={isNewOptionValue(item)}>
+									Create {item}
+								</Show>
 
-							<Show when={!isNewOptionValue(item)}>{item}</Show>
-						</ComboboxItem>
-					)}
-				</ComboboxContent>
-			</Combobox>
+								<Show when={!isNewOptionValue(item)}>
+									{item}
+								</Show>
+							</ComboboxItem>
+						)}
+					</ComboboxContent>
+				</Combobox>
+			</>
 		));
 
 		const comboboxTrigger =
-			await screen.findByTestId<HTMLButtonElement>("combobox-trigger");
+			await screen.findByTestId<HTMLButtonElement>(TRIGGER_TEST_ID);
 		expect(comboboxTrigger.getAttribute("data-state")).not.toBe("open");
-		comboboxTrigger.click();
+		await userEvent.click(ref as HTMLSelectElement);
 		expect(comboboxTrigger.getAttribute("data-state")).toBe("open");
 
 		const comboboxInput =
-			await screen.findByTestId<HTMLInputElement>("combobox-input");
-		fireEvent.input(comboboxInput, { target: { value: "a" } });
+			await screen.findByTestId<HTMLInputElement>(INPUT_TEST_ID);
+		await userEvent.type(comboboxInput, "a");
 
-		const item =
-			await screen.findByTestId<HTMLDivElement>("combobox-item-a");
-		fireEvent.click(item);
+		const item = await screen.findByTestId<HTMLDivElement>(
+			OPTION_TEST_IDS.a,
+		);
+		await userEvent.click(item);
 		expect(comboboxInput.value).toBe("a");
 
-		fireEvent.input(comboboxInput, { target: { value: "TEST" } });
+		await userEvent.clear(comboboxInput);
+		await userEvent.type(comboboxInput, "TEST");
+		await expect(() =>
+			screen.findByTestId(OPTION_TEST_IDS.a),
+		).rejects.toThrow();
 		expect(comboboxInput.value).toBe("TEST");
 		await expect(screen.findByText("Create TEST")).resolves.toBeTruthy();
 
-		fireEvent.blur(ref as HTMLSelectElement);
-		expect(comboboxInput.value).toBe("a");
+		expect(comboboxTrigger.getAttribute("data-state")).toBe("open");
+		await userEvent.tab({ shift: true });
+		await userEvent.click(comboboxTrigger);
+		expect(comboboxTrigger.getAttribute("data-state")).not.toBe("open");
+
+		await waitFor(() => expect(comboboxInput.value).toBe("a"));
 	});
 
-	// TODO: interact outside not triggered
-	it.skip("clears filters when it loses focus", async () => {
+	it("clears filters when it loses focus", async () => {
+		const TRIGGER_TEST_ID = uniqueId("combobox-trigger");
+		const INPUT_TEST_ID = uniqueId("combobox-input");
+		const OPTION_TEST_IDS = {
+			a: uniqueId("combobox-item-a"),
+		};
 		let ref: HTMLSelectElement | undefined;
 
 		render(() => (
-			<Combobox
-				ref={element => {
-					ref = element;
-				}}
-				options={["a"]}
-				allowCustomValue>
-				<ComboboxTrigger data-testid="combobox-trigger">
-					<ComboboxInput data-testid="combobox-input" />
-				</ComboboxTrigger>
+			<>
+				<button />
+				<Combobox
+					ref={element => {
+						ref = element;
+					}}
+					options={["a"]}
+					allowCustomValue>
+					<ComboboxTrigger data-testid={TRIGGER_TEST_ID}>
+						<ComboboxInput data-testid={INPUT_TEST_ID} />
+					</ComboboxTrigger>
 
-				<ComboboxContent>
-					{(item: string, isNewOptionValue) => (
-						<ComboboxItem
-							item={item}
-							data-testid={`combobox-item-${item}`}>
-							<Show when={isNewOptionValue(item)}>
-								Create {item}
-							</Show>
+					<ComboboxContent>
+						{(item: string, isNewOptionValue) => (
+							<ComboboxItem
+								item={item}
+								data-testid={
+									OPTION_TEST_IDS[
+										item as keyof typeof OPTION_TEST_IDS
+									]
+								}>
+								<Show when={isNewOptionValue(item)}>
+									Create {item}
+								</Show>
 
-							<Show when={!isNewOptionValue(item)}>{item}</Show>
-						</ComboboxItem>
-					)}
-				</ComboboxContent>
-			</Combobox>
+								<Show when={!isNewOptionValue(item)}>
+									{item}
+								</Show>
+							</ComboboxItem>
+						)}
+					</ComboboxContent>
+				</Combobox>
+			</>
 		));
 
 		const comboboxTrigger =
-			await screen.findByTestId<HTMLButtonElement>("combobox-trigger");
+			await screen.findByTestId<HTMLButtonElement>(TRIGGER_TEST_ID);
 		expect(comboboxTrigger.getAttribute("data-state")).not.toBe("open");
-		comboboxTrigger.click();
+		await userEvent.click(comboboxTrigger);
 		expect(comboboxTrigger.getAttribute("data-state")).toBe("open");
 
 		const comboboxInput =
-			await screen.findByTestId<HTMLInputElement>("combobox-input");
-		fireEvent.input(comboboxInput, { target: { value: "a" } });
+			await screen.findByTestId<HTMLInputElement>(INPUT_TEST_ID);
+		await userEvent.type(comboboxInput, "a");
 
-		const item =
-			await screen.findByTestId<HTMLDivElement>("combobox-item-a");
-		fireEvent.click(item);
+		const item = await screen.findByTestId<HTMLDivElement>(
+			OPTION_TEST_IDS.a,
+		);
+		await userEvent.click(item);
 		expect(comboboxInput.value).toBe("a");
 
-		fireEvent.click(ref as HTMLSelectElement);
-		fireEvent.input(comboboxInput, { target: { value: "TEST" } });
+		await userEvent.click(ref as HTMLSelectElement);
+		await userEvent.clear(comboboxInput);
+		await userEvent.type(comboboxInput, "TEST");
 		expect(comboboxInput.value).toBe("TEST");
 		await expect(() =>
-			screen.findByTestId("combobox-item-a"),
+			screen.findByTestId(OPTION_TEST_IDS.a),
 		).rejects.toThrow();
 		await expect(screen.findByText("Create TEST")).resolves.toBeTruthy();
 
-		fireEvent.click(document.body);
-		fireEvent.click(ref as HTMLSelectElement);
+		expect(comboboxTrigger.getAttribute("data-state")).toBe("open");
+		await userEvent.tab({ shift: true });
+		await userEvent.click(comboboxTrigger);
+		expect(comboboxTrigger.getAttribute("data-state")).not.toBe("open");
 
+		await userEvent.click(comboboxTrigger);
 		await expect(
-			screen.findByTestId("combobox-item-a"),
+			screen.findByTestId(OPTION_TEST_IDS.a),
 		).resolves.toBeTruthy();
 		await expect(screen.findByText("Create TEST")).resolves.toBeTruthy();
 	});
