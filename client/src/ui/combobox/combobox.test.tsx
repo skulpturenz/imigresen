@@ -1,8 +1,11 @@
 import {
 	cleanup,
+	/* eslint-disable-next-line */
 	fireEvent,
 	render,
+	/* eslint-disable-next-line */
 	screen,
+	/* eslint-disable-next-line */
 	waitFor,
 } from "@solidjs/testing-library";
 import userEvent from "@testing-library/user-event";
@@ -18,7 +21,7 @@ import {
 	ComboboxTrigger,
 } from "./combobox";
 
-describe("<Combobox />", () => {
+describe.sequential("<Combobox />", () => {
 	vi.stubGlobal(
 		"ResizeObserver",
 		class {

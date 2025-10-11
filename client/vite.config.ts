@@ -61,6 +61,9 @@ export default defineConfig(({ mode: _mode }) => {
 			printConsoleTrace: true,
 			mockReset: true,
 			reporters,
+			sequence: {
+				concurrent: true,
+			},
 		},
 	};
 });
