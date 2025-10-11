@@ -47,8 +47,9 @@ describe.sequential("<Combobox />", () => {
 			b: uniqueId("combobox-item-b"),
 		};
 
+		const onInput = vi.fn();
 		render(() => (
-			<Combobox options={["a", "b"]}>
+			<Combobox options={["a", "b"]} onInput={onInput}>
 				<ComboboxTrigger data-testid={TRIGGER_TEST_ID}>
 					<ComboboxInput data-testid={INPUT_TEST_ID} />
 				</ComboboxTrigger>
@@ -94,6 +95,7 @@ describe.sequential("<Combobox />", () => {
 		fireEvent.click(item);
 
 		expect(comboboxInput.value).toBe("a");
+		expect(onInput).toBeCalledTimes(1);
 	});
 
 	it("emits an input event when custom option is selected", async () => {
@@ -105,8 +107,9 @@ describe.sequential("<Combobox />", () => {
 			TEST: uniqueId("combobox-item-test"),
 		};
 
+		const onInput = vi.fn();
 		render(() => (
-			<Combobox options={["a", "b"]} allowCustomValue>
+			<Combobox options={["a", "b"]} allowCustomValue onInput={onInput}>
 				<ComboboxTrigger data-testid={TRIGGER_TEST_ID}>
 					<ComboboxInput data-testid={INPUT_TEST_ID} />
 				</ComboboxTrigger>
@@ -153,6 +156,7 @@ describe.sequential("<Combobox />", () => {
 		fireEvent.click(item);
 
 		expect(comboboxInput.value).toBe("TEST");
+		expect(onInput).toBeCalledTimes(1);
 	});
 
 	it("filters options based on input value", { timeout: 10000 }, async () => {
@@ -789,6 +793,74 @@ describe.sequential("<Combobox />", () => {
 			);
 		fireEvent.click(comboboxClearSelection);
 
+		expect(comboboxInput.value).toBe("");
+	});
+
+	it("can select multiple options", async () => {
+		const TRIGGER_TEST_ID = uniqueId("combobox-trigger");
+		const INPUT_TEST_ID = uniqueId("combobox-input");
+		const OPTION_TEST_IDS = {
+			a: uniqueId("combobox-item-a"),
+			b: uniqueId("combobox-item-b"),
+			c: uniqueId("combobox-item-c"),
+		};
+
+		const selections = [] as string[][];
+		const onInput = vi.fn((event: InputEvent) => {
+			const hiddenSelect = event.target as HTMLSelectElement;
+
+			selections.push(
+				[...hiddenSelect.selectedOptions].map(option => option.value),
+			);
+		});
+
+		render(() => (
+			<Combobox options={["a", "b", "c"]} multiple onInput={onInput}>
+				<ComboboxTrigger data-testid={TRIGGER_TEST_ID}>
+					<ComboboxInput data-testid={INPUT_TEST_ID} />
+				</ComboboxTrigger>
+
+				<ComboboxContent>
+					{(item: string) => (
+						<ComboboxItem
+							item={item}
+							data-testid={
+								OPTION_TEST_IDS[
+									item as keyof typeof OPTION_TEST_IDS
+								]
+							}>
+							{item}
+						</ComboboxItem>
+					)}
+				</ComboboxContent>
+			</Combobox>
+		));
+
+		const comboboxTrigger =
+			await screen.findByTestId<HTMLButtonElement>(TRIGGER_TEST_ID);
+		expect(comboboxTrigger.getAttribute("data-state")).not.toBe("open");
+		comboboxTrigger.click();
+		expect(comboboxTrigger.getAttribute("data-state")).toBe("open");
+
+		const comboboxInput =
+			await screen.findByTestId<HTMLInputElement>(INPUT_TEST_ID);
+
+		await userEvent.type(comboboxInput, "A");
+		const firstItem = await screen.findByTestId<HTMLDivElement>(
+			OPTION_TEST_IDS.a,
+		);
+		await userEvent.click(firstItem);
+
+		await userEvent.clear(comboboxInput);
+		await userEvent.type(comboboxInput, "c");
+		const secondItem = await screen.findByTestId<HTMLDivElement>(
+			OPTION_TEST_IDS.c,
+		);
+		await userEvent.click(secondItem);
+
+		expect(onInput).toBeCalledTimes(2);
+		expect(selections.at(0)).toEqual(["a"]);
+		expect(selections.at(1)).toEqual(["a", "c"]);
 		expect(comboboxInput.value).toBe("");
 	});
 });

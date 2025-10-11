@@ -387,7 +387,7 @@ export const Combobox = <TCollectionItem,>(
 					{...selectProps}
 					id={hiddenSelectId}
 					ref={ref}
-					multiple={props.multiple}
+					multiple={Boolean(props.multiple)}
 					onClick={onClickHiddenSelect} // because ref is attached to this
 					onFocus={onFocusHiddenSelect} // because ref is attached to this
 					onBlur={onBlurHiddenSelect} // because ref is attached to this
