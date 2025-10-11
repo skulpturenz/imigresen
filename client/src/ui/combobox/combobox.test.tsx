@@ -8,7 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { uniqueId } from "es-toolkit/compat";
 import { Show } from "solid-js";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -27,6 +27,10 @@ describe("<Combobox />", () => {
 			unobserve() {}
 		},
 	);
+
+	beforeAll(() => {
+		userEvent.setup();
+	});
 
 	afterEach(() => {
 		cleanup();
@@ -499,8 +503,6 @@ describe("<Combobox />", () => {
 	});
 
 	it("resets input value to selected option when it loses focus", async () => {
-		userEvent.setup();
-
 		const TRIGGER_TEST_ID = uniqueId("combobox-trigger");
 		const INPUT_TEST_ID = uniqueId("combobox-input");
 		const OPTION_TEST_IDS = {
