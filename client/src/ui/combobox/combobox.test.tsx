@@ -1,9 +1,8 @@
 /* eslint-disable-next-line */
 import { cleanup, fireEvent, render, screen } from "@solidjs/testing-library";
 import { uniqueId } from "es-toolkit/compat";
-import { afterEach } from "node:test";
 import { Show } from "solid-js";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -82,8 +81,6 @@ describe("<Combobox />", () => {
 		fireEvent.click(item);
 
 		expect(comboboxInput.value).toBe("a");
-
-		cleanup();
 	});
 
 	it("emits an input event when custom option is selected", async () => {
@@ -143,8 +140,6 @@ describe("<Combobox />", () => {
 		fireEvent.click(item);
 
 		expect(comboboxInput.value).toBe("TEST");
-
-		cleanup();
 	});
 
 	it("filters options based on input value", { timeout: 10000 }, async () => {
@@ -221,8 +216,6 @@ describe("<Combobox />", () => {
 		await expect(() =>
 			screen.findByTestId<HTMLDivElement>(OPTION_TEST_IDS.b),
 		).rejects.toThrow();
-
-		cleanup();
 	});
 
 	it("filters options when a custom filter is specified", async () => {
@@ -277,8 +270,6 @@ describe("<Combobox />", () => {
 		await expect(() =>
 			screen.findByTestId(OPTION_TEST_IDS["SOME oPtIoN"]),
 		).rejects.toThrow();
-
-		cleanup();
 	});
 
 	it("creates only one custom option", async () => {
@@ -329,8 +320,6 @@ describe("<Combobox />", () => {
 		fireEvent.input(comboboxInput, { target: { value: "test" } });
 		await expect(() => screen.findByText("Create TEST")).rejects.toThrow();
 		await expect(screen.findByText("Create test")).resolves.toBeTruthy();
-
-		cleanup();
 	});
 
 	it("does not create a custom option if it already exists", async () => {
@@ -387,8 +376,6 @@ describe("<Combobox />", () => {
 		await expect(() => screen.findByText("Create a")).rejects.toThrow();
 		await expect(() => screen.findByText("Create TEST")).rejects.toThrow();
 		await expect(() => screen.findByText("Create test")).rejects.toThrow();
-
-		cleanup();
 	});
 
 	it("ref can be focused", async () => {
@@ -422,8 +409,6 @@ describe("<Combobox />", () => {
 
 		const comboboxInput = await screen.findByTestId(INPUT_TEST_ID);
 		expect(document.activeElement).toBe(comboboxInput);
-
-		cleanup();
 	});
 
 	it("ref can be blurred", async () => {
@@ -464,8 +449,6 @@ describe("<Combobox />", () => {
 
 		fireEvent.blur(ref as HTMLSelectElement);
 		expect(document.activeElement).not.toBe(comboboxInput);
-
-		cleanup();
 	});
 
 	it("ref can be clicked", async () => {
@@ -507,8 +490,6 @@ describe("<Combobox />", () => {
 
 		const comboboxContent = await screen.findByTestId(CONTENT_TEST_ID);
 		expect(comboboxContent.getAttribute("data-state")).toBe("open");
-
-		cleanup();
 	});
 
 	// TODO: interact outside not triggered
@@ -563,8 +544,6 @@ describe("<Combobox />", () => {
 
 		fireEvent.blur(ref as HTMLSelectElement);
 		expect(comboboxInput.value).toBe("a");
-
-		cleanup();
 	});
 
 	// TODO: interact outside not triggered
@@ -628,8 +607,6 @@ describe("<Combobox />", () => {
 			screen.findByTestId("combobox-item-a"),
 		).resolves.toBeTruthy();
 		await expect(screen.findByText("Create TEST")).resolves.toBeTruthy();
-
-		cleanup();
 	});
 
 	it("can be controlled", async () => {
@@ -671,8 +648,6 @@ describe("<Combobox />", () => {
 			OPTION_TEST_IDS.b,
 		);
 		expect(checked.getAttribute("data-state")).toBe("checked");
-
-		cleanup();
 	});
 
 	it("throws an error if its content is not a render function", () => {
@@ -700,8 +675,6 @@ describe("<Combobox />", () => {
 				</Combobox>
 			)),
 		).toThrow();
-
-		cleanup();
 	});
 
 	it("can be cleared", async () => {
