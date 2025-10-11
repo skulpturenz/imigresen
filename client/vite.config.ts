@@ -67,6 +67,9 @@ export default defineConfig(({ mode: _mode }) => {
 
 const automergeWsServer = (): Plugin => ({
 	name: "configure-automerge-ws-server",
+	apply(_config, env) {
+		return env.mode === "development" && env.command === "serve";
+	},
 	configureServer(server) {
 		const wss = new WebSocketServer({ noServer: true });
 
