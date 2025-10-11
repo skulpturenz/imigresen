@@ -861,6 +861,7 @@ describe.sequential("<Combobox />", () => {
 		expect(onInput).toBeCalledTimes(2);
 		expect(selections.at(0)).toEqual(["a"]);
 		expect(selections.at(1)).toEqual(["a", "c"]);
+		// https://github.com/chakra-ui/ark/issues/2535
 		expect(comboboxInput.value).toBe("");
 	});
 });
