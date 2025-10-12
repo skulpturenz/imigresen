@@ -32,7 +32,7 @@ describe.sequential("<Combobox />", () => {
 		},
 	);
 
-	const uniqueId = memoize((prefix?: string) => _uniqueId(prefix));
+	const uniqueId = memoize(_uniqueId);
 
 	beforeAll(() => {
 		userEvent.setup();

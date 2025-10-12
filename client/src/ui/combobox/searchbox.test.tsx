@@ -33,7 +33,7 @@ describe.sequential("<Searchbox />", () => {
 		},
 	);
 
-	const uniqueId = memoize((prefix?: string) => _uniqueId(prefix));
+	const uniqueId = memoize(_uniqueId);
 
 	beforeAll(() => {
 		userEvent.setup();
