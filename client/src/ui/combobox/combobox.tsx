@@ -19,6 +19,7 @@ import {
 	createSignal,
 	createUniqueId,
 	For,
+	onMount,
 	Show,
 	splitProps,
 	useContext,
@@ -183,6 +184,24 @@ export const Combobox = <TCollectionItem,>(
 	// which causes value to change again (array) and so on and so forth
 	createEffect(() => {
 		setValue(getValue(props));
+	});
+
+	onMount(() => {
+		if (!props.value) {
+			return;
+		}
+
+		const value = props.options.find(
+			item => itemToValue(item) === props.value,
+		);
+
+		invariant(value, "Value is not a valid");
+
+		const inputValue = itemToString(value);
+
+		invariant(typeof inputValue === "string", "No label for value");
+
+		setInputValue(inputValue);
 	});
 
 	const isNewOptionValue = (inputValue: string) => {

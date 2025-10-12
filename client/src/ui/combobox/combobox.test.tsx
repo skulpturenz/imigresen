@@ -625,6 +625,11 @@ describe.sequential("<Combobox />", () => {
 			uniqueId("combobox-item-b"),
 		);
 		expect(checked.getAttribute("data-state")).toBe("checked");
+
+		const comboboxInput = await screen.findByTestId<HTMLInputElement>(
+			uniqueId("combobox-input"),
+		);
+		await waitFor(() => expect(comboboxInput.value).toBe("b"));
 	});
 
 	it("throws an error if its content is not a render function", () => {
