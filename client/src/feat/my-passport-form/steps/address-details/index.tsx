@@ -64,9 +64,9 @@ export const AddressDetails: Component<StepProps> = props => {
 										onSelect={onSelectStreetAddress}
 										onClear={onClear}>
 										<ComboboxTrigger>
-											<ComboboxInput />
-
-											<ComboboxClearSelection />
+											<ComboboxInput>
+												<ComboboxClearSelection />
+											</ComboboxInput>
 										</ComboboxTrigger>
 
 										<ComboboxContent>
@@ -189,9 +189,9 @@ export const AddressDetails: Component<StepProps> = props => {
 												)
 											}>
 											<ComboboxTrigger>
-												<ComboboxInput />
-
-												<ComboboxClearSelection />
+												<ComboboxInput>
+													<ComboboxClearSelection />
+												</ComboboxInput>
 											</ComboboxTrigger>
 
 											<ComboboxContent>

@@ -316,7 +316,7 @@ export const Combobox = <TCollectionItem,>(
 			`${COMBOBOX_TRIGGER_SELECTOR} > button`,
 		);
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		buttonElement?.click();
@@ -325,7 +325,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onFocusHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		inputElement?.focus();
@@ -333,7 +333,7 @@ export const Combobox = <TCollectionItem,>(
 
 	const onBlurHiddenSelect = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		inputElement?.blur();
@@ -435,18 +435,32 @@ export const ComboxboxItemGroupLabel = (
 	</ComboboxPrimitive.ItemGroupLabel>
 );
 
-export const ComboboxInput = (props: ComboboxPrimitive.InputProps) => (
-	<ComboboxPrimitive.Input
-		{...spreadProps(props)}
-		ref={props.ref}
-		class={cn(
-			"h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
-			"border-0 focus:border-0 focus:shadow-none focus:ring-0",
-			"disabled:cursor-not-allowed disabled:opacity-50 w-full",
-			props.class,
-		)}
-	/>
-);
+export const ComboboxInput = (props: ComboboxPrimitive.InputProps) => {
+	const [rest, inputProps] = splitProps(props, ["children"]);
+
+	return (
+		<div class="flex justify-between items-center w-full">
+			<ComboboxPrimitive.Input
+				{...inputProps}
+				ref={props.ref}
+				class={cn(
+					"h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
+					"border-0 focus:border-0 focus:shadow-none focus:ring-0",
+					"disabled:cursor-not-allowed disabled:opacity-50 w-full",
+					props.class,
+				)}
+			/>
+
+			<div class="flex gap-1 items-center text-muted-foreground">
+				{rest.children}
+
+				<ChevronsDownUp class="h-4 w-4">
+					<span class="sr-only">{resources.triggerSrOnly}</span>
+				</ChevronsDownUp>
+			</div>
+		</div>
+	);
+};
 
 export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
 	<ComboboxPrimitive.Control>
@@ -460,12 +474,6 @@ export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
 				props.class,
 			)}>
 			{props.children}
-
-			<div class="flex h-3.5 w-3.5 items-center justify-center text-muted-foreground">
-				<ChevronsDownUp class="h-4 w-4">
-					<span class="sr-only">{resources.triggerSrOnly}</span>
-				</ChevronsDownUp>
-			</div>
 		</ComboboxPrimitive.Trigger>
 	</ComboboxPrimitive.Control>
 );
@@ -593,12 +601,12 @@ export const ComboboxClearSelection: Component<
 		<ComboboxPrimitive.ClearTrigger
 			{...spreadProps(props)}
 			class={cn(
-				"absolute right-8 top-[30%] cursor-pointer",
+				"cursor-pointer",
 				"focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus:outline-none",
 				"focus-visible:ring-offset-background",
 				props.class,
 			)}>
-			<X class="size-4 p-0.5 text-muted-foreground transition hover:text-foreground" />
+			<X class="size-4 text-muted-foreground transition hover:text-foreground" />
 		</ComboboxPrimitive.ClearTrigger>
 	);
 };

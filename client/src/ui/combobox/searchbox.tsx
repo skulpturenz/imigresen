@@ -226,7 +226,7 @@ export const Searchbox = <TCollectionItem,>(
 			`${COMBOBOX_TRIGGER_SELECTOR} > button`,
 		);
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		buttonElement?.click();
@@ -235,7 +235,7 @@ export const Searchbox = <TCollectionItem,>(
 
 	const onFocusHiddenInput = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		inputElement?.focus();
@@ -243,7 +243,7 @@ export const Searchbox = <TCollectionItem,>(
 
 	const onBlurHiddenInput = () => {
 		const inputElement = document.querySelector<HTMLInputElement>(
-			`${COMBOBOX_TRIGGER_SELECTOR} > button > input`,
+			`${COMBOBOX_TRIGGER_SELECTOR} > button > div > input`,
 		);
 
 		inputElement?.blur();

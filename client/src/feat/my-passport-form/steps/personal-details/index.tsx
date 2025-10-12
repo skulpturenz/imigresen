@@ -533,9 +533,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 										"form.personalDetails.stateOfBirth.placeholder",
 									)}>
 									<ComboboxTrigger>
-										<ComboboxInput />
-
-										<ComboboxClearSelection />
+										<ComboboxInput>
+											<ComboboxClearSelection />
+										</ComboboxInput>
 									</ComboboxTrigger>
 
 									<ComboboxContent<string>>

@@ -405,11 +405,11 @@ describe.sequential("<Searchbox />", () => {
 		render(() => (
 			<Searchbox options={["a", "b"]}>
 				<ComboboxTrigger data-testid={uniqueId("combobox-trigger")}>
-					<ComboboxInput data-testid={uniqueId("combobox-input")} />
-
-					<ComboboxClearSelection
-						data-testid={uniqueId("combobox-clear-selection")}
-					/>
+					<ComboboxInput data-testid={uniqueId("combobox-input")}>
+						<ComboboxClearSelection
+							data-testid={uniqueId("combobox-clear-selection")}
+						/>
+					</ComboboxInput>
 				</ComboboxTrigger>
 
 				<ComboboxContent>
