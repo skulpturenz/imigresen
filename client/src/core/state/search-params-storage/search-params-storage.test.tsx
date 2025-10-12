@@ -128,7 +128,7 @@ describe("search-params-storage", () => {
 			}));
 	});
 
-	describe("storing values correctly", () => {
+	describe.sequential("storing values correctly", () => {
 		beforeEach(() => {
 			history.replaceState(null, "", `?`);
 		});

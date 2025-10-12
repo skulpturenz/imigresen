@@ -7,16 +7,15 @@ import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { createMemo, For, Show, type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 import {
+	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
-	createListCollection,
 } from "ui/combobox";
-import { ModularFormsCombobox } from "ui/combobox/modular-forms-combobox";
 import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
 import { Label } from "ui/label";
 import {
@@ -38,13 +37,6 @@ import {
 
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
-
-	const statesCollection = createMemo(() =>
-		createListCollection({
-			items: props.dropdownOptions()?.personalDetailsStateOptions ?? [],
-			groupSort: localeAsc,
-		}),
-	);
 
 	const genderOptions = () => {
 		const options = Object.entries<string>(
@@ -518,58 +510,61 @@ export const PersonalDetails: Component<StepProps> = props => {
 					// TODO: error message
 					return (
 						<>
-							<Show
-								when={getValue(
-									props.form,
-									"personalDetails.countryOfBirthCode",
-								)}>
-								<InputGroup>
-									<Label
-										info={t(
-											"form.personalDetails.stateOfBirth.info",
-										)}>
+							<InputGroup>
+								<Label
+									info={t(
+										"form.personalDetails.stateOfBirth.info",
+									)}>
+									{t(
+										"form.personalDetails.stateOfBirth.label",
+									)}
+								</Label>
+
+								<Combobox
+									{...fieldProps}
+									options={
+										props.dropdownOptions()
+											?.personalDetailsStateOptions ?? []
+									}
+									groupSort={localeAsc}
+									value={field.value}
+									allowCustomValue
+									placeholder={t(
+										"form.personalDetails.stateOfBirth.placeholder",
+									)}>
+									<ComboboxTrigger>
+										<ComboboxInput>
+											<ComboboxClearSelection />
+										</ComboboxInput>
+									</ComboboxTrigger>
+
+									<ComboboxContent<string>>
+										{(item, isNewOptionValue) => {
+											if (isNewOptionValue(item)) {
+												return (
+													<ComboboxItem item={item}>
+														+ Create {item}
+													</ComboboxItem>
+												);
+											}
+
+											return (
+												<ComboboxItem item={item}>
+													{item}
+												</ComboboxItem>
+											);
+										}}
+									</ComboboxContent>
+								</Combobox>
+
+								<Show when={!styles.device.hasHover()}>
+									<Label description>
 										{t(
-											"form.personalDetails.stateOfBirth.label",
+											"form.personalDetails.stateOfBirth.info",
 										)}
 									</Label>
-
-									<ModularFormsCombobox
-										// TODO: need to revisit
-										{...field}
-										allowCustomValue
-										form={props.form}
-										inputValue={field.value}
-										collection={statesCollection()}
-										placeholder={t(
-											"form.personalDetails.stateOfBirth.placeholder",
-										)}>
-										<ComboboxTrigger>
-											<ComboboxInput {...fieldProps} />
-
-											<ComboboxClearSelection />
-										</ComboboxTrigger>
-
-										<ComboboxContent>
-											<For
-												each={statesCollection().items}>
-												{item => (
-													<ComboboxItem item={item}>
-														{item}
-													</ComboboxItem>
-												)}
-											</For>
-										</ComboboxContent>
-									</ModularFormsCombobox>
-
-									<Show when={!styles.device.hasHover()}>
-										<Label description>
-											{t(
-												"form.personalDetails.stateOfBirth.info",
-											)}
-										</Label>
-									</Show>
-								</InputGroup>
-							</Show>
+								</Show>
+							</InputGroup>
 						</>
 					);
 				}}
