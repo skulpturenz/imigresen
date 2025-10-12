@@ -19,31 +19,29 @@ import * as ComboboxStories from "./combobox.stories";
 
 ```tsx
 const initialItems = ["Next.js", "Astro", "Qwik", "SolidStart", "Nuxt.js"];
-const [items, setItems] = createSignal(initialItems);
-const collection = createMemo(() => createListCollection({ items: items() }));
 
-const handleInputChange = (details: ComboboxInputValueChangeDetails) => {
-	setItems(
-		initialItems.filter(item =>
-			item.toLowerCase().includes(details.inputValue.toLowerCase()),
-		),
-	);
-};
+return (
+	<Combobox
+		options={initialItems}
+		placeholder="Search framework..."
+		allowCustomValue>
+		<ComboboxTrigger>
+			<ComboboxInput>
+				<ComboboxClearSelection />
+			</ComboboxInput>
+		</ComboboxTrigger>
 
-<Combobox
-	collection={collection()}
-	placeholder="Search framework..."
-	onInputValueChange={handleInputChange}>
-	<ComboboxTrigger>
-		<ComboboxInput />
-	</ComboboxTrigger>
+		<ComboboxContent>
+			{(item: string, isNewOptionValue) => (
+				<ComboboxItem item={item}>
+					<Show when={isNewOptionValue(item)}>+ Create {item}</Show>
 
-	<ComboboxContent>
-		<For each={collection().items}>
-			{item => <ComboboxItem item={item}>{item}</ComboboxItem>}
-		</For>
-	</ComboboxContent>
-</Combobox>;
+					<Show when={!isNewOptionValue(item)}>{item}</Show>
+				</ComboboxItem>
+			)}
+		</ComboboxContent>
+	</Combobox>
+);
 ```
 
 ## References

@@ -190,9 +190,7 @@ export const Combobox = <TCollectionItem,>(
 			return;
 		}
 
-		const value = props.options.find(
-			item => itemToValue(item) === props.value,
-		);
+		const value = options().find(item => itemToValue(item) === props.value);
 
 		invariant(value, "Value is not a valid");
 
