@@ -19,7 +19,6 @@ import {
 	createSignal,
 	createUniqueId,
 	For,
-	onMount,
 	Show,
 	splitProps,
 	useContext,
@@ -186,7 +185,7 @@ export const Combobox = <TCollectionItem,>(
 		setValue(getValue(props));
 	});
 
-	onMount(() => {
+	createEffect(() => {
 		if (!props.value) {
 			return;
 		}
