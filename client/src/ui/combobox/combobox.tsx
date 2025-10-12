@@ -363,6 +363,8 @@ export const Combobox = <TCollectionItem,>(
 			value().length > 1
 		) {
 			setInputValue("");
+
+			return;
 		}
 
 		// in the case of single selection, we want to reset it to the selected option if:
