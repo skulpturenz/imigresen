@@ -1,4 +1,5 @@
 import {
+	DatePicker as DatePickerPrimitive,
 	type DatePickerContentProps,
 	type DatePickerControlProps,
 	type DatePickerInputProps,
@@ -10,16 +11,24 @@ import {
 	type DatePickerTableProps,
 	type DatePickerTableRowProps,
 	type DatePickerTriggerProps,
+	type DatePickerValueChangeDetails,
 	type DatePickerViewControlProps,
 	type DatePickerViewProps,
 	type DatePickerViewTriggerProps,
 	type DateValue,
-	DatePicker as DatePickerPrimitive,
 } from "@ark-ui/solid/date-picker";
 import { spreadProps } from "core/utils";
 import { format } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
-import type { VoidProps } from "solid-js";
+import {
+	createMemo,
+	createSignal,
+	createUniqueId,
+	For,
+	splitProps,
+	type JSX,
+	type VoidProps,
+} from "solid-js";
 import { buttonVariants } from "ui/button";
 import { cn } from "ui/utils";
 
@@ -47,13 +56,130 @@ export const DatePickerRootProvider = DatePickerPrimitive.RootProvider;
 
 export const DatePickerPositioner = DatePickerPrimitive.Positioner;
 
-export const DatePicker = (props: DatePickerRootProps) => {
+export interface DatePickerProps
+	extends Omit<
+			DatePickerRootProps,
+			"ref" | "onInput" | "onChange" | "onBlur" | "value"
+		>,
+		Pick<
+			JSX.InputHTMLAttributes<HTMLInputElement>,
+			"ref" | "onInput" | "onChange" | "onBlur"
+		> {
+	value?: Date | Date[];
+}
+
+export const DatePicker = (props: DatePickerProps) => {
+	const [inputProps, others] = splitProps(props, [
+		"name",
+		"ref",
+		"onInput",
+		"onChange",
+		"onBlur",
+		"name",
+	]);
+
+	const getValue = (props: DatePickerProps) => {
+		if (!props.value) {
+			return null;
+		}
+
+		if (Array.isArray(props.value)) {
+			return props.value;
+		}
+
+		return [props.value];
+	};
+
+	const [value, setValue] = createSignal<Date[] | null>(getValue(props));
+	const DATE_PICKER_INPUT_SELECTOR = [
+		"[data-scope='date-picker'][data-part='root']",
+		"[data-scope='date-picker'][data-part='control']",
+		"[data-scope='date-picker'][data-part='input']",
+	].join(">");
+	const getHiddenDateInputId = (idx: number) => {
+		return `date-picker-hidden-date-${idx}:${createUniqueId()}`;
+	};
+	const getNumberOfDates = () => {
+		if (props.selectionMode === "single") {
+			return 1;
+		}
+
+		if (props.selectionMode === "range") {
+			return 2;
+		}
+
+		const numberOfInputs = document.querySelectorAll(
+			DATE_PICKER_INPUT_SELECTOR,
+		);
+
+		return numberOfInputs.length;
+	};
+	const hiddenDateInputIds = createMemo(() =>
+		Array.from({ length: getNumberOfDates() }, (_, idx) =>
+			getHiddenDateInputId(idx),
+		).reduce(
+			(acc, hiddenInputId, idx) => ({ ...acc, [idx]: hiddenInputId }),
+			Object.create(null),
+		),
+	);
+	const hiddenDateInputRefs = createMemo(() =>
+		Array.from({ length: getNumberOfDates() }, (_, _idx) => null).reduce(
+			(acc, _, idx) => ({ ...acc, [idx]: null }),
+			Object.create(null),
+		),
+	);
+	const makeRef = (idx: number) => (element: HTMLInputElement) => {
+		hiddenDateInputRefs()[idx] = element;
+	};
+
 	const formatDate = (date: DateValue) =>
 		format(date.toString(), "dd/MM/yyyy");
 
+	// TODO: when new date is selected, set the hidden input and
+	// emit a change event
+	const onChange = (details: DatePickerValueChangeDetails) => {
+		if (!details.valueAsString) {
+			setValue(null);
+		}
+	};
+
+	const toDateTimeLocalValue = (date?: Date | null) => {
+		if (!date) {
+			return "";
+		}
+
+		return format(date, "yyyy-MM-ddTHH:mm");
+	};
+
+	// TODO: omit refs from `DatePicker.Input` and accept it at the root
+	// tag union and overload `ref`: one that provides an index and one that doesn't
+	const makeOnClickHiddenInput = (idx: number) => () => {
+		const inputElement = document
+			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.item(idx);
+
+		inputElement?.click();
+	};
+
+	const makeOnFocusHiddenInput = (idx: number) => () => {
+		const inputElement = document
+			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.item(idx);
+
+		inputElement?.focus();
+	};
+
+	const makeOnBlurHiddenInput = (idx: number) => () => {
+		const inputElement = document
+			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.item(idx);
+
+		inputElement?.blur();
+	};
+
 	return (
 		<DatePickerPrimitive.Root
-			{...spreadProps(props)}
+			{...others}
 			// dates are expressed in as `DD/MM/YYYY` in NZ
 			// but `MM/DD/YYYY` in the US
 			// `formatDate` is not localized so if this were to follow
@@ -61,7 +187,25 @@ export const DatePicker = (props: DatePickerRootProps) => {
 			// the date but if using the date picker the format changes to `DD/MM/YYYY`
 			locale="en-NZ"
 			format={formatDate}
-		/>
+			value={value()}
+			onValueChange={onChange}>
+			{props.children}
+
+			<For each={Object.values(hiddenDateInputIds())}>
+				{(_, idx) => (
+					<input
+						{...inputProps}
+						ref={makeRef(idx())}
+						id={getHiddenDateInputId(idx())}
+						type="datetime-local"
+						value={toDateTimeLocalValue(value()?.at(idx()))}
+						onClick={makeOnClickHiddenInput(idx())}
+						onFocus={makeOnFocusHiddenInput(idx())}
+						onBlur={makeOnBlurHiddenInput(idx())}
+					/>
+				)}
+			</For>
+		</DatePickerPrimitive.Root>
 	);
 };
 
