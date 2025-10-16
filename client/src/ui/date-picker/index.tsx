@@ -208,6 +208,7 @@ export const DatePicker = (props: DatePickerProps) => {
 						onClick={makeOnClickHiddenInput(idx())}
 						onFocus={makeOnFocusHiddenInput(idx())}
 						onBlur={makeOnBlurHiddenInput(idx())}
+						class="absolute opacity-0 pointer-events-none"
 					/>
 				)}
 			</For>
