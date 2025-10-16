@@ -66,6 +66,7 @@ export interface DatePickerProps
 			"ref" | "onInput" | "onChange" | "onBlur"
 		> {
 	value?: Date | Date[];
+	onValueChange?: (details: DatePickerValueChangeDetails) => void;
 }
 
 export const DatePicker = (props: DatePickerProps) => {
@@ -122,25 +123,29 @@ export const DatePicker = (props: DatePickerProps) => {
 			Object.create(null),
 		),
 	);
-	const hiddenDateInputRefs = createMemo(() =>
-		Array.from({ length: getNumberOfDates() }, (_, _idx) => null).reduce(
-			(acc, _, idx) => ({ ...acc, [idx]: null }),
-			Object.create(null),
-		),
-	);
+	const hiddenDateInputRefs = new Map<number, HTMLInputElement | null>();
+
 	const makeRef = (idx: number) => (element: HTMLInputElement) => {
-		hiddenDateInputRefs()[idx] = element;
+		hiddenDateInputRefs.set(idx, element);
 	};
 
 	const formatDate = (date: DateValue) =>
 		format(date.toString(), "dd/MM/yyyy");
 
-	// TODO: when new date is selected, set the hidden input and
-	// emit a change event
 	const onChange = (details: DatePickerValueChangeDetails) => {
-		if (!details.valueAsString) {
+		if (!details.valueAsString.length) {
 			setValue(null);
 		}
+
+		const toDate = (dateValue: DateValue) =>
+			dateValue.toDate(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+		setValue(details.value.map(toDate));
+
+		hiddenDateInputRefs.forEach(element => {
+			element?.dispatchEvent(new Event("input", { bubbles: true }));
+		});
+		props.onValueChange?.(details);
 	};
 
 	const toDateTimeLocalValue = (date?: Date | null) => {
@@ -187,6 +192,7 @@ export const DatePicker = (props: DatePickerProps) => {
 			// the date but if using the date picker the format changes to `DD/MM/YYYY`
 			locale="en-NZ"
 			format={formatDate}
+			/// @ts-expect-error: expects `undefined` instead of `null`
 			value={value()}
 			onValueChange={onChange}>
 			{props.children}
