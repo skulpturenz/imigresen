@@ -27,6 +27,7 @@ import {
 	For,
 	splitProps,
 	type JSX,
+	type Ref,
 	type VoidProps,
 } from "solid-js";
 import { buttonVariants } from "ui/button";
@@ -56,7 +57,7 @@ export const DatePickerRootProvider = DatePickerPrimitive.RootProvider;
 
 export const DatePickerPositioner = DatePickerPrimitive.Positioner;
 
-export interface DatePickerProps
+export interface DatePickerBaseProps
 	extends Omit<
 			DatePickerRootProps,
 			"ref" | "onInput" | "onChange" | "onBlur" | "value"
@@ -68,6 +69,27 @@ export interface DatePickerProps
 	value?: Date | Date[];
 	onValueChange?: (details: DatePickerValueChangeDetails) => void;
 }
+
+export interface SingleDatePickerProps extends DatePickerBaseProps {
+	selectionMode?: "single";
+	ref?: Ref<HTMLInputElement>;
+}
+
+export interface RangeDatePickerProps extends Omit<DatePickerBaseProps, "ref"> {
+	selectionMode: "multiple";
+	ref?: (element: HTMLInputElement, index: number) => void;
+}
+
+export interface MultipleDatePickerProps
+	extends Omit<DatePickerBaseProps, "ref"> {
+	selectionMode: "range";
+	ref?: (element: HTMLInputElement, index: number) => void;
+}
+
+export type DatePickerProps =
+	| SingleDatePickerProps
+	| RangeDatePickerProps
+	| MultipleDatePickerProps;
 
 export const DatePicker = (props: DatePickerProps) => {
 	const [inputProps, others] = splitProps(props, [
@@ -156,8 +178,6 @@ export const DatePicker = (props: DatePickerProps) => {
 		return format(date, "yyyy-MM-ddTHH:mm");
 	};
 
-	// TODO: omit refs from `DatePicker.Input` and accept it at the root
-	// tag union and overload `ref`: one that provides an index and one that doesn't
 	const makeOnClickHiddenInput = (idx: number) => () => {
 		const inputElement = document
 			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
@@ -361,7 +381,7 @@ export const DatePickerControl = (props: DatePickerControlProps) => (
 	/>
 );
 
-export const DatePickerInput = (props: DatePickerInputProps) => (
+export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => (
 	<DatePickerPrimitive.Input
 		{...spreadProps(props)}
 		class={cn(
