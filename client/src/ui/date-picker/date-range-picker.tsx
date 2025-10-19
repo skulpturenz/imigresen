@@ -1,4 +1,10 @@
-import { createMemo, Index, splitProps, type Component } from "solid-js";
+import {
+	createMemo,
+	Index,
+	mergeProps,
+	splitProps,
+	type Component,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 import {
 	DatePicker,
@@ -32,7 +38,12 @@ export interface DateRangePicker
 
 export const DateRangePicker: Component<DateRangePicker> = props => {
 	const [startProps, endProps, rest] = splitProps(
-		props,
+		mergeProps(
+			{
+				numOfMonths: 2,
+			},
+			props,
+		),
 		["startPlaceholder", "startAutocomple"],
 		["endPlaceholder", "endAutocomplete"],
 	);
