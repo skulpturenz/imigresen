@@ -20,6 +20,7 @@ import {
 } from "@ark-ui/solid/date-picker";
 import { spreadProps } from "core/utils";
 import { format } from "date-fns";
+import { memoize } from "es-toolkit";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import {
 	createMemo,
@@ -121,9 +122,9 @@ export const DatePicker = (props: DatePickerProps) => {
 		"[data-scope='date-picker'][data-part='control']",
 		"[data-scope='date-picker'][data-part='input']",
 	].join(">");
-	const getHiddenDateInputId = (idx: number) => {
+	const getHiddenDateInputId = memoize((idx: number) => {
 		return `date-picker-hidden-date-${idx}:${createUniqueId()}`;
-	};
+	});
 	const getNumberOfDates = () => {
 		if (props.selectionMode === "single") {
 			return 1;
