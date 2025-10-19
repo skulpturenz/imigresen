@@ -1,5 +1,6 @@
 import type { Meta, StoryObj as Story } from "storybook-solidjs";
 import { DatePicker } from "ui/date-picker";
+import { DateRangePicker } from "./date-range-picker";
 import { SingleDatePicker } from "./single-date-picker";
 
 export default {
@@ -16,4 +17,8 @@ export default {
 
 export const Default: Story<typeof DatePicker> = {
 	render: () => <SingleDatePicker />,
+};
+
+export const DateRange: Story<typeof DateRangePicker> = {
+	render: () => <DateRangePicker />,
 };

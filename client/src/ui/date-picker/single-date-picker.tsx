@@ -22,8 +22,8 @@ import {
 	type SingleDatePickerProps as DatePickerProps,
 } from "ui/date-picker";
 
-export interface SingleDatePickerProps extends DatePickerProps {
-	value?: Date | null;
+export interface SingleDatePickerProps
+	extends Omit<DatePickerProps, "selectionMode"> {
 	placeholder?: string;
 	autocomplete?: string;
 }
