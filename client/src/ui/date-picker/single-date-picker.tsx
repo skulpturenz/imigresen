@@ -1,11 +1,4 @@
-import {
-	parseDate,
-	type DatePickerRootProps,
-	type DatePickerValueChangeDetails,
-} from "@ark-ui/solid/date-picker";
-import { parse } from "date-fns";
-import { invariant } from "es-toolkit";
-import { Index, type Component } from "solid-js";
+import { Index, splitProps, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import {
 	DatePicker,
@@ -26,49 +19,26 @@ import {
 	DatePickerView,
 	DatePickerViewControl,
 	DatePickerViewTrigger,
+	type SingleDatePickerProps as DatePickerProps,
 } from "ui/date-picker";
 
-export interface DateRangePickerProps
-	extends Omit<DatePickerRootProps, "value" | "onChange"> {
+export interface SingleDatePickerProps extends DatePickerProps {
 	value?: Date | null;
-	onChange?: (date: Date | null) => void;
 	placeholder?: string;
 	autocomplete?: string;
 }
 
-export const DateRangePicker: Component<DateRangePickerProps> = props => {
-	const onChange = (details?: DatePickerValueChangeDetails) => {
-		if (!details?.valueAsString.length) {
-			props.onChange?.(null);
-
-			return;
-		}
-
-		const selectedDate = details.valueAsString.at(0);
-
-		invariant(selectedDate, "Selected date is not specified");
-
-		const parsedDate = parse(selectedDate ?? "", "dd/MM/yyyy", new Date());
-
-		if (!import.meta.env.PROD) {
-			console.debug("parsed date", parsedDate);
-		}
-
-		props.onChange?.(parse(selectedDate ?? "", "dd/MM/yyyy", new Date()));
-	};
-
-	const getValue = () => {
-		if (!props.value || !(props.value instanceof Date)) {
-			return;
-		}
-
-		return [parseDate(props.value)];
-	};
+export const SingleDatePicker: Component<SingleDatePickerProps> = props => {
+	const [inputProps, rest] = splitProps(props, [
+		"placeholder",
+		"autocomplete",
+	]);
 
 	return (
-		<DatePicker value={getValue()} onValueChange={onChange}>
+		<DatePicker {...rest} selectionMode="single">
 			<DatePickerControl class="w-full">
 				<DatePickerInput
+					{...inputProps}
 					autocomplete={props.autocomplete}
 					placeholder={props.placeholder}
 				/>

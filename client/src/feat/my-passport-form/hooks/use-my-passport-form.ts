@@ -38,6 +38,7 @@ import {
 	type FormContext,
 	type MyPassportForm,
 } from "feat/my-passport-form/types";
+import { withCustomTransform } from "feat/my-passport-form/utils/with-custom-transform";
 import { useRepo } from "solid-automerge";
 import {
 	createEffect,
@@ -513,7 +514,7 @@ export const useMyPassportForm = () => {
 		registerNewForm,
 		Components: {
 			Form,
-			Field,
+			Field: withCustomTransform(Field),
 			FieldArray,
 		},
 	};

@@ -1,5 +1,6 @@
 import {
 	DatePicker as DatePickerPrimitive,
+	parseDate,
 	type DatePickerContentProps,
 	type DatePickerControlProps,
 	type DatePickerInputProps,
@@ -66,22 +67,25 @@ export interface DatePickerBaseProps
 			JSX.InputHTMLAttributes<HTMLInputElement>,
 			"ref" | "onInput" | "onChange" | "onBlur"
 		> {
-	value?: Date | Date[];
+	value?: Date | Date[] | null;
 	onValueChange?: (details: DatePickerValueChangeDetails) => void;
 }
 
 export interface SingleDatePickerProps extends DatePickerBaseProps {
+	value?: Date | null;
 	selectionMode?: "single";
 	ref?: Ref<HTMLInputElement>;
 }
 
 export interface RangeDatePickerProps extends Omit<DatePickerBaseProps, "ref"> {
 	selectionMode: "multiple";
+	value?: Date[] | null;
 	ref?: (element: HTMLInputElement, index: number) => void;
 }
 
 export interface MultipleDatePickerProps
 	extends Omit<DatePickerBaseProps, "ref"> {
+	value?: Date[] | null;
 	selectionMode: "range";
 	ref?: (element: HTMLInputElement, index: number) => void;
 }
@@ -107,13 +111,13 @@ export const DatePicker = (props: DatePickerProps) => {
 		}
 
 		if (Array.isArray(props.value)) {
-			return props.value;
+			return parseDate(props.value);
 		}
 
-		return [props.value];
+		return [parseDate(props.value)];
 	};
 
-	const [value, setValue] = createSignal<Date[] | null>(getValue(props));
+	const [value, setValue] = createSignal<DateValue[] | null>(getValue(props));
 	const DATE_PICKER_INPUT_SELECTOR = [
 		"[data-scope='date-picker'][data-part='root']",
 		"[data-scope='date-picker'][data-part='control']",
@@ -151,18 +155,16 @@ export const DatePicker = (props: DatePickerProps) => {
 		hiddenDateInputRefs.set(idx, element);
 	};
 
-	const formatDate = (date: DateValue) =>
-		format(date.toString(), "dd/MM/yyyy");
+	const formatDate = (date: DateValue) => {
+		return format(date.toString(), "dd/MM/yyyy");
+	};
 
 	const onChange = (details: DatePickerValueChangeDetails) => {
 		if (!details.valueAsString.length) {
 			setValue(null);
 		}
 
-		const toDate = (dateValue: DateValue) =>
-			dateValue.toDate(Intl.DateTimeFormat().resolvedOptions().timeZone);
-
-		setValue(details.value.map(toDate));
+		setValue(details.value);
 
 		hiddenDateInputRefs.forEach(element => {
 			element?.dispatchEvent(new Event("input", { bubbles: true }));
@@ -170,12 +172,15 @@ export const DatePicker = (props: DatePickerProps) => {
 		props.onValueChange?.(details);
 	};
 
-	const toDateTimeLocalValue = (date?: Date | null) => {
+	const toDateTimeLocalValue = (date?: DateValue | null) => {
 		if (!date) {
 			return "";
 		}
 
-		return format(date, "yyyy-MM-ddTHH:mm");
+		return format(
+			date.toDate(Intl.DateTimeFormat().resolvedOptions().timeZone),
+			"yyyy-MM-dd'T'HH:mm",
+		);
 	};
 
 	const makeOnClickHiddenInput = (idx: number) => () => {
