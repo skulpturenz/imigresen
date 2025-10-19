@@ -16,9 +16,9 @@ export default {
 } satisfies Meta<typeof DatePicker>;
 
 export const Default: Story<typeof DatePicker> = {
-	render: () => <SingleDatePicker />,
+	render: () => <SingleDatePicker onInput={console.debug} />,
 };
 
 export const DateRange: Story<typeof DateRangePicker> = {
-	render: () => <DateRangePicker />,
+	render: () => <DateRangePicker onInput={console.debug} />,
 };
