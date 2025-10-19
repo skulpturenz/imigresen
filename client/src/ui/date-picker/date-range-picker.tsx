@@ -38,7 +38,7 @@ export const DateRangePicker: Component<DateRangePicker> = props => {
 	);
 
 	return (
-		<DatePicker {...rest} numOfMonths={2} selectionMode="range">
+		<DatePicker {...rest} selectionMode="range">
 			<DatePickerControl>
 				<DatePickerInput {...startProps} index={0} />
 				<DatePickerInput {...endProps} index={1} />
