@@ -26,6 +26,7 @@ import {
 	createSignal,
 	createUniqueId,
 	For,
+	mergeProps,
 	splitProps,
 	type JSX,
 	type Ref,
@@ -38,6 +39,7 @@ const resources = {
 	viewControlPreviousSrOnly: "Previous",
 	viewControlNextSrOnly: "Next",
 	triggerSrOnly: "Calendar",
+	placeholder: "DD/MM/YYYY",
 };
 
 export const DatePickerLabel = DatePickerPrimitive.Label;
@@ -96,14 +98,10 @@ export type DatePickerProps =
 	| MultipleDatePickerProps;
 
 export const DatePicker = (props: DatePickerProps) => {
-	const [inputProps, others] = splitProps(props, [
-		"name",
-		"ref",
-		"onInput",
-		"onChange",
-		"onBlur",
-		"name",
-	]);
+	const [inputProps, others] = splitProps(
+		mergeProps({ placeholder: resources.placeholder }, props),
+		["name", "ref", "onInput", "onChange", "onBlur", "name"],
+	);
 
 	const getValue = (props: DatePickerProps) => {
 		if (!props.value) {
