@@ -28,6 +28,7 @@ import {
 	createUniqueId,
 	For,
 	mergeProps,
+	onMount,
 	splitProps,
 	type JSX,
 	type Ref,
@@ -98,6 +99,7 @@ export type DatePickerProps =
 	| RangeDatePickerProps
 	| MultipleDatePickerProps;
 
+// TODO: need to update selectors so that the selection is unique to "this" datepicker
 export const DatePicker = (props: DatePickerProps) => {
 	const [inputProps, others] = splitProps(
 		mergeProps({ placeholder: resources.placeholder }, props),
@@ -375,15 +377,63 @@ export const DatePickerContent = (props: DatePickerContentProps) => (
 	</DatePickerPrimitive.Content>
 );
 
-export const DatePickerControl = (props: DatePickerControlProps) => (
-	<DatePickerPrimitive.Control
-		{...spreadProps(props)}
-		class={cn(
-			"inline-flex items-center gap-x-1 [&>input:first-of-type]:rounded-s-md",
-			props.class,
-		)}
-	/>
-);
+// TODO: need to update selectors so that the selection is unique to "this" datepicker
+export const DatePickerControl = (props: DatePickerControlProps) => {
+	const DATE_PICKER_ROOT_SELECTOR =
+		"[data-scope='date-picker'][data-part='root']";
+
+	const DATE_PICKER_TRIGGER_SELECTOR = [
+		"[data-scope='date-picker'][data-part='root']",
+		"[data-scope='date-picker'][data-part='control']",
+		"[data-scope='date-picker'][data-part='trigger']",
+	].join(">");
+
+	const DATE_PICKER_INPUT_SELECTOR = [
+		"[data-scope='date-picker'][data-part='root']",
+		"[data-scope='date-picker'][data-part='control']",
+		"[data-scope='date-picker'][data-part='input']",
+	].join(">");
+
+	onMount(() => {
+		const datePickerRoot = document.querySelector<HTMLDivElement>(
+			DATE_PICKER_ROOT_SELECTOR,
+		);
+
+		const triggerElement = document.querySelector<HTMLDivElement>(
+			DATE_PICKER_TRIGGER_SELECTOR,
+		);
+		const inputElements = document.querySelectorAll<HTMLInputElement>(
+			DATE_PICKER_INPUT_SELECTOR,
+		);
+
+		inputElements.forEach(element => {
+			element.addEventListener("click", () => {
+				if (!datePickerRoot || !triggerElement) {
+					return;
+				}
+
+				const datePickerState =
+					datePickerRoot?.getAttribute("data-state");
+
+				if (datePickerState === "open") {
+					return;
+				}
+
+				triggerElement?.click();
+			});
+		});
+	});
+
+	return (
+		<DatePickerPrimitive.Control
+			{...spreadProps(props)}
+			class={cn(
+				"inline-flex items-center gap-x-1 [&>input:first-of-type]:rounded-s-md",
+				props.class,
+			)}
+		/>
+	);
+};
 
 export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => (
 	<DatePickerPrimitive.Input
