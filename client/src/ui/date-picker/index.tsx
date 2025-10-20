@@ -437,6 +437,10 @@ export const DatePickerControl = (props: DatePickerControlProps) => {
 		);
 
 		inputElements.forEach(element => {
+			// TODO: there is a bug, the first click does not trigger this handler
+			// subsequent clicks do
+			// `datePickerRoot` and `triggerElement` are not null
+			// not so sure why
 			element.addEventListener("click", () => {
 				if (!datePickerRoot || !triggerElement) {
 					return;
