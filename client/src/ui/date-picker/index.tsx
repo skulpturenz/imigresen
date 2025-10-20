@@ -449,7 +449,16 @@ export const DatePickerControl = (props: DatePickerControlProps) => {
 					return;
 				}
 
-				triggerElement?.click();
+				triggerElement.click();
+
+				// when we `click` the trigger to open the date picker view,
+				// the focus shifts there, we want to move it back to the input
+				// moving it immediately just causes the focus to shift to the body
+				// and using a `FocusTrap` results in the date picker view not showing at all
+				// `FocusTrap`: https://ark-ui.com/docs/utilities/focus-trap
+				setTimeout(() => {
+					element.focus();
+				}, 100);
 			});
 		});
 	});
