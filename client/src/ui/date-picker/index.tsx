@@ -99,7 +99,6 @@ export type DatePickerProps =
 	| RangeDatePickerProps
 	| MultipleDatePickerProps;
 
-// TODO: need to update selectors so that the selection is unique to "this" datepicker
 export const DatePicker = (props: DatePickerProps) => {
 	const [inputProps, others] = splitProps(
 		mergeProps({ placeholder: resources.placeholder }, props),
@@ -119,11 +118,20 @@ export const DatePicker = (props: DatePickerProps) => {
 	};
 
 	const [value, setValue] = createSignal<DateValue[] | null>(getValue(props));
-	const DATE_PICKER_INPUT_SELECTOR = [
-		"[data-scope='date-picker'][data-part='root']",
-		"[data-scope='date-picker'][data-part='control']",
-		"[data-scope='date-picker'][data-part='input']",
-	].join(">");
+
+	let rootRef: HTMLDivElement;
+	const ref = (element: HTMLDivElement) => {
+		rootRef = element;
+	};
+
+	const getDatePickerInputSelector = (root: HTMLDivElement) => {
+		return [
+			`div[data-scope='date-picker'][data-part='root'][id='${root.id}']:has(> [data-scope='date-picker'][data-part='control'])`,
+			"[data-scope='date-picker'][data-part='control']",
+			"[data-scope='date-picker'][data-part='input']",
+		].join(">");
+	};
+
 	const getHiddenDateInputId = memoize((idx: number) => {
 		return `date-picker-hidden-date-${idx}:${createUniqueId()}`;
 	});
@@ -137,7 +145,7 @@ export const DatePicker = (props: DatePickerProps) => {
 		}
 
 		const numberOfInputs = document.querySelectorAll(
-			DATE_PICKER_INPUT_SELECTOR,
+			getDatePickerInputSelector(rootRef),
 		);
 
 		return numberOfInputs.length;
@@ -186,7 +194,9 @@ export const DatePicker = (props: DatePickerProps) => {
 
 	const makeOnClickHiddenInput = (idx: number) => () => {
 		const inputElement = document
-			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.querySelectorAll<HTMLInputElement>(
+				getDatePickerInputSelector(rootRef),
+			)
 			.item(idx);
 
 		inputElement?.click();
@@ -194,7 +204,9 @@ export const DatePicker = (props: DatePickerProps) => {
 
 	const makeOnFocusHiddenInput = (idx: number) => () => {
 		const inputElement = document
-			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.querySelectorAll<HTMLInputElement>(
+				getDatePickerInputSelector(rootRef),
+			)
 			.item(idx);
 
 		inputElement?.focus();
@@ -202,7 +214,9 @@ export const DatePicker = (props: DatePickerProps) => {
 
 	const makeOnBlurHiddenInput = (idx: number) => () => {
 		const inputElement = document
-			.querySelectorAll<HTMLInputElement>(DATE_PICKER_INPUT_SELECTOR)
+			.querySelectorAll<HTMLInputElement>(
+				getDatePickerInputSelector(rootRef),
+			)
 			.item(idx);
 
 		inputElement?.blur();
@@ -211,6 +225,7 @@ export const DatePicker = (props: DatePickerProps) => {
 	return (
 		<DatePickerPrimitive.Root
 			{...others}
+			ref={ref}
 			// dates are expressed in as `DD/MM/YYYY` in NZ
 			// but `MM/DD/YYYY` in the US
 			// `formatDate` is not localized so if this were to follow
@@ -377,7 +392,6 @@ export const DatePickerContent = (props: DatePickerContentProps) => (
 	</DatePickerPrimitive.Content>
 );
 
-// TODO: need to update selectors so that the selection is unique to "this" datepicker
 export const DatePickerControl = (props: DatePickerControlProps) => {
 	let controlRef: HTMLDivElement;
 	const ref = (element: HTMLDivElement) => {
