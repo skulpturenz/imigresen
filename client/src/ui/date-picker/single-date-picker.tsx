@@ -26,23 +26,35 @@ export interface SingleDatePickerProps
 	extends Omit<DatePickerProps, "selectionMode"> {
 	placeholder?: string;
 	autocomplete?: string;
+	testIds?: {
+		control?: string;
+		input?: string;
+		trigger?: string;
+		content?: string;
+	};
 }
 
 export const SingleDatePicker: Component<SingleDatePickerProps> = props => {
-	const [inputProps, rest] = splitProps(props, [
-		"placeholder",
-		"autocomplete",
-	]);
+	const [inputProps, testing, rest] = splitProps(
+		props,
+		["placeholder", "autocomplete"],
+		["testIds"],
+	);
 
 	return (
 		<DatePicker {...rest} selectionMode="single">
-			<DatePickerControl class="w-full">
-				<DatePickerInput {...inputProps} />
-				<DatePickerTrigger />
+			<DatePickerControl
+				class="w-full"
+				data-testid={testing.testIds?.control}>
+				<DatePickerInput
+					{...inputProps}
+					data-testid={testing.testIds?.input}
+				/>
+				<DatePickerTrigger data-testid={testing.testIds?.trigger} />
 			</DatePickerControl>
 			<Portal>
 				<DatePickerPositioner>
-					<DatePickerContent>
+					<DatePickerContent data-testid={testing.testIds?.content}>
 						<DatePickerView view="day">
 							<DatePickerContext>
 								{context => (

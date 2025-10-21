@@ -34,10 +34,17 @@ export interface DateRangePicker
 	endPlaceholder?: string;
 	startAutocomple?: string;
 	endAutocomplete?: string;
+	testIds?: {
+		control?: string;
+		dateStart?: string;
+		dateEnd?: string;
+		trigger?: string;
+		content?: string;
+	};
 }
 
 export const DateRangePicker: Component<DateRangePicker> = props => {
-	const [startProps, endProps, rest] = splitProps(
+	const [startProps, endProps, testing, rest] = splitProps(
 		mergeProps(
 			{
 				numOfMonths: 2,
@@ -46,19 +53,28 @@ export const DateRangePicker: Component<DateRangePicker> = props => {
 		),
 		["startPlaceholder", "startAutocomple"],
 		["endPlaceholder", "endAutocomplete"],
+		["testIds"],
 	);
 
 	return (
 		<DatePicker {...rest} selectionMode="range">
-			<DatePickerControl>
-				<DatePickerInput {...startProps} index={0} />
-				<DatePickerInput {...endProps} index={1} />
-				<DatePickerTrigger />
+			<DatePickerControl data-testid={testing.testIds?.control}>
+				<DatePickerInput
+					{...startProps}
+					index={0}
+					data-testid={testing.testIds?.dateStart}
+				/>
+				<DatePickerInput
+					{...endProps}
+					index={1}
+					data-testid={testing.testIds?.dateEnd}
+				/>
+				<DatePickerTrigger data-testid={testing.testIds?.trigger} />
 			</DatePickerControl>
 
 			<Portal>
 				<DatePickerPositioner>
-					<DatePickerContent>
+					<DatePickerContent data-testid={testing.testIds?.content}>
 						<DatePickerView view="day">
 							<DatePickerContext>
 								{context => {
