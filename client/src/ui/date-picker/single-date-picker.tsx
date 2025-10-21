@@ -37,11 +37,7 @@ export const SingleDatePicker: Component<SingleDatePickerProps> = props => {
 	return (
 		<DatePicker {...rest} selectionMode="single">
 			<DatePickerControl class="w-full">
-				<DatePickerInput
-					{...inputProps}
-					autocomplete={props.autocomplete}
-					placeholder={props.placeholder}
-				/>
+				<DatePickerInput {...inputProps} />
 				<DatePickerTrigger />
 			</DatePickerControl>
 			<Portal>
