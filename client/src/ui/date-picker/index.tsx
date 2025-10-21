@@ -28,7 +28,6 @@ import {
 	createUniqueId,
 	For,
 	mergeProps,
-	onMount,
 	splitProps,
 	type JSX,
 	type Ref,
@@ -393,84 +392,9 @@ export const DatePickerContent = (props: DatePickerContentProps) => (
 );
 
 export const DatePickerControl = (props: DatePickerControlProps) => {
-	let controlRef: HTMLDivElement;
-	const ref = (element: HTMLDivElement) => {
-		props.ref = element;
-		controlRef = element;
-	};
-
-	const getControlSelector = (ref: HTMLDivElement) =>
-		`[id='${ref.id}'][data-scope='date-picker'][data-part='control']`;
-
-	const getDatePickerRootSelector = (control: HTMLDivElement) => {
-		return [
-			`div[data-scope='date-picker'][data-part='root']:has(> ${getControlSelector(control)})`,
-		].join(">");
-	};
-
-	const getDatePickerTriggerSelector = (control: HTMLDivElement) => {
-		return [
-			`div[data-scope='date-picker'][data-part='root']:has(> ${getControlSelector(control)})`,
-			getControlSelector(control),
-			"[data-scope='date-picker'][data-part='trigger']",
-		].join(">");
-	};
-
-	const getDatePickerInputSelector = (control: HTMLDivElement) => {
-		return [
-			`div[data-scope='date-picker'][data-part='root']:has(> ${getControlSelector(control)})`,
-			getControlSelector(control),
-			"[data-scope='date-picker'][data-part='input']",
-		].join(">");
-	};
-
-	onMount(() => {
-		const datePickerRoot = document.querySelector<HTMLDivElement>(
-			getDatePickerRootSelector(controlRef),
-		);
-
-		const triggerElement = document.querySelector<HTMLDivElement>(
-			getDatePickerTriggerSelector(controlRef),
-		);
-		const inputElements = document.querySelectorAll<HTMLInputElement>(
-			getDatePickerInputSelector(controlRef),
-		);
-
-		inputElements.forEach(element => {
-			// TODO: there is a bug, the first click does not trigger this handler
-			// subsequent clicks do
-			// `datePickerRoot` and `triggerElement` are not null
-			// not so sure why
-			element.addEventListener("click", () => {
-				if (!datePickerRoot || !triggerElement) {
-					return;
-				}
-
-				const datePickerState =
-					datePickerRoot?.getAttribute("data-state");
-
-				if (datePickerState === "open") {
-					return;
-				}
-
-				triggerElement.click();
-
-				// when we `click` the trigger to open the date picker view,
-				// the focus shifts there, we want to move it back to the input
-				// moving it immediately just causes the focus to shift to the body
-				// and using a `FocusTrap` results in the date picker view not showing at all
-				// `FocusTrap`: https://ark-ui.com/docs/utilities/focus-trap
-				setTimeout(() => {
-					element.focus();
-				}, 100);
-			});
-		});
-	});
-
 	return (
 		<DatePickerPrimitive.Control
 			{...spreadProps(props)}
-			ref={ref}
 			class={cn(
 				"inline-flex items-center gap-x-1 [&>input:first-of-type]:rounded-s-md",
 				props.class,
@@ -479,17 +403,69 @@ export const DatePickerControl = (props: DatePickerControlProps) => {
 	);
 };
 
-export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => (
-	<DatePickerPrimitive.Input
-		{...spreadProps(props)}
-		class={cn(
-			"w-full h-10 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground",
-			"placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-			"focus-visible:ring-offset-background focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
-			props.class,
-		)}
-	/>
-);
+export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
+	let inputRef: HTMLInputElement;
+	const ref = (element: HTMLInputElement) => {
+		inputRef = element;
+	};
+
+	const getDatePickerRootSelector = (input: HTMLInputElement) => {
+		return [
+			`div[data-scope='date-picker'][data-part='root']:has(> [data-scope='date-picker'][data-part='control'] > [data-scope='date-picker'][data-part='input'][id='${input.id}'])`,
+		].join(">");
+	};
+
+	const getDatePickerTriggerSelector = (input: HTMLInputElement) => {
+		return [
+			getDatePickerRootSelector(input),
+			"[data-scope='date-picker'][data-part='control']",
+			"[data-scope='date-picker'][data-part='trigger']",
+		].join(">");
+	};
+
+	const onClickInput: JSX.EventHandlerUnion<
+		HTMLInputElement,
+		MouseEvent,
+		JSX.EventHandler<HTMLInputElement, MouseEvent>
+	> = event => {
+		if (typeof props.onClick === "function") {
+			props.onClick(event);
+		}
+
+		const datePickerRoot = document.querySelector<HTMLDivElement>(
+			getDatePickerRootSelector(inputRef),
+		);
+
+		const triggerElement = document.querySelector<HTMLDivElement>(
+			getDatePickerTriggerSelector(inputRef),
+		);
+
+		const datePickerState = datePickerRoot?.getAttribute("data-state");
+
+		if (datePickerState === "open") {
+			return;
+		}
+
+		triggerElement?.click();
+		setTimeout(() => {
+			inputRef.focus();
+		}, 100);
+	};
+
+	return (
+		<DatePickerPrimitive.Input
+			{...spreadProps(props)}
+			ref={ref}
+			onClick={onClickInput}
+			class={cn(
+				"w-full h-10 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground",
+				"placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+				"focus-visible:ring-offset-background focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
+				props.class,
+			)}
+		/>
+	);
+};
 
 export const DatePickerTrigger = (props: DatePickerTriggerProps) => (
 	<DatePickerPrimitive.Trigger
