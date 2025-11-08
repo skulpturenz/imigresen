@@ -100,7 +100,10 @@ export type DatePickerProps =
 
 export const DatePicker = (props: DatePickerProps) => {
 	const [inputProps, others] = splitProps(
-		mergeProps({ placeholder: resources.placeholder }, props),
+		mergeProps(
+			{ selectionMode: "single", placeholder: resources.placeholder },
+			props,
+		),
 		["name", "ref", "onInput", "onChange", "onBlur", "name"],
 	);
 
@@ -123,23 +126,23 @@ export const DatePicker = (props: DatePickerProps) => {
 		rootRef = element;
 	};
 
-	const getDatePickerInputSelector = (root: HTMLDivElement) => {
+	const getDatePickerInputSelector = (root?: HTMLDivElement) => {
 		return [
-			`div[data-scope='date-picker'][data-part='root'][id='${root.id}']:has(> [data-scope='date-picker'][data-part='control'])`,
+			`div[data-scope='date-picker'][data-part='root'][id='${root?.id}']:has(> [data-scope='date-picker'][data-part='control'])`,
 			"[data-scope='date-picker'][data-part='control']",
 			"[data-scope='date-picker'][data-part='input']",
-		].join(">");
+		].join(" > ");
 	};
 
 	const getHiddenDateInputId = memoize((idx: number) => {
 		return `date-picker-hidden-date-${idx}:${createUniqueId()}`;
 	});
 	const getNumberOfDates = () => {
-		if (props.selectionMode === "single") {
+		if (others.selectionMode === "single") {
 			return 1;
 		}
 
-		if (props.selectionMode === "range") {
+		if (others.selectionMode === "range") {
 			return 2;
 		}
 
@@ -412,7 +415,7 @@ export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
 	const getDatePickerRootSelector = (input: HTMLInputElement) => {
 		return [
 			`div[data-scope='date-picker'][data-part='root']:has(> [data-scope='date-picker'][data-part='control'] > [data-scope='date-picker'][data-part='input'][id='${input.id}'])`,
-		].join(">");
+		].join(" > ");
 	};
 
 	const getDatePickerTriggerSelector = (input: HTMLInputElement) => {
@@ -420,7 +423,7 @@ export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
 			getDatePickerRootSelector(input),
 			"[data-scope='date-picker'][data-part='control']",
 			"[data-scope='date-picker'][data-part='trigger']",
-		].join(">");
+		].join(" > ");
 	};
 
 	const onClickInput: JSX.EventHandlerUnion<
@@ -440,16 +443,16 @@ export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
 			getDatePickerTriggerSelector(inputRef),
 		);
 
-		const datePickerState = datePickerRoot?.getAttribute("data-state");
+		// const datePickerState = datePickerRoot?.getAttribute("data-state");
 
-		if (datePickerState === "open") {
-			return;
-		}
+		// if (datePickerState === "open") {
+		// 	return;
+		// }
 
-		triggerElement?.click();
-		setTimeout(() => {
-			inputRef.focus();
-		}, 100);
+		// triggerElement?.click();
+		// setTimeout(() => {
+		// 	inputRef.focus();
+		// }, 100);
 	};
 
 	return (
