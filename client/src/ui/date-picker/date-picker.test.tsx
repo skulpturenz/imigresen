@@ -1,8 +1,12 @@
 import {
 	cleanup,
+	/* eslint-disable-next-line */
+	fireEvent,
 	render,
 	/* eslint-disable-next-line */
 	screen,
+	/* eslint-disable-next-line */
+	waitFor,
 } from "@solidjs/testing-library";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -45,9 +49,84 @@ describe.sequential("<DatePicker />", () => {
 		expect(onInput).toBeCalledTimes(1);
 	});
 
-	it.todo("ref can be focused");
+	it("ref can be focused", async () => {
+		let ref: HTMLInputElement | undefined;
 
-	it.todo("ref can be clicked");
+		render(() => (
+			<DatePicker
+				ref={element => {
+					ref = element;
+				}}>
+				<DatePickerControl>
+					<DatePickerInput data-testid="datepicker-input" />
 
-	it.todo("ref can be blurred");
+					<DatePickerTrigger data-testid="datepicker-trigger" />
+				</DatePickerControl>
+			</DatePicker>
+		));
+
+		expect(ref).toBeTruthy();
+		ref?.focus();
+
+		const datePickerInput =
+			await screen.findByTestId<HTMLInputElement>("datepicker-input");
+		expect(document.activeElement).toBe(datePickerInput);
+	});
+
+	it("ref can be clicked", async () => {
+		let ref: HTMLInputElement | undefined;
+
+		render(() => (
+			<DatePicker
+				ref={element => {
+					ref = element;
+				}}
+				data-testid="datepicker-root">
+				<DatePickerControl>
+					<DatePickerInput data-testid="datepicker-input" />
+
+					<DatePickerTrigger data-testid="datepicker-trigger" />
+				</DatePickerControl>
+			</DatePicker>
+		));
+
+		expect(ref).toBeTruthy();
+		fireEvent.click(ref as HTMLInputElement);
+
+		const datePickerInput =
+			await screen.findByTestId<HTMLInputElement>("datepicker-input");
+		await waitFor(() =>
+			expect(document.activeElement).toBe(datePickerInput),
+		);
+
+		const datePickerRoot = await screen.findByTestId("datepicker-root");
+		expect(datePickerRoot.getAttribute("data-state")).toBe("open");
+	});
+
+	it("ref can be blurred", async () => {
+		let ref: HTMLInputElement | undefined;
+
+		render(() => (
+			<DatePicker
+				ref={element => {
+					ref = element;
+				}}>
+				<DatePickerControl>
+					<DatePickerInput data-testid="datepicker-input" />
+
+					<DatePickerTrigger data-testid="datepicker-trigger" />
+				</DatePickerControl>
+			</DatePicker>
+		));
+
+		expect(ref).toBeTruthy();
+		fireEvent.focus(ref as HTMLInputElement);
+
+		const datePickerInput =
+			await screen.findByTestId<HTMLInputElement>("datepicker-input");
+		expect(document.activeElement).toBe(datePickerInput);
+
+		fireEvent.blur(ref as HTMLInputElement);
+		expect(document.activeElement).not.toBe(datePickerInput);
+	});
 });
