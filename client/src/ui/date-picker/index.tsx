@@ -443,16 +443,16 @@ export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
 			getDatePickerTriggerSelector(inputRef),
 		);
 
-		// const datePickerState = datePickerRoot?.getAttribute("data-state");
+		const datePickerState = datePickerRoot?.getAttribute("data-state");
 
-		// if (datePickerState === "open") {
-		// 	return;
-		// }
+		if (datePickerState === "open") {
+			return;
+		}
 
-		// triggerElement?.click();
-		// setTimeout(() => {
-		// 	inputRef.focus();
-		// }, 100);
+		triggerElement?.click();
+		setTimeout(() => {
+			inputRef.focus();
+		}, 100);
 	};
 
 	return (
