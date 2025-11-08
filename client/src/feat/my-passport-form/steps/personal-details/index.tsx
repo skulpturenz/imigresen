@@ -16,7 +16,7 @@ import {
 	ComboboxItem,
 	ComboboxTrigger,
 } from "ui/combobox";
-import { ModularFormsDateRangePicker } from "ui/date-picker/modular-forms-date-range-picker";
+import { SingleDatePicker } from "ui/date-picker/single-date-picker";
 import { Label } from "ui/label";
 import {
 	Select,
@@ -437,13 +437,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									</Label>
 
-									<ModularFormsDateRangePicker
-										form={props.form}
-										// TODO: error message
-										{...field}
+									<SingleDatePicker
 										{...fieldProps}
-										/// @ts-expect-error: expects a div not an input
-										ref={fieldProps.ref}
+										value={field.value}
 										placeholder={t(
 											"form.personalDetails.dateOfBirth.placeholder",
 										)}

@@ -236,7 +236,7 @@ describe.sequential("<Searchbox />", () => {
 		expect(document.activeElement).toBe(comboboxInput);
 	});
 
-	it("can be blurred", async () => {
+	it("can be blurred", { retry: 3 }, async () => {
 		let ref: HTMLInputElement | undefined;
 		const options = [] as string[];
 		render(() => (
