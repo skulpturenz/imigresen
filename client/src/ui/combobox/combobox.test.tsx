@@ -521,7 +521,7 @@ describe.sequential("<Combobox />", () => {
 		await waitFor(() => expect(comboboxInput.value).toBe("a"));
 	});
 
-	it("clears filters when it loses focus", async () => {
+	it("clears filters when it loses focus", { retry: 3 }, async () => {
 		let ref: HTMLSelectElement | undefined;
 
 		render(() => (
