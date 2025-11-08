@@ -52,6 +52,9 @@ describe.sequential("<DatePicker />", () => {
 			expect(onValueChange).toBeCalledTimes(1);
 		});
 
+		// TODO: sometimes the `toDate` has the right year but another event is emitted with the
+		// wrong year, it is `9999` instead of `2025`
+		// unsure what causes it but hasn't happened so far in SB
 		it("range", { retry: 3 }, async () => {
 			const onInput = vi.fn();
 			const onValueChange = vi.fn();
@@ -84,9 +87,7 @@ describe.sequential("<DatePicker />", () => {
 			await userEvent.type(fromDatePickerInput, "01/01/2025");
 			await userEvent.click(document.body);
 
-			// all inputs emit an event when any changed
-			// at least, sometimes there's more
-			expect(onInput).toBeCalledTimes(2);
+			expect(onInput).toBeCalledTimes(2); // all inputs emit an event when any changed
 
 			const toDatePickerInput =
 				await screen.findByTestId<HTMLInputElement>(
@@ -96,13 +97,8 @@ describe.sequential("<DatePicker />", () => {
 			await userEvent.type(toDatePickerInput, "01/12/2025");
 			await userEvent.click(document.body);
 
-			// all inputs emit an event when any changed
-			// at least, sometimes there's more
-			expect(onInput).toBeCalledTimes(4);
+			expect(onInput).toBeCalledTimes(4); // all inputs emit an event when any changed
 
-			// TODO: sometimes the `toDate` has the right year but another event is emitted with the
-			// wrong year, it is `9999` instead of `2025`
-			console.log(JSON.stringify(onValueChange.mock.calls, null, 2));
 			expect(onValueChange).toBeCalledTimes(2);
 		});
 	});
