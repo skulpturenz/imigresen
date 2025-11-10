@@ -15,7 +15,7 @@
 		"test.watch": "vitest --watch"
 	},
 	"dependencies": {
-		"@ark-ui/solid": "^5.18.2",
+		"@ark-ui/solid": "^5.27.1",
 		"@automerge/automerge-repo": "^2.1.0",
 		"@automerge/automerge-repo-network-websocket": "^2.1.0",
 		"@automerge/automerge-repo-storage-indexeddb": "^2.1.0",
