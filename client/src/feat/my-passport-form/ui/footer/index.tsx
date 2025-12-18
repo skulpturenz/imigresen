@@ -14,6 +14,7 @@ export interface FooterProps {
 	isMutating?: Accessor<boolean>;
 }
 
+const FIRST_STEP = Step.PersonalDetails;
 const LAST_STEP = Step.Declaration;
 
 export const MobileFooter: Component<FooterProps> = props => {
@@ -26,13 +27,15 @@ export const MobileFooter: Component<FooterProps> = props => {
 		<div
 			// `isVerySmall`
 			class="flex-col sm:hidden space-y-4 mb-4">
-			<Button
-				variant="secondary"
-				class="w-full"
-				onClick={props.onClickBack}
-				disabled={props.isMutating?.()}>
-				{t("doBack")}
-			</Button>
+			<Show when={!isCurrentStep(location, FIRST_STEP)}>
+				<Button
+					variant="secondary"
+					class="w-full"
+					onClick={props.onClickBack}
+					disabled={props.isMutating?.()}>
+					{t("doBack")}
+				</Button>
+			</Show>
 
 			<Show when={!isCurrentStep(location, LAST_STEP)}>
 				<Button
@@ -90,12 +93,15 @@ export const DefaultFooter: Component<FooterProps> = props => {
 					disabled={props.isMutating?.() || !routeParams.uuid}>
 					{t("doDelete")}
 				</Button>
-				<Button
-					variant="secondary"
-					onClick={props.onClickBack}
-					disabled={props.isMutating?.()}>
-					{t("doBack")}
-				</Button>
+
+				<Show when={!isCurrentStep(location, FIRST_STEP)}>
+					<Button
+						variant="secondary"
+						onClick={props.onClickBack}
+						disabled={props.isMutating?.()}>
+						{t("doBack")}
+					</Button>
+				</Show>
 			</div>
 
 			<Show when={!isCurrentStep(location, LAST_STEP)}>
