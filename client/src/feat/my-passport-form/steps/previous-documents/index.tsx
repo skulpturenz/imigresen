@@ -10,6 +10,7 @@ import { Label } from "ui/label";
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -62,6 +63,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}
@@ -95,6 +100,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}
@@ -132,6 +141,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 											)}
 										</TextFieldDescription>
 									</Show>
+
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
 								</TextFieldRoot>
 							</div>
 						)}
@@ -167,6 +180,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}

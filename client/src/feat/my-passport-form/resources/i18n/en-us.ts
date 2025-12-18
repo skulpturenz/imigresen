@@ -134,7 +134,6 @@ export const resources = {
 			countryCode: {
 				label: "Country",
 				placeholder: "",
-				description: "Autocorrected to a valid country",
 			},
 		} satisfies Record<keyof AddressDetails, any>,
 		applicationDetails: {

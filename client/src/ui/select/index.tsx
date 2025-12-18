@@ -1,3 +1,4 @@
+import type { FormControlErrorMessageProps } from "@kobalte/core";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import {
 	Select as SelectPrimitive,
@@ -16,6 +17,7 @@ import {
 	type ParentProps,
 	type ValidComponent,
 } from "solid-js";
+import { label } from "ui/label";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -52,7 +54,11 @@ export const Select = <
 	]);
 
 	return (
-		<SelectPrimitive {...others} value={value()} onChange={setValue}>
+		<SelectPrimitive
+			{...others}
+			value={value()}
+			onChange={setValue}
+			class={cn(props.class, "space-y-4 flex flex-col")}>
 			{props.children}
 			<SelectPrimitive.HiddenSelect {...selectProps} />
 		</SelectPrimitive>
@@ -63,7 +69,15 @@ export const SelectValue = SelectPrimitive.Value;
 
 export const SelectDescription = SelectPrimitive.Description;
 
-export const SelectErrorMessage = SelectPrimitive.ErrorMessage;
+export const SelectErrorMessage = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, FormControlErrorMessageProps<T>>,
+) => (
+	<SelectPrimitive.ErrorMessage
+		{...spreadProps(props)}
+		ref={props.ref}
+		class={cn(label({ error: true }), props.class)}
+	/>
+);
 
 export const SelectItemDescription = SelectPrimitive.ItemDescription;
 
@@ -82,6 +96,8 @@ export const SelectTrigger = <T extends ValidComponent = "button">(
 			"px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none",
 			"focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed",
 			"disabled:opacity-50 [&>span]:line-clamp-1 transition-shadow relative",
+			"data-[invalid]:animate-headShake disabled:data-[invalid]:animate-none data-[invalid]:border-destructive",
+			"data-[invalid]:text-destructive data-[invalid]:border data-[invalid]:placeholder-destructive",
 			props.class,
 		)}>
 		{props.children}

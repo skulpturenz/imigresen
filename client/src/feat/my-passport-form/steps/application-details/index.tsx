@@ -15,6 +15,7 @@ import {
 	Select,
 	SelectClearSelection,
 	SelectContent,
+	SelectErrorMessage,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
@@ -22,6 +23,7 @@ import {
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -89,7 +91,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger>
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -113,6 +118,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent />
+
+									<SelectErrorMessage>
+										{field.error}
+									</SelectErrorMessage>
 								</Select>
 							</InputGroup>
 						</>
@@ -152,7 +161,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 											<SelectItem item={props.item}>
 												{props.item.rawValue.label}
 											</SelectItem>
-										)}>
+										)}
+										validationState={
+											field.error ? "invalid" : "valid"
+										}>
 										<SelectTrigger>
 											<SelectValue<
 												Option<string, string>
@@ -178,6 +190,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 											</SelectValue>
 										</SelectTrigger>
 										<SelectContent />
+
+										<SelectErrorMessage>
+											{field.error}
+										</SelectErrorMessage>
 									</Select>
 								</InputGroup>
 							</>
@@ -208,6 +224,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										"form.applicationDetails.myKadNumber.placeholder",
 									)}
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -242,6 +262,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										"form.applicationDetails.birthDocumentNumber.description",
 									)}
 								</TextFieldDescription>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}

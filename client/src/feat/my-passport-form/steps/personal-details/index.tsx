@@ -4,7 +4,6 @@ import { useI18n } from "core/context/i18n";
 import { localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { type Option, type StepProps } from "feat/my-passport-form/types";
-import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { Show, type Component } from "solid-js";
@@ -250,7 +249,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger class="w-full">
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -316,7 +318,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger class="w-full">
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -458,109 +463,80 @@ export const PersonalDetails: Component<StepProps> = props => {
 					type="string">
 					{(field, fieldProps) => (
 						<>
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
+							<InputGroup>
+								<Label>
 									{t(
 										"form.personalDetails.countryOfBirthCode.label",
-									)}
-								</TextFieldLabel>
-
-								<AutocorrectTextField
-									// TODO: need to revisit
-									{...field}
-									{...fieldProps}
-									form={props.form}
-									name={field.name}
-									value={field.value || ""}
-									autocomplete="country-name"
-									placeholder={t(
-										"form.personalDetails.countryOfBirthCode.placeholder",
-									)}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.countryOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
-								/>
-
-								<TextFieldDescription>
-									{t(
-										"form.personalDetails.countryOfBirthCode.description",
-									)}
-								</TextFieldDescription>
-
-								<TextFieldErrorMessage>
-									{field.error}
-								</TextFieldErrorMessage>
-							</TextFieldRoot>
-						</>
-					)}
-				</props.Field>
-			</div>
-
-			<props.Field name="personalDetails.stateOfBirth">
-				{(field, fieldProps) => {
-					// TODO: error message
-					return (
-						<>
-							<InputGroup>
-								<Label
-									info={t(
-										"form.personalDetails.stateOfBirth.info",
-									)}>
-									{t(
-										"form.personalDetails.stateOfBirth.label",
 									)}
 								</Label>
 
 								<Combobox
 									{...fieldProps}
-									options={
-										props.dropdownOptions()
-											?.personalDetailsStateOptions ?? []
-									}
-									groupSort={localeAsc}
 									value={field.value}
-									allowCustomValue
-									placeholder={t(
-										"form.personalDetails.stateOfBirth.placeholder",
-									)}>
+									options={Object.values<string>(
+										props.dropdownOptions()
+											?.countryOptions ??
+											Object.create(null),
+									).sort(localeAsc)}
+									onInput={fieldProps.onInput}
+									invalid={Boolean(field.error)}>
 									<ComboboxTrigger>
 										<ComboboxInput>
 											<ComboboxClearSelection />
 										</ComboboxInput>
 									</ComboboxTrigger>
 
-									<ComboboxContent<string>>
-										{(item, isNewOptionValue) => {
-											if (isNewOptionValue(item)) {
-												return (
-													<ComboboxItem item={item}>
-														+ Create {item}
-													</ComboboxItem>
-												);
-											}
-
-											return (
-												<ComboboxItem item={item}>
-													{item}
-												</ComboboxItem>
-											);
-										}}
+									<ComboboxContent>
+										{(item: string) => (
+											<ComboboxItem item={item}>
+												{item}
+											</ComboboxItem>
+										)}
 									</ComboboxContent>
 								</Combobox>
+							</InputGroup>
+						</>
+					)}
+				</props.Field>
+			</div>
+
+			<props.Field name="personalDetails.stateOfBirth">
+				{(field, props) => {
+					return (
+						<>
+							<TextFieldRoot
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
+								<TextFieldLabel info="form.personalDetails.stateOfBirth.info">
+									{t(
+										"form.personalDetails.stateOfBirth.label",
+									)}
+								</TextFieldLabel>
+
+								<TextField
+									{...props}
+									name={field.name}
+									value={field.value ?? ""}
+									placeholder={t(
+										"form.personalDetails.stateOfBirth.placeholder",
+									)}
+									type="text"
+									autocomplete="address-level3"
+								/>
 
 								<Show when={!styles.device.hasHover()}>
-									<Label description>
+									<TextFieldDescription>
 										{t(
 											"form.personalDetails.stateOfBirth.info",
 										)}
-									</Label>
+									</TextFieldDescription>
 								</Show>
-							</InputGroup>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
+							</TextFieldRoot>
 						</>
 					);
 				}}

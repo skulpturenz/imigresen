@@ -4,10 +4,16 @@ import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { RequestType, type StepProps } from "feat/my-passport-form/types";
 import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import type { Component } from "solid-js";
-import { Checkbox, CheckboxControl, CheckboxLabel } from "ui/checkbox";
+import {
+	Checkbox,
+	CheckboxControl,
+	CheckboxErrorMessage,
+	CheckboxLabel,
+} from "ui/checkbox";
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -57,6 +63,10 @@ export const Declaration: Component<StepProps> = props => {
 									"form.declaration.confirmPreviousDocumentNumber.description",
 								)}
 							</TextFieldDescription>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					)}
 				</props.Field>
@@ -70,7 +80,10 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4">
+								class="flex items-center gap-4"
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
 								<CheckboxControl
 									{...fieldProps}
 									/// @ts-expect-error: TODO component fixes sweep
@@ -84,6 +97,10 @@ export const Declaration: Component<StepProps> = props => {
 										isRequestForDependent(),
 									)}
 								</CheckboxLabel>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
@@ -100,7 +117,10 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4">
+								class="flex items-center gap-4"
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
 								<CheckboxControl
 									{...fieldProps}
 									/// @ts-expect-error: TODO component fixes sweep
@@ -119,6 +139,10 @@ export const Declaration: Component<StepProps> = props => {
 										"form.declaration.declareTrueAndCorrect.label",
 									).at(1)}
 								</CheckboxLabel>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
@@ -133,7 +157,10 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4">
+								class="flex items-center gap-4"
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
 								<CheckboxControl
 									{...fieldProps}
 									/// @ts-expect-error: TODO component fixes sweep
@@ -144,6 +171,10 @@ export const Declaration: Component<StepProps> = props => {
 								<CheckboxLabel class="font-medium">
 									{t("form.declaration.isLiable.label")}
 								</CheckboxLabel>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
