@@ -1,4 +1,4 @@
-import { Index, splitProps, type Component } from "solid-js";
+import { Index, splitProps, type Component, type ParentProps } from "solid-js";
 import { Portal } from "solid-js/web";
 import {
 	DatePicker,
@@ -34,7 +34,9 @@ export interface SingleDatePickerProps
 	};
 }
 
-export const SingleDatePicker: Component<SingleDatePickerProps> = props => {
+export const SingleDatePicker: Component<
+	ParentProps<SingleDatePickerProps>
+> = props => {
 	const [inputProps, testing, rest] = splitProps(
 		props,
 		["placeholder", "autocomplete"],
@@ -187,6 +189,8 @@ export const SingleDatePicker: Component<SingleDatePickerProps> = props => {
 					</DatePickerContent>
 				</DatePickerPositioner>
 			</Portal>
+
+			{props.children}
 		</DatePicker>
 	);
 };

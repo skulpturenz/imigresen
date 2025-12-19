@@ -16,6 +16,7 @@ import {
 	ComboboxItem,
 	ComboboxTrigger,
 } from "ui/combobox";
+import { DatePickerErrorMessage } from "ui/date-picker";
 import { SingleDatePicker } from "ui/date-picker/single-date-picker";
 import { Label } from "ui/label";
 import {
@@ -450,7 +451,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 											"form.personalDetails.dateOfBirth.placeholder",
 										)}
 										autocomplete="bday"
-									/>
+										invalid={Boolean(field.error)}>
+										<DatePickerErrorMessage>
+											{field.error}
+										</DatePickerErrorMessage>
+									</SingleDatePicker>
 								</InputGroup>
 							</>
 						)}

@@ -23,17 +23,22 @@ import { format } from "date-fns";
 import { memoize } from "es-toolkit";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-solid";
 import {
+	createEffect,
 	createMemo,
 	createSignal,
 	createUniqueId,
 	For,
 	mergeProps,
 	splitProps,
+	type ComponentProps,
 	type JSX,
+	type ParentProps,
 	type Ref,
+	type ValidComponent,
 	type VoidProps,
 } from "solid-js";
 import { buttonVariants } from "ui/button";
+import { label } from "ui/label";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -72,6 +77,7 @@ export interface DatePickerBaseProps
 		> {
 	value?: Date | Date[] | null;
 	onValueChange?: (details: DatePickerValueChangeDetails) => void;
+	invalid?: boolean;
 }
 
 export interface SingleDatePickerProps extends DatePickerBaseProps {
@@ -224,6 +230,42 @@ export const DatePicker = (props: DatePickerProps) => {
 		inputElement?.blur();
 	};
 
+	createEffect(() => {
+		const inputElements = document.querySelectorAll<HTMLInputElement>(
+			getDatePickerInputSelector(rootRef),
+		);
+
+		const INVALID_ATTR = "data-invalid";
+
+		if (others.invalid) {
+			rootRef.setAttribute(INVALID_ATTR, "true");
+			inputElements.forEach(element => {
+				element.setAttribute(INVALID_ATTR, "true");
+			});
+		} else {
+			rootRef.removeAttribute(INVALID_ATTR);
+			inputElements.forEach(element => {
+				element.removeAttribute(INVALID_ATTR);
+			});
+		}
+	});
+
+	createEffect(() => {
+		const errorMessageElements = rootRef.querySelectorAll<HTMLDivElement>(
+			'[data-part="error-message"]',
+		);
+
+		if (others.invalid) {
+			errorMessageElements.forEach(element => {
+				element.style.display = "block";
+			});
+		} else {
+			errorMessageElements.forEach(element => {
+				element.style.display = "none";
+			});
+		}
+	});
+
 	return (
 		<DatePickerPrimitive.Root
 			{...others}
@@ -237,7 +279,8 @@ export const DatePicker = (props: DatePickerProps) => {
 			format={formatDate}
 			/// @ts-expect-error: expects `undefined` instead of `null`
 			value={value()}
-			onValueChange={onChange}>
+			onValueChange={onChange}
+			class={cn("flex flex-col space-y-4")}>
 			{props.children}
 
 			<For each={Object.values(hiddenDateInputIds())}>
@@ -464,6 +507,8 @@ export const DatePickerInput = (props: Omit<DatePickerInputProps, "ref">) => {
 				"w-full h-10 border border-border focus-visible:border-border bg-background px-3 py-1 text-sm text-foreground",
 				"placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
 				"focus-visible:ring-offset-background focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-shadow",
+				"data-[invalid]:animate-headShake disabled:data-[invalid]:animate-none data-[invalid]:border-destructive",
+				"data-[invalid]:text-destructive data-[invalid]:border data-[invalid]:placeholder-destructive",
 				props.class,
 			)}
 		/>
@@ -483,4 +528,15 @@ export const DatePickerTrigger = (props: DatePickerTriggerProps) => (
 			<span class="sr-only">{resources.triggerSrOnly}</span>
 		</CalendarDays>
 	</DatePickerPrimitive.Trigger>
+);
+
+export const DatePickerErrorMessage = <T extends ValidComponent = "div">(
+	props: ParentProps<ComponentProps<T>>,
+) => (
+	<div
+		data-part="error-message"
+		{...spreadProps(props)}
+		ref={props.ref}
+		class={cn(label({ error: true }), props.class)}
+	/>
 );
