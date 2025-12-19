@@ -246,6 +246,7 @@ export const Combobox = <TCollectionItem,>(
 		setValue(details.value);
 
 		selectRef?.dispatchEvent(new Event("input", { bubbles: true }));
+		selectRef?.dispatchEvent(new Event("change", { bubbles: true }));
 		props.onValueChange?.(details);
 	};
 

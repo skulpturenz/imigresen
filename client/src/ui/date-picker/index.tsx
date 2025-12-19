@@ -185,6 +185,7 @@ export const DatePicker = (props: DatePickerProps) => {
 
 		hiddenDateInputRefs.forEach(element => {
 			element?.dispatchEvent(new Event("input", { bubbles: true }));
+			element?.dispatchEvent(new Event("change", { bubbles: true }));
 		});
 		props.onValueChange?.(details);
 	};
