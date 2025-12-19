@@ -1,11 +1,14 @@
 import {
 	type CheckboxControlProps,
+	type CheckboxErrorMessageProps,
 	Checkbox as CheckboxPrimitive,
+	type CheckboxRootProps,
 } from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { Check } from "lucide-solid";
-import type { ValidComponent } from "solid-js";
+import type { JSX, ParentProps, ValidComponent } from "solid-js";
+import { label } from "ui/label";
 import { cn } from "ui/utils";
 
 const resources = {
@@ -14,9 +17,29 @@ const resources = {
 
 export const CheckboxLabel = CheckboxPrimitive.Label;
 
-export const Checkbox = CheckboxPrimitive;
+export const Checkbox = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, CheckboxRootProps<T>>,
+) => {
+	return (
+		<CheckboxPrimitive
+			{...spreadProps(props)}
+			class={cn("flex flex-col space-y-4", props.class)}>
+			{props.children}
+		</CheckboxPrimitive>
+	);
+};
 
-export const CheckboxErrorMessage = CheckboxPrimitive.ErrorMessage;
+export const CheckboxErrorMessage = <T extends ValidComponent = "div">(
+	props: PolymorphicProps<T, CheckboxErrorMessageProps<T>>,
+) => {
+	return (
+		<CheckboxPrimitive.ErrorMessage
+			{...spreadProps(props)}
+			class={cn(label({ error: true }), props.class)}>
+			{props.children}
+		</CheckboxPrimitive.ErrorMessage>
+	);
+};
 
 export const CheckboxDescription = CheckboxPrimitive.Description;
 
@@ -44,4 +67,13 @@ export const CheckboxControl = <T extends ValidComponent = "div">(
 			</CheckboxPrimitive.Indicator>
 		</CheckboxPrimitive.Control>
 	</>
+);
+
+export const CheckboxInputGroup = (
+	props: ParentProps<JSX.HTMLAttributes<HTMLDivElement>>,
+) => (
+	<div
+		{...spreadProps(props)}
+		class={cn("flex items-center gap-4", props.class)}
+	/>
 );

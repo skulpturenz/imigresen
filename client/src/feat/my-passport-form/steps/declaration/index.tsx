@@ -8,6 +8,7 @@ import {
 	Checkbox,
 	CheckboxControl,
 	CheckboxErrorMessage,
+	CheckboxInputGroup,
 	CheckboxLabel,
 } from "ui/checkbox";
 import {
@@ -80,23 +81,24 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4"
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										/// @ts-expect-error: TODO component fixes sweep
+										ref={fieldProps.ref}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t(
-										"form.declaration.isDetailsCorrect.label",
-										isRequestForDependent(),
-									)}
-								</CheckboxLabel>
+									<CheckboxLabel class="font-medium">
+										{t(
+											"form.declaration.isDetailsCorrect.label",
+											isRequestForDependent(),
+										)}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
 
 								<CheckboxErrorMessage>
 									{field.error}
@@ -117,28 +119,29 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4"
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										/// @ts-expect-error: TODO component fixes sweep
+										ref={fieldProps.ref}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t(
-										"form.declaration.declareTrueAndCorrect.label",
-									).at(0)}
+									<CheckboxLabel class="font-medium">
+										{t(
+											"form.declaration.declareTrueAndCorrect.label",
+										).at(0)}
 
-									<br />
+										<br />
 
-									{t(
-										"form.declaration.declareTrueAndCorrect.label",
-									).at(1)}
-								</CheckboxLabel>
+										{t(
+											"form.declaration.declareTrueAndCorrect.label",
+										).at(1)}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
 
 								<CheckboxErrorMessage>
 									{field.error}
@@ -157,20 +160,22 @@ export const Declaration: Component<StepProps> = props => {
 								{...field}
 								name={field.name}
 								checked={value}
-								class="flex items-center gap-4"
+								class="flex flex-col space-y-4"
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										/// @ts-expect-error: TODO component fixes sweep
+										ref={fieldProps.ref}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t("form.declaration.isLiable.label")}
-								</CheckboxLabel>
+									<CheckboxLabel class="font-medium">
+										{t("form.declaration.isLiable.label")}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
 
 								<CheckboxErrorMessage>
 									{field.error}
