@@ -11,6 +11,7 @@ import {
 	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
+	ComboboxErrorMessage,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
@@ -493,6 +494,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 											</ComboboxItem>
 										)}
 									</ComboboxContent>
+
+									<ComboboxErrorMessage>
+										{field.error}
+									</ComboboxErrorMessage>
 								</Combobox>
 							</InputGroup>
 						</>
