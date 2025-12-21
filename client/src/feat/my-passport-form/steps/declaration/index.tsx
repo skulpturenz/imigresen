@@ -78,7 +78,6 @@ export const Declaration: Component<StepProps> = props => {
 					{({ value, ...field }, fieldProps) => (
 						<>
 							<Checkbox
-								{...field}
 								name={field.name}
 								checked={value}
 								validationState={
@@ -87,8 +86,6 @@ export const Declaration: Component<StepProps> = props => {
 								<CheckboxInputGroup>
 									<CheckboxControl
 										{...fieldProps}
-										/// @ts-expect-error: TODO component fixes sweep
-										ref={fieldProps.ref}
 										class="self-start mt-1.5"
 									/>
 
@@ -125,8 +122,6 @@ export const Declaration: Component<StepProps> = props => {
 								<CheckboxInputGroup>
 									<CheckboxControl
 										{...fieldProps}
-										/// @ts-expect-error: TODO component fixes sweep
-										ref={fieldProps.ref}
 										class="self-start mt-1.5"
 									/>
 
@@ -167,8 +162,6 @@ export const Declaration: Component<StepProps> = props => {
 								<CheckboxInputGroup>
 									<CheckboxControl
 										{...fieldProps}
-										/// @ts-expect-error: TODO component fixes sweep
-										ref={fieldProps.ref}
 										class="self-start mt-1.5"
 									/>
 
