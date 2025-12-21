@@ -9,6 +9,7 @@ import {
 } from "@modular-forms/solid";
 import {
 	useBeforeLeave,
+	useLocation,
 	useNavigate,
 	useParams,
 	useSearchParams,
@@ -75,6 +76,8 @@ export const useMyPassportForm = () => {
 
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
+	const location = useLocation();
+	const isOnboarding = () => location.pathname === `/${CoreRoute.Home}`;
 
 	const selectReferenceData = (): DropdownOptions | null => {
 		if (!qReferenceData.data) {
@@ -323,6 +326,10 @@ export const useMyPassportForm = () => {
 		event.to.toString().includes(event.from.pathname);
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -335,10 +342,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		if (
-			formContext().mode === MyPassportFormMode.Published &&
-			!form.invalid
-		) {
+		if (!form.invalid) {
 			return;
 		}
 
@@ -347,6 +351,10 @@ export const useMyPassportForm = () => {
 	});
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -377,6 +385,10 @@ export const useMyPassportForm = () => {
 	});
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
@@ -431,6 +443,10 @@ export const useMyPassportForm = () => {
 	};
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -453,6 +469,24 @@ export const useMyPassportForm = () => {
 		event.preventDefault();
 
 		registerNewForm().then(proceed);
+	});
+
+	// TODO: not tested yet
+	// but basically when we are in onboarding mode, disable all route leave handlers
+	// and register the form when it is first made dirty
+	// TODO: we also don't want to disable onboarding mode until it is submitted
+	// and don't want to handle onboarding as a special case on the BE so think just persisting
+	// something to local storage is enough
+	createEffect(() => {
+		if (isOnboarding()) {
+			return;
+		}
+
+		if (!isDirty()) {
+			return;
+		}
+
+		registerNewForm();
 	});
 
 	const prefillData = () => {
