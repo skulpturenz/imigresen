@@ -1,4 +1,3 @@
-import { getValue, type FieldEvent } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
 import { localeAsc } from "core/data/sort";
@@ -361,17 +360,17 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<NextRow class="col-span-1">
 				<div>
-					<props.Field
-						name="personalDetails.height"
-						type="number"
-						transform={transformNumber}>
+					<props.Field name="personalDetails.height" type="number">
 						{(field, fieldProps) => (
 							<>
 								<TextFieldRoot
 									validationState={
 										field.error ? "invalid" : "valid"
 									}>
-									<TextFieldLabel>
+									<TextFieldLabel
+										info={t(
+											"form.personalDetails.height.info",
+										)}>
 										{t("form.personalDetails.height.label")}
 									</TextFieldLabel>
 
@@ -384,43 +383,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									/>
 
-									<TextFieldDescription>
-										<Show
-											when={
-												!getValue(
-													props.form,
-													"personalDetails.height",
-												)
-											}>
-											{t(
-												"form.personalDetails.height.descriptionDefault",
-											)}
-										</Show>
-
-										<Show
-											when={isCentimetres(
-												getValue(
-													props.form,
-													"personalDetails.height",
-												) as number,
-											)}>
-											{t(
-												"form.personalDetails.height.descriptionCentimetres",
-											)}
-										</Show>
-
-										<Show
-											when={isMetres(
-												getValue(
-													props.form,
-													"personalDetails.height",
-												) as number,
-											)}>
-											{t(
-												"form.personalDetails.height.descriptionMetres",
-											)}
-										</Show>
-									</TextFieldDescription>
+									<Show when={!styles.device.hasHover()}>
+										{t("form.personalDetails.height.info")}
+									</Show>
 
 									<TextFieldErrorMessage>
 										{field.error}
@@ -553,43 +518,4 @@ export const PersonalDetails: Component<StepProps> = props => {
 			</props.Field>
 		</>
 	);
-};
-
-const isMetres = (x: number | string) => {
-	if (!x) {
-		return false;
-	}
-
-	if (Number.isNaN(Number(x))) {
-		return false;
-	}
-
-	if (Math.floor(Number(x) / 10)) {
-		return false;
-	}
-
-	return true;
-};
-
-const isCentimetres = (x: number | string) => {
-	if (!x) {
-		return false;
-	}
-
-	if (Number.isNaN(Number(x))) {
-		return false;
-	}
-
-	return !isMetres(x);
-};
-
-const transformNumber = (_: any, event: FieldEvent) => {
-	const input = event.target as HTMLInputElement;
-	const maybeNumber = Number(input.value);
-
-	if (Number.isNaN(maybeNumber)) {
-		return;
-	}
-
-	return maybeNumber;
 };

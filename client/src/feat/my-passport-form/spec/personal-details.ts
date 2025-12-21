@@ -160,6 +160,7 @@ export const personalDetails = object({
 		),
 	),
 	height: number()
+		.transform(value => value || null)
 		.min(constants.fieldConstraints.heightMin, () => {
 			const t = useI18n<typeof resources>();
 

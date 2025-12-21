@@ -87,7 +87,6 @@ export const resources = {
 			countryOfBirthCode: {
 				label: "Country of birth",
 				placeholder: "",
-				description: "Autocorrected to a valid country",
 			},
 			stateOfBirth: {
 				label: "State of birth",
@@ -97,9 +96,7 @@ export const resources = {
 			height: {
 				label: "Height",
 				placeholder: "",
-				descriptionDefault: "Centimetres or metres",
-				descriptionCentimetres: "Centimetres",
-				descriptionMetres: "Metres",
+				info: "Centimetres",
 			},
 			emailAddress: {
 				label: "Email address",

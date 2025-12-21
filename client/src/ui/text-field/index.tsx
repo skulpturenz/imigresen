@@ -43,7 +43,7 @@ export const TextFieldLabel = <T extends ValidComponent = "label">(
 		</div>
 
 		<Show when={props.info && styles.device.hasHover()}>
-			<div class="text-foreground">
+			<div class="text-foreground size-5">
 				<Tooltip>
 					<TooltipTrigger>
 						<Info class="size-[0.875rem]" />
