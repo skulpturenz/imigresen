@@ -20,6 +20,7 @@ export const CheckboxLabel = CheckboxPrimitive.Label;
 export const Checkbox = <T extends ValidComponent = "div">(
 	props: PolymorphicProps<T, CheckboxRootProps<T>>,
 ) => {
+	// TODO: need to emit event manually when input change to integrate with modular forms
 	return (
 		<CheckboxPrimitive
 			{...spreadProps(props)}
