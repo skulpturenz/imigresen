@@ -99,11 +99,11 @@ export const useMyPassportForm = () => {
 			...formContext,
 			mode: MyPassportFormMode.Published,
 		}));
-
-	// TODO: when submit
-	createEffect(() => {
-		console.log(formContext().mode);
-	});
+	const draft = () =>
+		setFormContext(formContext => ({
+			...formContext,
+			mode: MyPassportFormMode.Draft,
+		}));
 
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
 		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
@@ -256,15 +256,17 @@ export const useMyPassportForm = () => {
 		formValues,
 		_event,
 	) => {
+		if (mSubmit.isPending) {
+			return;
+		}
+
 		publish();
 
 		const isValid = await validate(form);
 
 		if (!isValid) {
-			return;
-		}
+			draft();
 
-		if (mSubmit.isPending) {
 			return;
 		}
 
