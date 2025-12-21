@@ -28,10 +28,12 @@
                                     (ds/opt :completed) boolean?
                                     (ds/opt :issued) boolean?
                                     (ds/opt :limit) number?
-                                    (ds/opt :page) number?}}
+                                    (ds/opt :page) number?
+                                    (ds/opt :im42-form-id) ::imi-im42-spec/uuid}}
                :responses {(:ok imi-routes/status-codes) {:description "Ok"
                                                           :body (s/coll-of (-> {:name ::get-im42-form
                                                                                 :status ::imi-im42-spec/status
+                                                                                :uuid ::imi-im42-spec/uuid
                                                                                 (ds/opt :automerge-url) ::imi-im42-spec/automerge-url
                                                                                 (ds/opt :completed-at) ::imi-im42-spec/maybe-offset-date
                                                                                 (ds/opt :issued-at) ::imi-im42-spec/maybe-offset-date
