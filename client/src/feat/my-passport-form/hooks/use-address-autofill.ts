@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { get, localeAsc, multiSort } from "core/data/sort";
+import { useDebug } from "core/hooks/use-debug";
 import { differenceInMinutes } from "date-fns";
 import { debounce, invariant } from "es-toolkit";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
@@ -37,6 +38,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const START_DATE = new Date();
 
 	const authnContext = useContext(AuthnContext);
+	const $debug = useDebug();
 
 	const queryClient = useQueryClient();
 
@@ -56,9 +58,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 				START_DATE,
 			);
 
-			if (!import.meta.env.PROD) {
-				console.debug("minutes elapsed", minutesElapsed);
-			}
+			$debug(console.debug)("minutes elapsed", minutesElapsed);
 
 			if (!import.meta.env.DEV && minutesElapsed >= MAX_MINUTES) {
 				return [];

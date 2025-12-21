@@ -27,6 +27,7 @@ import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
+import { useDebug } from "core/hooks/use-debug";
 import { toPath } from "core/router/utils";
 import { flattenObject, invariant, isEqualWith } from "es-toolkit";
 import { set } from "es-toolkit/compat";
@@ -63,6 +64,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const authnContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const myPassportFormContext = useContext(MyPassportFormContext);
+	const $debug = useDebug();
 
 	const navigate = useNavigate();
 
@@ -107,6 +109,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			const validate = yupForm(myPassportForm, {
 				context: formContext,
 				owner,
+				debug: $debug.isEnabled(),
 			});
 
 			/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
@@ -177,9 +180,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		// not ideal that we are performing side effects here
 		// but we don't want the page to load until we've set the initial data
 		const resetFormValues = (doc: Doc<MyPassportForm>) => {
-			if (!import.meta.env.PROD) {
-				console.debug("initialValues", doc);
-			}
+			$debug(console.debug)("initialValues", doc);
 
 			reset(form, {
 				initialValues: doc,
@@ -363,15 +364,11 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			}),
 		);
 
-		if (!import.meta.env.PROD) {
-			console.debug("form dirty fields", dirtyFields);
-		}
+		$debug(console.debug)("form dirty fields", dirtyFields);
 
 		handle()?.change(doc => {
 			Object.entries(dirtyFields).forEach(([path, value]) => {
-				if (!import.meta.env.PROD) {
-					console.debug("set", path, value);
-				}
+				$debug(console.debug)("set", path, value);
 
 				set(doc, path, value);
 			});
