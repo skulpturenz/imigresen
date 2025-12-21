@@ -460,10 +460,7 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</ComboboxTrigger>
 
 									<ComboboxContent>
-										{(item: {
-											code: string;
-											label: string;
-										}) => (
+										{(item: Option<string, string>) => (
 											<ComboboxItem item={item}>
 												{item.label}
 											</ComboboxItem>
