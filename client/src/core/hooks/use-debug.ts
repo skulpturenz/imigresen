@@ -25,7 +25,7 @@ export const useDebug = () => {
 	};
 
 	const $debug = <T extends (...args: any[]) => any>(fn: T) => {
-		if (!isDebugEnabled) {
+		if (!isDebugEnabled()) {
 			return noop as T;
 		}
 
