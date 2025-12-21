@@ -180,7 +180,15 @@ export const personalDetails = object({
 		),
 	),
 	height: number()
-		.transform(value => value || null)
+		// note: `undefined` is important here
+		// there are two validations that happen when a form is submitted:
+		// - first validation in draft mode
+		// - second validation in publish mode by the submit handler
+		//
+		// if value is transformed to `null`, then the spec throws at the first validation
+		// and when we try to submit an empty form we don't get to the second stage which shows all
+		// the required field validations
+		.transform(value => value || undefined)
 		.min(constants.fieldConstraints.heightMin, () => {
 			const t = useI18n<typeof resources>();
 

@@ -91,8 +91,7 @@ export const useMyPassportForm = () => {
 	};
 
 	const [formContext, setFormContext] = createSignal<FormContext>({
-		// TODO: change to `Draft`
-		mode: MyPassportFormMode.Published,
+		mode: MyPassportFormMode.Draft,
 		dropdownOptions: selectReferenceData,
 	});
 	const publish = () =>
@@ -100,6 +99,11 @@ export const useMyPassportForm = () => {
 			...formContext,
 			mode: MyPassportFormMode.Published,
 		}));
+
+	// TODO: when submit
+	createEffect(() => {
+		console.log(formContext().mode);
+	});
 
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
 		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
