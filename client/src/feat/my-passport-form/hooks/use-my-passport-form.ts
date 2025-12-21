@@ -309,11 +309,15 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			user: userContext().profile?.uuid,
 		});
 
-		await queryClient.refetchQueries({
-			queryKey: globalQueryKeys.getPassportApplications(
-				authnContext().keycloak?.token,
-			),
-		});
+		// if run in onboarding mode, this will cause the home page to refetch and we lose
+		// the onboarding view
+		if (!isOnboarding()) {
+			await queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			});
+		}
 
 		return uuid;
 	};
