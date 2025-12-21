@@ -399,7 +399,7 @@ export const Combobox = <TCollectionItem,>(
 
 		if (props.invalid) {
 			errorMessageElements.forEach(element => {
-				if (!element.textContent.trim()) {
+				if (!element.textContent?.trim()) {
 					element.style.display = "none";
 				}
 

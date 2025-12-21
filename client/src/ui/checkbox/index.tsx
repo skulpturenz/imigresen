@@ -24,7 +24,7 @@ export const CheckboxLabel = CheckboxPrimitive.Label;
 
 interface CheckboxProps<T extends ValidComponent = "div">
 	extends Omit<CheckboxRootProps<T>, "value"> {
-	value?: boolean;
+	value?: string | boolean;
 }
 
 export const Checkbox = <T extends ValidComponent = "div">(
