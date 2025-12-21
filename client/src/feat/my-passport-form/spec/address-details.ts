@@ -1,6 +1,6 @@
 import { useI18n } from "core/context/i18n";
 import { toRequired, whenOptions } from "core/data/yup/utils";
-import { invariant } from "es-toolkit";
+import { invariant, partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { FormContext } from "feat/my-passport-form/types";
 import { object, string } from "yup";
@@ -17,7 +17,16 @@ export const addressDetails = object({
 				return t("form.errors.alphanumeric");
 			},
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	postcode: string()
 		.matches(constants.regex.numeric, {
 			excludeEmptyString: true,
@@ -27,7 +36,16 @@ export const addressDetails = object({
 				return t("form.errors.numeric");
 			},
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	city: string()
 		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
@@ -37,7 +55,16 @@ export const addressDetails = object({
 				return t("form.errors.alphanumeric");
 			},
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	state: string()
 		.matches(constants.regex.alphanumericWithSpaces, {
 			excludeEmptyString: true,
@@ -47,7 +74,16 @@ export const addressDetails = object({
 				return t("form.errors.alphanumeric");
 			},
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	countryCode: string()
 		.test((value, testContext) => {
 			if (!value) {
@@ -69,5 +105,14 @@ export const addressDetails = object({
 
 			return true;
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 });

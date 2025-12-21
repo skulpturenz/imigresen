@@ -3,13 +3,14 @@ import { localeAsc } from "core/data/sort";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { StepProps } from "feat/my-passport-form/types";
-import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { For, type Component } from "solid-js";
 import {
+	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
+	ComboboxErrorMessage,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
@@ -60,7 +61,8 @@ export const AddressDetails: Component<StepProps> = props => {
 											onStreetAddressChange
 										}
 										onSelect={onSelectStreetAddress}
-										onClear={onClear}>
+										onClear={onClear}
+										invalid={Boolean(field.error)}>
 										<ComboboxTrigger>
 											<ComboboxInput>
 												<ComboboxClearSelection />
@@ -76,6 +78,10 @@ export const AddressDetails: Component<StepProps> = props => {
 												)}
 											</For>
 										</ComboboxContent>
+
+										<ComboboxErrorMessage>
+											{field.error}
+										</ComboboxErrorMessage>
 									</Searchbox>
 								</InputGroup>
 							</>
@@ -185,40 +191,50 @@ export const AddressDetails: Component<StepProps> = props => {
 
 			<NextRow>
 				<div>
-					<props.Field name="addressDetails.countryCode">
+					<props.Field
+						name="addressDetails.countryCode"
+						type="string">
 						{(field, fieldProps) => (
 							<>
-								<TextFieldRoot
-									validationState={
-										field.error ? "invalid" : "valid"
-									}>
-									<TextFieldLabel>
+								<InputGroup>
+									<Label>
 										{t(
 											"form.addressDetails.countryCode.label",
 										)}
-									</TextFieldLabel>
+									</Label>
 
-									<AutocorrectTextField
-										{...field}
+									<Combobox
 										{...fieldProps}
-										form={props.form}
-										name={field.name}
-										value={field.value || ""}
-										autocomplete="country-name"
-										placeholder={t(
-											"form.addressDetails.countryCode.placeholder",
-										)}
+										value={field.value}
 										options={Object.values<string>(
 											props.dropdownOptions()
 												?.countryOptions ??
 												Object.create(null),
 										).sort(localeAsc)}
-									/>
+										onInput={fieldProps.onInput}
+										invalid={Boolean(field.error)}
+										placeholder={t(
+											"form.addressDetails.countryCode.placeholder",
+										)}>
+										<ComboboxTrigger>
+											<ComboboxInput>
+												<ComboboxClearSelection />
+											</ComboboxInput>
+										</ComboboxTrigger>
 
-									<TextFieldErrorMessage>
-										{field.error}
-									</TextFieldErrorMessage>
-								</TextFieldRoot>
+										<ComboboxContent>
+											{(item: string) => (
+												<ComboboxItem item={item}>
+													{item}
+												</ComboboxItem>
+											)}
+										</ComboboxContent>
+
+										<ComboboxErrorMessage>
+											{field.error}
+										</ComboboxErrorMessage>
+									</Combobox>
+								</InputGroup>
 							</>
 						)}
 					</props.Field>

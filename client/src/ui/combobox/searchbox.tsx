@@ -14,6 +14,7 @@ import {
 	splitProps,
 	type JSX,
 } from "solid-js";
+import { cn } from "ui/utils";
 
 export interface SearchboxProps<TCollectionItem>
 	extends Omit<
@@ -261,7 +262,8 @@ export const Searchbox = <TCollectionItem,>(
 				inputValue={inputValue()}
 				onValueChange={onValueChange}
 				onInputValueChange={onInputValueChange}
-				allowCustomValue>
+				allowCustomValue
+				class={cn("flex flex-col space-y-4")}>
 				{props.children}
 
 				<input
