@@ -24,6 +24,9 @@ export const CheckboxLabel = CheckboxPrimitive.Label;
 
 interface CheckboxProps<T extends ValidComponent = "div">
 	extends Omit<CheckboxRootProps<T>, "value"> {
+	// see: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox#checked
+	// in some cases, the value is important. in other cases, not so much, we really just care about checked
+	// `MyPassportSync` is one of the cases where value is important
 	value?: string | boolean;
 }
 
