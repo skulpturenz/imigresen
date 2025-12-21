@@ -162,6 +162,8 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	// and the step the error is on is not the current step, then we jump to the earliest step with
 	// an error and focus on a field with an error
 	// TODO: ideally first field with an error
+	// TODO: some fields like select are not so easy to focus because the trigger is a button
+	// and the actual input is hidden
 	createEffect(() => {
 		const state: any = location.state;
 
@@ -173,6 +175,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
+		// note: running this async is important
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 			focus(form, state.fieldError);
