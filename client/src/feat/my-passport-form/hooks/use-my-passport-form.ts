@@ -517,7 +517,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	// and don't want to handle onboarding as a special case on the BE so think just persisting
 	// something to local storage is enough
 	createEffect(() => {
-		if (isOnboarding()) {
+		if (!isOnboarding()) {
 			return;
 		}
 
