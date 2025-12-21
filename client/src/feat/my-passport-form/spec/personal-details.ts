@@ -33,7 +33,17 @@ export const personalDetails = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	lastName: string()
 		.when(
 			whenOptions(isPublished, schema =>
@@ -59,7 +69,17 @@ export const personalDetails = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	nickName: string()
 		.max(constants.fieldConstraints.nameMaxChars, () => {
 			const t = useI18n<typeof resources>();

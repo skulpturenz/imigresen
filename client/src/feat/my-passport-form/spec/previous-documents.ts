@@ -1,5 +1,6 @@
 import { useI18n } from "core/context/i18n";
 import { toRequired, whenOptions } from "core/data/yup/utils";
+import { partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { object, string } from "yup";
 import { constants } from "./constants";
@@ -31,7 +32,17 @@ export const previousDocuments = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	dependentCaregiverLastName: string()
 		.when(
 			whenOptions(isPublished, schema =>
@@ -57,9 +68,28 @@ export const previousDocuments = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	dependentCaregiverMyKadNumber: string()
-		.when(whenOptions(isPublished, toRequired))
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		)
 		.matches(constants.regex.myKadNumber, {
 			excludeEmptyString: true,
 			message: () => {
@@ -69,7 +99,23 @@ export const previousDocuments = object({
 			},
 		}),
 	dependentCaregiverSignature: string().when(
-		whenOptions(isPublished, toRequired),
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
 	),
-	previousDocumentNumber: string().when(whenOptions(isPublished, toRequired)),
+	previousDocumentNumber: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
 });

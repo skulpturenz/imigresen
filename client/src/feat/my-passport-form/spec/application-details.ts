@@ -1,6 +1,6 @@
 import { useI18n } from "core/context/i18n";
 import { toRequired, whenOptions } from "core/data/yup/utils";
-import { invariant } from "es-toolkit";
+import { invariant, partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import type { FormContext } from "feat/my-passport-form/types";
 import { object, string } from "yup";
@@ -29,7 +29,16 @@ export const applicationDetails = object({
 
 			return true;
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	requestType: string()
 		.test((value, testContext) => {
 			if (!value) {
@@ -51,7 +60,16 @@ export const applicationDetails = object({
 
 			return true;
 		})
-		.when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	myKadNumber: string()
 		.matches(constants.regex.myKadNumber, {
 			excludeEmptyString: true,
@@ -61,6 +79,24 @@ export const applicationDetails = object({
 				return t("form.errors.invalidMyKadNumber");
 			},
 		})
-		.when(whenOptions(isPublished, toRequired)),
-	birthDocumentNumber: string().when(whenOptions(isPublished, toRequired)),
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
+	birthDocumentNumber: string().when(
+		whenOptions(
+			isPublished,
+			partialRight(toRequired, () => {
+				const t = useI18n<typeof resources>();
+
+				return t("form.errors.required");
+			}),
+		),
+	),
 });
