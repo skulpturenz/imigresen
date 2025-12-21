@@ -2,7 +2,6 @@ import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
 import {
 	createForm,
 	focus,
-	getValue,
 	getValues,
 	reset,
 	validate,
@@ -87,23 +86,9 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const location = useLocation();
 	const isOnboarding = () => location.pathname === `/${CoreRoute.Home}`;
 
-	const selectReferenceData = (): DropdownOptions | null => {
-		if (!qReferenceData.data) {
-			return null;
-		}
-
-		return {
-			...qReferenceData.data,
-			personalDetailsStateOptions:
-				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
-			addressDetailsStateOptions:
-				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
-		};
-	};
-
 	const [formContext, setFormContext] = createSignal<FormContext>({
 		mode: MyPassportFormMode.Draft,
-		dropdownOptions: selectReferenceData,
+		dropdownOptions: () => qReferenceData.data ?? null,
 	});
 	const publish = () =>
 		setFormContext(formContext => ({
@@ -185,26 +170,6 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const qReferenceData = useQuery<DropdownOptions>(() => ({
 		queryKey: queryKeys.getReferenceData(authnContext().keycloak?.token),
 		queryFn: myPassportFormContext.getReferenceData,
-		staleTime: Infinity,
-	}));
-
-	const qReferenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
-		staleTime: Infinity,
-	}));
-
-	const qReferenceDataAddressDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "addressDetails.countryCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
 		staleTime: Infinity,
 	}));
 
@@ -320,6 +285,25 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		navigate(toPath(CoreRoute.Home));
 	};
 
+	const registerNewForm = async () => {
+		const automergeUrl = handle()?.url;
+
+		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
+
+		const uuid = await mRegister.mutateAsync({
+			automergeUrl: automergeUrl,
+			user: userContext().profile?.uuid,
+		});
+
+		await queryClient.refetchQueries({
+			queryKey: globalQueryKeys.getPassportApplications(
+				authnContext().keycloak?.token,
+			),
+		});
+
+		return uuid;
+	};
+
 	const onSubmit: SubmitHandler<MyPassportForm> = async (
 		formValues,
 		_event,
@@ -347,15 +331,22 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			"Automerge URL for existing document is not defined, check `handle`",
 		);
 
-		await mSubmit.mutateAsync({
-			// TODO: there is a new case here
-			// submitting immediately without saving as draft
-			// need to disable before leave handler for this case and register when submitting
-			uuid: routeParams.uuid as string,
-			user,
-			automergeUrl,
-			formValues,
-		});
+		if (routeParams.uuid) {
+			await mSubmit.mutateAsync({
+				uuid: routeParams.uuid as string,
+				user,
+				automergeUrl,
+				formValues,
+			});
+		} else {
+			await mSubmit.mutateAsync({
+				uuid: await registerNewForm(),
+				user,
+				automergeUrl,
+				formValues,
+			});
+		}
+
 		reset(form);
 
 		navigate(toPath(CoreRoute.Home));
@@ -490,25 +481,8 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		refetchPassportApplications().then(proceed);
 	});
 
-	const registerNewForm = async () => {
-		const automergeUrl = handle()?.url;
-
-		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
-
-		await mRegister.mutateAsync({
-			automergeUrl: automergeUrl,
-			user: userContext().profile?.uuid,
-		});
-
-		await queryClient.refetchQueries({
-			queryKey: globalQueryKeys.getPassportApplications(
-				authnContext().keycloak?.token,
-			),
-		});
-	};
-
 	useBeforeLeave(event => {
-		if (isOnboarding()) {
+		if (isOnboarding() || mRegister.isSuccess) {
 			return;
 		}
 
@@ -548,6 +522,10 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		}
 
 		if (!isDirty()) {
+			return;
+		}
+
+		if (mRegister.isSuccess) {
 			return;
 		}
 
@@ -604,7 +582,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 
 	return {
 		data: {
-			referenceData: selectReferenceData,
+			referenceData: () => qReferenceData.data ?? null,
 		},
 		show,
 		toggleDeleteFrictionDialog,

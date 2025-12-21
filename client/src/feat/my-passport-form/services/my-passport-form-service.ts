@@ -90,16 +90,9 @@ export const myPassportFormService = (token?: string) => {
 			genderOptions,
 			relationshipStatusOptions,
 			countryOptions,
-			personalDetailsStateOptions: [] as string[], // TODO
-			addressDetailsStateOptions: [] as string[], // TODO
 			requestTypeOptions,
 			documentTypeOptions,
 		};
-	};
-
-	// TODO
-	const getReferenceDataStates = async ({ queryKey: _queryKey }: any) => {
-		return [] as string[];
 	};
 
 	const putIm42 = async ({
@@ -121,7 +114,6 @@ export const myPassportFormService = (token?: string) => {
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
-		getReferenceDataStates,
 		putIm42,
 	};
 };

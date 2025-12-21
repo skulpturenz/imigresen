@@ -1,6 +1,5 @@
 import { storageKeys } from "core/constants/storage-keys";
-import { delay, invariant } from "es-toolkit";
-import { fixture as referenceDataStateFixture } from "feat/my-passport-form/chore/reference-data-states.fixture";
+import { delay } from "es-toolkit";
 import { fixture as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import type {
 	DeleteApplicationVariables,
@@ -45,24 +44,6 @@ export const myPassportFormService = (_token?: string) => {
 		return referenceDataFixture;
 	};
 
-	const getReferenceDataStates = async ({ queryKey }: any) => {
-		invariant(
-			queryKey && Array.isArray(queryKey),
-			"Expected an array for query key",
-		);
-
-		const COUNTRY_IDX = -2;
-		const country = queryKey.at(COUNTRY_IDX);
-
-		if (!country) {
-			return [];
-		}
-
-		await delay(250);
-
-		return referenceDataStateFixture;
-	};
-
 	const putIm42 = async (_variables: PutApplicationVariables) => {
 		await delay(250);
 	};
@@ -71,7 +52,6 @@ export const myPassportFormService = (_token?: string) => {
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
-		getReferenceDataStates,
 		putIm42,
 	};
 };
