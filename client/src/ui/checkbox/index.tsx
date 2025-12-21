@@ -54,7 +54,7 @@ export const CheckboxErrorMessage = <T extends ValidComponent = "div">(
 
 export const CheckboxDescription = CheckboxPrimitive.Description;
 
-export type CheckboxControlProps<T extends ValidComponent = "input"> = Omit<
+export type CheckboxControlProps<T extends ValidComponent = "div"> = Omit<
 	KBCheckboxControlProps<T>,
 	"onInput" | "onChange" | "onBlur" | "ref"
 > &
@@ -63,7 +63,7 @@ export type CheckboxControlProps<T extends ValidComponent = "input"> = Omit<
 		"onInput" | "onChange" | "onBlur" | "ref"
 	>;
 
-export const CheckboxControl = <T extends ValidComponent = "input">(
+export const CheckboxControl = <T extends ValidComponent = "div">(
 	props: PolymorphicProps<T, CheckboxControlProps<T>>,
 ) => {
 	const [inputProps, others] = splitProps(props, [
@@ -76,7 +76,7 @@ export const CheckboxControl = <T extends ValidComponent = "input">(
 	return (
 		<>
 			<CheckboxPrimitive.Input
-				// kb checkbox input doesn' have `onInput` and the `onChange` signature is different but
+				// kb checkbox input does not have `onInput` and the `onChange` signature is different but
 				// `onInput` is forwarded correctly and `onChange` is not used to get the value with modular
 				// forms, only to trigger revalidation
 				{...(inputProps as any)}
@@ -86,6 +86,7 @@ export const CheckboxControl = <T extends ValidComponent = "input">(
 				)}
 			/>
 			<CheckboxPrimitive.Control
+				// TODO: some prop error even though there shouldn't be any
 				{...(others as any)}
 				class={cn(
 					"h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-shadow focus-visible:outline-none",
