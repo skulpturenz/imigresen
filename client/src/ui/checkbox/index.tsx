@@ -1,8 +1,8 @@
 import {
 	Checkbox as CheckboxPrimitive,
-	type CheckboxControlProps,
 	type CheckboxErrorMessageProps,
 	type CheckboxRootProps,
+	type CheckboxControlProps as KBCheckboxControlProps,
 } from "@kobalte/core/checkbox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
@@ -22,13 +22,18 @@ const resources = {
 
 export const CheckboxLabel = CheckboxPrimitive.Label;
 
+interface CheckboxProps<T extends ValidComponent = "div">
+	extends Omit<CheckboxRootProps<T>, "value"> {
+	value?: boolean;
+}
+
 export const Checkbox = <T extends ValidComponent = "div">(
-	props: PolymorphicProps<T, CheckboxRootProps<T>>,
+	props: PolymorphicProps<T, CheckboxProps<T>>,
 ) => {
-	// TODO: need to emit event manually when input change to integrate with modular forms
 	return (
 		<CheckboxPrimitive
 			{...spreadProps(props)}
+			value={props.value?.toString()}
 			class={cn("flex flex-col space-y-4", props.class)}>
 			{props.children}
 		</CheckboxPrimitive>
@@ -49,11 +54,18 @@ export const CheckboxErrorMessage = <T extends ValidComponent = "div">(
 
 export const CheckboxDescription = CheckboxPrimitive.Description;
 
+export type CheckboxControlProps<T extends ValidComponent = "input"> = Omit<
+	KBCheckboxControlProps<T>,
+	"onInput" | "onChange" | "onBlur" | "ref"
+> &
+	Pick<
+		JSX.HTMLAttributes<HTMLInputElement>,
+		"onInput" | "onChange" | "onBlur" | "ref"
+	>;
+
 export const CheckboxControl = <T extends ValidComponent = "input">(
 	props: PolymorphicProps<T, CheckboxControlProps<T>>,
 ) => {
-	// TODO: putting the ref at input breaks
-	// TODO: without ref, once checked unabled to uncheck. not so sure why because an input event is emitted
 	const [inputProps, others] = splitProps(props, [
 		"onInput",
 		"onChange",
@@ -64,14 +76,17 @@ export const CheckboxControl = <T extends ValidComponent = "input">(
 	return (
 		<>
 			<CheckboxPrimitive.Input
-				{...inputProps}
+				// kb checkbox input doesn' have `onInput` and the `onChange` signature is different but
+				// `onInput` is forwarded correctly and `onChange` is not used to get the value with modular
+				// forms, only to trigger revalidation
+				{...(inputProps as any)}
 				class={cn(
 					"[&:focus-visible+div]:outline-none [&:focus-visible+div]:ring-2 [&:focus-visible+div]:ring-ring",
 					"[&:focus-visible+div]:ring-offset-2 [&:focus-visible+div]:ring-offset-background",
 				)}
 			/>
 			<CheckboxPrimitive.Control
-				{...others}
+				{...(others as any)}
 				class={cn(
 					"h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-shadow focus-visible:outline-none",
 					"focus-visible:ring-2 focus-visible:ring-ring data-[disabled]:cursor-not-allowed focus-visible:ring-offset-transparent",

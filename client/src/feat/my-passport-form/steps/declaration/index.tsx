@@ -75,11 +75,10 @@ export const Declaration: Component<StepProps> = props => {
 
 			<div class="col-span-full">
 				<props.Field name="declaration.isDetailsCorrect" type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
-								name={field.name}
-								checked={value}
+								{...field}
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
@@ -110,12 +109,10 @@ export const Declaration: Component<StepProps> = props => {
 				<props.Field
 					name="declaration.declareTrueAndCorrect"
 					type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
 								{...field}
-								name={field.name}
-								checked={value}
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
@@ -149,12 +146,10 @@ export const Declaration: Component<StepProps> = props => {
 
 			<div class="col-span-full">
 				<props.Field name="declaration.isLiable" type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
 								{...field}
-								name={field.name}
-								checked={value}
 								class="flex flex-col space-y-4"
 								validationState={
 									field.error ? "invalid" : "valid"
