@@ -2,7 +2,7 @@ import { FeatureToggles } from "core/constants/feature-toggles.enum";
 import { AuthnContext } from "core/context/authn";
 // eslint-disable-next-line no-restricted-imports
 import { FliptContext } from "core/context/flipt"; // special case of requiring import
-import { useContext } from "core/context/utils"; // for use within a render
+import { useContext } from "core/context/utils"; // for use within a render, this throws if context is not defined!
 import { noop } from "es-toolkit";
 
 export const useDebug = () => {
