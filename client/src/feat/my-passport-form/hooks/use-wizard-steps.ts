@@ -138,9 +138,9 @@ export const useWizardSteps = () => {
 	};
 };
 
-const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
+export const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
 
-const toStep = (key: string) =>
+export const toStep = (key: string) =>
 	Step[pascalCase(key) as keyof typeof Step] || null;
 
 export const isCurrentStep = (location: Location, step: Step) =>

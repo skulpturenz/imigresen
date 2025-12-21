@@ -1,4 +1,4 @@
-import type { Accessor } from "solid-js";
+import type { Accessor, Owner } from "solid-js";
 import type { ValidateOptions as YupValidateOptions } from "yup";
 
 export interface ValidateOptions<
@@ -6,4 +6,5 @@ export interface ValidateOptions<
 > extends Omit<YupValidateOptions, "context"> {
 	context: Accessor<TContext>;
 	debug?: boolean;
+	owner?: Owner | null;
 }

@@ -34,6 +34,8 @@ interface MyPassportFormProps {
 }
 
 export const MyPassportForm: Component<MyPassportFormProps> = props => {
+	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
+
 	const {
 		show,
 		data,
@@ -47,7 +49,7 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 		toggleInvalidDataDialog,
 		prefillData,
 		registerNewForm,
-	} = useMyPassportForm();
+	} = useMyPassportForm({ stepStatus });
 
 	props.ref?.({
 		registerApplication: () => {
@@ -56,8 +58,6 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 	});
 
 	const t = useI18n<typeof resources>();
-
-	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
 
 	const onClickNext = nextStep;
 	const onClickBack = previousStep;

@@ -1,6 +1,7 @@
 import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
 import {
 	createForm,
+	focus,
 	getValue,
 	getValues,
 	reset,
@@ -45,12 +46,19 @@ import {
 	createEffect,
 	createResource,
 	createSignal,
+	getOwner,
+	type Accessor,
 	type Resource,
 } from "solid-js";
+import { toHash, toStep } from "./use-wizard-steps";
 
 export type MaybeResource<T> = Resource<T> | T;
 
-export const useMyPassportForm = () => {
+export interface UseMyPassportFormProps {
+	stepStatus: Accessor<any>;
+}
+
+export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const repo = useRepo();
 	const queryClient = useQueryClient();
 	const authnContext = useContext(AuthnContext);
@@ -108,13 +116,67 @@ export const useMyPassportForm = () => {
 			mode: MyPassportFormMode.Draft,
 		}));
 
+	const owner = getOwner();
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
-		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
-		validate: yupForm(myPassportForm, {
-			context: formContext,
-		}),
+		validate: async values => {
+			const validate = yupForm(myPassportForm, {
+				context: formContext,
+				owner,
+			});
+
+			/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
+			const result = await validate(values);
+
+			const steps = new Set(
+				Object.keys(result)
+					.map(key => key.split(".").at(0))
+					.map(key => toStep(key as string)),
+			);
+
+			if (steps.size) {
+				const firstStepWithError = Math.min(...steps);
+
+				if (props.stepStatus().currentStep !== firstStepWithError) {
+					navigate(
+						[location.search, toHash(Math.min(...steps))]
+							.filter(Boolean)
+							.join(""),
+						{
+							state: {
+								// note: object key order is not guaranteed
+								// but should be fine on chrome and safari
+								fieldError: Object.keys(result).at(0),
+							},
+						},
+					);
+				}
+			}
+
+			return result;
+		},
 		validateOn: "change",
 		revalidateOn: "change",
+	});
+
+	// when the form is submitted, if there are any new validation errors in publish mode
+	// and the step the error is on is not the current step, then we jump to the earliest step with
+	// an error and focus on a field with an error
+	// TODO: ideally first field with an error
+	createEffect(() => {
+		const state: any = location.state;
+
+		if (!state) {
+			return;
+		}
+
+		if (!state.fieldError) {
+			return;
+		}
+
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			focus(form, state.fieldError);
+		});
 	});
 
 	const qReferenceData = useQuery<DropdownOptions>(() => ({
