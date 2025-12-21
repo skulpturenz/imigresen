@@ -1,8 +1,8 @@
 import { useI18n } from "core/context/i18n";
-import { localeAsc } from "core/data/sort";
+import { get, localeAsc } from "core/data/sort";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
-import type { StepProps } from "feat/my-passport-form/types";
+import type { Option, StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { For, type Component } from "solid-js";
@@ -29,9 +29,19 @@ import {
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
+	const sortOptionByLabelLocaleAsc = get((item: Option) => item.label)(
+		localeAsc,
+	);
+
+	const countryOptions = () =>
+		toOptions(
+			props.dropdownOptions()?.countryOptions ?? Object.create(null),
+		).sort(sortOptionByLabelLocaleAsc);
+
 	const { autofillOptions, onChangeOption, getOptions, onClear } =
 		useAddressAutofill({
 			form: props.form,
+			countries: countryOptions,
 		});
 
 	const onStreetAddressChange = (details: ComboboxInputValueChangeDetails) =>
@@ -206,13 +216,11 @@ export const AddressDetails: Component<StepProps> = props => {
 									<Combobox
 										{...fieldProps}
 										value={field.value}
-										options={Object.values<string>(
-											props.dropdownOptions()
-												?.countryOptions ??
-												Object.create(null),
-										).sort(localeAsc)}
+										options={countryOptions()}
 										onInput={fieldProps.onInput}
 										invalid={Boolean(field.error)}
+										itemToValue={item => item.key}
+										itemToString={item => item.label}
 										placeholder={t(
 											"form.addressDetails.countryCode.placeholder",
 										)}>
@@ -243,3 +251,6 @@ export const AddressDetails: Component<StepProps> = props => {
 		</>
 	);
 };
+
+const toOptions = (x: Record<string, any>) =>
+	Object.entries(x).map(([key, value]) => ({ key: key, label: value }));

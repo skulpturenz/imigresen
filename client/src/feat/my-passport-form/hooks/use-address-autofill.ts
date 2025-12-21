@@ -11,11 +11,12 @@ import { get, localeAsc, multiSort } from "core/data/sort";
 import { differenceInMinutes } from "date-fns";
 import { debounce, invariant } from "es-toolkit";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
-import type { MyPassportForm } from "feat/my-passport-form/types";
-import { createSignal, onCleanup } from "solid-js";
+import type { MyPassportForm, Option } from "feat/my-passport-form/types";
+import { createSignal, onCleanup, type Accessor } from "solid-js";
 
 export interface UseAddressAutofillProps {
 	form: FormStore<MyPassportForm>;
+	countries: Accessor<Option<string, string>[]>;
 }
 
 export interface AddressOption {
@@ -153,8 +154,13 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 			{
 				addressDetails: {
 					postcode: option.meta.postcode,
-					// TODO: we are referring to countries by names at the moment
-					countryCode: option.meta.country,
+					countryCode: props
+						.countries()
+						.find(
+							x =>
+								x.label.toLowerCase() ===
+								option.meta.country?.toLowerCase(),
+						)?.key,
 					state: option.meta.state,
 					city: option.meta.city,
 				},

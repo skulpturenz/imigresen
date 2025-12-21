@@ -1,11 +1,12 @@
+import { getValue } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
-import { localeAsc } from "core/data/sort";
+import { get, localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { type Option, type StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { Show, type Component } from "solid-js";
+import { Match, Show, Switch, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
@@ -38,22 +39,25 @@ import {
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const genderOptions = () => {
-		const options = Object.entries<string>(
+	const sortOptionByLabelLocaleAsc = get((item: Option) => item.label)(
+		localeAsc,
+	);
+
+	const genderOptions = () =>
+		toOptions(
 			props.dropdownOptions()?.genderOptions ?? Object.create(null),
-		).map(([code, label]) => ({ key: code, label }));
+		).sort(sortOptionByLabelLocaleAsc);
 
-		return options;
-	};
-
-	const relationshipStatusOptions = () => {
-		const options = Object.entries<string>(
+	const relationshipStatusOptions = () =>
+		toOptions(
 			props.dropdownOptions()?.relationshipStatusOptions ??
 				Object.create(null),
-		).map(([code, label]) => ({ key: code, label }));
+		).sort(sortOptionByLabelLocaleAsc);
 
-		return options;
-	};
+	const countryOptions = () =>
+		toOptions(
+			props.dropdownOptions()?.countryOptions ?? Object.create(null),
+		).sort(sortOptionByLabelLocaleAsc);
 
 	return (
 		<>
@@ -444,11 +448,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 								<Combobox
 									{...fieldProps}
 									value={field.value}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.countryOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
+									options={countryOptions()}
+									itemToValue={item => item.key}
+									itemToString={item => item.label}
 									onInput={fieldProps.onInput}
 									invalid={Boolean(field.error)}>
 									<ComboboxTrigger>
@@ -458,9 +460,12 @@ export const PersonalDetails: Component<StepProps> = props => {
 									</ComboboxTrigger>
 
 									<ComboboxContent>
-										{(item: string) => (
+										{(item: {
+											code: string;
+											label: string;
+										}) => (
 											<ComboboxItem item={item}>
-												{item}
+												{item.label}
 											</ComboboxItem>
 										)}
 									</ComboboxContent>
@@ -476,21 +481,44 @@ export const PersonalDetails: Component<StepProps> = props => {
 			</div>
 
 			<props.Field name="personalDetails.stateOfBirth">
-				{(field, props) => {
+				{(field, fieldProps) => {
+					const isBornInMalaysia = () =>
+						getValue(
+							props.form,
+							"personalDetails.countryOfBirthCode",
+						)?.toLowerCase() === "my";
+
 					return (
 						<>
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel info="form.personalDetails.stateOfBirth.info">
-									{t(
-										"form.personalDetails.stateOfBirth.label",
-									)}
+								}
+								disabled={isBornInMalaysia()}>
+								<TextFieldLabel
+									info={t(
+										"form.personalDetails.stateOfBirth.info",
+									)}>
+									<Switch>
+										<Match when={isBornInMalaysia()}>
+											{t(
+												"form.optional",
+												t(
+													"form.personalDetails.stateOfBirth.label",
+												),
+											)}
+										</Match>
+
+										<Match when={!isBornInMalaysia()}>
+											{t(
+												"form.personalDetails.stateOfBirth.label",
+											)}
+										</Match>
+									</Switch>
 								</TextFieldLabel>
 
 								<TextField
-									{...props}
+									{...fieldProps}
 									name={field.name}
 									value={field.value ?? ""}
 									placeholder={t(
@@ -519,3 +547,6 @@ export const PersonalDetails: Component<StepProps> = props => {
 		</>
 	);
 };
+
+const toOptions = (x: Record<string, any>) =>
+	Object.entries(x).map(([key, value]) => ({ key: key, label: value }));
