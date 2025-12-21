@@ -735,18 +735,10 @@ export const Home = () => {
 		);
 	};
 
-	const isOnboarding = () => {
-		console.log(authnContext().userId);
-
-		console.log(
-			window.localStorage.getItem(
-				storageKeys.onboardingFlag(authnContext().userId),
-			),
-		);
-		return window.localStorage.getItem(
+	const isOnboarding = () =>
+		window.localStorage.getItem(
 			storageKeys.onboardingFlag(authnContext().userId),
 		);
-	};
 
 	return (
 		<>
