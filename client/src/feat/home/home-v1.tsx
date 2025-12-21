@@ -4,6 +4,7 @@ import type {
 	ColumnDefTemplate,
 } from "@tanstack/solid-table";
 import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
+import { storageKeys } from "core/constants/storage-keys";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { useContext } from "core/context/utils";
@@ -280,25 +281,6 @@ export const Home = () => {
 	];
 
 	const Onboarding = () => {
-		let myPassportFormWizardRef: any;
-		// TODO: decide how to go about this later. either we allow saving as draft
-		// right now clicking the logo will trigger for the form to be registered and the view will update
-		//
-		// for onboarding or we pass an onboarding prop and submit creates it.
-		// allowing for saving as draft will be very complicated because
-		// we have to only trigger a save if the route changes which is looks like sometimes it saves
-		// as draft and sometimes not or an onboarding prop which registers the form as soon as its dirty
-		// (instead of when they navigate away, component unmount)
-		// also need to consider that once a form is registered the passport applications list will no longer
-		// be empty if it refetches (solid query will refetch when appropriate) causing the entire view to change
-		// so we need some sort of onboarding completed flag
-		//
-		// if register the form when its dirty then we also need to consider what happens if all values get cleared
-		// out
-		// const onClick = () => {
-		// 	myPassportFormWizardRef?.registerApplication();
-		// };
-
 		return (
 			<>
 				<Typography
@@ -322,7 +304,7 @@ export const Home = () => {
 					{t("onboarding.description")}
 				</Typography>
 
-				<MyPassportFormWizard ref={myPassportFormWizardRef} />
+				<MyPassportFormWizard />
 			</>
 		);
 	};
@@ -753,16 +735,35 @@ export const Home = () => {
 		);
 	};
 
+	const isOnboarding = () => {
+		console.log(authnContext().userId);
+
+		console.log(
+			window.localStorage.getItem(
+				storageKeys.onboardingFlag(authnContext().userId),
+			),
+		);
+		return window.localStorage.getItem(
+			storageKeys.onboardingFlag(authnContext().userId),
+		);
+	};
+
 	return (
 		<>
 			<ActionBar />
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show when={!qPassportApplications.data?.length}>
+				<Show
+					when={
+						!qPassportApplications.data?.length || isOnboarding()
+					}>
 					<Onboarding />
 				</Show>
 
-				<Show when={qPassportApplications.data?.length}>
+				<Show
+					when={
+						qPassportApplications.data?.length && !isOnboarding()
+					}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<ExportBanner />

@@ -139,12 +139,26 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 			return refreshMapboxTokenInterval;
 		};
 
+		const getUserId = () => {
+			const existingUserId = window.localStorage.getItem(
+				AUTHN_SVC_SUB_CONFIG_KEY,
+			);
+			if (existingUserId) {
+				return existingUserId;
+			}
+
+			const userId = crypto.randomUUID();
+			window.localStorage.setItem(AUTHN_SVC_SUB_CONFIG_KEY, userId);
+
+			return userId;
+		};
+
 		return {
 			isInitialLoading: true,
 			isActionsLoading: false,
 			profile: null,
 			keycloak: null,
-			userId: crypto.randomUUID(),
+			userId: getUserId(),
 			actions: {
 				init: once(async () => {
 					const keycloak = new Keycloak({
@@ -221,6 +235,7 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 					invariant(get().keycloak, "Keycloak instance not defined");
 
 					deleteAuthCookie();
+					window.localStorage.removeItem(AUTHN_SVC_SUB_CONFIG_KEY);
 					set({ isActionsLoading: true });
 
 					get().keycloak?.logout({

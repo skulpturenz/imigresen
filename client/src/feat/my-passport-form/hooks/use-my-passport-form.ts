@@ -23,6 +23,7 @@ import {
 } from "common/epic/my-passport-form/types";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
+import { storageKeys } from "core/constants/storage-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
@@ -87,6 +88,15 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
 	const location = useLocation();
 	const isOnboarding = () => location.pathname === `/${CoreRoute.Home}`;
+	const getUuid = () => {
+		if (isOnboarding()) {
+			return window.localStorage.getItem(
+				storageKeys.onboardingFlag(authnContext().userId),
+			);
+		}
+
+		return routeParams.uuid;
+	};
 
 	const [formContext, setFormContext] = createSignal<FormContext>({
 		mode: MyPassportFormMode.Draft,
@@ -200,9 +210,20 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			});
 		};
 
-		if (searchParams.automergeUrl) {
+		const getAutomergeUrl = async () => {
+			if (isOnboarding() && getUuid()) {
+				return await myPassportFormContext.getAutomergeUrl({
+					uuid: getUuid() as string,
+				});
+			}
+
+			return searchParams.automergeUrl;
+		};
+		const automergeUrl = await getAutomergeUrl();
+
+		if (automergeUrl) {
 			const handle = await repo.find<MyPassportForm>(
-				searchParams.automergeUrl as AnyDocumentId,
+				automergeUrl as AnyDocumentId,
 			);
 
 			await handle.whenReady();
@@ -277,12 +298,12 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	}));
 
 	const onDelete = async () => {
-		if (!routeParams.uuid) {
+		if (!getUuid()) {
 			return;
 		}
 
 		await mDeleteForm.mutateAsync({
-			uuid: routeParams.uuid,
+			uuid: getUuid() as string,
 			user: userContext().profile?.uuid,
 		});
 		reset(form);
@@ -349,9 +370,9 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			"Automerge URL for existing document is not defined, check `handle`",
 		);
 
-		if (routeParams.uuid) {
+		if (getUuid()) {
 			await mSubmit.mutateAsync({
-				uuid: routeParams.uuid as string,
+				uuid: getUuid() as string,
 				user,
 				automergeUrl,
 				formValues,
@@ -362,6 +383,18 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 				user,
 				automergeUrl,
 				formValues,
+			});
+		}
+
+		if (isOnboarding()) {
+			window.localStorage.removeItem(
+				storageKeys.onboardingFlag(authnContext().userId),
+			);
+
+			queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
 			});
 		}
 
@@ -437,7 +470,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (isDirty() || currentUuid) {
@@ -470,7 +503,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (!isDirty() || !currentUuid) {
@@ -512,7 +545,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (!isDirty() || currentUuid) {
@@ -524,12 +557,9 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		registerNewForm().then(proceed);
 	});
 
-	// TODO: not tested yet
-	// but basically when we are in onboarding mode, disable all route leave handlers
+	// when we are in onboarding mode, disable all route leave handlers
 	// and register the form when it is first made dirty
-	// TODO: we also don't want to disable onboarding mode until it is submitted
-	// and don't want to handle onboarding as a special case on the BE so think just persisting
-	// something to local storage is enough
+	// onboarding mode is enabled until form submitted
 	createEffect(() => {
 		if (!isOnboarding()) {
 			return;
@@ -543,7 +573,12 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
-		registerNewForm();
+		registerNewForm().then(result =>
+			window.localStorage.setItem(
+				storageKeys.onboardingFlag(authnContext().userId),
+				result,
+			),
+		);
 	});
 
 	const prefillData = () => {

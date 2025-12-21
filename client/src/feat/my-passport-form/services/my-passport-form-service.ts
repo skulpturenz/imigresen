@@ -3,6 +3,8 @@ import { assertEnv } from "core/utils/assert-env";
 import { toPutIm42Request } from "feat/my-passport-form/data/to-put-im42-request";
 import type {
 	DeleteApplicationVariables,
+	GetAutomergeUrlVariables,
+	PersistedMyPassportForm,
 	PutApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
@@ -10,6 +12,7 @@ import { createStorage } from "unstorage";
 import { default as localStorageDriver } from "unstorage/drivers/localstorage";
 import { uuidv7 } from "uuidv7";
 import { default as wretch } from "wretch";
+import { default as QueryStringAddon } from "wretch/addons/queryString";
 
 const storage = createStorage({
 	driver: localStorageDriver({
@@ -22,9 +25,31 @@ assertEnv(import.meta.env.VITE_API_BASE_URL, "API base url not specified");
 const referenceDataApi = wretch(
 	`${import.meta.env.VITE_API_BASE_URL}/reference-data/im42`,
 );
-const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`);
+const im42Api = wretch(`${import.meta.env.VITE_API_BASE_URL}/im42`).addon(
+	QueryStringAddon,
+);
 
 export const myPassportFormService = (token?: string) => {
+	const getAutomergeUrl = async ({
+		uuid,
+		user,
+	}: GetAutomergeUrlVariables) => {
+		if (!user) {
+			const localItem = await storage.getItem<string>(
+				storageKeys.myPassportFormApplication(uuid, user),
+			);
+
+			return localItem;
+		}
+
+		return im42Api
+			.auth(`Bearer ${token}`)
+			.query({ uuid: true }) // TODO: endpoint does not have this filter yet
+			.get(`/user/${user}`)
+			.json<Partial<PersistedMyPassportForm>[]>()
+			.then(result => result.at(0)?.automergeUrl);
+	};
+
 	const registerApplication = async ({
 		automergeUrl,
 		user,
@@ -111,6 +136,7 @@ export const myPassportFormService = (token?: string) => {
 	};
 
 	return {
+		getAutomergeUrl,
 		registerApplication,
 		deleteApplication,
 		getReferenceData,

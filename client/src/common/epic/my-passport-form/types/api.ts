@@ -16,3 +16,8 @@ export interface PutApplicationVariables {
 	automergeUrl: string;
 	formValues: MyPassportForm;
 }
+
+export interface GetAutomergeUrlVariables {
+	user?: string;
+	uuid: string;
+}

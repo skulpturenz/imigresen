@@ -3,6 +3,7 @@ import { delay } from "es-toolkit";
 import { fixture as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import type {
 	DeleteApplicationVariables,
+	GetAutomergeUrlVariables,
 	PutApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
@@ -17,6 +18,17 @@ const storage = createStorage({
 });
 
 export const myPassportFormService = (_token?: string) => {
+	const getAutomergeUrl = async ({
+		uuid,
+		user,
+	}: GetAutomergeUrlVariables) => {
+		const localItem = await storage.getItem<string>(
+			storageKeys.myPassportFormApplication(uuid, user),
+		);
+
+		return localItem;
+	};
+
 	const registerApplication = async ({
 		automergeUrl,
 		user,
@@ -49,6 +61,7 @@ export const myPassportFormService = (_token?: string) => {
 	};
 
 	return {
+		getAutomergeUrl,
 		registerApplication,
 		deleteApplication,
 		getReferenceData,

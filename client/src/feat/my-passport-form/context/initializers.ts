@@ -6,4 +6,5 @@ export const createMyPassportFormContext = (): MyPassportFormSvc => ({
 	deleteApplication: noop as any,
 	getReferenceData: noop as any,
 	putIm42: noop as any,
+	getAutomergeUrl: noop as any,
 });

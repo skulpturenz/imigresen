@@ -30,7 +30,6 @@ import { Wizard } from "./ui/wizard";
 
 interface MyPassportFormProps {
 	ref?: any;
-	isOnboarding?: boolean; // TODO
 }
 
 export const MyPassportForm: Component<MyPassportFormProps> = props => {
