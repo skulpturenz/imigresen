@@ -123,6 +123,21 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 
 			if (steps.size) {
 				const firstStepWithError = Math.min(...steps);
+				// note: object key order is not guaranteed
+				// but should be fine on chrome and safari
+				// consequence: since object key order is not guaranteed, two submission attempts
+				// with the same set of fields with errors can result in focusing on two different fields
+				// each time. or if errors are set in an order, that order is lost
+				const focusedFieldWithError = Object.keys(result).at(0);
+
+				$debug(console.debug)(
+					`First step with error`,
+					firstStepWithError,
+				);
+				$debug(console.debug)(
+					`Focused error field`,
+					focusedFieldWithError,
+				);
 
 				if (props.stepStatus().currentStep !== firstStepWithError) {
 					navigate(
@@ -131,9 +146,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 							.join(""),
 						{
 							state: {
-								// note: object key order is not guaranteed
-								// but should be fine on chrome and safari
-								fieldError: Object.keys(result).at(0),
+								fieldError: focusedFieldWithError,
 							},
 						},
 					);
