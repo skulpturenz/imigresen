@@ -3,13 +3,28 @@ import { toRequired, whenOptions } from "core/data/yup/utils";
 import { partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { object, string } from "yup";
+import { RequestType } from "../types";
 import { constants } from "./constants";
 import { isPublished } from "./utils";
+
+const isPreviousDocumentsRequired = (options: any) => {
+	const root = options?.from?.at(-1);
+
+	return (
+		root?.applicationDetails?.requestType ===
+		RequestType.OutdatedPicturesDependents
+	);
+};
+
+const isPublishedAndRequired = (options: any) =>
+	[isPublished, isPreviousDocumentsRequired].every(predicate =>
+		predicate(options),
+	);
 
 export const previousDocuments = object({
 	dependentCaregiverFirstName: string()
 		.when(
-			whenOptions(isPublished, schema =>
+			whenOptions(isPublishedAndRequired, schema =>
 				schema.min(constants.fieldConstraints.nameMinChars, () => {
 					const t = useI18n<typeof resources>();
 
@@ -34,9 +49,8 @@ export const previousDocuments = object({
 			},
 		})
 		.when(
-			whenOptions(
-				isPublished,
-				partialRight(toRequired, () => {
+			whenOptions(isPublishedAndRequired, schema =>
+				schema.min(constants.fieldConstraints.nameMinChars, () => {
 					const t = useI18n<typeof resources>();
 
 					return t("form.errors.required");
@@ -45,7 +59,7 @@ export const previousDocuments = object({
 		),
 	dependentCaregiverLastName: string()
 		.when(
-			whenOptions(isPublished, schema =>
+			whenOptions(isPublishedAndRequired, schema =>
 				schema.min(constants.fieldConstraints.nameMinChars, () => {
 					const t = useI18n<typeof resources>();
 
@@ -71,7 +85,7 @@ export const previousDocuments = object({
 		})
 		.when(
 			whenOptions(
-				isPublished,
+				isPublishedAndRequired,
 				partialRight(toRequired, () => {
 					const t = useI18n<typeof resources>();
 
@@ -82,7 +96,7 @@ export const previousDocuments = object({
 	dependentCaregiverMyKadNumber: string()
 		.when(
 			whenOptions(
-				isPublished,
+				isPublishedAndRequired,
 				partialRight(toRequired, () => {
 					const t = useI18n<typeof resources>();
 
@@ -100,7 +114,7 @@ export const previousDocuments = object({
 		}),
 	dependentCaregiverSignature: string().when(
 		whenOptions(
-			isPublished,
+			isPublishedAndRequired,
 			partialRight(toRequired, () => {
 				const t = useI18n<typeof resources>();
 
@@ -110,7 +124,7 @@ export const previousDocuments = object({
 	),
 	previousDocumentNumber: string().when(
 		whenOptions(
-			isPublished,
+			isPublishedAndRequired,
 			partialRight(toRequired, () => {
 				const t = useI18n<typeof resources>();
 
