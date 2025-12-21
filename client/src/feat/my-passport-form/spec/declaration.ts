@@ -7,6 +7,7 @@ import {
 import { partialRight } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { boolean, BooleanSchema, object, string, type Message } from "yup";
+import { constants } from "./constants";
 import { isPublished } from "./utils";
 
 const mustAccept = <T extends BooleanSchema>(
@@ -37,16 +38,25 @@ export const declaration = object({
 				}),
 			),
 		),
-	confirmPreviousDocumentNumber: string().when(
-		whenOptions(
-			isPublished,
-			partialRight(toRequired, () => {
+	confirmPreviousDocumentNumber: string()
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		)
+		.matches(constants.regex.alphanumericWithSpaces, {
+			excludeEmptyString: true,
+			message: () => {
 				const t = useI18n<typeof resources>();
 
-				return t("form.errors.required");
-			}),
-		),
-	),
+				return t("form.errors.alphanumeric");
+			},
+		}),
 	declareTrueAndCorrect: boolean()
 		.when(
 			whenOptions(
