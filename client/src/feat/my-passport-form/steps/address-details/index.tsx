@@ -38,7 +38,6 @@ export const AddressDetails: Component<StepProps> = props => {
 			props.dropdownOptions()?.countryOptions ?? Object.create(null),
 		).sort(sortOptionByLabelLocaleAsc);
 
-	console.log(countryOptions());
 	const { autofillOptions, onChangeOption, getOptions, onClear } =
 		useAddressAutofill({
 			form: props.form,
