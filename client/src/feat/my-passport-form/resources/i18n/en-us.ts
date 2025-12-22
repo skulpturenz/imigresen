@@ -18,6 +18,8 @@ export const resources = {
 	doNext: "Next",
 	doSubmit: "Submit",
 	loading: "Loading...",
+	autosaved: "Autosaved",
+	saving: "Saving",
 	steps: {
 		[Step.PersonalDetails]: {
 			label: `Step ${Step.PersonalDetails}`,

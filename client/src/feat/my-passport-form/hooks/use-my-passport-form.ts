@@ -1,4 +1,4 @@
-import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
+import { type AnyDocumentId, type Doc } from "@automerge/automerge-repo";
 import {
 	createForm,
 	focus,
@@ -641,6 +641,10 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		onSubmit,
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
+		isAutosaving: () =>
+			handle.loading ||
+			mRegister.isPending ||
+			handle()?.inState(["loading", "requesting"]),
 		isDirty,
 		prefillData,
 		registerNewForm,
