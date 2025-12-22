@@ -9,6 +9,8 @@
             [taoensso.truss :as truss]
             [expound.alpha :as expound]))
 
+(def expound #(expound/expound %1 %2 {:theme :figwheel-theme :print-specs? true}))
+
 (defn aggregate
   ([entity transformer {:keys [committed-events uncommitted-events]
                         :as _opts}]
@@ -28,7 +30,7 @@
              (and (some? uncommitted-events) (not-empty uncommitted-events)))
      (let [current-state (apply/aggregate transformer (into [] cat [committed-events uncommitted-events]))
            schema (truss/have ((keyword entity) @schema-registry))]
-       (expound/expound schema current-state {:theme :figwheel-theme :print-specs? true}) ;; TODO handle better, unsure if it prints something in the ok case
+       (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
        (when (truss/have (partial s/valid? schema) current-state)
          {:aggregate current-state
           :events committed-events
@@ -42,7 +44,7 @@
      (when (and (some? committed-events) (not-empty committed-events))
        (let [current-state (apply/aggregate transformer committed-events)
              schema (truss/have ((keyword entity) @schema-registry))]
-         (expound/expound schema current-state {:theme :figwheel-theme :print-specs? true}) ;; TODO handle better, unsure if it prints something in the ok case
+         (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
          (when (truss/have (partial s/valid? schema) current-state :data {:type :validation-error
                                                                           :explain (s/explain schema current-state)})
            {:aggregate current-state
@@ -59,7 +61,7 @@
            uncommitted-events (:uncommitted-events entity-id-or-aggregate)
            current-state (apply/aggregate transformer (into [] cat [committed-events uncommitted-events events]))
            schema (truss/have ((keyword entity) @schema-registry))]
-       (expound/expound schema current-state {:theme :figwheel-theme :print-specs? true}) ;; TODO handle better, unsure if it prints something in the ok case
+       (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
        (when (truss/have (partial s/valid? schema) current-state)
          {:aggregate current-state
           :events committed-events
@@ -68,14 +70,14 @@
        (if (and (some? committed-events) (not-empty committed-events))
          (let [current-state (apply/aggregate transformer (into [] cat [committed-events events]))
                schema (truss/have ((keyword entity) @schema-registry))]
-           (expound/expound schema current-state {:theme :figwheel-theme :print-specs? true}) ;; TODO handle better, unsure if it prints something in the ok case
+           (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
            (when (truss/have (partial s/valid? schema) current-state)
              {:aggregate current-state
               :events committed-events
               :uncommitted-events events}))
          (let [current-state (apply/aggregate transformer events)
                schema (truss/have ((keyword entity) @schema-registry))]
-           (expound/expound schema current-state {:theme :figwheel-theme :print-specs? true}) ;; TODO handle better, unsure if it prints something in the ok case
+           (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
            (when (truss/have (partial s/valid? schema) current-state)
              {:aggregate current-state
               :events []
