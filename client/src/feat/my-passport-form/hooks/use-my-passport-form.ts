@@ -91,7 +91,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const getUuid = () => {
 		if (isOnboarding()) {
 			return window.localStorage.getItem(
-				storageKeys.onboardingFlag(authnContext().userId),
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
 			);
 		}
 
@@ -214,6 +214,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			if (isOnboarding() && getUuid()) {
 				return await myPassportFormContext.getAutomergeUrl({
 					uuid: getUuid() as string,
+					user: userContext().profile?.uuid,
 				});
 			}
 
@@ -388,7 +389,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 
 		if (isOnboarding()) {
 			window.localStorage.removeItem(
-				storageKeys.onboardingFlag(authnContext().userId),
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
 			);
 
 			queryClient.refetchQueries({
@@ -569,13 +570,22 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			return;
 		}
 
-		if (mRegister.isSuccess) {
+		if (mRegister.isSuccess || mRegister.isPending) {
+			return;
+		}
+
+		// if this flag is set then we don't need to register the application again
+		if (
+			window.localStorage.getItem(
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
+			)
+		) {
 			return;
 		}
 
 		registerNewForm().then(result =>
 			window.localStorage.setItem(
-				storageKeys.onboardingFlag(authnContext().userId),
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
 				result,
 			),
 		);

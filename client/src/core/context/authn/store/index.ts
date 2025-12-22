@@ -25,7 +25,7 @@ export interface AuthnSvc {
 	isActionsLoading: boolean;
 	keycloak?: Keycloak | null;
 	profile?: KeycloakProfile | null;
-	userId: string;
+	userId: string; // either an anonymous (browser) persisted id or keycloak id
 	mapboxToken?: string;
 	actions: {
 		init: () => void;

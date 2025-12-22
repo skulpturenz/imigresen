@@ -44,7 +44,7 @@ export const myPassportFormService = (token?: string) => {
 
 		return im42Api
 			.auth(`Bearer ${token}`)
-			.query({ uuid: true }) // TODO: endpoint does not have this filter yet
+			.query({ im42FormId: uuid })
 			.get(`/user/${user}`)
 			.json<Partial<PersistedMyPassportForm>[]>()
 			.then(result => result.at(0)?.automergeUrl);

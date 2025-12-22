@@ -7,6 +7,7 @@ import { MyPassportForm } from "core/constants/my-passport-form-route.enum";
 import { storageKeys } from "core/constants/storage-keys";
 import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
+import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { toPath } from "core/router/utils";
 import { generatePath } from "core/utils";
@@ -60,6 +61,7 @@ import {
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
+	const userContext = useContext(UserContext);
 
 	const {
 		show: show,
@@ -737,7 +739,7 @@ export const Home = () => {
 
 	const isOnboarding = () =>
 		window.localStorage.getItem(
-			storageKeys.onboardingFlag(authnContext().userId),
+			storageKeys.onboardingFlag(userContext().profile?.uuid),
 		);
 
 	return (

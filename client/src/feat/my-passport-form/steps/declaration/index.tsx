@@ -79,6 +79,9 @@ export const Declaration: Component<StepProps> = props => {
 						<>
 							<Checkbox
 								{...field}
+								// TODO: there is a bug here, if this prop is set, we can't change the value
+								// if we don't set it then initialValues do not show correctly
+								checked={field.value}
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
@@ -113,6 +116,9 @@ export const Declaration: Component<StepProps> = props => {
 						<>
 							<Checkbox
 								{...field}
+								// TODO: there is a bug here, if this prop is set, we can't change the value
+								// if we don't set it then initialValues do not show correctly
+								checked={field.value}
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
@@ -150,6 +156,9 @@ export const Declaration: Component<StepProps> = props => {
 						<>
 							<Checkbox
 								{...field}
+								// TODO: there is a bug here, if this prop is set, we can't change the value
+								// if we don't set it then initialValues do not show correctly
+								checked={field.value}
 								class="flex flex-col space-y-4"
 								validationState={
 									field.error ? "invalid" : "valid"
