@@ -96,16 +96,15 @@
    ["/:uuid/user/:user-uuid" {:put {:summary "Update a registered IM42 form"
                                     :handler (fn [{:keys [identity parameters]
                                                    :as _req}]
-                                               (truss/have
-                                                (imi-im42/upsert-im42-form!
-                                                 identity
-                                                 (truss/have imi-user/active-by-uuid?
-                                                             (get-in parameters [:path :user-uuid])
-                                                             :data {:type :not-found})
-                                                 (truss/have #(imi-im42/creator-by-user-uuid? (get-in parameters [:path :user-uuid]) %)
-                                                             (get-in parameters [:path :uuid])
-                                                             :data {:type :not-found})
-                                                 (:body parameters)))
+                                               (imi-im42/upsert-im42-form!
+                                                identity
+                                                (truss/have imi-user/active-by-uuid?
+                                                            (get-in parameters [:path :user-uuid])
+                                                            :data {:type :not-found})
+                                                (truss/have #(imi-im42/creator-by-user-uuid? (get-in parameters [:path :user-uuid]) %)
+                                                            (get-in parameters [:path :uuid])
+                                                            :data {:type :not-found})
+                                                (:body parameters))
                                                (-> (ring-res/response nil)
                                                    (ring-res/status (:no-content imi-routes/status-codes))))
                                     :parameters {:path {:user-uuid ::imi-im42-spec/uuid

@@ -57,6 +57,7 @@
                        "Not found")}})
 
 (defn bad-request-exception-handler [ex _req]
+  (println "HERE!!" ex)
   {:status (:bad-request imi-routes/status-codes)
    :body {:message (or (get-in (ex-data ex) [:data :message])
                        "Bad request")}})
@@ -72,6 +73,7 @@
     (cond
       (= (get-in data [:data :type]) :not-found) (not-found-exception-handler ex req)
       (= (get-in data [:data :type]) :bad-request) (bad-request-exception-handler ex req)
+      (= (get-in data [:data :type]) :bad-state) (bad-request-exception-handler ex req)
       :else (default-exception-handler ex req))))
 
 (defn always-exception-handler [handler ex req]

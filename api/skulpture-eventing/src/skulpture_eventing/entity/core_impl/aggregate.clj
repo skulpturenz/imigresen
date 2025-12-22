@@ -10,6 +10,10 @@
             [expound.alpha :as expound]))
 
 (def expound #(expound/expound %1 %2 {:theme :figwheel-theme :print-specs? true}))
+(defn throw-bad-state [schema x]
+  (expound schema x)
+  (throw (ex-info "Schema validation failed" {:data {:type :bad-state
+                                                     :message (s/explain-str schema x)}})))
 
 (defn aggregate
   ([entity transformer {:keys [committed-events uncommitted-events]
@@ -30,11 +34,11 @@
              (and (some? uncommitted-events) (not-empty uncommitted-events)))
      (let [current-state (apply/aggregate transformer (into [] cat [committed-events uncommitted-events]))
            schema (truss/have ((keyword entity) @schema-registry))]
-       (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
-       (when (truss/have (partial s/valid? schema) current-state)
-         {:aggregate current-state
-          :events committed-events
-          :uncommitted-events uncommitted-events}))))
+       (cond
+         (s/valid? #(s/valid? schema %) current-state) {:aggregate current-state
+                                                        :events committed-events
+                                                        :uncommitted-events uncommitted-events}
+         :else (throw-bad-state schema current-state)))))
   ([connectable entity entity-id transformer]
    {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
@@ -44,12 +48,11 @@
      (when (and (some? committed-events) (not-empty committed-events))
        (let [current-state (apply/aggregate transformer committed-events)
              schema (truss/have ((keyword entity) @schema-registry))]
-         (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
-         (when (truss/have (partial s/valid? schema) current-state :data {:type :validation-error
-                                                                          :explain (s/explain schema current-state)})
-           {:aggregate current-state
-            :events committed-events
-            :uncommitted-events []})))))
+         (cond
+           (s/valid? #(s/valid? schema %) current-state) {:aggregate current-state
+                                                          :events committed-events
+                                                          :uncommitted-events []}
+           :else (throw-bad-state schema current-state))))))
   ([connectable entity entity-id-or-aggregate transformer events]
    {:pre [(and (truss/have? #(satisfies? jdbc-protocols/Connectable %) connectable)
                (truss/have? keyword? entity)
@@ -61,24 +64,24 @@
            uncommitted-events (:uncommitted-events entity-id-or-aggregate)
            current-state (apply/aggregate transformer (into [] cat [committed-events uncommitted-events events]))
            schema (truss/have ((keyword entity) @schema-registry))]
-       (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
-       (when (truss/have (partial s/valid? schema) current-state)
-         {:aggregate current-state
-          :events committed-events
-          :uncommitted-events events}))
+       (cond
+         (s/valid? #(s/valid? schema %) current-state) {:aggregate current-state
+                                                        :events committed-events
+                                                        :uncommitted-events events}
+         :else (throw-bad-state schema current-state)))
      (let [committed-events (store/load-by-entity-id connectable (str entity-id-or-aggregate))]
        (if (and (some? committed-events) (not-empty committed-events))
          (let [current-state (apply/aggregate transformer (into [] cat [committed-events events]))
                schema (truss/have ((keyword entity) @schema-registry))]
-           (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
-           (when (truss/have (partial s/valid? schema) current-state)
-             {:aggregate current-state
-              :events committed-events
-              :uncommitted-events events}))
+           (cond
+             (s/valid? #(s/valid? schema %) current-state) {:aggregate current-state
+                                                            :events committed-events
+                                                            :uncommitted-events events}
+             :else (throw-bad-state schema current-state)))
          (let [current-state (apply/aggregate transformer events)
                schema (truss/have ((keyword entity) @schema-registry))]
-           (expound schema current-state) ;; TODO handle better, unsure if it prints something in the ok case
-           (when (truss/have (partial s/valid? schema) current-state)
-             {:aggregate current-state
-              :events []
-              :uncommitted-events events})))))))
+           (cond
+             (s/valid? #(s/valid? schema %) current-state) {:aggregate current-state
+                                                            :events []
+                                                            :uncommitted-events events}
+             :else (throw-bad-state schema current-state))))))))
