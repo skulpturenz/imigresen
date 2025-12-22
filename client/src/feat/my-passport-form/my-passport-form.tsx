@@ -76,7 +76,7 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 						<Switch>
 							<Match when={isAutosaving()}>
 								<svg
-									class="size-4 animate-spin text-white"
+									class="size-4 animate-spin text-foreground"
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
 									viewBox="0 0 24 24">
@@ -96,7 +96,7 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 							</Match>
 
 							<Match when={!isAutosaving()}>
-								<Check class="text-white size-4" />
+								<Check class="text-foreground size-4" />
 
 								{t("autosaved")}
 							</Match>
