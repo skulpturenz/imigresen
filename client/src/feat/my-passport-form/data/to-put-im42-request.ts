@@ -46,35 +46,6 @@ export const toPutIm42Request = (
 			),
 	);
 
-	// TODO: api response needs to be the other way around
-	// should be code to label instead of label to code as it is now
-	const conformGenders = createConformer(
-		(value: string) => dropdownOptions.genderOptions[value],
-		value =>
-			typeof value === "string" &&
-			new Set(Object.keys(dropdownOptions.genderOptions)).has(value),
-	);
-
-	// TODO: api response needs to be the other way around
-	// should be code to label instead of label to code as it is now
-	const conformCountries = createConformer(
-		(value: string) => dropdownOptions.countryOptions[value],
-		value =>
-			typeof value === "string" &&
-			new Set(Object.keys(dropdownOptions.countryOptions)).has(value),
-	);
-
-	// TODO: api response needs to be the other way around
-	// should be code to label instead of label to code as it is now
-	const conformRelationshipStatus = createConformer(
-		(value: string) => dropdownOptions.relationshipStatusOptions[value],
-		value =>
-			typeof value === "string" &&
-			new Set(Object.keys(dropdownOptions.relationshipStatusOptions)).has(
-				value,
-			),
-	);
-
 	const conformPersonalDetails = createConformer(
 		(value: PersonalDetails) => ({
 			mobileNumber: value.mobileNumber,
@@ -145,9 +116,6 @@ export const toPutIm42Request = (
 			conformDeclaration,
 			conformRequestType,
 			conformDocumentTypes,
-			conformGenders,
-			conformCountries,
-			conformRelationshipStatus,
 		]),
 	};
 };
