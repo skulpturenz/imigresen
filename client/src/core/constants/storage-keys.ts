@@ -17,7 +17,7 @@ export const storageKeys = {
 	authCookie: "IMIGRESEN_AUTH_COOKIE",
 	onboardingFlag: (user?: string) => {
 		if (!user) {
-			["public", "onboarding"].join(":");
+			return ["public", "onboarding"].join(":");
 		}
 
 		return ["user", user, "onboarding"].join(":");
