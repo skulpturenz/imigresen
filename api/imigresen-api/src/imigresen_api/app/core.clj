@@ -57,7 +57,6 @@
                        "Not found")}})
 
 (defn bad-request-exception-handler [ex _req]
-  (println "HERE!!" ex)
   {:status (:bad-request imi-routes/status-codes)
    :body {:message (or (get-in (ex-data ex) [:data :message])
                        "Bad request")}})
