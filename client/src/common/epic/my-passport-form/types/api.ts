@@ -1,3 +1,4 @@
+import type { DropdownOptions } from "feat/my-passport-form/types";
 import type { MyPassportForm } from "./form";
 
 export interface RegisterApplicationVariables {
@@ -15,6 +16,7 @@ export interface PutApplicationVariables {
 	user: string;
 	automergeUrl: string;
 	formValues: MyPassportForm;
+	dropdownOptions: DropdownOptions;
 }
 
 export interface GetAutomergeUrlVariables {

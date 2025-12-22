@@ -125,41 +125,43 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
 			const result = await validate(values);
 
-			const steps = new Set(
-				Object.keys(result)
-					.map(key => key.split(".").at(0))
-					.map(key => toStep(key as string)),
-			);
-
-			if (steps.size) {
-				const firstStepWithError = Math.min(...steps);
-				// note: object key order is not guaranteed
-				// but should be fine on chrome and safari
-				// consequence: since object key order is not guaranteed, two submission attempts
-				// with the same set of fields with errors can result in focusing on two different fields
-				// each time. or if errors are set in an order, that order is lost
-				const focusedFieldWithError = Object.keys(result).at(0);
-
-				$debug(console.debug)(
-					`First step with error`,
-					firstStepWithError,
-				);
-				$debug(console.debug)(
-					`Focused error field`,
-					focusedFieldWithError,
+			if (formContext().mode === MyPassportFormMode.Published) {
+				const steps = new Set(
+					Object.keys(result)
+						.map(key => key.split(".").at(0))
+						.map(key => toStep(key as string)),
 				);
 
-				if (props.stepStatus().currentStep !== firstStepWithError) {
-					navigate(
-						[location.search, toHash(Math.min(...steps))]
-							.filter(Boolean)
-							.join(""),
-						{
-							state: {
-								fieldError: focusedFieldWithError,
-							},
-						},
+				if (steps.size) {
+					const firstStepWithError = Math.min(...steps);
+					// note: object key order is not guaranteed
+					// but should be fine on chrome and safari
+					// consequence: since object key order is not guaranteed, two submission attempts
+					// with the same set of fields with errors can result in focusing on two different fields
+					// each time. or if errors are set in an order, that order is lost
+					const focusedFieldWithError = Object.keys(result).at(0);
+
+					$debug(console.debug)(
+						`First step with error`,
+						firstStepWithError,
 					);
+					$debug(console.debug)(
+						`Focused error field`,
+						focusedFieldWithError,
+					);
+
+					if (props.stepStatus().currentStep !== firstStepWithError) {
+						navigate(
+							[location.search, toHash(Math.min(...steps))]
+								.filter(Boolean)
+								.join(""),
+							{
+								state: {
+									fieldError: focusedFieldWithError,
+								},
+							},
+						);
+					}
 				}
 			}
 
@@ -176,6 +178,10 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	// TODO: some fields like select are not so easy to focus because the trigger is a button
 	// and the actual input is hidden
 	createEffect(() => {
+		if (formContext().mode !== MyPassportFormMode.Published) {
+			return;
+		}
+
 		const state: any = location.state;
 
 		if (!state) {
@@ -377,6 +383,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 				user,
 				automergeUrl,
 				formValues,
+				dropdownOptions: qReferenceData.data as DropdownOptions,
 			});
 		} else {
 			await mSubmit.mutateAsync({
@@ -384,6 +391,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 				user,
 				automergeUrl,
 				formValues,
+				dropdownOptions: qReferenceData.data as DropdownOptions,
 			});
 		}
 

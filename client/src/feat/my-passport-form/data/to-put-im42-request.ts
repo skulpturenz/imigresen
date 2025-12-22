@@ -9,6 +9,7 @@ import {
 	type AddressDetails,
 	type ApplicationDetails,
 	type Declaration,
+	type DropdownOptions,
 	type MyPassportForm,
 	type PersonalDetails,
 	type PreviousDocuments,
@@ -17,6 +18,7 @@ import {
 export const toPutIm42Request = (
 	automergeUrl: string,
 	formValues: MyPassportForm,
+	dropdownOptions: DropdownOptions,
 ) => {
 	const isStep =
 		<T = unknown>(step: Step) =>
@@ -28,31 +30,49 @@ export const toPutIm42Request = (
 		value => value instanceof Date,
 	);
 
-	// from: steps/personal-details
-	const isMetres = (x: number) => {
-		if (!x) {
-			return false;
-		}
+	const conformRequestType = createConformer(
+		(value: string) => dropdownOptions.requestTypeOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.requestTypeOptions)).has(value),
+	);
 
-		if (Math.floor(Number(x) / 10)) {
-			return false;
-		}
+	const conformDocumentTypes = createConformer(
+		(value: string) => dropdownOptions.documentTypeOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.documentTypeOptions)).has(
+				value,
+			),
+	);
 
-		return true;
-	};
-	const conformHeight = createConformer(
-		(value: string) => {
-			const x = Number(value);
+	// TODO: api response needs to be the other way around
+	// should be code to label instead of label to code as it is now
+	const conformGenders = createConformer(
+		(value: string) => dropdownOptions.genderOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.genderOptions)).has(value),
+	);
 
-			if (!isMetres(x)) {
-				// cm to m
-				return x / 100;
-			}
+	// TODO: api response needs to be the other way around
+	// should be code to label instead of label to code as it is now
+	const conformCountries = createConformer(
+		(value: string) => dropdownOptions.countryOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.countryOptions)).has(value),
+	);
 
-			return x; // m otherwise
-		},
-		(value, context) =>
-			context?.key === "height" && !Number.isNaN(Number(value)),
+	// TODO: api response needs to be the other way around
+	// should be code to label instead of label to code as it is now
+	const conformRelationshipStatus = createConformer(
+		(value: string) => dropdownOptions.relationshipStatusOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.relationshipStatusOptions)).has(
+				value,
+			),
 	);
 
 	const conformPersonalDetails = createConformer(
@@ -118,12 +138,16 @@ export const toPutIm42Request = (
 		automergeUrl,
 		...transformDeep<MyPassportForm, Record<string, any>>(formValues, [
 			conformDate,
-			conformHeight,
 			conformPersonalDetails,
 			conformAddressDetails,
 			conformApplicationDetails,
 			conformPreviousDocuments,
 			conformDeclaration,
+			conformRequestType,
+			conformDocumentTypes,
+			conformGenders,
+			conformCountries,
+			conformRelationshipStatus,
 		]),
 	};
 };

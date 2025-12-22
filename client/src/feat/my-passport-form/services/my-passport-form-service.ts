@@ -125,11 +125,12 @@ export const myPassportFormService = (token?: string) => {
 		user,
 		automergeUrl,
 		formValues,
+		dropdownOptions,
 	}: PutApplicationVariables) => {
 		await im42Api
 			.auth(`Bearer ${token}`)
 			.put(
-				toPutIm42Request(automergeUrl, formValues),
+				toPutIm42Request(automergeUrl, formValues, dropdownOptions),
 				`/${uuid}/user/${user}`,
 			)
 			.res();
