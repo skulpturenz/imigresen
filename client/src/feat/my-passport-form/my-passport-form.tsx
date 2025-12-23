@@ -13,7 +13,6 @@ import {
 	AlertDialogTitle,
 } from "ui/alert-dialog";
 import { Badge } from "ui/badge";
-import { Button } from "ui/button";
 import { useMyPassportForm } from "./hooks/use-my-passport-form";
 import { useWizardSteps } from "./hooks/use-wizard-steps";
 import type { resources } from "./resources/i18n/en-us";
@@ -48,7 +47,6 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 		Components,
 		toggleDeleteFrictionDialog,
 		toggleInvalidDataDialog,
-		prefillData,
 		registerNewForm,
 		isAutosaving,
 	} = useMyPassportForm({ stepStatus });
@@ -87,28 +85,23 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 
 	return (
 		<>
-			{import.meta.env.DEV && (
-				<div
-					// TODO: REMOVE
-					class="flex space-x-2 w-full justify-end my-4">
-					<Button onClick={prefillData}>Prefill data</Button>
-					<Badge variant="outline" class="flex gap-2 items-center">
-						<Switch>
-							<Match when={isAutosaving()}>
-								<Spinner />
+			<div class="flex space-x-2 w-full justify-end my-4">
+				<Badge variant="outline" class="flex gap-2 items-center">
+					<Switch>
+						<Match when={isAutosaving()}>
+							<Spinner />
 
-								{t("saving")}
-							</Match>
+							{t("saving")}
+						</Match>
 
-							<Match when={!isAutosaving()}>
-								<Check class="text-foreground size-4" />
+						<Match when={!isAutosaving()}>
+							<Check class="text-foreground size-4" />
 
-								{t("autosaved")}
-							</Match>
-						</Switch>
-					</Badge>
-				</div>
-			)}
+							{t("autosaved")}
+						</Match>
+					</Switch>
+				</Badge>
+			</div>
 
 			<Form of={form} onSubmit={onSubmit}>
 				<Wizard
