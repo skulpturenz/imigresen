@@ -407,6 +407,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			});
 		}
 
+		draft();
 		reset(form);
 
 		navigate(toPath(CoreRoute.Home));
