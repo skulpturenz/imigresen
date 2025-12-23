@@ -395,22 +395,24 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			});
 		}
 
+		draft();
+		reset(form);
+
 		if (isOnboarding()) {
 			window.localStorage.removeItem(
 				storageKeys.onboardingFlag(userContext().profile?.uuid),
 			);
 
-			queryClient.refetchQueries({
+			await queryClient.refetchQueries({
 				queryKey: globalQueryKeys.getPassportApplications(
 					authnContext().keycloak?.token,
 				),
 			});
 		}
 
-		draft();
-		reset(form);
-
-		navigate(toPath(CoreRoute.Home));
+		setTimeout(() => {
+			navigate(toPath(CoreRoute.Home));
+		});
 	};
 
 	createEffect(() => {

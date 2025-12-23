@@ -738,6 +738,7 @@ export const Home = () => {
 	};
 
 	const isOnboarding = () =>
+		!qPassportApplications.data?.length ||
 		window.localStorage.getItem(
 			storageKeys.onboardingFlag(userContext().profile?.uuid),
 		);
@@ -747,17 +748,11 @@ export const Home = () => {
 			<ActionBar />
 
 			<Suspense fallback={<div>Loading...</div>}>
-				<Show
-					when={
-						!qPassportApplications.data?.length || isOnboarding()
-					}>
+				<Show when={isOnboarding()}>
 					<Onboarding />
 				</Show>
 
-				<Show
-					when={
-						qPassportApplications.data?.length && !isOnboarding()
-					}>
+				<Show when={!isOnboarding()}>
 					<div class="space-y-8">
 						<Show when={!authnContext().keycloak?.token}>
 							<ExportBanner />
