@@ -119,13 +119,16 @@ export const DatePicker = (props: DatePickerProps) => {
 		}
 
 		if (Array.isArray(props.value)) {
-			return parseDate(props.value);
+			return props.value.map(x => parseDate(x));
 		}
 
 		return [parseDate(props.value)];
 	};
 
 	const [value, setValue] = createSignal<DateValue[] | null>(getValue(props));
+	createEffect(() => {
+		setValue(getValue(props));
+	});
 
 	let rootRef: HTMLDivElement;
 	const ref = (element: HTMLDivElement) => {
