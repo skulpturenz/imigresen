@@ -1,15 +1,16 @@
 (ns skulpture-eventing.entity.core-impl.aggregate
   #_{:clj-kondo/ignore [:refer :refer-all]}
   (:require [clojure.spec.alpha :as s]
+            [expound.alpha :as expound]
             [next.jdbc.protocols :as jdbc-protocols]
             [skulpture-eventing.entity-utils.apply :as apply]
             [skulpture-eventing.entity.core-impl.shared :refer :all]
             [skulpture-eventing.entity.spec :as es]
             [skulpture-eventing.store.core :as store]
-            [taoensso.truss :as truss]
-            [expound.alpha :as expound]))
+            [taoensso.truss :as truss]))
 
-(def expound #(expound/expound %1 %2 {:theme :figwheel-theme :print-specs? true}))
+(def expound #(expound/expound %1 %2 {:theme :figwheel-theme
+                                      :print-specs? true}))
 (defn ex! [schema x]
   (expound schema x)
   (let [explanation (s/explain-data schema x)]
