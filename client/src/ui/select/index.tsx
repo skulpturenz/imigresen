@@ -10,6 +10,7 @@ import {
 import { spreadProps } from "core/utils";
 import { Check, ChevronDown, X } from "lucide-solid";
 import {
+	createEffect,
 	createSignal,
 	splitProps,
 	type Component,
@@ -36,7 +37,7 @@ export type SelectProps<
 	Pick<
 		JSX.SelectHTMLAttributes<HTMLSelectElement>,
 		"ref" | "onInput" | "onChange" | "onBlur"
-	>;
+	> & { onValueChange?: (value: Option | Option[] | null) => void };
 
 export const Select = <
 	Option,
@@ -45,7 +46,14 @@ export const Select = <
 >(
 	props: PolymorphicProps<T, SelectProps<Option, OptGroup, T>>,
 ) => {
-	const [value, setValue] = createSignal(props.value);
+	const [value, setValue] = createSignal<Option | Option[] | null>(
+		props.value ?? null,
+	);
+	createEffect(() => {
+		/// @ts-expect-error: type error only
+		setValue(props.value ?? null);
+	});
+
 	const [selectProps, others] = splitProps(props, [
 		"ref",
 		"onInput",
@@ -53,11 +61,17 @@ export const Select = <
 		"onBlur",
 	]);
 
+	const onChange = (value: Option | Option[] | null) => {
+		/// @ts-expect-error: type error only
+		setValue(value ?? null);
+		props.onValueChange?.(value ?? null);
+	};
+
 	return (
 		<SelectPrimitive
 			{...others}
 			value={value()}
-			onChange={setValue}
+			onChange={onChange}
 			class={cn(props.class, "space-y-4 flex flex-col")}>
 			{props.children}
 			<SelectPrimitive.HiddenSelect {...selectProps} />

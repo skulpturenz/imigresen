@@ -1,3 +1,4 @@
+import { getValue, setValues } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import {
@@ -57,6 +58,47 @@ export const ApplicationDetails: Component<StepProps> = props => {
 		).map(([requestType, label]) => ({ key: requestType, label }));
 
 		return options;
+	};
+
+	const hasPreviousDocument = () =>
+		[
+			RequestType[RequestType.Lost],
+			RequestType[RequestType.OutdatedPicturesDependents],
+		].includes(
+			getValue(props.form, "applicationDetails.requestType") ?? "",
+		);
+
+	const isRequestForDependent = () =>
+		getValue(props.form, "applicationDetails.requestType") ===
+		RequestType[RequestType.OutdatedPicturesDependents];
+
+	const onRequestTypeValueChange = () => {
+		if (!hasPreviousDocument()) {
+			setValues(props.form, {
+				previousDocuments: {
+					dependentCaregiverFirstName: "",
+					dependentCaregiverLastName: "",
+					dependentCaregiverMyKadNumber: "",
+					dependentCaregiverSignature: "",
+					previousDocumentNumber: "",
+				},
+			});
+
+			return;
+		}
+
+		if (!isRequestForDependent()) {
+			setValues(props.form, {
+				previousDocuments: {
+					dependentCaregiverFirstName: "",
+					dependentCaregiverLastName: "",
+					dependentCaregiverMyKadNumber: "",
+					dependentCaregiverSignature: "",
+				},
+			});
+
+			return;
+		}
 	};
 
 	return (
@@ -143,6 +185,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 
 									<Select
 										{...fieldProps}
+										onValueChange={onRequestTypeValueChange}
 										value={requestTypeOptions().find(
 											option =>
 												option.key === field.value,

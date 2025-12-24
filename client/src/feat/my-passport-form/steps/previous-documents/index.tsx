@@ -8,7 +8,6 @@ import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { RequestType, type StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import { Show, type Component } from "solid-js";
 import { Label } from "ui/label";
 import {
@@ -33,19 +32,17 @@ export const PreviousDocuments: Component<StepProps> = props => {
 
 	const t = useI18n<typeof resources>();
 
-	const requestTypeOptions = dynamic(RequestType, t("options.requestTypes"));
-
 	const hasPreviousDocument = () =>
 		[
-			requestTypeOptions.Lost,
-			requestTypeOptions.OutdatedPicturesDependents,
+			RequestType[RequestType.Lost],
+			RequestType[RequestType.OutdatedPicturesDependents],
 		].includes(
 			getValue(props.form, "applicationDetails.requestType") ?? "",
 		);
 
 	const isRequestForDependent = () =>
 		getValue(props.form, "applicationDetails.requestType") ===
-		requestTypeOptions.OutdatedPicturesDependents;
+		RequestType[RequestType.OutdatedPicturesDependents];
 
 	return (
 		<>
