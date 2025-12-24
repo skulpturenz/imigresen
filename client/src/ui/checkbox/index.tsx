@@ -8,6 +8,8 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { spreadProps } from "core/utils";
 import { Check } from "lucide-solid";
 import {
+	createEffect,
+	createSignal,
 	splitProps,
 	type JSX,
 	type ParentProps,
@@ -33,9 +35,16 @@ interface CheckboxProps<T extends ValidComponent = "div">
 export const Checkbox = <T extends ValidComponent = "div">(
 	props: PolymorphicProps<T, CheckboxProps<T>>,
 ) => {
+	const [checked, setChecked] = createSignal(props.checked ?? false);
+	createEffect(() => {
+		setChecked(Boolean(props.checked));
+	});
+
 	return (
 		<CheckboxPrimitive
 			{...spreadProps(props)}
+			checked={checked()}
+			onChange={setChecked}
 			value={props.value?.toString()}
 			class={cn("flex flex-col space-y-4", props.class)}>
 			{props.children}
