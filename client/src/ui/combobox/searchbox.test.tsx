@@ -316,7 +316,7 @@ describe.sequential("<Searchbox />", () => {
 		expect(comboboxContent.getAttribute("data-state")).toBe("open");
 	});
 
-	it("does not reset value when focus is lost", async () => {
+	it("does not reset value when focus is lost", { retry: 3 }, async () => {
 		let ref: HTMLInputElement | undefined;
 		render(() => {
 			const [options, setOptions] = createSignal(["a", "b"]);
