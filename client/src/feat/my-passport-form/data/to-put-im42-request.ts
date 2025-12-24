@@ -9,6 +9,7 @@ import {
 	type AddressDetails,
 	type ApplicationDetails,
 	type Declaration,
+	type DropdownOptions,
 	type MyPassportForm,
 	type PersonalDetails,
 	type PreviousDocuments,
@@ -17,6 +18,7 @@ import {
 export const toPutIm42Request = (
 	automergeUrl: string,
 	formValues: MyPassportForm,
+	dropdownOptions: DropdownOptions,
 ) => {
 	const isStep =
 		<T = unknown>(step: Step) =>
@@ -28,31 +30,20 @@ export const toPutIm42Request = (
 		value => value instanceof Date,
 	);
 
-	// from: steps/personal-details
-	const isMetres = (x: number) => {
-		if (!x) {
-			return false;
-		}
+	const conformRequestType = createConformer(
+		(value: string) => dropdownOptions.requestTypeOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.requestTypeOptions)).has(value),
+	);
 
-		if (Math.floor(Number(x) / 10)) {
-			return false;
-		}
-
-		return true;
-	};
-	const conformHeight = createConformer(
-		(value: string) => {
-			const x = Number(value);
-
-			if (!isMetres(x)) {
-				// cm to m
-				return x / 100;
-			}
-
-			return x; // m otherwise
-		},
-		(value, context) =>
-			context?.key === "height" && !Number.isNaN(Number(value)),
+	const conformDocumentTypes = createConformer(
+		(value: string) => dropdownOptions.documentTypeOptions[value],
+		value =>
+			typeof value === "string" &&
+			new Set(Object.keys(dropdownOptions.documentTypeOptions)).has(
+				value,
+			),
 	);
 
 	const conformPersonalDetails = createConformer(
@@ -82,7 +73,6 @@ export const toPutIm42Request = (
 		isStep<AddressDetails>(Step.AddressDetails),
 	);
 
-	// TODO: forgot this section in the API
 	const conformApplicationDetails = createConformer(
 		(value: ApplicationDetails) => ({
 			documentType: value.documentType,
@@ -94,13 +84,20 @@ export const toPutIm42Request = (
 	);
 
 	const conformPreviousDocuments = createConformer(
-		(value: PreviousDocuments) => ({
-			previousTravelDocumentNumber: value.previousDocumentNumber,
-			primaryCaregiverFirstName: value.dependentCaregiverFirstName,
-			primaryCaregiverLastName: value.dependentCaregiverLastName,
-			primaryCaregiverMykadNumber: value.dependentCaregiverMyKadNumber,
-			primaryCaregiverSignature: value.dependentCaregiverSignature,
-		}),
+		(value: PreviousDocuments) => {
+			if (Object.values(value).every(x => !x)) {
+				return null;
+			}
+
+			return {
+				previousTravelDocumentNumber: value.previousDocumentNumber,
+				primaryCaregiverFirstName: value.dependentCaregiverFirstName,
+				primaryCaregiverLastName: value.dependentCaregiverLastName,
+				primaryCaregiverMyKadNumber:
+					value.dependentCaregiverMyKadNumber,
+				primaryCaregiverSignature: value.dependentCaregiverSignature,
+			};
+		},
 		isStep<PreviousDocuments>(Step.PreviousDocuments),
 	);
 
@@ -118,12 +115,13 @@ export const toPutIm42Request = (
 		automergeUrl,
 		...transformDeep<MyPassportForm, Record<string, any>>(formValues, [
 			conformDate,
-			conformHeight,
 			conformPersonalDetails,
 			conformAddressDetails,
 			conformApplicationDetails,
 			conformPreviousDocuments,
 			conformDeclaration,
+			conformRequestType,
+			conformDocumentTypes,
 		]),
 	};
 };

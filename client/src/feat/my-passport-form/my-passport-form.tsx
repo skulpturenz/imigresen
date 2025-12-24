@@ -1,6 +1,7 @@
 import { Form } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
-import { Suspense, type Component } from "solid-js";
+import { Check } from "lucide-solid";
+import { Match, Suspense, Switch, type Component } from "solid-js";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -11,7 +12,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "ui/alert-dialog";
-import { Button } from "ui/button";
+import { Badge } from "ui/badge";
 import { useMyPassportForm } from "./hooks/use-my-passport-form";
 import { useWizardSteps } from "./hooks/use-wizard-steps";
 import type { resources } from "./resources/i18n/en-us";
@@ -30,10 +31,11 @@ import { Wizard } from "./ui/wizard";
 
 interface MyPassportFormProps {
 	ref?: any;
-	isOnboarding?: boolean; // TODO
 }
 
 export const MyPassportForm: Component<MyPassportFormProps> = props => {
+	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
+
 	const {
 		show,
 		data,
@@ -45,9 +47,9 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 		Components,
 		toggleDeleteFrictionDialog,
 		toggleInvalidDataDialog,
-		prefillData,
 		registerNewForm,
-	} = useMyPassportForm();
+		isAutosaving,
+	} = useMyPassportForm({ stepStatus });
 
 	props.ref?.({
 		registerApplication: () => {
@@ -57,21 +59,49 @@ export const MyPassportForm: Component<MyPassportFormProps> = props => {
 
 	const t = useI18n<typeof resources>();
 
-	const { stepStatus, steps, nextStep, previousStep } = useWizardSteps();
-
 	const onClickNext = nextStep;
 	const onClickBack = previousStep;
 	const onClickDelete = toggleDeleteFrictionDialog;
 
+	const Spinner = () => (
+		<svg
+			class="size-4 animate-spin text-foreground"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24">
+			<circle
+				class="opacity-25"
+				cx="12"
+				cy="12"
+				r="10"
+				stroke="currentColor"
+				stroke-width="4"></circle>
+			<path
+				class="opacity-75"
+				fill="currentColor"
+				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+		</svg>
+	);
+
 	return (
 		<>
-			{import.meta.env.DEV && (
-				<div
-					// TODO: REMOVE
-					class="flex w-full justify-end my-4">
-					<Button onClick={prefillData}>Prefill data</Button>
-				</div>
-			)}
+			<div class="flex space-x-2 w-full justify-end my-4">
+				<Badge variant="outline" class="flex gap-2 items-center">
+					<Switch>
+						<Match when={isAutosaving()}>
+							<Spinner />
+
+							{t("saving")}
+						</Match>
+
+						<Match when={!isAutosaving()}>
+							<Check class="text-foreground size-4" />
+
+							{t("autosaved")}
+						</Match>
+					</Switch>
+				</Badge>
+			</div>
 
 			<Form of={form} onSubmit={onSubmit}>
 				<Wizard

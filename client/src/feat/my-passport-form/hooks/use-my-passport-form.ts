@@ -1,7 +1,7 @@
-import type { AnyDocumentId, Doc } from "@automerge/automerge-repo";
+import { type AnyDocumentId, type Doc } from "@automerge/automerge-repo";
 import {
 	createForm,
-	getValue,
+	focus,
 	getValues,
 	reset,
 	validate,
@@ -9,6 +9,7 @@ import {
 } from "@modular-forms/solid";
 import {
 	useBeforeLeave,
+	useLocation,
 	useNavigate,
 	useParams,
 	useSearchParams,
@@ -22,10 +23,12 @@ import {
 } from "common/epic/my-passport-form/types";
 import { CoreRoute } from "core/constants/core-route.enum";
 import { queryKeys as globalQueryKeys } from "core/constants/query-keys";
+import { storageKeys } from "core/constants/storage-keys";
 import { AuthnContext } from "core/context/authn";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
 import { yupForm } from "core/data/yup/yup-form";
+import { useDebug } from "core/hooks/use-debug";
 import { toPath } from "core/router/utils";
 import { flattenObject, invariant, isEqualWith } from "es-toolkit";
 import { set } from "es-toolkit/compat";
@@ -44,17 +47,25 @@ import {
 	createEffect,
 	createResource,
 	createSignal,
+	getOwner,
+	type Accessor,
 	type Resource,
 } from "solid-js";
+import { toHash, toStep } from "./use-wizard-steps";
 
 export type MaybeResource<T> = Resource<T> | T;
 
-export const useMyPassportForm = () => {
+export interface UseMyPassportFormProps {
+	stepStatus: Accessor<any>;
+}
+
+export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 	const repo = useRepo();
 	const queryClient = useQueryClient();
 	const authnContext = useContext(AuthnContext);
 	const userContext = useContext(UserContext);
 	const myPassportFormContext = useContext(MyPassportFormContext);
+	const $debug = useDebug();
 
 	const navigate = useNavigate();
 
@@ -75,39 +86,117 @@ export const useMyPassportForm = () => {
 
 	const routeParams = useParams<{ uuid?: string }>();
 	const [searchParams] = useSearchParams<{ automergeUrl?: string }>();
-
-	const selectReferenceData = (): DropdownOptions | null => {
-		if (!qReferenceData.data) {
-			return null;
+	const location = useLocation();
+	const isOnboarding = () => location.pathname === `/${CoreRoute.Home}`;
+	const getUuid = () => {
+		if (isOnboarding()) {
+			return window.localStorage.getItem(
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
+			);
 		}
 
-		return {
-			...qReferenceData.data,
-			personalDetailsStateOptions:
-				qReferenceDataPersonalDetailsStates.data ?? ([] as string[]),
-			addressDetailsStateOptions:
-				qReferenceDataAddressDetailsStates.data ?? ([] as string[]),
-		};
+		return routeParams.uuid;
 	};
 
 	const [formContext, setFormContext] = createSignal<FormContext>({
-		// TODO: change to `Draft`
-		mode: MyPassportFormMode.Published,
-		dropdownOptions: selectReferenceData,
+		mode: MyPassportFormMode.Draft,
+		dropdownOptions: () => qReferenceData.data ?? null,
 	});
 	const publish = () =>
 		setFormContext(formContext => ({
 			...formContext,
 			mode: MyPassportFormMode.Published,
 		}));
+	const draft = () =>
+		setFormContext(formContext => ({
+			...formContext,
+			mode: MyPassportFormMode.Draft,
+		}));
 
+	const owner = getOwner();
 	const [form, { Form, Field, FieldArray }] = createForm<MyPassportForm>({
-		/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
-		validate: yupForm(myPassportForm, {
-			context: formContext,
-		}),
+		validate: async values => {
+			const validate = yupForm(myPassportForm, {
+				context: formContext,
+				owner,
+				debug: $debug.isEnabled(),
+			});
+
+			/// @ts-expect-error: type error only between `Maybe<string>` and `undefined`, etc
+			const result = await validate(values);
+
+			if (formContext().mode === MyPassportFormMode.Published) {
+				const steps = new Set(
+					Object.keys(result)
+						.map(key => key.split(".").at(0))
+						.map(key => toStep(key as string)),
+				);
+
+				if (steps.size) {
+					const firstStepWithError = Math.min(...steps);
+					// note: object key order is not guaranteed
+					// but should be fine on chrome and safari
+					// consequence: since object key order is not guaranteed, two submission attempts
+					// with the same set of fields with errors can result in focusing on two different fields
+					// each time. or if errors are set in an order, that order is lost
+					const focusedFieldWithError = Object.keys(result).at(0);
+
+					$debug(console.debug)(
+						`First step with error`,
+						firstStepWithError,
+					);
+					$debug(console.debug)(
+						`Focused error field`,
+						focusedFieldWithError,
+					);
+
+					if (props.stepStatus().currentStep !== firstStepWithError) {
+						navigate(
+							[location.search, toHash(Math.min(...steps))]
+								.filter(Boolean)
+								.join(""),
+							{
+								state: {
+									fieldError: focusedFieldWithError,
+								},
+							},
+						);
+					}
+				}
+			}
+
+			return result;
+		},
 		validateOn: "change",
 		revalidateOn: "change",
+	});
+
+	// when the form is submitted, if there are any new validation errors in publish mode
+	// and the step the error is on is not the current step, then we jump to the earliest step with
+	// an error and focus on a field with an error
+	// TODO: ideally first field with an error
+	// TODO: some fields like select are not so easy to focus because the trigger is a button
+	// and the actual input is hidden
+	createEffect(() => {
+		if (formContext().mode !== MyPassportFormMode.Published) {
+			return;
+		}
+
+		const state: any = location.state;
+
+		if (!state) {
+			return;
+		}
+
+		if (!state.fieldError) {
+			return;
+		}
+
+		// note: running this async is important
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			focus(form, state.fieldError);
+		});
 	});
 
 	const qReferenceData = useQuery<DropdownOptions>(() => ({
@@ -116,42 +205,32 @@ export const useMyPassportForm = () => {
 		staleTime: Infinity,
 	}));
 
-	const qReferenceDataPersonalDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "personalDetails.countryOfBirthCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
-		staleTime: Infinity,
-	}));
-
-	const qReferenceDataAddressDetailsStates = useQuery<string[]>(() => ({
-		queryKey: queryKeys.getReferenceDataStates(
-			getValue(form, "addressDetails.countryCode") ?? "",
-			authnContext().keycloak?.token,
-		),
-		queryFn: myPassportFormContext.getReferenceDataStates,
-		placeholderData: [],
-		staleTime: Infinity,
-	}));
-
 	const [handle] = createResource(async () => {
 		// not ideal that we are performing side effects here
 		// but we don't want the page to load until we've set the initial data
 		const resetFormValues = (doc: Doc<MyPassportForm>) => {
-			if (!import.meta.env.PROD) {
-				console.debug("initialValues", doc);
-			}
+			$debug(console.debug)("initialValues", doc);
 
 			reset(form, {
 				initialValues: doc,
 			});
 		};
 
-		if (searchParams.automergeUrl) {
+		const getAutomergeUrl = async () => {
+			if (isOnboarding() && getUuid()) {
+				return await myPassportFormContext.getAutomergeUrl({
+					uuid: getUuid() as string,
+					user: userContext().profile?.uuid,
+				});
+			}
+
+			return searchParams.automergeUrl;
+		};
+		const automergeUrl = await getAutomergeUrl();
+
+		if (automergeUrl) {
 			const handle = await repo.find<MyPassportForm>(
-				searchParams.automergeUrl as AnyDocumentId,
+				automergeUrl as AnyDocumentId,
 			);
 
 			await handle.whenReady();
@@ -226,12 +305,12 @@ export const useMyPassportForm = () => {
 	}));
 
 	const onDelete = async () => {
-		if (!routeParams.uuid) {
+		if (!getUuid()) {
 			return;
 		}
 
 		await mDeleteForm.mutateAsync({
-			uuid: routeParams.uuid,
+			uuid: getUuid() as string,
 			user: userContext().profile?.uuid,
 		});
 		reset(form);
@@ -248,19 +327,44 @@ export const useMyPassportForm = () => {
 		navigate(toPath(CoreRoute.Home));
 	};
 
+	const registerNewForm = async () => {
+		const automergeUrl = handle()?.url;
+
+		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
+
+		const uuid = await mRegister.mutateAsync({
+			automergeUrl: automergeUrl,
+			user: userContext().profile?.uuid,
+		});
+
+		// if run in onboarding mode, this will cause the home page to refetch and we lose
+		// the onboarding view
+		if (!isOnboarding()) {
+			await queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			});
+		}
+
+		return uuid;
+	};
+
 	const onSubmit: SubmitHandler<MyPassportForm> = async (
 		formValues,
 		_event,
 	) => {
+		if (mSubmit.isPending) {
+			return;
+		}
+
 		publish();
 
 		const isValid = await validate(form);
 
 		if (!isValid) {
-			return;
-		}
+			draft();
 
-		if (mSubmit.isPending) {
 			return;
 		}
 
@@ -273,18 +377,42 @@ export const useMyPassportForm = () => {
 			"Automerge URL for existing document is not defined, check `handle`",
 		);
 
-		await mSubmit.mutateAsync({
-			// TODO: there is a new case here
-			// submitting immediately without saving as draft
-			// need to disable before leave handler for this case and register when submitting
-			uuid: routeParams.uuid as string,
-			user,
-			automergeUrl,
-			formValues,
-		});
+		if (getUuid()) {
+			await mSubmit.mutateAsync({
+				uuid: getUuid() as string,
+				user,
+				automergeUrl,
+				formValues,
+				dropdownOptions: qReferenceData.data as DropdownOptions,
+			});
+		} else {
+			await mSubmit.mutateAsync({
+				uuid: await registerNewForm(),
+				user,
+				automergeUrl,
+				formValues,
+				dropdownOptions: qReferenceData.data as DropdownOptions,
+			});
+		}
+
+		draft();
 		reset(form);
 
-		navigate(toPath(CoreRoute.Home));
+		if (isOnboarding()) {
+			window.localStorage.removeItem(
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
+			);
+
+			await queryClient.refetchQueries({
+				queryKey: globalQueryKeys.getPassportApplications(
+					authnContext().keycloak?.token,
+				),
+			});
+		}
+
+		setTimeout(() => {
+			navigate(toPath(CoreRoute.Home));
+		});
 	};
 
 	createEffect(() => {
@@ -298,15 +426,11 @@ export const useMyPassportForm = () => {
 			}),
 		);
 
-		if (!import.meta.env.PROD) {
-			console.debug("form dirty fields", dirtyFields);
-		}
+		$debug(console.debug)("form dirty fields", dirtyFields);
 
 		handle()?.change(doc => {
 			Object.entries(dirtyFields).forEach(([path, value]) => {
-				if (!import.meta.env.PROD) {
-					console.debug("set", path, value);
-				}
+				$debug(console.debug)("set", path, value);
 
 				set(doc, path, value);
 			});
@@ -317,6 +441,10 @@ export const useMyPassportForm = () => {
 		event.to.toString().includes(event.from.pathname);
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -329,10 +457,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		if (
-			formContext().mode === MyPassportFormMode.Published &&
-			!form.invalid
-		) {
+		if (!form.invalid) {
 			return;
 		}
 
@@ -341,6 +466,10 @@ export const useMyPassportForm = () => {
 	});
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -353,7 +482,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (isDirty() || currentUuid) {
@@ -371,6 +500,10 @@ export const useMyPassportForm = () => {
 	});
 
 	useBeforeLeave(event => {
+		if (isOnboarding()) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname
@@ -382,7 +515,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (!isDirty() || !currentUuid) {
@@ -407,24 +540,11 @@ export const useMyPassportForm = () => {
 		refetchPassportApplications().then(proceed);
 	});
 
-	const registerNewForm = async () => {
-		const automergeUrl = handle()?.url;
-
-		invariant(automergeUrl, "Automerge URL is not defined, check `handle`");
-
-		await mRegister.mutateAsync({
-			automergeUrl: automergeUrl,
-			user: userContext().profile?.uuid,
-		});
-
-		await queryClient.refetchQueries({
-			queryKey: globalQueryKeys.getPassportApplications(
-				authnContext().keycloak?.token,
-			),
-		});
-	};
-
 	useBeforeLeave(event => {
+		if (isOnboarding() || mRegister.isSuccess) {
+			return;
+		}
+
 		if (
 			event.defaultPrevented ||
 			event.from.pathname !== window.location.pathname ||
@@ -437,7 +557,7 @@ export const useMyPassportForm = () => {
 			return;
 		}
 
-		const currentUuid = routeParams.uuid;
+		const currentUuid = getUuid();
 		const proceed = () => event.retry(true);
 
 		if (!isDirty() || currentUuid) {
@@ -449,57 +569,42 @@ export const useMyPassportForm = () => {
 		registerNewForm().then(proceed);
 	});
 
-	const prefillData = () => {
-		invariant(import.meta.env.DEV, "Dev funcionality enabled in prod");
+	// when we are in onboarding mode, disable all route leave handlers
+	// and register the form when it is first made dirty
+	// onboarding mode is enabled until form submitted
+	createEffect(() => {
+		if (!isOnboarding()) {
+			return;
+		}
 
-		reset(form, {
-			/// @ts-expect-error: "type error"
-			initialValues: {
-				personalDetails: {
-					firstName: "Test",
-					lastName: "User",
-					emailAddress: "test@test.com",
-					mobileNumber: "02345689",
-					genderCode: "M",
-					relationshipStatusCode: "M",
-					height: "123",
-					dateOfBirth: "01/01/1900",
-					countryOfBirthCode: "MY",
-					stateOfBirth: "TEST",
-				},
-				addressDetails: {
-					streetAddress: "123 XYZ",
-					countryCode: "NZ",
-					postcode: "1011",
-					state: "TEST",
-					city: "TEST",
-				},
-				applicationDetails: {
-					documentType: "Pages64",
-					requestType: "First",
-					myKadNumber: "930123458890",
-					birthDocumentNumber: "WERWEGWER",
-				},
-				previousDocuments: {
-					previousDocumentNumber: "WFWQFQWEFW",
-					dependentCaregiverFirstName: "TEST",
-					dependentCaregiverLastName: "User",
-					dependentCaregiverMyKadNumber: "930123458890",
-					dependentCaregiverSignature: "WEGRWER",
-				},
-				declaration: {
-					confirmPreviousDocumentNumber: "WERWEGWER",
-					isDetailsCorrect: true,
-					isLiable: true,
-					declareTrueAndCorrect: true,
-				},
-			},
-		});
-	};
+		if (!isDirty()) {
+			return;
+		}
+
+		if (mRegister.isSuccess || mRegister.isPending) {
+			return;
+		}
+
+		// if this flag is set then we don't need to register the application again
+		if (
+			window.localStorage.getItem(
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
+			)
+		) {
+			return;
+		}
+
+		registerNewForm().then(result =>
+			window.localStorage.setItem(
+				storageKeys.onboardingFlag(userContext().profile?.uuid),
+				result,
+			),
+		);
+	});
 
 	return {
 		data: {
-			referenceData: selectReferenceData,
+			referenceData: () => qReferenceData.data ?? null,
 		},
 		show,
 		toggleDeleteFrictionDialog,
@@ -509,8 +614,11 @@ export const useMyPassportForm = () => {
 		onSubmit,
 		onDelete,
 		isMutating: () => form.submitting || mSubmit.isPending,
+		isAutosaving: () =>
+			handle.loading ||
+			mRegister.isPending ||
+			handle()?.inState(["loading", "requesting"]),
 		isDirty,
-		prefillData,
 		registerNewForm,
 		Components: {
 			Form,

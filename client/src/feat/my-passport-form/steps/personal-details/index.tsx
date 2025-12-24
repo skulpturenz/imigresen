@@ -1,21 +1,22 @@
-import { getValue, type FieldEvent } from "@modular-forms/solid";
+import { getValue } from "@modular-forms/solid";
 import { styles } from "core/constants/styles";
 import { useI18n } from "core/context/i18n";
-import { localeAsc } from "core/data/sort";
+import { get, localeAsc } from "core/data/sort";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { type Option, type StepProps } from "feat/my-passport-form/types";
-import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { Show, type Component } from "solid-js";
+import { Match, Show, Switch, type Component } from "solid-js";
 import {
 	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
+	ComboboxErrorMessage,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
 } from "ui/combobox";
+import { DatePickerErrorMessage } from "ui/date-picker";
 import { SingleDatePicker } from "ui/date-picker/single-date-picker";
 import { Label } from "ui/label";
 import {
@@ -38,22 +39,25 @@ import {
 export const PersonalDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
-	const genderOptions = () => {
-		const options = Object.entries<string>(
+	const sortOptionByLabelLocaleAsc = get((item: Option) => item.label)(
+		localeAsc,
+	);
+
+	const genderOptions = () =>
+		toOptions(
 			props.dropdownOptions()?.genderOptions ?? Object.create(null),
-		).map(([code, label]) => ({ key: code, label }));
+		).sort(sortOptionByLabelLocaleAsc);
 
-		return options;
-	};
-
-	const relationshipStatusOptions = () => {
-		const options = Object.entries<string>(
+	const relationshipStatusOptions = () =>
+		toOptions(
 			props.dropdownOptions()?.relationshipStatusOptions ??
 				Object.create(null),
-		).map(([code, label]) => ({ key: code, label }));
+		).sort(sortOptionByLabelLocaleAsc);
 
-		return options;
-	};
+	const countryOptions = () =>
+		toOptions(
+			props.dropdownOptions()?.countryOptions ?? Object.create(null),
+		).sort(sortOptionByLabelLocaleAsc);
 
 	return (
 		<>
@@ -250,7 +254,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger class="w-full">
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -316,7 +323,10 @@ export const PersonalDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger class="w-full">
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -354,17 +364,17 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<NextRow class="col-span-1">
 				<div>
-					<props.Field
-						name="personalDetails.height"
-						type="number"
-						transform={transformNumber}>
+					<props.Field name="personalDetails.height" type="number">
 						{(field, fieldProps) => (
 							<>
 								<TextFieldRoot
 									validationState={
 										field.error ? "invalid" : "valid"
 									}>
-									<TextFieldLabel>
+									<TextFieldLabel
+										info={t(
+											"form.personalDetails.height.info",
+										)}>
 										{t("form.personalDetails.height.label")}
 									</TextFieldLabel>
 
@@ -377,43 +387,9 @@ export const PersonalDetails: Component<StepProps> = props => {
 										)}
 									/>
 
-									<TextFieldDescription>
-										<Show
-											when={
-												!getValue(
-													props.form,
-													"personalDetails.height",
-												)
-											}>
-											{t(
-												"form.personalDetails.height.descriptionDefault",
-											)}
-										</Show>
-
-										<Show
-											when={isCentimetres(
-												getValue(
-													props.form,
-													"personalDetails.height",
-												) as number,
-											)}>
-											{t(
-												"form.personalDetails.height.descriptionCentimetres",
-											)}
-										</Show>
-
-										<Show
-											when={isMetres(
-												getValue(
-													props.form,
-													"personalDetails.height",
-												) as number,
-											)}>
-											{t(
-												"form.personalDetails.height.descriptionMetres",
-											)}
-										</Show>
-									</TextFieldDescription>
+									<Show when={!styles.device.hasHover()}>
+										{t("form.personalDetails.height.info")}
+									</Show>
 
 									<TextFieldErrorMessage>
 										{field.error}
@@ -444,7 +420,11 @@ export const PersonalDetails: Component<StepProps> = props => {
 											"form.personalDetails.dateOfBirth.placeholder",
 										)}
 										autocomplete="bday"
-									/>
+										invalid={Boolean(field.error)}>
+										<DatePickerErrorMessage>
+											{field.error}
+										</DatePickerErrorMessage>
+									</SingleDatePicker>
 								</InputGroup>
 							</>
 						)}
@@ -458,44 +438,40 @@ export const PersonalDetails: Component<StepProps> = props => {
 					type="string">
 					{(field, fieldProps) => (
 						<>
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
+							<InputGroup>
+								<Label>
 									{t(
 										"form.personalDetails.countryOfBirthCode.label",
 									)}
-								</TextFieldLabel>
+								</Label>
 
-								<AutocorrectTextField
-									// TODO: need to revisit
-									{...field}
+								<Combobox
 									{...fieldProps}
-									form={props.form}
-									name={field.name}
-									value={field.value || ""}
-									autocomplete="country-name"
-									placeholder={t(
-										"form.personalDetails.countryOfBirthCode.placeholder",
-									)}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.countryOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
-								/>
+									value={field.value}
+									options={countryOptions()}
+									itemToValue={item => item.key}
+									itemToString={item => item.label}
+									onInput={fieldProps.onInput}
+									invalid={Boolean(field.error)}>
+									<ComboboxTrigger>
+										<ComboboxInput>
+											<ComboboxClearSelection />
+										</ComboboxInput>
+									</ComboboxTrigger>
 
-								<TextFieldDescription>
-									{t(
-										"form.personalDetails.countryOfBirthCode.description",
-									)}
-								</TextFieldDescription>
+									<ComboboxContent>
+										{(item: Option<string, string>) => (
+											<ComboboxItem item={item}>
+												{item.label}
+											</ComboboxItem>
+										)}
+									</ComboboxContent>
 
-								<TextFieldErrorMessage>
-									{field.error}
-								</TextFieldErrorMessage>
-							</TextFieldRoot>
+									<ComboboxErrorMessage>
+										{field.error}
+									</ComboboxErrorMessage>
+								</Combobox>
+							</InputGroup>
 						</>
 					)}
 				</props.Field>
@@ -503,64 +479,64 @@ export const PersonalDetails: Component<StepProps> = props => {
 
 			<props.Field name="personalDetails.stateOfBirth">
 				{(field, fieldProps) => {
-					// TODO: error message
+					const isBornInMalaysia = () =>
+						getValue(
+							props.form,
+							"personalDetails.countryOfBirthCode",
+						)?.toLowerCase() === "my";
+
 					return (
 						<>
-							<InputGroup>
-								<Label
+							<TextFieldRoot
+								validationState={
+									field.error ? "invalid" : "valid"
+								}
+								disabled={isBornInMalaysia()}>
+								<TextFieldLabel
 									info={t(
 										"form.personalDetails.stateOfBirth.info",
 									)}>
-									{t(
-										"form.personalDetails.stateOfBirth.label",
-									)}
-								</Label>
+									<Switch>
+										<Match when={isBornInMalaysia()}>
+											{t(
+												"form.optional",
+												t(
+													"form.personalDetails.stateOfBirth.label",
+												),
+											)}
+										</Match>
 
-								<Combobox
+										<Match when={!isBornInMalaysia()}>
+											{t(
+												"form.personalDetails.stateOfBirth.label",
+											)}
+										</Match>
+									</Switch>
+								</TextFieldLabel>
+
+								<TextField
 									{...fieldProps}
-									options={
-										props.dropdownOptions()
-											?.personalDetailsStateOptions ?? []
-									}
-									groupSort={localeAsc}
-									value={field.value}
-									allowCustomValue
+									name={field.name}
+									value={field.value ?? ""}
 									placeholder={t(
 										"form.personalDetails.stateOfBirth.placeholder",
-									)}>
-									<ComboboxTrigger>
-										<ComboboxInput>
-											<ComboboxClearSelection />
-										</ComboboxInput>
-									</ComboboxTrigger>
-
-									<ComboboxContent<string>>
-										{(item, isNewOptionValue) => {
-											if (isNewOptionValue(item)) {
-												return (
-													<ComboboxItem item={item}>
-														+ Create {item}
-													</ComboboxItem>
-												);
-											}
-
-											return (
-												<ComboboxItem item={item}>
-													{item}
-												</ComboboxItem>
-											);
-										}}
-									</ComboboxContent>
-								</Combobox>
+									)}
+									type="text"
+									autocomplete="address-level3"
+								/>
 
 								<Show when={!styles.device.hasHover()}>
-									<Label description>
+									<TextFieldDescription>
 										{t(
 											"form.personalDetails.stateOfBirth.info",
 										)}
-									</Label>
+									</TextFieldDescription>
 								</Show>
-							</InputGroup>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
+							</TextFieldRoot>
 						</>
 					);
 				}}
@@ -569,41 +545,5 @@ export const PersonalDetails: Component<StepProps> = props => {
 	);
 };
 
-const isMetres = (x: number | string) => {
-	if (!x) {
-		return false;
-	}
-
-	if (Number.isNaN(Number(x))) {
-		return false;
-	}
-
-	if (Math.floor(Number(x) / 10)) {
-		return false;
-	}
-
-	return true;
-};
-
-const isCentimetres = (x: number | string) => {
-	if (!x) {
-		return false;
-	}
-
-	if (Number.isNaN(Number(x))) {
-		return false;
-	}
-
-	return !isMetres(x);
-};
-
-const transformNumber = (_: any, event: FieldEvent) => {
-	const input = event.target as HTMLInputElement;
-	const maybeNumber = Number(input.value);
-
-	if (Number.isNaN(maybeNumber)) {
-		return;
-	}
-
-	return maybeNumber;
-};
+const toOptions = (x: Record<string, any>) =>
+	Object.entries(x).map(([key, value]) => ({ key: key, label: value }));

@@ -24,10 +24,13 @@ import {
 	useContext,
 	type Accessor,
 	type Component,
+	type ComponentProps,
 	type JSX,
 	type ParentProps,
+	type ValidComponent,
 } from "solid-js";
 import { Portal } from "solid-js/web";
+import { label } from "ui/label";
 import { cn } from "ui/utils";
 
 export const resources = {
@@ -61,6 +64,7 @@ export interface ComboboxBaseProps<TCollectionItem>
 		Omit<UseListCollectionProps<TCollectionItem>, "initialItems"> {
 	options: TCollectionItem[];
 	value?: string | string[];
+	validationState?: "valid" | "invalid";
 }
 
 export interface ComboboxStandardValueProps<TCollectionItem>
@@ -242,6 +246,7 @@ export const Combobox = <TCollectionItem,>(
 		setValue(details.value);
 
 		selectRef?.dispatchEvent(new Event("input", { bubbles: true }));
+		selectRef?.dispatchEvent(new Event("change", { bubbles: true }));
 		props.onValueChange?.(details);
 	};
 
@@ -384,6 +389,29 @@ export const Combobox = <TCollectionItem,>(
 		setInputValue(newInputValue);
 	};
 
+	let rootRef: HTMLDivElement | undefined;
+
+	createEffect(() => {
+		const rootId = rootRef?.id;
+		const errorMessageElements = document.querySelectorAll<HTMLDivElement>(
+			`[id="${rootId}"] > [data-part="error-message"]`,
+		);
+
+		if (props.invalid) {
+			errorMessageElements.forEach(element => {
+				if (!element.textContent?.trim()) {
+					element.style.display = "none";
+				}
+
+				element.style.display = "block";
+			});
+		} else {
+			errorMessageElements.forEach(element => {
+				element.style.display = "none";
+			});
+		}
+	});
+
 	return (
 		<ComboboxContext.Provider
 			value={{
@@ -393,12 +421,14 @@ export const Combobox = <TCollectionItem,>(
 			}}>
 			<ComboboxPrimitive.Root
 				{...others}
+				ref={rootRef}
 				collection={listCollection.collection()}
 				value={value()}
 				inputValue={inputValue()}
 				onValueChange={onValueChange}
 				onInputValueChange={onInputValueChange}
-				onInteractOutside={onInteractOutside}>
+				onInteractOutside={onInteractOutside}
+				class={cn("flex flex-col space-y-4")}>
 				{props.children}
 
 				<select
@@ -471,6 +501,8 @@ export const ComboboxTrigger = (props: ComboboxPrimitive.TriggerProps) => (
 				"relative flex h-10 w-full items-center justify-between rounded-md border border-input px-3 has-[:focus-visible]:ring-2",
 				"has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 transition has-[:focus-visible]:ring-offset-background",
 				"disabled:cursor-not-allowed disabled:opacity-50",
+				"data-[invalid]:animate-headShake disabled:data-[invalid]:animate-none data-[invalid]:border-destructive",
+				"data-[invalid]:text-destructive data-[invalid]:border data-[invalid]:placeholder-destructive transition-shadow",
 				props.class,
 			)}>
 			{props.children}
@@ -610,3 +642,14 @@ export const ComboboxClearSelection: Component<
 		</ComboboxPrimitive.ClearTrigger>
 	);
 };
+
+export const ComboboxErrorMessage = <T extends ValidComponent = "div">(
+	props: ParentProps<ComponentProps<T>>,
+) => (
+	<div
+		data-part="error-message"
+		{...spreadProps(props)}
+		ref={props.ref}
+		class={cn(label({ error: true }), props.class)}
+	/>
+);

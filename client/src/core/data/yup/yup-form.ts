@@ -16,7 +16,7 @@ export const yupForm = <
 	schema: Schema<TType, TContext, TFieldValues>,
 	options?: ValidateOptions<TContext>,
 ): ValidateForm<TFieldValues> => {
-	const owner = getOwner();
+	const owner = options?.owner ?? getOwner();
 
 	return async (values: PartialValues<TFieldValues>) => {
 		const error: ValidationError | null = await runWithOwner(owner, () =>

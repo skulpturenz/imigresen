@@ -1,36 +1,48 @@
 import { getValue } from "@modular-forms/solid";
+import { FeatureToggles } from "core/constants/feature-toggles.enum";
+import { AuthnContext } from "core/context/authn";
+import { FliptContext } from "core/context/flipt";
 import { useI18n } from "core/context/i18n";
+import { useContext } from "core/context/utils";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { RequestType, type StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
-import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import { Show, type Component } from "solid-js";
 import { Label } from "ui/label";
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
 import { cn } from "ui/utils";
 
 export const PreviousDocuments: Component<StepProps> = props => {
-	const t = useI18n<typeof resources>();
+	const fliptContext = useContext(FliptContext);
+	const authnContext = useContext(AuthnContext);
 
-	const requestTypeOptions = dynamic(RequestType, t("options.requestTypes"));
+	const isSignatureEnabled = () =>
+		fliptContext().flipt?.evaluateBoolean({
+			flagKey: FeatureToggles.HomeV2,
+			entityId: authnContext().userId,
+			context: {},
+		}).enabled;
+
+	const t = useI18n<typeof resources>();
 
 	const hasPreviousDocument = () =>
 		[
-			requestTypeOptions.Lost,
-			requestTypeOptions.OutdatedPicturesDependents,
+			RequestType[RequestType.Lost],
+			RequestType[RequestType.OutdatedPicturesDependents],
 		].includes(
 			getValue(props.form, "applicationDetails.requestType") ?? "",
 		);
 
 	const isRequestForDependent = () =>
 		getValue(props.form, "applicationDetails.requestType") ===
-		requestTypeOptions.OutdatedPicturesDependents;
+		RequestType[RequestType.OutdatedPicturesDependents];
 
 	return (
 		<>
@@ -62,6 +74,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}
@@ -95,6 +111,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}
@@ -132,6 +152,10 @@ export const PreviousDocuments: Component<StepProps> = props => {
 											)}
 										</TextFieldDescription>
 									</Show>
+
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
 								</TextFieldRoot>
 							</div>
 						)}
@@ -167,53 +191,59 @@ export const PreviousDocuments: Component<StepProps> = props => {
 									)}
 								</TextFieldDescription>
 							</Show>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					</div>
 				)}
 			</props.Field>
 
-			<props.Field name="previousDocuments.dependentCaregiverSignature">
-				{(_field, _fieldProps) => (
-					<div class="col-span-full">
-						<InputGroup>
-							<Label disabled={!isRequestForDependent()}>
-								{t(
-									"form.previousDocuments.dependentCaregiverSignature.label",
-								)}
-							</Label>
-
-							<div
-								// TODO: signature component
-								class={cn(
-									"w-full bg-muted text-muted-foreground h-60",
-									"transition",
-									!isRequestForDependent() // disabled styles
-										? "cursor-not-allowed opacity-50"
-										: "opacity-50 hover:opacity-100",
-								)}
-							/>
-
-							<Show when={isRequestForDependent()}>
-								<Label description>
+			<Show when={isSignatureEnabled()}>
+				<props.Field name="previousDocuments.dependentCaregiverSignature">
+					{(_field, _fieldProps) => (
+						<div class="col-span-full">
+							<InputGroup>
+								<Label disabled={!isRequestForDependent()}>
 									{t(
-										"form.previousDocuments.dependentCaregiverSignature.descriptionEnabled",
+										"form.previousDocuments.dependentCaregiverSignature.label",
 									)}
 								</Label>
-							</Show>
 
-							<Show when={!isRequestForDependent()}>
-								<Label
-									description
-									disabled={!isRequestForDependent()}>
-									{t(
-										"form.previousDocuments.dependentCaregiverSignature.descriptionDisabled",
+								<div
+									// TODO: signature component
+									class={cn(
+										"w-full bg-muted text-muted-foreground h-60",
+										"transition",
+										!isRequestForDependent() // disabled styles
+											? "cursor-not-allowed opacity-50"
+											: "opacity-50 hover:opacity-100",
 									)}
-								</Label>
-							</Show>
-						</InputGroup>
-					</div>
-				)}
-			</props.Field>
+								/>
+
+								<Show when={isRequestForDependent()}>
+									<Label description>
+										{t(
+											"form.previousDocuments.dependentCaregiverSignature.descriptionEnabled",
+										)}
+									</Label>
+								</Show>
+
+								<Show when={!isRequestForDependent()}>
+									<Label
+										description
+										disabled={!isRequestForDependent()}>
+										{t(
+											"form.previousDocuments.dependentCaregiverSignature.descriptionDisabled",
+										)}
+									</Label>
+								</Show>
+							</InputGroup>
+						</div>
+					)}
+				</props.Field>
+			</Show>
 		</>
 	);
 };

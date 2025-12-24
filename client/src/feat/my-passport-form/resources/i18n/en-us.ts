@@ -18,6 +18,8 @@ export const resources = {
 	doNext: "Next",
 	doSubmit: "Submit",
 	loading: "Loading...",
+	autosaved: "Autosaved",
+	saving: "Saving",
 	steps: {
 		[Step.PersonalDetails]: {
 			label: `Step ${Step.PersonalDetails}`,
@@ -87,7 +89,6 @@ export const resources = {
 			countryOfBirthCode: {
 				label: "Country of birth",
 				placeholder: "",
-				description: "Autocorrected to a valid country",
 			},
 			stateOfBirth: {
 				label: "State of birth",
@@ -97,9 +98,7 @@ export const resources = {
 			height: {
 				label: "Height",
 				placeholder: "",
-				descriptionDefault: "Centimetres or metres",
-				descriptionCentimetres: "Centimetres",
-				descriptionMetres: "Metres",
+				info: "Centimetres",
 			},
 			emailAddress: {
 				label: "Email address",
@@ -134,7 +133,6 @@ export const resources = {
 			countryCode: {
 				label: "Country",
 				placeholder: "",
-				description: "Autocorrected to a valid country",
 			},
 		} satisfies Record<keyof AddressDetails, any>,
 		applicationDetails: {

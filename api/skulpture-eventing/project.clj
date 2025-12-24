@@ -17,7 +17,8 @@
                  [com.taoensso/truss "2.1.0"]
                  [metosin/spec-tools "0.10.7"]
                  [org.clojure/core.cache "1.1.234"]
-                 [org.typedclojure/typed.clj.runtime "1.3.0"]]
+                 [org.typedclojure/typed.clj.runtime "1.3.0"]
+                 [expound "0.9.0"]]
   :profiles {:jar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"]
                    :jar-exclusions [#".*_test\.(clj|java)"]
                    :aot :all

@@ -40,7 +40,7 @@ export const isParentFieldEqual =
 	(path: string, value: any) => (options: ResolveOptions) =>
 		get(options.parent, path) === value;
 
-type ResolveOptions<TContext = any> = {
+export type ResolveOptions<TContext = any> = {
 	value?: any;
 	parent?: any;
 	context?: TContext;

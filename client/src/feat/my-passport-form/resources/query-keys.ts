@@ -19,4 +19,10 @@ export const queryKeys = {
 		search,
 		userId,
 	],
+	getAutomergeUrl: (token?: string) => [
+		"feat",
+		"my-passport-form",
+		"getAutomergeUrl",
+		token,
+	],
 };

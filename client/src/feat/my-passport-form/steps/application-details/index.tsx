@@ -1,3 +1,4 @@
+import { getValue, setValues } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import {
@@ -15,6 +16,7 @@ import {
 	Select,
 	SelectClearSelection,
 	SelectContent,
+	SelectErrorMessage,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
@@ -22,6 +24,7 @@ import {
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -57,6 +60,47 @@ export const ApplicationDetails: Component<StepProps> = props => {
 		return options;
 	};
 
+	const hasPreviousDocument = () =>
+		[
+			RequestType[RequestType.Lost],
+			RequestType[RequestType.OutdatedPicturesDependents],
+		].includes(
+			getValue(props.form, "applicationDetails.requestType") ?? "",
+		);
+
+	const isRequestForDependent = () =>
+		getValue(props.form, "applicationDetails.requestType") ===
+		RequestType[RequestType.OutdatedPicturesDependents];
+
+	const onRequestTypeValueChange = () => {
+		if (!hasPreviousDocument()) {
+			setValues(props.form, {
+				previousDocuments: {
+					dependentCaregiverFirstName: "",
+					dependentCaregiverLastName: "",
+					dependentCaregiverMyKadNumber: "",
+					dependentCaregiverSignature: "",
+					previousDocumentNumber: "",
+				},
+			});
+
+			return;
+		}
+
+		if (!isRequestForDependent()) {
+			setValues(props.form, {
+				previousDocuments: {
+					dependentCaregiverFirstName: "",
+					dependentCaregiverLastName: "",
+					dependentCaregiverMyKadNumber: "",
+					dependentCaregiverSignature: "",
+				},
+			});
+
+			return;
+		}
+	};
+
 	return (
 		<>
 			<div class="col-span-1">
@@ -89,7 +133,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										<SelectItem item={props.item}>
 											{props.item.rawValue.label}
 										</SelectItem>
-									)}>
+									)}
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
 									<SelectTrigger>
 										<SelectValue<Option<string, string>>>
 											{state => {
@@ -113,6 +160,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										</SelectValue>
 									</SelectTrigger>
 									<SelectContent />
+
+									<SelectErrorMessage>
+										{field.error}
+									</SelectErrorMessage>
 								</Select>
 							</InputGroup>
 						</>
@@ -134,6 +185,7 @@ export const ApplicationDetails: Component<StepProps> = props => {
 
 									<Select
 										{...fieldProps}
+										onValueChange={onRequestTypeValueChange}
 										value={requestTypeOptions().find(
 											option =>
 												option.key === field.value,
@@ -152,7 +204,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 											<SelectItem item={props.item}>
 												{props.item.rawValue.label}
 											</SelectItem>
-										)}>
+										)}
+										validationState={
+											field.error ? "invalid" : "valid"
+										}>
 										<SelectTrigger>
 											<SelectValue<
 												Option<string, string>
@@ -178,6 +233,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 											</SelectValue>
 										</SelectTrigger>
 										<SelectContent />
+
+										<SelectErrorMessage>
+											{field.error}
+										</SelectErrorMessage>
 									</Select>
 								</InputGroup>
 							</>
@@ -208,6 +267,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										"form.applicationDetails.myKadNumber.placeholder",
 									)}
 								/>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -242,6 +305,10 @@ export const ApplicationDetails: Component<StepProps> = props => {
 										"form.applicationDetails.birthDocumentNumber.description",
 									)}
 								</TextFieldDescription>
+
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}

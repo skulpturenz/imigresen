@@ -33,7 +33,17 @@ export const personalDetails = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	lastName: string()
 		.when(
 			whenOptions(isPublished, schema =>
@@ -59,7 +69,17 @@ export const personalDetails = object({
 
 				return t("form.errors.alphanumeric");
 			},
-		}),
+		})
+		.when(
+			whenOptions(
+				isPublished,
+				partialRight(toRequired, () => {
+					const t = useI18n<typeof resources>();
+
+					return t("form.errors.required");
+				}),
+			),
+		),
 	nickName: string()
 		.max(constants.fieldConstraints.nameMaxChars, () => {
 			const t = useI18n<typeof resources>();
@@ -160,6 +180,15 @@ export const personalDetails = object({
 		),
 	),
 	height: number()
+		// note: `undefined` is important here
+		// there are two validations that happen when a form is submitted:
+		// - first validation in draft mode (this is done by modular forms before it passes the form values to the submit handler)
+		// - second validation in publish mode by the submit handler (done by us after updating the form mode to published)
+		//
+		// if value is transformed to `null`, then the spec throws at the first validation
+		// and when we try to submit an empty form we don't get to the second stage which shows all
+		// the required field validations
+		.transform(value => value || undefined)
 		.min(constants.fieldConstraints.heightMin, () => {
 			const t = useI18n<typeof resources>();
 

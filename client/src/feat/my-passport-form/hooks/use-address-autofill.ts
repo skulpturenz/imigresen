@@ -8,14 +8,16 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { AuthnContext } from "core/context/authn";
 import { useContext } from "core/context/utils";
 import { get, localeAsc, multiSort } from "core/data/sort";
+import { useDebug } from "core/hooks/use-debug";
 import { differenceInMinutes } from "date-fns";
 import { debounce, invariant } from "es-toolkit";
 import { queryKeys } from "feat/my-passport-form/resources/query-keys";
-import type { MyPassportForm } from "feat/my-passport-form/types";
-import { createSignal, onCleanup } from "solid-js";
+import type { MyPassportForm, Option } from "feat/my-passport-form/types";
+import { createSignal, onCleanup, type Accessor } from "solid-js";
 
 export interface UseAddressAutofillProps {
 	form: FormStore<MyPassportForm>;
+	countries: Accessor<Option<string, string>[]>;
 }
 
 export interface AddressOption {
@@ -36,6 +38,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 	const START_DATE = new Date();
 
 	const authnContext = useContext(AuthnContext);
+	const $debug = useDebug();
 
 	const queryClient = useQueryClient();
 
@@ -55,9 +58,7 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 				START_DATE,
 			);
 
-			if (!import.meta.env.PROD) {
-				console.debug("minutes elapsed", minutesElapsed);
-			}
+			$debug(console.debug)("minutes elapsed", minutesElapsed);
 
 			if (!import.meta.env.DEV && minutesElapsed >= MAX_MINUTES) {
 				return [];
@@ -153,8 +154,13 @@ export const useAddressAutofill = (props: UseAddressAutofillProps) => {
 			{
 				addressDetails: {
 					postcode: option.meta.postcode,
-					// TODO: we are referring to countries by names at the moment
-					countryCode: option.meta.country,
+					countryCode: props
+						.countries()
+						.find(
+							x =>
+								x.label.toLowerCase() ===
+								option.meta.country?.toLowerCase(),
+						)?.key,
 					state: option.meta.state,
 					city: option.meta.city,
 				},

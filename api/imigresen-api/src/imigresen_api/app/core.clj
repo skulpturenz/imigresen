@@ -61,6 +61,11 @@
    :body {:message (or (get-in (ex-data ex) [:data :message])
                        "Bad request")}})
 
+(defn bad-state-exception-handler [ex _req]
+  {:status (:internal-server-error imi-routes/status-codes)
+   :body {:message (or (get-in (ex-data ex) [:data :message])
+                       "Bad state")}})
+
 (defn default-exception-handler [ex _req]
   {:status (:internal-server-error imi-routes/status-codes)
    :body {:message (ex-message ex)
@@ -72,6 +77,7 @@
     (cond
       (= (get-in data [:data :type]) :not-found) (not-found-exception-handler ex req)
       (= (get-in data [:data :type]) :bad-request) (bad-request-exception-handler ex req)
+      (= (get-in data [:data :type]) :bad-state) (bad-state-exception-handler ex req)
       :else (default-exception-handler ex req))))
 
 (defn always-exception-handler [handler ex req]

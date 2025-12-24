@@ -1,10 +1,8 @@
-import { getValue } from "@modular-forms/solid";
 import { useI18n } from "core/context/i18n";
-import { localeAsc } from "core/data/sort";
+import { get, localeAsc } from "core/data/sort";
 import { formatOption, useAddressAutofill } from "feat/my-passport-form/hooks";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
-import type { StepProps } from "feat/my-passport-form/types";
-import { AutocorrectTextField } from "feat/my-passport-form/ui/autocorrect-text-field";
+import type { Option, StepProps } from "feat/my-passport-form/types";
 import { InputGroup } from "feat/my-passport-form/ui/input-group";
 import { NextRow } from "feat/my-passport-form/ui/next-row";
 import { For, type Component } from "solid-js";
@@ -12,6 +10,7 @@ import {
 	Combobox,
 	ComboboxClearSelection,
 	ComboboxContent,
+	ComboboxErrorMessage,
 	ComboboxInput,
 	ComboboxItem,
 	ComboboxTrigger,
@@ -22,7 +21,7 @@ import {
 import { Label } from "ui/label";
 import {
 	TextField,
-	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -30,9 +29,19 @@ import {
 export const AddressDetails: Component<StepProps> = props => {
 	const t = useI18n<typeof resources>();
 
+	const sortOptionByLabelLocaleAsc = get((item: Option) => item.label)(
+		localeAsc,
+	);
+
+	const countryOptions = () =>
+		toOptions(
+			props.dropdownOptions()?.countryOptions ?? Object.create(null),
+		).sort(sortOptionByLabelLocaleAsc);
+
 	const { autofillOptions, onChangeOption, getOptions, onClear } =
 		useAddressAutofill({
 			form: props.form,
+			countries: countryOptions,
 		});
 
 	const onStreetAddressChange = (details: ComboboxInputValueChangeDetails) =>
@@ -62,7 +71,8 @@ export const AddressDetails: Component<StepProps> = props => {
 											onStreetAddressChange
 										}
 										onSelect={onSelectStreetAddress}
-										onClear={onClear}>
+										onClear={onClear}
+										invalid={Boolean(field.error)}>
 										<ComboboxTrigger>
 											<ComboboxInput>
 												<ComboboxClearSelection />
@@ -78,6 +88,10 @@ export const AddressDetails: Component<StepProps> = props => {
 												)}
 											</For>
 										</ComboboxContent>
+
+										<ComboboxErrorMessage>
+											{field.error}
+										</ComboboxErrorMessage>
 									</Searchbox>
 								</InputGroup>
 							</>
@@ -85,41 +99,32 @@ export const AddressDetails: Component<StepProps> = props => {
 					}}
 				</props.Field>
 			</div>
-
 			<div>
-				<props.Field name="addressDetails.countryCode">
-					{(field, fieldProps) => (
+				<props.Field name="addressDetails.city">
+					{(field, props) => (
 						<>
 							<TextFieldRoot
 								validationState={
 									field.error ? "invalid" : "valid"
 								}>
 								<TextFieldLabel>
-									{t("form.addressDetails.countryCode.label")}
+									{t("form.addressDetails.city.label")}
 								</TextFieldLabel>
 
-								<AutocorrectTextField
-									{...field}
-									{...fieldProps}
-									form={props.form}
+								<TextField
+									{...props}
 									name={field.name}
-									value={field.value || ""}
-									autocomplete="country-name"
+									value={field.value ?? ""}
 									placeholder={t(
-										"form.addressDetails.countryCode.placeholder",
+										"form.addressDetails.city.placeholder",
 									)}
-									options={Object.values<string>(
-										props.dropdownOptions()
-											?.countryOptions ??
-											Object.create(null),
-									).sort(localeAsc)}
+									type="text"
+									autocomplete="address-level2"
 								/>
 
-								<TextFieldDescription>
-									{t(
-										"form.addressDetails.countryCode.description",
-									)}
-								</TextFieldDescription>
+								<TextFieldErrorMessage>
+									{field.error}
+								</TextFieldErrorMessage>
 							</TextFieldRoot>
 						</>
 					)}
@@ -151,6 +156,10 @@ export const AddressDetails: Component<StepProps> = props => {
 										type="text"
 										autocomplete="postal-code"
 									/>
+
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
 								</TextFieldRoot>
 							</>
 						)}
@@ -159,101 +168,89 @@ export const AddressDetails: Component<StepProps> = props => {
 
 				<div>
 					<props.Field name="addressDetails.state">
-						{(field, fieldProps) => {
-							return (
-								<>
-									<InputGroup>
-										<Label>
-											{t(
-												"form.addressDetails.state.label",
-											)}
-										</Label>
+						{(field, props) => (
+							<>
+								<TextFieldRoot
+									validationState={
+										field.error ? "invalid" : "valid"
+									}>
+									<TextFieldLabel>
+										{t("form.addressDetails.state.label")}
+									</TextFieldLabel>
 
-										<Combobox
-											{...fieldProps}
-											name={field.name}
-											allowCustomValue
-											options={
-												props.dropdownOptions()
-													?.addressDetailsStateOptions ??
-												[]
-											}
-											groupSort={localeAsc}
-											placeholder={t(
-												"form.addressDetails.state.placeholder",
-											)}
-											disabled={
-												!getValue(
-													props.form,
-													"addressDetails.countryCode",
-												)
-											}>
-											<ComboboxTrigger>
-												<ComboboxInput>
-													<ComboboxClearSelection />
-												</ComboboxInput>
-											</ComboboxTrigger>
+									<TextField
+										{...props}
+										name={field.name}
+										value={field.value ?? ""}
+										placeholder={t(
+											"form.addressDetails.state.placeholder",
+										)}
+										type="text"
+										autocomplete="address-level3"
+									/>
 
-											<ComboboxContent>
-												{(
-													item: string,
-													isNewOptionValue,
-												) => {
-													if (
-														isNewOptionValue(item)
-													) {
-														return (
-															<ComboboxItem
-																item={item}>
-																+ Create {item}
-															</ComboboxItem>
-														);
-													}
-
-													return (
-														<ComboboxItem
-															item={item}>
-															{item}
-														</ComboboxItem>
-													);
-												}}
-											</ComboboxContent>
-										</Combobox>
-									</InputGroup>
-								</>
-							);
-						}}
+									<TextFieldErrorMessage>
+										{field.error}
+									</TextFieldErrorMessage>
+								</TextFieldRoot>
+							</>
+						)}
 					</props.Field>
 				</div>
 			</NextRow>
 
-			<div>
-				<props.Field name="addressDetails.city">
-					{(field, props) => (
-						<>
-							<TextFieldRoot
-								validationState={
-									field.error ? "invalid" : "valid"
-								}>
-								<TextFieldLabel>
-									{t("form.addressDetails.city.label")}
-								</TextFieldLabel>
+			<NextRow>
+				<div>
+					<props.Field
+						name="addressDetails.countryCode"
+						type="string">
+						{(field, fieldProps) => (
+							<>
+								<InputGroup>
+									<Label>
+										{t(
+											"form.addressDetails.countryCode.label",
+										)}
+									</Label>
 
-								<TextField
-									{...props}
-									name={field.name}
-									value={field.value ?? ""}
-									placeholder={t(
-										"form.addressDetails.city.placeholder",
-									)}
-									type="text"
-									autocomplete="address-level2"
-								/>
-							</TextFieldRoot>
-						</>
-					)}
-				</props.Field>
-			</div>
+									<Combobox
+										{...fieldProps}
+										value={field.value}
+										options={countryOptions()}
+										onInput={fieldProps.onInput}
+										invalid={Boolean(field.error)}
+										itemToValue={item => item.key}
+										itemToString={item => item.label}
+										placeholder={t(
+											"form.addressDetails.countryCode.placeholder",
+										)}>
+										<ComboboxTrigger>
+											<ComboboxInput>
+												<ComboboxClearSelection />
+											</ComboboxInput>
+										</ComboboxTrigger>
+
+										<ComboboxContent>
+											{(item: Option<string, string>) => (
+												<ComboboxItem item={item}>
+													{item.label}
+												</ComboboxItem>
+											)}
+										</ComboboxContent>
+
+										<ComboboxErrorMessage>
+											{field.error}
+										</ComboboxErrorMessage>
+									</Combobox>
+								</InputGroup>
+							</>
+						)}
+					</props.Field>
+				</div>
+			</NextRow>
 		</>
 	);
 };
+
+const toOptions = (x: Record<string, any>) =>
+	Object.entries(x).map(([key, value]) => ({ key: key, label: value }));

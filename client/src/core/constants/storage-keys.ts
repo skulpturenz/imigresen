@@ -15,4 +15,11 @@ export const storageKeys = {
 		return ["user", user, uuid].join(":");
 	},
 	authCookie: "IMIGRESEN_AUTH_COOKIE",
+	onboardingFlag: (user?: string) => {
+		if (!user) {
+			return ["public", "onboarding"].join(":");
+		}
+
+		return ["user", user, "onboarding"].join(":");
+	},
 };

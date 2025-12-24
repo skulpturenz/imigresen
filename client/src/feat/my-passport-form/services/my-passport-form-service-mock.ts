@@ -1,9 +1,9 @@
 import { storageKeys } from "core/constants/storage-keys";
-import { delay, invariant } from "es-toolkit";
-import { fixture as referenceDataStateFixture } from "feat/my-passport-form/chore/reference-data-states.fixture";
+import { delay } from "es-toolkit";
 import { fixture as referenceDataFixture } from "feat/my-passport-form/chore/reference-data.fixture";
 import type {
 	DeleteApplicationVariables,
+	GetAutomergeUrlVariables,
 	PutApplicationVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
@@ -18,6 +18,17 @@ const storage = createStorage({
 });
 
 export const myPassportFormService = (_token?: string) => {
+	const getAutomergeUrl = async ({
+		uuid,
+		user,
+	}: GetAutomergeUrlVariables) => {
+		const localItem = await storage.getItem<string>(
+			storageKeys.myPassportFormApplication(uuid, user),
+		);
+
+		return localItem;
+	};
+
 	const registerApplication = async ({
 		automergeUrl,
 		user,
@@ -45,33 +56,15 @@ export const myPassportFormService = (_token?: string) => {
 		return referenceDataFixture;
 	};
 
-	const getReferenceDataStates = async ({ queryKey }: any) => {
-		invariant(
-			queryKey && Array.isArray(queryKey),
-			"Expected an array for query key",
-		);
-
-		const COUNTRY_IDX = -2;
-		const country = queryKey.at(COUNTRY_IDX);
-
-		if (!country) {
-			return [];
-		}
-
-		await delay(250);
-
-		return referenceDataStateFixture;
-	};
-
 	const putIm42 = async (_variables: PutApplicationVariables) => {
 		await delay(250);
 	};
 
 	return {
+		getAutomergeUrl,
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
-		getReferenceDataStates,
 		putIm42,
 	};
 };

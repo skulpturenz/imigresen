@@ -7,7 +7,7 @@ export const constants = {
 	fieldConstraints: {
 		nameMinChars: 1,
 		nameMaxChars: 60,
-		heightMin: 1, // m
+		heightMin: 100, // cm
 		heightMax: 300, // cm
 	},
 };

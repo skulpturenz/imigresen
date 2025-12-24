@@ -4,7 +4,7 @@ import { kebabCase, pascalCase } from "es-toolkit";
 import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { Step } from "feat/my-passport-form/types/ui";
 import type { WizardStep } from "feat/my-passport-form/ui/wizard/types";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { StepStatus } from "ui/stepper/types";
 
 export const useWizardSteps = () => {
@@ -62,6 +62,10 @@ export const useWizardSteps = () => {
 				.filter(Boolean)
 				.join(""),
 		);
+	});
+
+	onCleanup(() => {
+		window.history.pushState("", document.title, window.location.pathname);
 	});
 
 	createEffect(() => {
@@ -138,9 +142,9 @@ export const useWizardSteps = () => {
 	};
 };
 
-const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
+export const toHash = (step: Step) => `#${kebabCase(Step[step])}`;
 
-const toStep = (key: string) =>
+export const toStep = (key: string) =>
 	Step[pascalCase(key) as keyof typeof Step] || null;
 
 export const isCurrentStep = (location: Location, step: Step) =>

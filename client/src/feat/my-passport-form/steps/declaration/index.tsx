@@ -4,10 +4,17 @@ import type { resources } from "feat/my-passport-form/resources/i18n/en-us";
 import { RequestType, type StepProps } from "feat/my-passport-form/types";
 import { dynamic } from "feat/my-passport-form/utils/dynamic";
 import type { Component } from "solid-js";
-import { Checkbox, CheckboxControl, CheckboxLabel } from "ui/checkbox";
+import {
+	Checkbox,
+	CheckboxControl,
+	CheckboxErrorMessage,
+	CheckboxInputGroup,
+	CheckboxLabel,
+} from "ui/checkbox";
 import {
 	TextField,
 	TextFieldDescription,
+	TextFieldErrorMessage,
 	TextFieldLabel,
 	TextFieldRoot,
 } from "ui/text-field";
@@ -57,6 +64,10 @@ export const Declaration: Component<StepProps> = props => {
 									"form.declaration.confirmPreviousDocumentNumber.description",
 								)}
 							</TextFieldDescription>
+
+							<TextFieldErrorMessage>
+								{field.error}
+							</TextFieldErrorMessage>
 						</TextFieldRoot>
 					)}
 				</props.Field>
@@ -64,26 +75,31 @@ export const Declaration: Component<StepProps> = props => {
 
 			<div class="col-span-full">
 				<props.Field name="declaration.isDetailsCorrect" type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
 								{...field}
-								name={field.name}
-								checked={value}
-								class="flex items-center gap-4">
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								checked={field.value}
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t(
-										"form.declaration.isDetailsCorrect.label",
-										isRequestForDependent(),
-									)}
-								</CheckboxLabel>
+									<CheckboxLabel class="font-medium">
+										{t(
+											"form.declaration.isDetailsCorrect.label",
+											isRequestForDependent(),
+										)}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
@@ -94,31 +110,36 @@ export const Declaration: Component<StepProps> = props => {
 				<props.Field
 					name="declaration.declareTrueAndCorrect"
 					type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
 								{...field}
-								name={field.name}
-								checked={value}
-								class="flex items-center gap-4">
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								checked={field.value}
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t(
-										"form.declaration.declareTrueAndCorrect.label",
-									).at(0)}
+									<CheckboxLabel class="font-medium">
+										{t(
+											"form.declaration.declareTrueAndCorrect.label",
+										).at(0)}
 
-									<br />
+										<br />
 
-									{t(
-										"form.declaration.declareTrueAndCorrect.label",
-									).at(1)}
-								</CheckboxLabel>
+										{t(
+											"form.declaration.declareTrueAndCorrect.label",
+										).at(1)}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
@@ -127,23 +148,29 @@ export const Declaration: Component<StepProps> = props => {
 
 			<div class="col-span-full">
 				<props.Field name="declaration.isLiable" type="boolean">
-					{({ value, ...field }, fieldProps) => (
+					{(field, fieldProps) => (
 						<>
 							<Checkbox
 								{...field}
-								name={field.name}
-								checked={value}
-								class="flex items-center gap-4">
-								<CheckboxControl
-									{...fieldProps}
-									/// @ts-expect-error: TODO component fixes sweep
-									ref={fieldProps.ref}
-									class="self-start mt-1.5"
-								/>
+								checked={field.value}
+								class="flex flex-col space-y-4"
+								validationState={
+									field.error ? "invalid" : "valid"
+								}>
+								<CheckboxInputGroup>
+									<CheckboxControl
+										{...fieldProps}
+										class="self-start mt-1.5"
+									/>
 
-								<CheckboxLabel class="font-medium">
-									{t("form.declaration.isLiable.label")}
-								</CheckboxLabel>
+									<CheckboxLabel class="font-medium">
+										{t("form.declaration.isLiable.label")}
+									</CheckboxLabel>
+								</CheckboxInputGroup>
+
+								<CheckboxErrorMessage>
+									{field.error}
+								</CheckboxErrorMessage>
 							</Checkbox>
 						</>
 					)}
