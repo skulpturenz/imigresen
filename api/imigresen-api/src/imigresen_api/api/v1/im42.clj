@@ -140,4 +140,16 @@
                                                    (:bad-request imi-routes/status-codes) {:description "Bad request"}
                                                    (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
-                                       :middleware [imi-auth/protect]}}]])
+                                       :middleware [imi-auth/protect]}}]
+   ["/populate" {:post {:summary "Populate IM42 form"
+                        :handler (fn [{:keys [parameters]
+                                       :as _req}]
+                                   (let [out (java.io.ByteArrayOutputStream.)]
+                                     (imi-im42/populate-form (:body parameters) out)))
+                        :parameters {:body (-> imi-im42-spec/im42-form
+                                               (update-in [:spec] dissoc :uuid)
+                                               (assoc :name ::put-im42-form)
+                                               (ds/spec))}
+                        :responses {(:ok imi-routes/status-codes) {:description "Ok"} ;; TODO: multipart annotation
+                                    (:bad-request imi-routes/status-codes) {:description "Bad request"}
+                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}}}]])
