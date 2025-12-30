@@ -7,7 +7,8 @@
             [imigresen-common.components.user.store :as imi-user]
             [ring.util.response :as ring-res]
             [spec-tools.data-spec :as ds]
-            [taoensso.truss :as truss]))
+            [taoensso.truss :as truss]
+            [ring.util.codec :as ring-codec]))
 
 (defn im42-routes []
   ["/im42" {:tags ["im42.v1"]}
@@ -145,7 +146,16 @@
                         :handler (fn [{:keys [parameters]
                                        :as _req}]
                                    (let [out (java.io.ByteArrayOutputStream.)]
-                                     (imi-im42/populate-form (:body parameters) out)))
+                                     (imi-im42/populate-form (:body parameters) out)
+                                     ;; TODO: seems to be creating an input stream and content length is not 0 but fails
+                                     ;; https://github.com/ring-clojure/ring/wiki/Concepts#responses
+                                     (println (java.io.ByteArrayInputStream. (.toByteArray out)))
+                                     (-> out
+                                         (.toByteArray)
+                                         (java.io.ByteArrayInputStream.)
+                                         (ring-res/response)
+                                         (ring-res/content-type "application/pdf")
+                                         (ring-res/status (:ok imi-routes/status-codes)))))
                         :parameters {:body (-> imi-im42-spec/im42-form
                                                (update-in [:spec] dissoc :uuid)
                                                (assoc :name ::put-im42-form)
