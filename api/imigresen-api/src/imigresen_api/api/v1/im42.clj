@@ -7,8 +7,7 @@
             [imigresen-common.components.user.store :as imi-user]
             [ring.util.response :as ring-res]
             [spec-tools.data-spec :as ds]
-            [taoensso.truss :as truss]
-            [ring.util.codec :as ring-codec]))
+            [taoensso.truss :as truss]))
 
 (defn im42-routes []
   ["/im42" {:tags ["im42.v1"]}
