@@ -373,7 +373,6 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		}
 
 		const user = userContext().profile?.uuid;
-		invariant(user, "no user uuid");
 
 		const automergeUrl = handle()?.url;
 		invariant(
@@ -392,26 +391,30 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 			fileAnchor.href = URL.createObjectURL(generatedFile);
 			fileAnchor.download = "populated_im42_form.pdf"; // note: filename also in content disposition headers
 			fileAnchor.target = "_blank";
+			document.body.appendChild(fileAnchor);
 
 			fileAnchor.click();
+			document.body.removeChild(fileAnchor);
 		}
 
-		if (getUuid()) {
-			await mSubmit.mutateAsync({
-				uuid: getUuid() as string,
-				user,
-				automergeUrl,
-				formValues,
-				dropdownOptions: qReferenceData.data as DropdownOptions,
-			});
-		} else {
-			await mSubmit.mutateAsync({
-				uuid: await registerNewForm(),
-				user,
-				automergeUrl,
-				formValues,
-				dropdownOptions: qReferenceData.data as DropdownOptions,
-			});
+		if (user) {
+			if (getUuid()) {
+				await mSubmit.mutateAsync({
+					uuid: getUuid() as string,
+					user,
+					automergeUrl,
+					formValues,
+					dropdownOptions: qReferenceData.data as DropdownOptions,
+				});
+			} else {
+				await mSubmit.mutateAsync({
+					uuid: await registerNewForm(),
+					user,
+					automergeUrl,
+					formValues,
+					dropdownOptions: qReferenceData.data as DropdownOptions,
+				});
+			}
 		}
 
 		draft();
@@ -427,11 +430,11 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 					authnContext().keycloak?.token,
 				),
 			});
-		}
 
-		setTimeout(() => {
-			navigate(toPath(CoreRoute.Home));
-		});
+			setTimeout(() => {
+				navigate(toPath(CoreRoute.Home));
+			});
+		}
 	};
 
 	createEffect(() => {
