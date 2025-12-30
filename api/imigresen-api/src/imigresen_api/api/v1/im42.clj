@@ -141,12 +141,10 @@
                                                    (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                                        :middleware [imi-auth/protect]}}]
-   ["/populate" {:post {:summary "Populate IM42 form" ;; TODO: pure function, can cache
+   ["/populate" {:post {:summary "Populate IM42 form"
                         :handler (fn [{:keys [parameters]
                                        :as _req}]
-                                   (-> (java.io.ByteArrayOutputStream.)
-                                       (#(imi-im42/populate-form (:body parameters) %))
-                                       (.toByteArray)
+                                   (-> (imi-im42/populate-form (:body parameters))
                                        (java.io.ByteArrayInputStream.)
                                        (ring-res/response)
                                        (ring-res/content-type "application/pdf")
