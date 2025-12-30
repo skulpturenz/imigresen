@@ -142,7 +142,7 @@
                                                    (:unauthorized imi-routes/status-codes) {:description "Unauthorized"}
                                                    (:internal-server-error imi-routes/status-codes) {:description "Internal server error"}}
                                        :middleware [imi-auth/protect]}}]
-   ["/populate" {:post {:summary "Populate IM42 form"
+   ["/populate" {:post {:summary "Populate IM42 form" ;; TODO: pure function, can cache
                         :handler (fn [{:keys [parameters]
                                        :as _req}]
                                    (let [out (java.io.ByteArrayOutputStream.)]
