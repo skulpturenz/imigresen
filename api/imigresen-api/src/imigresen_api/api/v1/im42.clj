@@ -145,17 +145,14 @@
    ["/populate" {:post {:summary "Populate IM42 form" ;; TODO: pure function, can cache
                         :handler (fn [{:keys [parameters]
                                        :as _req}]
-                                   (let [out (java.io.ByteArrayOutputStream.)]
-                                     (imi-im42/populate-form (:body parameters) out)
-                                     ;; TODO: seems to be creating an input stream and content length is not 0 but fails
-                                     ;; https://github.com/ring-clojure/ring/wiki/Concepts#responses
-                                     (println (java.io.ByteArrayInputStream. (.toByteArray out)))
-                                     (-> out
-                                         (.toByteArray)
-                                         (java.io.ByteArrayInputStream.)
-                                         (ring-res/response)
-                                         (ring-res/content-type "application/pdf")
-                                         (ring-res/status (:ok imi-routes/status-codes)))))
+                                   (-> (java.io.ByteArrayOutputStream.)
+                                       (#(imi-im42/populate-form (:body parameters) %))
+                                       (.toByteArray)
+                                       (java.io.ByteArrayInputStream.)
+                                       (ring-res/response)
+                                       (ring-res/content-type "application/pdf")
+                                       (ring-res/status (:ok imi-routes/status-codes))
+                                       (ring-res/header "content-disposition" "attachment; filename=populated_im42_form.pdf")))
                         :parameters {:body (-> imi-im42-spec/im42-form
                                                (update-in [:spec] dissoc :uuid)
                                                (assoc :name ::put-im42-form)
