@@ -304,6 +304,10 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		mutationFn: myPassportFormContext.putIm42,
 	}));
 
+	const mPopulate = useMutation(() => ({
+		mutationFn: myPassportFormContext.postPopulate,
+	}));
+
 	const onDelete = async () => {
 		if (!getUuid()) {
 			return;
@@ -393,6 +397,21 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 				formValues,
 				dropdownOptions: qReferenceData.data as DropdownOptions,
 			});
+		}
+
+		const generatedFile = await mPopulate.mutateAsync({
+			automergeUrl,
+			formValues,
+			dropdownOptions: qReferenceData.data as DropdownOptions,
+		});
+
+		if (generatedFile) {
+			const fileAnchor = document.createElement("a");
+			fileAnchor.href = URL.createObjectURL(generatedFile);
+			fileAnchor.download = "populated_im42_form.pdf"; // note: filename also in content disposition headers
+			fileAnchor.target = "_blank";
+
+			fileAnchor.click();
 		}
 
 		draft();

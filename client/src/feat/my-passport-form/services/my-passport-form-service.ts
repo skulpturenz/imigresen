@@ -6,6 +6,7 @@ import type {
 	GetAutomergeUrlVariables,
 	PersistedMyPassportForm,
 	PutApplicationVariables,
+	PutPopulateVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
 import { createStorage } from "unstorage";
@@ -136,11 +137,25 @@ export const myPassportFormService = (token?: string) => {
 			.res();
 	};
 
+	const postPopulate = async ({
+		automergeUrl,
+		formValues,
+		dropdownOptions,
+	}: PutPopulateVariables) => {
+		return await im42Api
+			.post(
+				toPutIm42Request(automergeUrl, formValues, dropdownOptions),
+				"/populate",
+			)
+			.blob<Blob | null>();
+	};
+
 	return {
 		getAutomergeUrl,
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
 		putIm42,
+		postPopulate,
 	};
 };
