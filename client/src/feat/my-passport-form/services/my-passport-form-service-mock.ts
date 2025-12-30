@@ -5,6 +5,7 @@ import type {
 	DeleteApplicationVariables,
 	GetAutomergeUrlVariables,
 	PutApplicationVariables,
+	PutPopulateVariables,
 	RegisterApplicationVariables,
 } from "feat/my-passport-form/types";
 import { createStorage } from "unstorage";
@@ -60,11 +61,16 @@ export const myPassportFormService = (_token?: string) => {
 		await delay(250);
 	};
 
+	const postPopulate = async (_variables: PutPopulateVariables) => {
+		return null;
+	};
+
 	return {
 		getAutomergeUrl,
 		registerApplication,
 		deleteApplication,
 		getReferenceData,
 		putIm42,
+		postPopulate,
 	};
 };

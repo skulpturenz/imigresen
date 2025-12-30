@@ -23,3 +23,9 @@ export interface GetAutomergeUrlVariables {
 	user?: string;
 	uuid: string;
 }
+
+export interface PutPopulateVariables {
+	automergeUrl: string;
+	formValues: MyPassportForm;
+	dropdownOptions: DropdownOptions;
+}
