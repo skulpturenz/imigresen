@@ -144,7 +144,7 @@
    ["/populate" {:post {:summary "Populate IM42 form"
                         :handler (fn [{:keys [parameters]
                                        :as _req}]
-                                   (-> (imi-im42/populate-form (:body parameters))
+                                   (-> (imi-im42/populate-form! (:body parameters))
                                        (java.io.ByteArrayInputStream.)
                                        (ring-res/response)
                                        (ring-res/content-type "application/pdf")

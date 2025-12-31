@@ -12,6 +12,8 @@ RUN cd imigresen-api && lein build.prod
 
 FROM eclipse-temurin:24-jdk-alpine
 
+RUN apk update && apk add --no-cache msttcorefonts-installer
+
 # COPY --from=build /build/imigresen-common/target/common-SNAPSHOT-standalone.jar /app/common-standalone.jar
 COPY --from=build /build/imigresen-api/target/uberjar/api-0.1.0-SNAPSHOT-standalone.jar /app/api-standalone.jar
 
