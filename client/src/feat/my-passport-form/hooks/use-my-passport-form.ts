@@ -395,6 +395,11 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 
 			fileAnchor.click();
 			document.body.removeChild(fileAnchor);
+			// TODO: populated doc will be held in memory and not released until tab closed
+			// because we are not revoking the object URL. don't think we will run into memory
+			// issues unless spam generating
+			// - we can store the pdf in the anchor element as base64
+			// - or revoke after some time
 		}
 
 		if (user) {
@@ -418,7 +423,7 @@ export const useMyPassportForm = (props: UseMyPassportFormProps) => {
 		}
 
 		draft();
-		reset(form);
+		reset(form, { initialValues: formValues });
 
 		if (isOnboarding()) {
 			window.localStorage.removeItem(
