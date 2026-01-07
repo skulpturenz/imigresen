@@ -8,6 +8,7 @@ import type { UserSvc } from "./user/store";
 
 export const createAuthnContext = (): AuthnSvc => ({
 	isInitialLoading: true,
+	isInitialError: false,
 	isActionsLoading: false,
 	keycloak: null,
 	profile: null,
