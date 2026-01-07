@@ -122,7 +122,11 @@ export const Navbar: Component<ParentProps> = () => {
 			<Show when={isMobileMenuOpen()}>
 				<div class="bg-secondary transition-shadow">
 					<div class="flex flex-col">
-						<Show when={!authnContext().keycloak?.authenticated}>
+						<Show
+							when={
+								!authnContext().keycloak?.authenticated &&
+								!authnContext().isInitialError
+							}>
 							<Button
 								variant="ghost"
 								onClick={authnContext().actions.login}>
@@ -204,13 +208,17 @@ export const Navbar: Component<ParentProps> = () => {
 				</span>
 			</Button>
 
-			<Button variant="secondary" onClick={authnContext().actions.login}>
-				{resources.doLogin}
-			</Button>
+			<Show when={!authnContext().isInitialError}>
+				<Button
+					variant="secondary"
+					onClick={authnContext().actions.login}>
+					{resources.doLogin}
+				</Button>
 
-			<Button onClick={authnContext().actions.register}>
-				{resources.doRegister}
-			</Button>
+				<Button onClick={authnContext().actions.register}>
+					{resources.doRegister}
+				</Button>
+			</Show>
 		</div>
 	);
 
