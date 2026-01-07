@@ -22,6 +22,7 @@ export const AUTHN_SVC_SUB_CONFIG_KEY = `imigresen-${import.meta.env.MODE}-sub`;
 
 export interface AuthnSvc {
 	isInitialLoading: boolean;
+	isInitialError: boolean;
 	isActionsLoading: boolean;
 	keycloak?: Keycloak | null;
 	profile?: KeycloakProfile | null;
@@ -155,6 +156,7 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 
 		return {
 			isInitialLoading: true,
+			isInitialError: false,
 			isActionsLoading: false,
 			profile: null,
 			keycloak: null,
@@ -169,16 +171,18 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 
 					set({ keycloak, isInitialLoading: true });
 
-					await keycloak.init({
-						onLoad: "check-sso",
-						silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
-						scope: "openid roles profile email",
-						redirectUri: createRedirectUrl(
-							loginRedirectUri,
-							location.pathname,
-						).href,
-						pkceMethod: "S256",
-					});
+					await keycloak
+						.init({
+							onLoad: "check-sso",
+							silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
+							scope: "openid roles profile email",
+							redirectUri: createRedirectUrl(
+								loginRedirectUri,
+								location.pathname,
+							).href,
+							pkceMethod: "S256",
+						})
+						.catch(() => set({ isInitialError: true }));
 
 					set({ refreshMapboxTokenInterval: initMapbox() });
 
@@ -201,7 +205,7 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 					}
 
 					set({ profile, userId: keycloak.tokenParsed?.sub });
-					set({ isInitialLoading: false });
+					set({ isInitialLoading: false, isInitialError: false });
 				}),
 				login: () => {
 					invariant(get().keycloak, "Keycloak instance not defined");
