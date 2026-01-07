@@ -6,10 +6,11 @@ import { createWithSignal } from "solid-zustand";
 
 export interface FliptSvc {
 	isInitialLoading: boolean;
+	isInitialError: boolean;
 	flags: Flag[];
 	flipt?: FliptClient | null;
 	actions: {
-		init: () => void;
+		init: () => Promise<void>;
 		close: () => void;
 	};
 }
@@ -30,6 +31,7 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 
 		return {
 			isInitialLoading: true,
+			isInitialError: false,
 			flipt: null,
 			flags: [],
 			actions: {
@@ -41,7 +43,13 @@ export const useStore = createWithSignal<FliptSvc & FliptSvcInternal>(
 						namespace: fliptNamespace,
 						url: fliptUrl,
 						reference: import.meta.env.MODE,
-					});
+					}).catch(() =>
+						set({ isInitialLoading: false, isInitialError: true }),
+					);
+
+					if (!flipt) {
+						return;
+					}
 
 					const flags = flipt.listFlags();
 
