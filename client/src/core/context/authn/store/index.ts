@@ -182,7 +182,12 @@ export const useStore = createWithSignal<AuthnSvc & AuthSvcInternal>(
 							).href,
 							pkceMethod: "S256",
 						})
-						.catch(() => set({ isInitialError: true }));
+						.catch(() =>
+							set({
+								isInitialLoading: false,
+								isInitialError: true,
+							}),
+						);
 
 					set({ refreshMapboxTokenInterval: initMapbox() });
 

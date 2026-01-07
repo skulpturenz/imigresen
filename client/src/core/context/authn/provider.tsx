@@ -32,7 +32,7 @@ const AuthnProviderWithoutErrorBoundary: Component<ParentProps> = props => {
 	};
 
 	onCleanup(() => {
-		if (value().isInitialLoading) {
+		if (value().isInitialLoading || value().isInitialError) {
 			return;
 		}
 

@@ -39,10 +39,11 @@ export const createAuthzContext = (): AuthzContext => Object.create(null);
 
 export const createFliptContext = (): FliptSvc => ({
 	isInitialLoading: true,
+	isInitialError: false,
 	flags: [],
 	flipt: null,
 	actions: {
-		init: noop,
+		init: noop as any,
 		close: noop,
 	},
 });
