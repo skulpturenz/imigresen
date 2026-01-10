@@ -53,6 +53,7 @@ import { Typography } from "ui/typography";
 import { MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
+import img from "./test.jpg";
 import {
 	MyPassportFormStatus,
 	type IssuedMyPassportForm,
@@ -745,6 +746,7 @@ export const Home = () => {
 
 	return (
 		<>
+			<TensorflowTest />
 			<ActionBar />
 
 			<Suspense fallback={<div>Loading...</div>}>
@@ -770,6 +772,45 @@ export const Home = () => {
 
 				<ImportDialog />
 			</Suspense>
+		</>
+	);
+};
+
+const TensorflowTest = () => {
+	// eslint-disable-next-line prefer-const
+	let image: HTMLImageElement = undefined;
+	// eslint-disable-next-line prefer-const
+	let cvs: HTMLCanvasElement = undefined;
+
+	return (
+		<>
+			<img
+				ref={image}
+				src={img}
+				width={500}
+				height={500}
+				onLoad={event => {
+					cvs.width = (event.target as HTMLImageElement).width;
+					cvs.height = (event.target as HTMLImageElement).height;
+
+					const ctx = cvs.getContext("2d");
+					ctx!.drawImage(
+						event.target as HTMLImageElement,
+						0,
+						0,
+						500,
+						500,
+					);
+
+					ctx?.beginPath();
+					ctx?.rect(50, 50, 100, 100);
+					ctx!.lineWidth = 7;
+					ctx!.strokeStyle = "yellow";
+					ctx?.stroke();
+				}}
+			/>
+
+			<canvas ref={cvs} />
 		</>
 	);
 };
