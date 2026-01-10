@@ -9,6 +9,7 @@ import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
+import signoverOdAutomlEdge from "core/models/signverod-automl-edge/model.json?url";
 import { toPath } from "core/router/utils";
 import { generatePath } from "core/utils";
 import {
@@ -21,7 +22,7 @@ import {
 } from "date-fns";
 import { invariant, partial } from "es-toolkit";
 import { CircleAlert, Eye, Plus } from "lucide-solid";
-import { createSignal, Show, Suspense } from "solid-js";
+import { createSignal, onMount, Show, Suspense } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
@@ -59,6 +60,8 @@ import {
 	type IssuedMyPassportForm,
 	type PersistedMyPassportForm,
 } from "./types";
+// eslint-disable-next-line import/no-namespace
+import * as automl from "@tensorflow/tfjs-automl";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -782,6 +785,16 @@ const TensorflowTest = () => {
 	// eslint-disable-next-line prefer-const
 	let cvs: HTMLCanvasElement | undefined = undefined;
 
+	let model: automl.ObjectDetectionModel | null = null;
+
+	const getModel = async () => {
+		model = await automl.loadObjectDetection(signoverOdAutomlEdge);
+	};
+
+	onMount(() => {
+		getModel();
+	});
+
 	return (
 		<>
 			<img
@@ -789,7 +802,7 @@ const TensorflowTest = () => {
 				src={img}
 				width={500}
 				height={500}
-				onLoad={event => {
+				onLoad={async event => {
 					cvs!.width = (event.target as HTMLImageElement).width;
 					cvs!.height = (event.target as HTMLImageElement).height;
 
@@ -804,9 +817,26 @@ const TensorflowTest = () => {
 
 					ctx?.beginPath();
 					ctx?.rect(50, 50, 100, 100);
-					ctx!.lineWidth = 7;
+					ctx!.lineWidth = 3;
 					ctx!.strokeStyle = "yellow";
 					ctx?.stroke();
+
+					const predictions = await model?.detect(
+						event.target as HTMLImageElement,
+						{
+							score: 0.3,
+							iou: 0.5,
+							topk: 5,
+						},
+					);
+
+					predictions?.forEach(({ box }) => {
+						ctx?.beginPath();
+						ctx?.rect(box.left, box.top, box.width, box.height);
+						ctx!.lineWidth = 3;
+						ctx!.strokeStyle = "yellow";
+						ctx?.stroke();
+					});
 				}}
 			/>
 
