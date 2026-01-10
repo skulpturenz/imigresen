@@ -778,9 +778,9 @@ export const Home = () => {
 
 const TensorflowTest = () => {
 	// eslint-disable-next-line prefer-const
-	let image: HTMLImageElement = undefined;
+	let image: HTMLImageElement | undefined = undefined;
 	// eslint-disable-next-line prefer-const
-	let cvs: HTMLCanvasElement = undefined;
+	let cvs: HTMLCanvasElement | undefined = undefined;
 
 	return (
 		<>
@@ -790,10 +790,10 @@ const TensorflowTest = () => {
 				width={500}
 				height={500}
 				onLoad={event => {
-					cvs.width = (event.target as HTMLImageElement).width;
-					cvs.height = (event.target as HTMLImageElement).height;
+					cvs!.width = (event.target as HTMLImageElement).width;
+					cvs!.height = (event.target as HTMLImageElement).height;
 
-					const ctx = cvs.getContext("2d");
+					const ctx = cvs!.getContext("2d");
 					ctx!.drawImage(
 						event.target as HTMLImageElement,
 						0,
