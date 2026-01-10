@@ -787,10 +787,43 @@ const TensorflowTest = () => {
 	// eslint-disable-next-line prefer-const
 	let div: HTMLDivElement | undefined = undefined;
 
-	let model: automl.ObjectDetectionModel | null = null;
+	const model = { ref: null as automl.ObjectDetectionModel | null };
 
 	const getModel = async () => {
-		model = await automl.loadObjectDetection(signoverOdAutomlEdge);
+		model.ref = await automl.loadObjectDetection(signoverOdAutomlEdge);
+
+		const predictions = await model.ref?.detect(image!, {
+			score: 0.1,
+			topk: 5,
+		});
+
+		// TODO: maybe allow the user to draw a box if the prediction is not good
+		console.log(predictions);
+
+		predictions
+			?.filter(({ label }) => ["signature", "initials"].includes(label))
+			.forEach(({ box, score, label }) => {
+				const button = document.createElement("button");
+				button.style.position = "absolute";
+				button.style.top = `${box.top}px`;
+				button.style.left = `${box.left}px`;
+				button.style.width = `${box.width}px`;
+				button.style.height = `${box.height}px`;
+				button.style.backgroundColor = "transparent";
+				button.style.zIndex = `${1000}`;
+				button.style.cursor = "pointer";
+				button.addEventListener("click", () => {
+					console.log("HERE!!", score, label);
+				});
+				div!.appendChild(button);
+
+				const ctx = cvs!.getContext("2d");
+				ctx?.beginPath();
+				ctx?.rect(box.left, box.top, box.width, box.height);
+				ctx!.lineWidth = 3;
+				ctx!.strokeStyle = "yellow";
+				ctx?.stroke();
+			});
 	};
 
 	onMount(() => {
@@ -813,59 +846,61 @@ const TensorflowTest = () => {
 						event.target as HTMLImageElement,
 						0,
 						0,
-						500,
-						500,
+						(event.target as HTMLImageElement).width,
+						(event.target as HTMLImageElement).height,
 					);
 
-					const button = document.createElement("button");
-					button.style.position = "absolute";
-					button.style.top = `${50}px`;
-					button.style.left = `${50}px`;
-					button.style.width = `${100}px`;
-					button.style.height = `${100}px`;
-					button.style.backgroundColor = "transparent";
-					button.style.cursor = "pointer";
-					button.addEventListener("click", () => {
-						console.log("HERE!!");
-					});
-					div!.appendChild(button);
+					// const button = document.createElement("button");
+					// button.style.position = "absolute";
+					// button.style.top = `${50}px`;
+					// button.style.left = `${50}px`;
+					// button.style.width = `${100}px`;
+					// button.style.height = `${100}px`;
+					// button.style.backgroundColor = "transparent";
+					// button.style.cursor = "pointer";
+					// button.addEventListener("click", () => {
+					// 	console.log("HERE!!");
+					// });
+					// div!.appendChild(button);
 
-					ctx?.beginPath();
-					ctx?.rect(50, 50, 100, 100);
-					ctx!.lineWidth = 3;
-					ctx!.strokeStyle = "yellow";
-					ctx?.stroke();
+					// ctx?.beginPath();
+					// ctx?.rect(50, 50, 100, 100);
+					// ctx!.lineWidth = 3;
+					// ctx!.strokeStyle = "yellow";
+					// ctx?.stroke();
 
-					const predictions = await model?.detect(
-						event.target as HTMLImageElement,
-						{
-							score: 0.3,
-							iou: 0.5,
-							topk: 5,
-						},
-					);
+					// const predictions = await model.ref?.detect(
+					// 	event.target as HTMLImageElement,
+					// 	{
+					// 		score: 0.3,
+					// 		iou: 0.5,
+					// 		topk: 5,
+					// 	},
+					// );
 
-					predictions?.forEach(({ box, score, label }) => {
-						const button = document.createElement("button");
-						button.style.position = "absolute";
-						button.style.top = `${box.top}px`;
-						button.style.left = `${box.left}px`;
-						button.style.width = `${box.width}px`;
-						button.style.height = `${box.height}px`;
-						button.style.backgroundColor = "transparent";
-						button.style.zIndex = `${1000}`;
-						button.style.cursor = "pointer";
-						button.addEventListener("click", () => {
-							console.log("HERE!!", score, label);
-						});
-						div!.appendChild(button);
+					// console.log(predictions, model);
 
-						ctx?.beginPath();
-						ctx?.rect(box.left, box.top, box.width, box.height);
-						ctx!.lineWidth = 3;
-						ctx!.strokeStyle = "yellow";
-						ctx?.stroke();
-					});
+					// predictions?.forEach(({ box, score, label }) => {
+					// 	const button = document.createElement("button");
+					// 	button.style.position = "absolute";
+					// 	button.style.top = `${box.top}px`;
+					// 	button.style.left = `${box.left}px`;
+					// 	button.style.width = `${box.width}px`;
+					// 	button.style.height = `${box.height}px`;
+					// 	button.style.backgroundColor = "transparent";
+					// 	button.style.zIndex = `${1000}`;
+					// 	button.style.cursor = "pointer";
+					// 	button.addEventListener("click", () => {
+					// 		console.log("HERE!!", score, label);
+					// 	});
+					// 	div!.appendChild(button);
+
+					// 	ctx?.beginPath();
+					// 	ctx?.rect(box.left, box.top, box.width, box.height);
+					// 	ctx!.lineWidth = 3;
+					// 	ctx!.strokeStyle = "yellow";
+					// 	ctx?.stroke();
+					// });
 				}}
 			/>
 
