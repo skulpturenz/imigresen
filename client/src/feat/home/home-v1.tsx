@@ -784,6 +784,8 @@ const TensorflowTest = () => {
 	let image: HTMLImageElement | undefined = undefined;
 	// eslint-disable-next-line prefer-const
 	let cvs: HTMLCanvasElement | undefined = undefined;
+	// eslint-disable-next-line prefer-const
+	let div: HTMLDivElement | undefined = undefined;
 
 	let model: automl.ObjectDetectionModel | null = null;
 
@@ -815,6 +817,19 @@ const TensorflowTest = () => {
 						500,
 					);
 
+					const button = document.createElement("button");
+					button.style.position = "absolute";
+					button.style.top = `${50}px`;
+					button.style.left = `${50}px`;
+					button.style.width = `${100}px`;
+					button.style.height = `${100}px`;
+					button.style.backgroundColor = "transparent";
+					button.style.cursor = "pointer";
+					button.addEventListener("click", () => {
+						console.log("HERE!!");
+					});
+					div!.appendChild(button);
+
 					ctx?.beginPath();
 					ctx?.rect(50, 50, 100, 100);
 					ctx!.lineWidth = 3;
@@ -830,7 +845,21 @@ const TensorflowTest = () => {
 						},
 					);
 
-					predictions?.forEach(({ box }) => {
+					predictions?.forEach(({ box, score, label }) => {
+						const button = document.createElement("button");
+						button.style.position = "absolute";
+						button.style.top = `${box.top}px`;
+						button.style.left = `${box.left}px`;
+						button.style.width = `${box.width}px`;
+						button.style.height = `${box.height}px`;
+						button.style.backgroundColor = "transparent";
+						button.style.zIndex = `${1000}`;
+						button.style.cursor = "pointer";
+						button.addEventListener("click", () => {
+							console.log("HERE!!", score, label);
+						});
+						div!.appendChild(button);
+
 						ctx?.beginPath();
 						ctx?.rect(box.left, box.top, box.width, box.height);
 						ctx!.lineWidth = 3;
@@ -840,7 +869,9 @@ const TensorflowTest = () => {
 				}}
 			/>
 
-			<canvas ref={cvs} />
+			<div ref={div} class="relative">
+				<canvas ref={cvs} />
+			</div>
 		</>
 	);
 };
