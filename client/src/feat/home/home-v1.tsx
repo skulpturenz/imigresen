@@ -9,7 +9,6 @@ import { AuthnContext } from "core/context/authn";
 import { useI18n } from "core/context/i18n";
 import { UserContext } from "core/context/user";
 import { useContext } from "core/context/utils";
-import signoverOdAutomlEdge from "core/models/signverod-automl-edge/model.json?url";
 import { toPath } from "core/router/utils";
 import { generatePath } from "core/utils";
 import {
@@ -62,6 +61,7 @@ import {
 } from "./types";
 // eslint-disable-next-line import/no-namespace
 import * as automl from "@tensorflow/tfjs-automl";
+import { models } from "core/models";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -790,7 +790,9 @@ const TensorflowTest = () => {
 	const model = { ref: null as automl.ObjectDetectionModel | null };
 
 	const getModel = async () => {
-		model.ref = await automl.loadObjectDetection(signoverOdAutomlEdge);
+		model.ref = await automl.loadObjectDetection(
+			models.signverodAutomlEdge,
+		);
 
 		const predictions = await model.ref?.detect(image!, {
 			score: 0.1,
