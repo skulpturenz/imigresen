@@ -805,26 +805,129 @@ const TensorflowTest = () => {
 		predictions
 			?.filter(({ label }) => ["signature", "initials"].includes(label))
 			.forEach(({ box, score, label }) => {
+				const initialTop = box.top;
+				const initialLeft = box.left;
+				const initialWidth = box.width;
+				const initialHeight = box.height;
+
+				const currentTop = box.top;
+				const currentLeft = box.left;
+				const currentWidth = box.width;
+				const currentHeight = box.height;
+
 				const button = document.createElement("button");
 				button.style.position = "absolute";
-				button.style.top = `${box.top}px`;
-				button.style.left = `${box.left}px`;
-				button.style.width = `${box.width}px`;
-				button.style.height = `${box.height}px`;
+				button.style.top = `${initialTop}px`;
+				button.style.left = `${initialLeft}px`;
+				button.style.width = `${initialWidth}px`;
+				button.style.height = `${initialHeight}px`;
 				button.style.backgroundColor = "transparent";
 				button.style.zIndex = `${1000}`;
 				button.style.cursor = "pointer";
 				button.addEventListener("click", () => {
 					console.log("HERE!!", score, label);
 				});
+
+				const topLeftResizeCorner = document.createElement("button");
+				topLeftResizeCorner.style.borderRadius = "999px";
+				topLeftResizeCorner.style.backgroundColor = "red";
+				topLeftResizeCorner.style.position = "absolute";
+				topLeftResizeCorner.style.width = "10px";
+				topLeftResizeCorner.style.height = "10px";
+				topLeftResizeCorner.style.top = "-5px";
+				topLeftResizeCorner.style.left = "-5px";
+				topLeftResizeCorner.style.cursor = "pointer";
+
+				let topLeftResizerInitialX = 0;
+				let topLeftResizerInitialY = 0;
+				topLeftResizeCorner.addEventListener("mousedown", event => {
+					event.stopImmediatePropagation();
+					event.preventDefault();
+
+					console.log("Here top left resizer!!", event);
+
+					topLeftResizerInitialX = event.pageX;
+					topLeftResizerInitialY = event.pageY;
+
+					window?.addEventListener("mousemove", onMouseMove);
+					window.addEventListener("mouseup", onMouseUp);
+				});
+				const onMouseMove = (event: MouseEvent) => {
+					event.stopImmediatePropagation();
+					event.preventDefault();
+
+					console.log(
+						"HERE!! mousemove",
+						event,
+						topLeftResizeCorner.getBoundingClientRect(),
+					);
+
+					const left =
+						event.pageX - button.getBoundingClientRect().left;
+					const top =
+						event.pageY - button.getBoundingClientRect().top;
+					// TODO: within the canvas
+					topLeftResizeCorner.style.left = `${left}px`;
+					topLeftResizeCorner.style.top = `${top}px`;
+
+					// TODO: we need to resize the prediction button and then redraw the prediction box
+				};
+				const onMouseUp = (event: MouseEvent) => {
+					event.stopImmediatePropagation();
+					event.preventDefault();
+
+					console.log("HERE!! mouseup");
+					window.removeEventListener("mousemove", onMouseMove);
+					window.removeEventListener("mouseup", onMouseUp);
+
+					topLeftResizerInitialX = 0;
+					topLeftResizerInitialY = 0;
+				};
+				button.appendChild(topLeftResizeCorner);
+
+				const topRightResizeCorner = document.createElement("button");
+				topRightResizeCorner.style.borderRadius = "999px";
+				topRightResizeCorner.style.backgroundColor = "red";
+				topRightResizeCorner.style.position = "absolute";
+				topRightResizeCorner.style.width = "10px";
+				topRightResizeCorner.style.height = "10px";
+				topRightResizeCorner.style.top = "-5px";
+				topRightResizeCorner.style.right = "-5px";
+				topRightResizeCorner.style.cursor = "pointer";
+				button.appendChild(topRightResizeCorner);
+
+				const bottomLeftResizeCorner = document.createElement("button");
+				bottomLeftResizeCorner.style.borderRadius = "999px";
+				bottomLeftResizeCorner.style.backgroundColor = "red";
+				bottomLeftResizeCorner.style.position = "absolute";
+				bottomLeftResizeCorner.style.width = "10px";
+				bottomLeftResizeCorner.style.height = "10px";
+				bottomLeftResizeCorner.style.bottom = "-5px";
+				bottomLeftResizeCorner.style.left = "-5px";
+				bottomLeftResizeCorner.style.cursor = "pointer";
+				button.appendChild(bottomLeftResizeCorner);
+
+				const bottomRightResizeCorner =
+					document.createElement("button");
+				bottomRightResizeCorner.style.borderRadius = "999px";
+				bottomRightResizeCorner.style.backgroundColor = "red";
+				bottomRightResizeCorner.style.position = "absolute";
+				bottomRightResizeCorner.style.width = "10px";
+				bottomRightResizeCorner.style.height = "10px";
+				bottomRightResizeCorner.style.bottom = "-5px";
+				bottomRightResizeCorner.style.right = "-5px";
+				bottomRightResizeCorner.style.cursor = "pointer";
+				button.appendChild(bottomRightResizeCorner);
+
 				div!.appendChild(button);
 
 				const ctx = cvs!.getContext("2d");
-				ctx?.beginPath();
-				ctx?.rect(box.left, box.top, box.width, box.height);
+				const path = new Path2D();
+				path.rect(initialLeft, initialTop, initialWidth, initialHeight);
+
 				ctx!.lineWidth = 3;
 				ctx!.strokeStyle = "yellow";
-				ctx?.stroke();
+				ctx?.stroke(path);
 			});
 	};
 
