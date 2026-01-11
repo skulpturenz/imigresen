@@ -876,18 +876,45 @@ const TensorflowTest = () => {
 					const dHeight = topLeftResizeY - event.pageY;
 					const dWidth = topLeftResizeX - event.pageX;
 
-					const newLeft = initialLeft + dLeft;
-					const newTop = initialTop + dTop;
-					const newHeight = initialHeight + dHeight;
-					const newWidth = initialWidth + dWidth;
+					const newLeft = Math.max(
+						// TODO: this is wrong, clamp to bottom right of prediction box
+						Math.max(
+							initialLeft + dLeft,
+							-1 * div!.getBoundingClientRect().width,
+						),
+						0,
+					);
+					const newTop = Math.max(
+						// TODO: this is wrong, clamp to bottom right of prediction box
+						Math.max(
+							initialTop + dTop,
+							-1 * div!.getBoundingClientRect().height,
+						),
+						0,
+					);
+					const newHeight = Math.max(
+						Math.min(
+							initialHeight + dHeight,
+							cvs!.getBoundingClientRect().height,
+						),
+						0,
+					);
+					const newWidth = Math.max(
+						Math.min(
+							initialWidth + dWidth,
+							cvs!.getBoundingClientRect().width,
+						),
+						0,
+					);
 
+					console.log("divWidth", div!.getBoundingClientRect());
+					console.log("newLeft", newLeft, initialLeft, dLeft);
+					console.log("newTop", newTop, initialTop, dTop);
 					console.log("newHeight", newHeight, initialHeight, dHeight);
 					console.log("newWidth", newWidth, initialWidth, dWidth);
 
 					// TODO: within the canvas
 					// TODO: each time it moves the dimensions jump
-					// TODO: we should not be able to turn the box inside out:
-					// - we should only be able to pull the top left resize to the top right resize and not further
 					button.style.left = `${newLeft}px`;
 					button.style.width = `${newWidth}px`;
 					initialLeft = newLeft;
