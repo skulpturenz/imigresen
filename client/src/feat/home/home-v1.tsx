@@ -805,12 +805,13 @@ const TensorflowTest = () => {
 		predictions
 			?.filter(({ label }) => ["signature", "initials"].includes(label))
 			.forEach(({ box, score, label }) => {
-				const initialTop = box.top;
-				const initialLeft = box.left;
-				const initialWidth = box.width;
-				const initialHeight = box.height;
+				let initialTop = box.top;
+				let initialLeft = box.left;
+				let initialWidth = box.width;
+				let initialHeight = box.height;
 
 				const button = document.createElement("button");
+				button.id = "test";
 				button.style.position = "absolute";
 				button.style.top = `${initialTop}px`;
 				button.style.left = `${initialLeft}px`;
@@ -833,12 +834,16 @@ const TensorflowTest = () => {
 				topLeftResizeCorner.style.left = "-5px";
 				topLeftResizeCorner.style.cursor = "pointer";
 
+				let topLeftResizeX = 0;
+				let topLeftResizeY = 0;
 				topLeftResizeCorner.addEventListener("mousedown", event => {
 					event.stopImmediatePropagation();
 					event.preventDefault();
 
 					console.log("Here top left resizer!!", event);
 
+					topLeftResizeX = event.pageX;
+					topLeftResizeY = event.pageY;
 					window?.addEventListener("mousemove", onMouseMove);
 					window.addEventListener("mouseup", onMouseUp);
 				});
@@ -852,13 +857,44 @@ const TensorflowTest = () => {
 						topLeftResizeCorner.getBoundingClientRect(),
 					);
 
-					const left =
-						event.pageX - button.getBoundingClientRect().left;
-					const top =
-						event.pageY - button.getBoundingClientRect().top;
+					const bounds = div!.getBoundingClientRect();
+					const dx = event.pageX - topLeftResizeX;
+					const dy = event.pageY - topLeftResizeY;
+
+					// const left = button.getBoundingClientRect().x + dx;
+					// const left =
+					// 	event.pageX - button.getBoundingClientRect().left;
+					// const top = button.getBoundingClientRect().y + dy;
+					// const height =
+					// 	initialHeight - (event.pageY - topLeftResizeY);
+
+					const startLeft = button.getBoundingClientRect().left;
+					const startTop = button.getBoundingClientRect().top;
+
+					const dLeft = event.pageX - startLeft;
+					const dTop = event.pageY - startTop;
+					const dHeight = topLeftResizeY - event.pageY;
+					const dWidth = topLeftResizeX - event.pageX;
+
+					const newLeft = initialLeft + dLeft;
+					const newTop = initialTop + dTop;
+					const newHeight = initialHeight + dHeight;
+					const newWidth = initialWidth + dWidth;
+
+					console.log("newHeight", newHeight, initialHeight, dHeight);
+					console.log("newWidth", newWidth, initialWidth, dWidth);
+
 					// TODO: within the canvas
-					topLeftResizeCorner.style.left = `${left}px`;
-					topLeftResizeCorner.style.top = `${top}px`;
+					// TODO: each time it moves the dimensions jump
+					// TODO: we should not be able to turn the box inside out:
+					// - we should only be able to pull the top left resize to the top right resize and not further
+					button.style.left = `${newLeft}px`;
+					button.style.width = `${newWidth}px`;
+					initialLeft = newLeft;
+
+					button.style.top = `${newTop}px`;
+					button.style.height = `${newHeight}px`;
+					initialTop = newTop;
 
 					// TODO: we need to resize the prediction button and then redraw the prediction box
 				};
@@ -867,6 +903,11 @@ const TensorflowTest = () => {
 					event.preventDefault();
 
 					console.log("HERE!! mouseup");
+
+					topLeftResizeX = 0;
+					topLeftResizeY = 0;
+					initialWidth = button.getBoundingClientRect().width;
+					initialHeight = button.getBoundingClientRect().height;
 					window.removeEventListener("mousemove", onMouseMove);
 					window.removeEventListener("mouseup", onMouseUp);
 				};
