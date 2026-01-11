@@ -857,9 +857,9 @@ const TensorflowTest = () => {
 						topLeftResizeCorner.getBoundingClientRect(),
 					);
 
-					const bounds = div!.getBoundingClientRect();
-					const dx = event.pageX - topLeftResizeX;
-					const dy = event.pageY - topLeftResizeY;
+					// const bounds = div!.getBoundingClientRect();
+					// const dx = event.pageX - topLeftResizeX;
+					// const dy = event.pageY - topLeftResizeY;
 
 					// const left = button.getBoundingClientRect().x + dx;
 					// const left =
