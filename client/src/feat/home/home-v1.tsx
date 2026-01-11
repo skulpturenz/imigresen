@@ -810,11 +810,6 @@ const TensorflowTest = () => {
 				const initialWidth = box.width;
 				const initialHeight = box.height;
 
-				const currentTop = box.top;
-				const currentLeft = box.left;
-				const currentWidth = box.width;
-				const currentHeight = box.height;
-
 				const button = document.createElement("button");
 				button.style.position = "absolute";
 				button.style.top = `${initialTop}px`;
@@ -838,16 +833,11 @@ const TensorflowTest = () => {
 				topLeftResizeCorner.style.left = "-5px";
 				topLeftResizeCorner.style.cursor = "pointer";
 
-				let topLeftResizerInitialX = 0;
-				let topLeftResizerInitialY = 0;
 				topLeftResizeCorner.addEventListener("mousedown", event => {
 					event.stopImmediatePropagation();
 					event.preventDefault();
 
 					console.log("Here top left resizer!!", event);
-
-					topLeftResizerInitialX = event.pageX;
-					topLeftResizerInitialY = event.pageY;
 
 					window?.addEventListener("mousemove", onMouseMove);
 					window.addEventListener("mouseup", onMouseUp);
@@ -879,9 +869,6 @@ const TensorflowTest = () => {
 					console.log("HERE!! mouseup");
 					window.removeEventListener("mousemove", onMouseMove);
 					window.removeEventListener("mouseup", onMouseUp);
-
-					topLeftResizerInitialX = 0;
-					topLeftResizerInitialY = 0;
 				};
 				button.appendChild(topLeftResizeCorner);
 
