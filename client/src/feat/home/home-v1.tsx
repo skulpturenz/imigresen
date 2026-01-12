@@ -914,6 +914,8 @@ const TensorflowTest = () => {
 
 					// TODO: we need to resize the prediction button and then redraw the prediction box
 					// TODO: clear path
+					// TODO: think we need to draw over the old path and remove it
+					// can't clear that rectangle because it also clears the image
 					const ctx = cvs!.getContext("2d");
 					const path = new Path2D();
 					path.rect(
