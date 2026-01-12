@@ -896,6 +896,11 @@ const TensorflowTest = () => {
 							}
 						};
 
+						// TODO: ideally we want to make the position of all corners depend on
+						// `left` and `top`. flipping the sign as necessary, `x px` `top` means
+						// there is `x px` padding from the top (pushing the position down)
+						// so `-x px` `top` means we push the position up by `-x px`
+						// just makes it easier to reason about things
 						const resizeBottomLeft = () => {
 							const startLeft =
 								button.getBoundingClientRect().left;
