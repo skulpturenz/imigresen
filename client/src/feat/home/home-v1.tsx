@@ -881,7 +881,15 @@ const TensorflowTest = () => {
 					// top right is (0, 0), maximum down means `box.height` padding to its `top`
 					// with `box.width` padding to the `left` and `box.height` padding `top`
 					// the top left corner is at the bottom left
-					const newLeft = Math.min(initialLeft + dLeft, box.width);
+					// TODO: button is absolute positioned relative to the canvas
+					// resize handles are absolute positioned relative to the canvas (within the button)
+					// move resize handles `dLeft` px to the right, `left` padding increases by `dLeft`
+					// `dWidth` decreases by `dLeft`. at canvas width, `left` padding should be equal to box width
+					// and `newWidth` should be 0?
+					const newLeft = Math.min(
+						initialLeft + dLeft,
+						topLeftResizeX + box.width,
+					);
 					const newTop = initialTop + dTop; // TODO: Math.min(initialTop + dTop, box.height) breaks, point jumps
 					const newHeight = Math.max(
 						Math.min(
