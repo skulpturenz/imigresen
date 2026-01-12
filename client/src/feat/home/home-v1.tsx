@@ -897,6 +897,11 @@ const TensorflowTest = () => {
 					console.log("newWidth", newWidth, initialWidth, dWidth);
 
 					// TODO: there is a tiny jump when we start resizing
+					// TODO: to ensure that we don't resize outside of the canvas, i think for the top left corner:
+					// - event.pageX gives the `x` coordinate of the resize. it should not be less than the `x` coordinate
+					// of the canvas bounding rect or greater than `x + width` of the canvas bounding rect
+					// - event.pageY gives the `y` coordinate of the resize. it should not be less than the `y` coordinate
+					// of the canvas bounding rect or greater than `y + height` of the canvas bounding rect
 					if (newWidth > MIN_BOUNDS) {
 						button.style.left = `${newLeft}px`;
 						button.style.width = `${newWidth}px`;
