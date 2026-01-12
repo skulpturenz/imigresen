@@ -820,6 +820,9 @@ const TensorflowTest = () => {
 				button.style.backgroundColor = "transparent";
 				button.style.zIndex = `${1000}`;
 				button.style.cursor = "pointer";
+				button.style.border = "3px solid";
+				button.style.borderColor = "yellow";
+
 				button.addEventListener("click", () => {
 					console.log("HERE!!", score, label);
 				});
@@ -916,17 +919,17 @@ const TensorflowTest = () => {
 					// TODO: clear path
 					// TODO: think we need to draw over the old path and remove it
 					// can't clear that rectangle because it also clears the image
-					const ctx = cvs!.getContext("2d");
-					const path = new Path2D();
-					path.rect(
-						initialLeft,
-						initialTop,
-						button.getBoundingClientRect().width,
-						button.getBoundingClientRect().height,
-					);
-					ctx!.lineWidth = 3;
-					ctx!.strokeStyle = "blue";
-					ctx?.stroke(path);
+					// const ctx = cvs!.getContext("2d");
+					// const path = new Path2D();
+					// path.rect(
+					// 	initialLeft,
+					// 	initialTop,
+					// 	button.getBoundingClientRect().width,
+					// 	button.getBoundingClientRect().height,
+					// );
+					// ctx!.lineWidth = 3;
+					// ctx!.strokeStyle = "blue";
+					// ctx?.stroke(path);
 
 					topLeftResizeX = 0;
 					topLeftResizeY = 0;
@@ -973,13 +976,13 @@ const TensorflowTest = () => {
 
 				div!.appendChild(button);
 
-				const ctx = cvs!.getContext("2d");
-				const path = new Path2D();
-				path.rect(initialLeft, initialTop, initialWidth, initialHeight);
+				// const ctx = cvs!.getContext("2d");
+				// const path = new Path2D();
+				// path.rect(initialLeft, initialTop, initialWidth, initialHeight);
 
-				ctx!.lineWidth = 3;
-				ctx!.strokeStyle = "yellow";
-				ctx?.stroke(path);
+				// ctx!.lineWidth = 3;
+				// ctx!.strokeStyle = "yellow";
+				// ctx?.stroke(path);
 			});
 	};
 
