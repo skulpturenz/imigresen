@@ -876,35 +876,15 @@ const TensorflowTest = () => {
 					const dHeight = topLeftResizeY - event.pageY;
 					const dWidth = topLeftResizeX - event.pageX;
 
-					// TODO: not so sure why it's going wrong
-					// top right is (0, 0), maximum to the right means `box.width` padding to its `left`
-					// top right is (0, 0), maximum down means `box.height` padding to its `top`
-					// with `box.width` padding to the `left` and `box.height` padding `top`
-					// the top left corner is at the bottom left
-					// TODO: button is absolute positioned relative to the canvas
-					// resize handles are absolute positioned relative to the canvas (within the button)
-					// move resize handles `dLeft` px to the right, `left` padding increases by `dLeft`
-					// `dWidth` decreases by `dLeft`. at canvas width, `left` padding should be equal to box width
-					// and `newWidth` should be 0?
-					const newLeft = Math.min(
-						initialLeft + dLeft,
-						topLeftResizeX + box.width,
-					);
-					const newTop = initialTop + dTop; // TODO: Math.min(initialTop + dTop, box.height) breaks, point jumps
-					const newHeight = Math.max(
-						Math.min(
-							initialHeight + dHeight,
-							cvs!.getBoundingClientRect().height,
-						),
-						0,
-					);
-					const newWidth = Math.max(
-						Math.min(
-							initialWidth + dWidth,
-							cvs!.getBoundingClientRect().width,
-						),
-						0,
-					);
+					const newLeft = initialLeft + dLeft;
+					const newTop = initialTop + dTop;
+					const newHeight = initialHeight + dHeight;
+					const newWidth = initialWidth + dWidth;
+
+					// we don't want to allow the points to collapse into one point
+					// if it does we won't be able to resize it again because trying to grab one resize
+					// will grab all
+					const MIN_BOUNDS = 50;
 
 					console.log("box", box);
 					console.log("divWidth", div!.getBoundingClientRect());
@@ -913,23 +893,38 @@ const TensorflowTest = () => {
 					console.log("newHeight", newHeight, initialHeight, dHeight);
 					console.log("newWidth", newWidth, initialWidth, dWidth);
 
-					// TODO: within the canvas
-					// TODO: each time it moves the dimensions jump
-					button.style.left = `${newLeft}px`;
-					button.style.width = `${newWidth}px`;
-					initialLeft = newLeft;
+					// TODO: there is a tiny jump when we start resizing
+					if (newWidth > MIN_BOUNDS) {
+						button.style.left = `${newLeft}px`;
+						button.style.width = `${newWidth}px`;
+						initialLeft = newLeft;
+					}
 
-					button.style.top = `${newTop}px`;
-					button.style.height = `${newHeight}px`;
-					initialTop = newTop;
-
-					// TODO: we need to resize the prediction button and then redraw the prediction box
+					if (newHeight > MIN_BOUNDS) {
+						button.style.top = `${newTop}px`;
+						button.style.height = `${newHeight}px`;
+						initialTop = newTop;
+					}
 				};
 				const onMouseUp = (event: MouseEvent) => {
 					event.stopImmediatePropagation();
 					event.preventDefault();
 
 					console.log("HERE!! mouseup");
+
+					// TODO: we need to resize the prediction button and then redraw the prediction box
+					// TODO: clear path
+					const ctx = cvs!.getContext("2d");
+					const path = new Path2D();
+					path.rect(
+						initialLeft,
+						initialTop,
+						button.getBoundingClientRect().width,
+						button.getBoundingClientRect().height,
+					);
+					ctx!.lineWidth = 3;
+					ctx!.strokeStyle = "blue";
+					ctx?.stroke(path);
 
 					topLeftResizeX = 0;
 					topLeftResizeY = 0;
