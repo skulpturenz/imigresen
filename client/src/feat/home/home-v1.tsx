@@ -876,22 +876,13 @@ const TensorflowTest = () => {
 					const dHeight = topLeftResizeY - event.pageY;
 					const dWidth = topLeftResizeX - event.pageX;
 
-					const newLeft = Math.max(
-						// TODO: this is wrong, clamp to bottom right of prediction box
-						Math.max(
-							initialLeft + dLeft,
-							-1 * div!.getBoundingClientRect().width,
-						),
-						0,
-					);
-					const newTop = Math.max(
-						// TODO: this is wrong, clamp to bottom right of prediction box
-						Math.max(
-							initialTop + dTop,
-							-1 * div!.getBoundingClientRect().height,
-						),
-						0,
-					);
+					// TODO: not so sure why it's going wrong
+					// top right is (0, 0), maximum to the right means `box.width` padding to its `left`
+					// top right is (0, 0), maximum down means `box.height` padding to its `top`
+					// with `box.width` padding to the `left` and `box.height` padding `top`
+					// the top left corner is at the bottom left
+					const newLeft = Math.min(initialLeft + dLeft, box.width);
+					const newTop = Math.min(initialTop + dTop, box.height);
 					const newHeight = Math.max(
 						Math.min(
 							initialHeight + dHeight,
