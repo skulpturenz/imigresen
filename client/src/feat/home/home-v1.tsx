@@ -882,7 +882,7 @@ const TensorflowTest = () => {
 					// with `box.width` padding to the `left` and `box.height` padding `top`
 					// the top left corner is at the bottom left
 					const newLeft = Math.min(initialLeft + dLeft, box.width);
-					const newTop = Math.min(initialTop + dTop, box.height);
+					const newTop = initialTop + dTop; // TODO: Math.min(initialTop + dTop, box.height) breaks, point jumps
 					const newHeight = Math.max(
 						Math.min(
 							initialHeight + dHeight,
@@ -898,6 +898,7 @@ const TensorflowTest = () => {
 						0,
 					);
 
+					console.log("box", box);
 					console.log("divWidth", div!.getBoundingClientRect());
 					console.log("newLeft", newLeft, initialLeft, dLeft);
 					console.log("newTop", newTop, initialTop, dTop);
