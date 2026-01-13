@@ -850,6 +850,22 @@ const TensorflowTest = () => {
 			0.2, // score_threshold
 		);
 
+		const getIoU = (boxA: any, boxB: any) => {
+			const xA = Math.max(boxA.left, boxB.left);
+			const yA = Math.max(boxA.top, boxB.top);
+			const xB = Math.min(boxA.left + boxA.width, boxB.left + boxB.width);
+			const yB = Math.min(boxA.top + boxA.height, boxB.top + boxB.height);
+
+			const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+			if (interArea === 0) return 0;
+
+			const boxAArea = boxA.width * boxA.height;
+			const boxBArea = boxB.width * boxB.height;
+
+			// IoU = Area of Overlap / Area of Union
+			return interArea / (boxAArea + boxBArea - interArea);
+		};
+
 		const finalResults = await Promise.all(
 			(await nmsIndices.array()).map(async idx => {
 				const box = await boxes.slice([idx, 0], [1, 4]).data();
@@ -880,6 +896,19 @@ const TensorflowTest = () => {
 			}),
 		);
 
+		// keep only the prediction boxes with the highest scores and remove
+		// all other prediction boxes which overlap with it above iou threshold
+		const filteredResults: any[] = [];
+		finalResults.forEach(x => {
+			const isOverlapping = filteredResults.some(
+				y => getIoU(x.box, y.box) > 0.5,
+			);
+
+			if (!isOverlapping) {
+				filteredResults.push(x);
+			}
+		});
+
 		console.log(finalResults);
 
 		const predictions = await model.ref?.detect(image!, {
@@ -890,7 +919,7 @@ const TensorflowTest = () => {
 		// TODO: maybe allow the user to draw a box if the prediction is not good
 		console.log(predictions);
 
-		finalResults
+		filteredResults
 			?.filter(({ label }) => ["signature", "initials"].includes(label))
 			.forEach(({ box, score, label }) => {
 				const initialTop = box.top;
