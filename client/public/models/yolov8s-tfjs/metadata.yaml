@@ -1,0 +1,20 @@
+description: Ultralytics YOLOv8s model trained on /content/datasets/data.yaml
+author: Ultralytics
+date: '2026-01-13T19:57:55.146169'
+version: 8.3.252
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: signature
+args:
+  batch: 1
+  half: false
+  int8: false
+  nms: false
+channels: 3

@@ -26,6 +26,7 @@ import type { JSX } from "solid-js/h/jsx-runtime";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
 	AlertDialog,
+	AlertDialogAction,
 	AlertDialogClose,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -59,6 +60,8 @@ import {
 	type IssuedMyPassportForm,
 	type PersistedMyPassportForm,
 } from "./types";
+// eslint-disable-next-line import/no-namespace
+import * as tf from "@tensorflow/tfjs";
 // eslint-disable-next-line import/no-namespace
 import * as automl from "@tensorflow/tfjs-automl";
 import { models } from "core/models";
@@ -788,11 +791,30 @@ const TensorflowTest = () => {
 	let div: HTMLDivElement | undefined = undefined;
 
 	const model = { ref: null as automl.ObjectDetectionModel | null };
+	const [_cropArea, setCropArea] = createSignal<any>(null);
+
+	const [isClicked, setIsClicked] = createSignal(false);
+	const toggleIsClicked = () => setIsClicked(isClicked => !isClicked);
 
 	const getModel = async () => {
+		// eslint-disable-next-line import/namespace
+		const test = await tf.loadGraphModel(models.yolov8sTfjs);
 		model.ref = await automl.loadObjectDetection(
 			models.signverodAutomlEdge,
 		);
+
+		// eslint-disable-next-line import/namespace
+		const tfImg = (await tf.browser.fromPixelsAsync(image!)).toFloat();
+		// eslint-disable-next-line import/namespace
+		const resizedImg = tf.image.resizeBilinear(tfImg, [640, 640]);
+		// eslint-disable-next-line import/namespace
+		const normalizedImg = resizedImg.div(tf.scalar(255.0));
+		const input = normalizedImg.expandDims(0);
+		console.log(input.shape);
+
+		// TODO: how to use this?
+		const result = await test.executeAsync(input);
+		console.log("yolov8s result", result);
 
 		const predictions = await model.ref?.detect(image!, {
 			score: 0.1,
@@ -822,10 +844,40 @@ const TensorflowTest = () => {
 				button.style.cursor = "pointer";
 				button.style.border = "3px solid";
 				button.style.borderColor = "yellow";
+				button.style.backgroundColor = "oklch(0 0 0 / 0.5)";
+				button.style.fontWeight = "700";
+				button.style.padding = "0.5rem";
+				button.style.fontSize = "0.75rem";
+				// TODO: need dynamic
+				// desktop on hover show text
+				// mobile always show
+				button.innerText = "Double click on this area to select it";
 
-				button.addEventListener("click", () => {
+				const onClick = (event: MouseEvent | TouchEvent) => {
 					console.log("HERE!!", score, label);
-				});
+
+					setCropArea({
+						left: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().left,
+						right: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().right,
+						width: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().width,
+						height: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().height,
+					});
+
+					toggleIsClicked();
+				};
+
+				button.addEventListener("dblclick", onClick);
+				// TODO: need another way of registering this?
+				// double tap on mobile is zoom. maybe not good to override
+				button.addEventListener("touchstart", onClick);
 
 				const topLeftResizeCorner = document.createElement("button");
 				topLeftResizeCorner.style.borderRadius = "999px";
@@ -837,218 +889,118 @@ const TensorflowTest = () => {
 				topLeftResizeCorner.style.left = "-5px";
 				topLeftResizeCorner.style.cursor = "pointer";
 
+				const isTouchEvent = (event: any): event is TouchEvent =>
+					"touches" in event;
+
 				const resizable = (
-					element: HTMLElement,
-					direction: "top-left" | "bottom-left",
+					handle: HTMLElement,
+					direction:
+						| "top-left"
+						| "top-right"
+						| "bottom-left"
+						| "bottom-right",
 				) => {
-					let initialY = 0;
-					let initialX = 0;
-					let initialWidth = box.width;
-					let initialHeight = box.height;
-					let initialTop = box.top;
-					let initialLeft = box.left;
-
-					element.addEventListener("mousedown", event => {
-						event.stopImmediatePropagation();
+					const onMouseDown = (event: MouseEvent | TouchEvent) => {
 						event.preventDefault();
+						event.stopPropagation();
 
-						initialY = event.pageY;
-						initialX = event.pageX;
+						const startX = isTouchEvent(event)
+							? event.touches.item(0)?.pageX
+							: event.pageX;
+						const startY = isTouchEvent(event)
+							? event.touches.item(0)?.pageY
+							: event.pageY;
 
-						window.addEventListener("mousemove", onMouseMove);
-						window.addEventListener("mouseup", onMouseUp);
-					});
+						invariant(!isNil(startX), "startX is undefined");
+						invariant(!isNil(startY), "startY is undefined");
 
-					const onMouseMove = (event: MouseEvent) => {
-						event.stopImmediatePropagation();
-						event.preventDefault();
+						const startWidth = button.offsetWidth;
+						const startHeight = button.offsetHeight;
+						const startTop = button.offsetTop;
+						const startLeft = button.offsetLeft;
 
-						// we don't want to allow the points to collapse into one point
-						// if it does we won't be able to resize it again because trying to grab one resize
-						// will grab all
-						const MIN_BOUNDS = 50;
+						const onMouseMove = (
+							event: MouseEvent | TouchEvent,
+						) => {
+							event.preventDefault();
+							event.stopImmediatePropagation();
 
-						const resizeTopLeft = () => {
-							const startLeft =
-								button.getBoundingClientRect().left;
-							const startTop = button.getBoundingClientRect().top;
+							const currentX = isTouchEvent(event)
+								? event.touches.item(0)?.pageX
+								: event.pageX;
+							const currentY = isTouchEvent(event)
+								? event.touches.item(0)?.pageY
+								: event.pageY;
 
-							const dLeft = event.pageX - startLeft;
-							const dTop = event.pageY - startTop;
-							const dHeight = initialY - event.pageY;
-							const dWidth = initialX - event.pageX;
+							invariant(
+								!isNil(currentX),
+								"currentX is undefined",
+							);
+							invariant(
+								!isNil(currentY),
+								"currentY is undefined",
+							);
 
-							const newLeft = initialLeft + dLeft;
-							const newTop = initialTop + dTop;
-							const newHeight = initialHeight + dHeight;
-							const newWidth = initialWidth + dWidth;
+							const dx = currentX - startX;
+							const dy = currentY - startY;
+							const MIN_BOUNDS = 50;
+
+							let newWidth = startWidth;
+							let newHeight = startHeight;
+							let newTop = startTop;
+							let newLeft = startLeft;
+
+							if (direction.includes("top")) {
+								newHeight = startHeight - dy;
+								newTop = startTop + dy;
+							} else {
+								newHeight = startHeight + dy;
+							}
+
+							if (direction.includes("left")) {
+								newWidth = startWidth - dx;
+								newLeft = startLeft + dx;
+							} else {
+								newWidth = startWidth + dx;
+							}
 
 							if (newWidth > MIN_BOUNDS) {
-								button.style.left = `${newLeft}px`;
 								button.style.width = `${newWidth}px`;
-								initialLeft = newLeft;
+								button.style.left = `${newLeft}px`;
 							}
 
 							if (newHeight > MIN_BOUNDS) {
-								button.style.top = `${newTop}px`;
 								button.style.height = `${newHeight}px`;
-								initialTop = newTop;
+								button.style.top = `${newTop}px`;
 							}
 						};
 
-						// TODO: ideally we want to make the position of all corners depend on
-						// `left` and `top`. flipping the sign as necessary, `x px` `top` means
-						// there is `x px` padding from the top (pushing the position down)
-						// so `-x px` `top` means we push the position up by `-x px`
-						// just makes it easier to reason about things
-						const resizeBottomLeft = () => {
-							const startLeft =
-								button.getBoundingClientRect().left;
+						const onMouseUp = (event: MouseEvent | TouchEvent) => {
+							event.preventDefault();
+							event.stopImmediatePropagation();
 
-							const dLeft = event.pageX - startLeft;
-							const dWidth = initialX - event.pageX;
-
-							const newLeft = initialLeft + dLeft;
-							const newWidth = initialWidth + dWidth;
-
-							// TODO: we have top now we need bottom
-							if (newWidth > MIN_BOUNDS) {
-								button.style.left = `${newLeft}px`;
-								button.style.width = `${newWidth}px`;
-								initialLeft = newLeft;
-							}
+							window.removeEventListener(
+								"mousemove",
+								onMouseMove,
+							);
+							window.removeEventListener("mouseup", onMouseUp);
+							window.removeEventListener(
+								"touchmove",
+								onMouseMove,
+							);
+							window.removeEventListener("touchend", onMouseUp);
 						};
 
-						if (direction === "top-left") {
-							resizeTopLeft();
-						}
-
-						// TODO: there are jumps when resizing bottom and then resizing top
-						if (direction === "bottom-left") {
-							resizeBottomLeft();
-						}
+						window.addEventListener("mousemove", onMouseMove);
+						window.addEventListener("mouseup", onMouseUp);
+						window.addEventListener("touchmove", onMouseMove);
+						window.addEventListener("touchend", onMouseUp);
 					};
 
-					const onMouseUp = (event: MouseEvent) => {
-						event.stopImmediatePropagation();
-						event.preventDefault();
-
-						initialY = 0;
-						initialX = 0;
-						initialWidth = button.getBoundingClientRect().width;
-						initialHeight = button.getBoundingClientRect().height;
-
-						window.removeEventListener("mousemove", onMouseMove);
-						window.removeEventListener("mouseup", onMouseUp);
-					};
+					handle.addEventListener("mousedown", onMouseDown);
+					handle.addEventListener("touchstart", onMouseDown);
 				};
 				resizable(topLeftResizeCorner, "top-left");
-				// let topLeftResizeX = 0;
-				// let topLeftResizeY = 0;
-				// topLeftResizeCorner.addEventListener("mousedown", event => {
-				// 	event.stopImmediatePropagation();
-				// 	event.preventDefault();
-
-				// 	console.log("Here top left resizer!!", event);
-
-				// 	topLeftResizeX = event.pageX;
-				// 	topLeftResizeY = event.pageY;
-				// 	window?.addEventListener("mousemove", onMouseMove);
-				// 	window.addEventListener("mouseup", onMouseUp);
-				// });
-				// const onMouseMove = (event: MouseEvent) => {
-				// 	event.stopImmediatePropagation();
-				// 	event.preventDefault();
-
-				// 	console.log(
-				// 		"HERE!! mousemove",
-				// 		event,
-				// 		topLeftResizeCorner.getBoundingClientRect(),
-				// 	);
-
-				// 	// const bounds = div!.getBoundingClientRect();
-				// 	// const dx = event.pageX - topLeftResizeX;
-				// 	// const dy = event.pageY - topLeftResizeY;
-
-				// 	// const left = button.getBoundingClientRect().x + dx;
-				// 	// const left =
-				// 	// 	event.pageX - button.getBoundingClientRect().left;
-				// 	// const top = button.getBoundingClientRect().y + dy;
-				// 	// const height =
-				// 	// 	initialHeight - (event.pageY - topLeftResizeY);
-
-				// 	const startLeft = button.getBoundingClientRect().left;
-				// 	const startTop = button.getBoundingClientRect().top;
-
-				// 	const dLeft = event.pageX - startLeft;
-				// 	const dTop = event.pageY - startTop;
-				// 	const dHeight = topLeftResizeY - event.pageY;
-				// 	const dWidth = topLeftResizeX - event.pageX;
-
-				// 	const newLeft = initialLeft + dLeft;
-				// 	const newTop = initialTop + dTop;
-				// 	const newHeight = initialHeight + dHeight;
-				// 	const newWidth = initialWidth + dWidth;
-
-				// 	// we don't want to allow the points to collapse into one point
-				// 	// if it does we won't be able to resize it again because trying to grab one resize
-				// 	// will grab all
-				// 	const MIN_BOUNDS = 50;
-
-				// 	console.log("box", box);
-				// 	console.log("divWidth", div!.getBoundingClientRect());
-				// 	console.log("newLeft", newLeft, initialLeft, dLeft);
-				// 	console.log("newTop", newTop, initialTop, dTop);
-				// 	console.log("newHeight", newHeight, initialHeight, dHeight);
-				// 	console.log("newWidth", newWidth, initialWidth, dWidth);
-
-				// 	// TODO: there is a tiny jump when we start resizing
-				// 	// TODO: to ensure that we don't resize outside of the canvas, i think for the top left corner:
-				// 	// - event.pageX gives the `x` coordinate of the resize. it should not be less than the `x` coordinate
-				// 	// of the canvas bounding rect or greater than `x + width` of the canvas bounding rect
-				// 	// - event.pageY gives the `y` coordinate of the resize. it should not be less than the `y` coordinate
-				// 	// of the canvas bounding rect or greater than `y + height` of the canvas bounding rect
-				// 	if (newWidth > MIN_BOUNDS) {
-				// 		button.style.left = `${newLeft}px`;
-				// 		button.style.width = `${newWidth}px`;
-				// 		initialLeft = newLeft;
-				// 	}
-
-				// 	if (newHeight > MIN_BOUNDS) {
-				// 		button.style.top = `${newTop}px`;
-				// 		button.style.height = `${newHeight}px`;
-				// 		initialTop = newTop;
-				// 	}
-				// };
-				// const onMouseUp = (event: MouseEvent) => {
-				// 	event.stopImmediatePropagation();
-				// 	event.preventDefault();
-
-				// 	console.log("HERE!! mouseup");
-
-				// 	// TODO: we need to resize the prediction button and then redraw the prediction box
-				// 	// TODO: clear path
-				// 	// TODO: think we need to draw over the old path and remove it
-				// 	// can't clear that rectangle because it also clears the image
-				// 	// const ctx = cvs!.getContext("2d");
-				// 	// const path = new Path2D();
-				// 	// path.rect(
-				// 	// 	initialLeft,
-				// 	// 	initialTop,
-				// 	// 	button.getBoundingClientRect().width,
-				// 	// 	button.getBoundingClientRect().height,
-				// 	// );
-				// 	// ctx!.lineWidth = 3;
-				// 	// ctx!.strokeStyle = "blue";
-				// 	// ctx?.stroke(path);
-
-				// 	topLeftResizeX = 0;
-				// 	topLeftResizeY = 0;
-				// 	initialWidth = button.getBoundingClientRect().width;
-				// 	initialHeight = button.getBoundingClientRect().height;
-				// 	window.removeEventListener("mousemove", onMouseMove);
-				// 	window.removeEventListener("mouseup", onMouseUp);
-				// };
 				button.appendChild(topLeftResizeCorner);
 
 				const topRightResizeCorner = document.createElement("button");
@@ -1060,6 +1012,7 @@ const TensorflowTest = () => {
 				topRightResizeCorner.style.top = "-5px";
 				topRightResizeCorner.style.right = "-5px";
 				topRightResizeCorner.style.cursor = "pointer";
+				resizable(topRightResizeCorner, "top-right");
 				button.appendChild(topRightResizeCorner);
 
 				const bottomLeftResizeCorner = document.createElement("button");
@@ -1084,17 +1037,10 @@ const TensorflowTest = () => {
 				bottomRightResizeCorner.style.bottom = "-5px";
 				bottomRightResizeCorner.style.right = "-5px";
 				bottomRightResizeCorner.style.cursor = "pointer";
+				resizable(bottomRightResizeCorner, "bottom-right");
 				button.appendChild(bottomRightResizeCorner);
 
 				div!.appendChild(button);
-
-				// const ctx = cvs!.getContext("2d");
-				// const path = new Path2D();
-				// path.rect(initialLeft, initialTop, initialWidth, initialHeight);
-
-				// ctx!.lineWidth = 3;
-				// ctx!.strokeStyle = "yellow";
-				// ctx?.stroke(path);
 			});
 	};
 
@@ -1121,64 +1067,28 @@ const TensorflowTest = () => {
 						(event.target as HTMLImageElement).width,
 						(event.target as HTMLImageElement).height,
 					);
-
-					// const button = document.createElement("button");
-					// button.style.position = "absolute";
-					// button.style.top = `${50}px`;
-					// button.style.left = `${50}px`;
-					// button.style.width = `${100}px`;
-					// button.style.height = `${100}px`;
-					// button.style.backgroundColor = "transparent";
-					// button.style.cursor = "pointer";
-					// button.addEventListener("click", () => {
-					// 	console.log("HERE!!");
-					// });
-					// div!.appendChild(button);
-
-					// ctx?.beginPath();
-					// ctx?.rect(50, 50, 100, 100);
-					// ctx!.lineWidth = 3;
-					// ctx!.strokeStyle = "yellow";
-					// ctx?.stroke();
-
-					// const predictions = await model.ref?.detect(
-					// 	event.target as HTMLImageElement,
-					// 	{
-					// 		score: 0.3,
-					// 		iou: 0.5,
-					// 		topk: 5,
-					// 	},
-					// );
-
-					// console.log(predictions, model);
-
-					// predictions?.forEach(({ box, score, label }) => {
-					// 	const button = document.createElement("button");
-					// 	button.style.position = "absolute";
-					// 	button.style.top = `${box.top}px`;
-					// 	button.style.left = `${box.left}px`;
-					// 	button.style.width = `${box.width}px`;
-					// 	button.style.height = `${box.height}px`;
-					// 	button.style.backgroundColor = "transparent";
-					// 	button.style.zIndex = `${1000}`;
-					// 	button.style.cursor = "pointer";
-					// 	button.addEventListener("click", () => {
-					// 		console.log("HERE!!", score, label);
-					// 	});
-					// 	div!.appendChild(button);
-
-					// 	ctx?.beginPath();
-					// 	ctx?.rect(box.left, box.top, box.width, box.height);
-					// 	ctx!.lineWidth = 3;
-					// 	ctx!.strokeStyle = "yellow";
-					// 	ctx?.stroke();
-					// });
 				}}
 			/>
 
 			<div ref={div} class="relative">
 				<canvas ref={cvs} />
 			</div>
+
+			<AlertDialog open={isClicked()}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertTitle>Clicked!!</AlertTitle>
+
+						<AlertDescription>Hi!!</AlertDescription>
+					</AlertDialogHeader>
+
+					<AlertDialogFooter>
+						<AlertDialogAction onClick={toggleIsClicked}>
+							Ok
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 };
