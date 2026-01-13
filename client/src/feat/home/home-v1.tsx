@@ -816,6 +816,72 @@ const TensorflowTest = () => {
 		const result = await test.executeAsync(input);
 		console.log("yolov8s result", result);
 
+		// 2. Process the raw tensor (Assuming YOLOv8 output shape [1, 84, 8400])
+		// We need to transpose it to [8400, 84] for easier processing
+		// eslint-disable-next-line import/namespace
+		const res = tf.tidy(() => {
+			// eslint-disable-next-line import/namespace
+			const raw = result instanceof tf.Tensor ? result : result[0];
+			return raw.squeeze().transpose();
+		});
+
+		// 3. Extract Boxes and Scores
+		// eslint-disable-next-line import/namespace
+		const [boxes, scores, classIds] = tf.tidy(() => {
+			// Slice first 4 columns for [x, y, w, h]
+			const boxes = res.slice([0, 0], [-1, 4]);
+
+			// Slice remaining columns for class probabilities and find the max score per box
+			const classScores = res.slice([0, 4], [-1, -1]);
+			const scores = classScores.max(1);
+			const classIds = classScores.argMax(1);
+
+			return [boxes, scores, classIds];
+		});
+
+		// 4. Filter with Non-Max Suppression
+		// eslint-disable-next-line import/namespace
+		const nmsIndices = await tf.image.nonMaxSuppressionAsync(
+			/// @ts-expect-error: type error only
+			boxes,
+			scores,
+			500, // max output size (topk)
+			0.45, // iou_threshold
+			0.2, // score_threshold
+		);
+
+		const finalResults = await Promise.all(
+			(await nmsIndices.array()).map(async idx => {
+				const box = await boxes.slice([idx, 0], [1, 4]).data();
+				const score = (await scores.slice([idx], [1]).data())[0];
+				const classId = (await classIds.slice([idx], [1]).data())[0];
+
+				// 1. YOLOv8 typically outputs [center_x, center_y, width, height]
+				// If your boxes are appearing shifted, use this conversion:
+				const [cx, cy, w, h] = box;
+				const left = cx - w / 2;
+				const top = cy - h / 2;
+
+				// 2. Calculate scaling factors (Model 640 -> Canvas display size)
+				const scaleX = cvs!.width / 640;
+				const scaleY = cvs!.height / 640;
+
+				return {
+					box: {
+						left: left * scaleX,
+						top: top * scaleY,
+						width: w * scaleX,
+						height: h * scaleY,
+					},
+					score,
+					classId,
+					label: "signature",
+				};
+			}),
+		);
+
+		console.log(finalResults);
+
 		const predictions = await model.ref?.detect(image!, {
 			score: 0.1,
 			topk: 5,
@@ -824,7 +890,7 @@ const TensorflowTest = () => {
 		// TODO: maybe allow the user to draw a box if the prediction is not good
 		console.log(predictions);
 
-		predictions
+		finalResults
 			?.filter(({ label }) => ["signature", "initials"].includes(label))
 			.forEach(({ box, score, label }) => {
 				const initialTop = box.top;
