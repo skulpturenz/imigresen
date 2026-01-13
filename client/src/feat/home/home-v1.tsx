@@ -19,7 +19,7 @@ import {
 	formatDate,
 	isBefore,
 } from "date-fns";
-import { invariant, partial } from "es-toolkit";
+import { invariant, isNil, partial } from "es-toolkit";
 import { CircleAlert, Eye, Plus } from "lucide-solid";
 import { createSignal, onMount, Show, Suspense } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
