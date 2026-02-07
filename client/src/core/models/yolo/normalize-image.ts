@@ -33,7 +33,6 @@ export const normalizeImage = async (
 	const pipeline = pipe(
 		tf.browser.fromPixelsAsync,
 		toFloat,
-
 		partialRight(divide, tf.scalar(255.0)),
 		partialRight(expandDims, 0),
 	);
