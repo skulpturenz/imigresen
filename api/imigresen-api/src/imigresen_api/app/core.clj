@@ -30,7 +30,8 @@
             [ring.logger :as logger]
             [ring.util.response :as ring-res]
             [sentry-clj.core :as sentry]
-            [taoensso.telemere :as tel])
+            [taoensso.telemere :as tel]
+            [clojure.pprint])
   (:import (java.io Writer)
            (java.util UUID)))
 
@@ -178,19 +179,19 @@
               :middleware (if (imi-env/local? (imi-env/current-env))
                             (into [] cat [global-middleware dev-middleware])
                             global-middleware)}})
-     (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
-                         (reitit-swagger/create-swagger-ui-handler
-                          {:path "/docs"
-                           :config {:validatorUrl nil
-                                    :urls [{:name "openapi"
-                                            :url (if (imi-env/preview? (imi-env/current-env))
-                                                   (str (imi-env/env :buang-deployment-path string? "") "/openapi.json")
-                                                   "/openapi.json")}]
-                                    :urls.primaryName "openapi"
-                                    :operationsSorter "alpha"
-                                    :showRequestHeaders true
-                                    :jsonEditor true}})
-                         (reitit-ring/create-default-handler)))))
+     (redirect-preview (reitit-ring/routes (reitit-ring/redirect-trailing-slash-handler)
+                                           (reitit-swagger/create-swagger-ui-handler
+                                            {:path "/docs"
+                                             :config {:validatorUrl nil
+                                                      :urls [{:name "openapi"
+                                                              :url (if (imi-env/preview? (imi-env/current-env))
+                                                                     (str (imi-env/env :buang-deployment-path string? "") "/openapi.json")
+                                                                     "/openapi.json")}]
+                                                      :urls.primaryName "openapi"
+                                                      :operationsSorter "alpha"
+                                                      :showRequestHeaders true
+                                                      :jsonEditor true}})
+                                           (reitit-ring/create-default-handler))))))
 
 (def app (logger/wrap-with-logger (create-app (imi-core/handlers))
                                   {:log-fn (fn [{:keys [level throwable message]}]
