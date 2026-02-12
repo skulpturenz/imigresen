@@ -121,7 +121,10 @@
                           :openapi {:info {:title "Imigresen"}
                                     :components {:securitySchemes
                                                  {:openIdConnect {:type "openIdConnect"
-                                                                  :openIdConnectUrl "https://authnz.skulpture.xyz/realms/imigresen/.well-known/openid-configuration"}}}}}}])
+                                                                  :openIdConnectUrl "https://authnz.skulpture.xyz/realms/imigresen/.well-known/openid-configuration"}}}
+                                    :servers [{:url (if (imi-env/preview? (imi-env/current-env))
+                                                      (imi-env/env :buang-deployment-path string? "/")
+                                                      "/")}]}}}])
 
 (defn ping []
   ["/ping" ["" {:get {:handler (constantly (-> (ring-res/response ".")
@@ -167,7 +170,9 @@
                           {:path "/docs"
                            :config {:validatorUrl nil
                                     :urls [{:name "openapi"
-                                            :url "/openapi.json"}]
+                                            :url (if (imi-env/preview? (imi-env/current-env))
+                                                   (str (imi-env/env :buang-deployment-path string? "") "/openapi.json")
+                                                   "/openapi.json")}]
                                     :urls.primaryName "openapi"
                                     :operationsSorter "alpha"
                                     :showRequestHeaders true
