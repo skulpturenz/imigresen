@@ -29,7 +29,8 @@
             [ring.logger :as logger]
             [ring.util.response :as ring-res]
             [sentry-clj.core :as sentry]
-            [taoensso.telemere :as tel])
+            [taoensso.telemere :as tel]
+            [clojure.string :as str])
   (:import (java.io Writer)
            (java.util UUID)))
 
@@ -131,6 +132,16 @@
                                                (ring-res/content-type (:plain-text imi-routes/content-types))))
                       :no-doc true}}]])
 
+(defn redirect-preview [handler]
+  (fn [req]
+    (let [res (handler req)]
+      (if (and (imi-env/preview? (imi-env/current-env))
+               (some? (get-in res [:headers "Location"]))
+               (not (empty? (imi-env/env :buang-deployment-path string? "")))
+               (not (str/includes? (get-in res [:headers "Location"]) (imi-env/env :buang-deployment-path string? ""))))
+        (assoc-in res [:headers "Location"] (str (imi-env/env :buang-deployment-path string? "") (get-in res [:headers "Location"])))
+        res))))
+
 (defn create-app [handlers]
   (let [global-middleware [;; CORS
                            imi-cors/cors-middleware
@@ -153,7 +164,9 @@
                            ;; coercing response body (clj -> json, correct types)
                            reitit.ring.coercion/coerce-response-middleware
                            ;; openapi feature
-                           openapi/openapi-feature]
+                           openapi/openapi-feature
+                           ;; handle redirects when deployed as preview
+                           redirect-preview]
         dev-middleware []]
     (reitit-ring/ring-handler
      (reitit-ring/router
