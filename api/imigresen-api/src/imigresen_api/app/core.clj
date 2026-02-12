@@ -2,6 +2,7 @@
   (:require [camel-snake-kebab.core :as csk]
             [clj-commons.format.exceptions :as pexceptions]
             [clojure.java.io :as io]
+            [clojure.pprint]
             [clojure.string :as str]
             [expound.alpha :as expound]
             [imigresen-api.api.core :as imi-core]
@@ -30,8 +31,7 @@
             [ring.logger :as logger]
             [ring.util.response :as ring-res]
             [sentry-clj.core :as sentry]
-            [taoensso.telemere :as tel]
-            [clojure.pprint])
+            [taoensso.telemere :as tel])
   (:import (java.io Writer)
            (java.util UUID)))
 
