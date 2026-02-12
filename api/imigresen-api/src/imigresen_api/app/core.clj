@@ -136,7 +136,7 @@
   (fn [req]
     (let [res (handler req)]
       (if (and (imi-env/preview? (imi-env/current-env))
-               (some? (get-in res [:headers "Location"]))
+               (not (empty? (get-in res [:headers "Location"])))
                (not (empty? (imi-env/env :buang-deployment-path string? "")))
                (not (str/includes? (get-in res [:headers "Location"]) (imi-env/env :buang-deployment-path string? ""))))
         (assoc-in res [:headers "Location"] (str (imi-env/env :buang-deployment-path string? "") (get-in res [:headers "Location"])))
