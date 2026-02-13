@@ -1,0 +1,183 @@
+name: Create preview deployment
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUANG_API_BASE_URL: 'https://preview.imigresen.skulpture.xyz'
+  BUANG_API_KEY: ${{ secrets.BUANG_API_KEY }}
+  BUANG_PROJECT_ID: ${{ vars.BUANG_PROJECT_ID }}
+  CREATE_DEPLOYMENT_BRANCH: ${{ github.head_ref }}
+  CREATE_DEPLOYMENT_SHA: ${{ github.event.pull_request.head.sha }}
+  CREATE_DEPLOYMENT_SERVICE_ENTRYPOINT: "imigresen-api-preview:3000"
+  CREATE_DEPLOYMENT_ENV: ${{ secrets.BUANG_PREVIEW_ENV }}
+
+jobs:
+  docker-build-comment:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Short sha
+        id: vars_sha
+        run: HEAD_SHA="${{ github.event.pull_request.head.sha }}"; echo "short_sha=${HEAD_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Build comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: 'Status: building preview images for commit ${{ steps.vars_sha.outputs.short_sha }}'
+          comment-tag: execution
+
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
+    if: ${{ always() }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+
+      - name: Short sha
+        id: vars_sha
+        run: HEAD_SHA="${{ github.event.pull_request.head.sha }}"; echo "short_sha=${HEAD_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: "Build Docker image: imigresen-api"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: preview-${{ steps.vars_sha.outputs.short_sha }}
+        with:
+          # https://github.com/docker/build-push-action/issues/638#issuecomment-1268196131
+          context: ./api/imigresen-api
+          cache-from: type=gha,scope=${{ runner.os }}-buildx-app
+          cache-to: type=gha,scope=${{ runner.os }}-buildx-app,mode=max
+          build-contexts: |
+            common=./api/imigresen-common
+            eventing=./api/skulpture-eventing
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
+          push: true
+          tags: |
+            skulpture/imigresen-api:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
+
+  docker-push-comment:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Short sha
+        id: vars_sha
+        run: HEAD_SHA="${{ github.event.pull_request.head.sha }}"; echo "short_sha=${HEAD_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Push comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: 'Status: pushing preview images for commit ${{ steps.vars_sha.outputs.short_sha }}'
+          comment-tag: execution
+    
+  docker-push:
+    needs: build
+
+    strategy:
+      matrix:
+        image: [skulpture/imigresen-api]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Short sha
+        id: vars_sha
+        run: HEAD_SHA="${{ github.event.pull_request.head.sha }}"; echo "short_sha=${HEAD_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push ${{ matrix.image }}
+        uses: Noelware/docker-manifest-action@v1
+        env:
+          TAG: preview-${{ steps.vars_sha.outputs.short_sha }}
+        with:
+          inputs: >
+            ${{ matrix.image }}:${{ env.TAG }}-amd64,
+            ${{ matrix.image }}:${{ env.TAG }}-arm64
+          tags: >
+            ${{ matrix.image }}:${{ env.TAG }}
+          push: true
+          
+  deploy-preview:
+    needs: [build, docker-push]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Short sha
+        id: vars_sha
+        run: HEAD_SHA="${{ github.event.pull_request.head.sha }}"; echo "short_sha=${HEAD_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploying comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: 'Status: deploying commit ${{ steps.vars_sha.outputs.short_sha }}'
+          comment-tag: execution
+
+      - id: json
+        name: Prepare deployment request
+        run: |
+          EOF=$(openssl rand -hex 8)
+          ENV=$(echo '${{ env.CREATE_DEPLOYMENT_ENV }}' | jq '.PREVIEW_SHA = "${{ steps.vars_sha.outputs.short_sha }}"')
+          REQUEST="{ \"branch\": \"${{ env.CREATE_DEPLOYMENT_BRANCH }}\", \"sha\": \"${{ env.CREATE_DEPLOYMENT_SHA }}\", \"serviceEntrypoint\": \"${{ env.CREATE_DEPLOYMENT_SERVICE_ENTRYPOINT }}\", \"env\": $ENV }"
+
+          echo "create_deployment<<$EOF" >> $GITHUB_OUTPUT
+          echo "$REQUEST" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - id: new_deployment
+        name: Create deployment
+        run: |
+          DEPLOYMENT_ID=$(curl -X POST '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/deployment?waitForDeployment=true' -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}' -H 'Content-Type: application/json' -d '${{ steps.json.outputs.create_deployment }}')
+
+          echo "new_deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
+
+      - id: new_deployment_details
+        name: Get deployment url
+        run: |
+          RES_DEPLOYMENT_DETAILS=$(curl -X GET '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/deployment/${{ steps.new_deployment.outputs.new_deployment_id }}' -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}')
+
+          DEPLOYMENT_URL=$(echo $RES_DEPLOYMENT_DETAILS | jq -r '.url')
+
+          echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+
+      - uses: thollander/actions-comment-pull-request@v3
+        name: Preview branch comment
+        with:
+          message: |
+            Preview branch deployed at [${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }}](${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }})
+            
+            ![success](https://i.giphy.com/Um27tTsg0mSdO.webp)
+          comment-tag: execution

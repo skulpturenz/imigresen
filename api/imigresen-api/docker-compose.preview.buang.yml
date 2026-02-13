@@ -1,0 +1,48 @@
+networks:
+  buang:
+    external: true
+
+services:
+  imigresen-api-preview:
+    image: skulpture/imigresen-api:preview-${PREVIEW_SHA}
+    networks:
+      - buang
+    restart: unless-stopped
+    environment:
+      BUANG_DEPLOYMENT_PATH: ${BUANG_DEPLOYMENT_PATH}
+      LOG_LEVEL: ${LOG_LEVEL}
+      KC_AUTH_SERVER_URL: ${KC_AUTH_SERVER_URL}
+      KC_REALM: ${KC_REALM}
+      KC_OAUTH_CLIENT_ID: ${KC_OAUTH_CLIENT_ID}
+      KC_OAUTH_CLIENT_SECRET: ${KC_OAUTH_CLIENT_SECRET}
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      DB_INIT_IN_TRANSACTION: ${DB_INIT_IN_TRANSACTION}
+      DB_MIGRATION_TABLE_NAME: ${DB_MIGRATION_TABLE_NAME}
+      DB_SEED_MIGRATION_TABLE_NAME: ${DB_SEED_MIGRATION_TABLE_NAME}
+      DB_CHANGE_SCRIPT_MIGRATION_TABLE_NAME: ${DB_CHANGE_SCRIPT_MIGRATION_TABLE_NAME}
+      ROLLOUT_URL: ${ROLLOUT_URL}
+      OTEL_SERVICE_NAME: imigresen-api-preview-${PREVIEW_SHA}
+      ENABLE_TELEMETRY: "false"
+      POSTMARK_TEMPLATE: ${POSTMARK_TEMPLATE_DEV}
+      POSTMARK_SERVER_TOKEN: ${POSTMARK_SERVER_TOKEN}
+      POSTMARK_ACCOUNT_TOKEN: ${POSTMARK_ACCOUNT_TOKEN}
+      JAVA_ENV: "preview"
+      CF_R2_ACCESS_KEY: ${CF_R2_ACCESS_KEY}
+      CF_R2_SECRET_KEY: ${CF_R2_SECRET_KEY}
+      CF_R2_ENDPOINT: ${CF_R2_ENDPOINT}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.entrypoints: web,websecure
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.rule: Host(`preview.imigresen.skulpture.xyz`) && PathPrefix(`${BUANG_DEPLOYMENT_PATH}`)
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.tls.domains.main: imigresen.skulpture.xyz
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.tls.domains.sans: "*.imigresen.skulpture.xyz"
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.service: ${BUANG_ENTRYPOINT_TRAEFIK_SERVICE}
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.middlewares: ${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}-stripprefix
+      traefik.http.services.${BUANG_ENTRYPOINT_TRAEFIK_SERVICE}.loadbalancer.server.port: 3000
+      traefik.http.middlewares.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}-stripprefix.stripprefix.prefixes: ${BUANG_DEPLOYMENT_PATH}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:3000/ping || exit 1" ]
+      interval: 1m30s
+      timeout: 1m
+      retries: 5
+      start_period: 3m
