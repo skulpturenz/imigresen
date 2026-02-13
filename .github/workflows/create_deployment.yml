@@ -177,7 +177,7 @@ jobs:
         name: Preview branch comment
         with:
           message: |
-            Preview branch deployed at [${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }}](${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }})
-            
+            Preview branch deployed at [${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }}/docs](${{ env.BUANG_API_BASE_URL }}${{ steps.new_deployment_details.outputs.deployment_url }}/docs)
+
             ![success](https://i.giphy.com/Um27tTsg0mSdO.webp)
           comment-tag: execution
