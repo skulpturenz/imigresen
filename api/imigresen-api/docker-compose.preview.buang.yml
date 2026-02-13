@@ -36,10 +36,8 @@ services:
       traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.rule: Host(`preview.imigresen.skulpture.xyz`) && PathPrefix(`${BUANG_DEPLOYMENT_PATH}`)
       traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.tls.domains.main: imigresen.skulpture.xyz
       traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.tls.domains.sans: "*.imigresen.skulpture.xyz"
-      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.service: ${BUANG_ENTRYPOINT_TRAEFIK_SERVICE}
-      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.middlewares: ${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}-stripprefix
-      traefik.http.services.${BUANG_ENTRYPOINT_TRAEFIK_SERVICE}.loadbalancer.server.port: 3000
-      traefik.http.middlewares.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}-stripprefix.stripprefix.prefixes: ${BUANG_DEPLOYMENT_PATH}
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.service: ${BUANG_ENTRYPOINT_TRAEFIK_SERVICE}@file
+      traefik.http.routers.${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}.middlewares: ${BUANG_ENTRYPOINT_TRAEFIK_ROUTER}-stripprefix@file
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:3000/ping || exit 1" ]
       interval: 1m30s
