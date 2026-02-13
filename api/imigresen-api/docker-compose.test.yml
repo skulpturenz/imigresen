@@ -10,7 +10,7 @@ services:
             - .:/imigresen-api
             - ../imigresen-common:/imigresen-common
             - ../skulpture-eventing:/skulpture-eventing
-            - ./docker-java.properties:/root/.docker-java.properties
+            - ./.docker-java.properties:/root/.docker-java.properties
             - /var/run/docker.sock:/var/run/docker.sock:ro
         environment:
             JAVA_ENV: "test"

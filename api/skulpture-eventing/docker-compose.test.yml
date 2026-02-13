@@ -5,7 +5,7 @@ services:
             sh -c "cd /skulpture-eventing && lein cljfmt check && lein clj-kondo && lein test"
         volumes:
             - .:/skulpture-eventing
-            - ./docker-java.properties:/root/.docker-java.properties
+            - ./.docker-java.properties:/root/.docker-java.properties
             - /var/run/docker.sock:/var/run/docker.sock:ro
         environment:
             JAVA_ENV: "test"
