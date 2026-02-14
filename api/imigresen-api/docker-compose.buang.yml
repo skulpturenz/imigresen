@@ -9,8 +9,8 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.buang.rule: Host(`preview.imigresen.skulpture.xyz`) && !PathPrefix(`/deployment`)
-      traefik.http.routers.buang.tls.domain.name: imigresen.skulpture.xyz
-      traefik.http.routers.buang.tls.domain.sans: "*.imigresen.skulpture.xyz"
+      traefik.http.routers.buang.tls.domains.main: imigresen.skulpture.xyz
+      traefik.http.routers.buang.tls.domains.sans: "*.imigresen.skulpture.xyz"
       traefik.http.services.buang-service.loadbalancer.server.port: ${BUANG_PORT:-80}
       traefik.http.services.buang-service.loadbalancer.server.scheme: http
       traefik.http.services.buang-service.loadbalancer.healthcheck.path: /ping
