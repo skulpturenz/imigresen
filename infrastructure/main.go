@@ -174,7 +174,7 @@ func main() {
 		instanceTemplate, err := compute.NewInstanceTemplate(ctx, fmt.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()), &compute.InstanceTemplateArgs{
 			// see: https://github.com/pulumi/pulumi-gcp/issues/680#issuecomment-1405680098
 			NamePrefix:   pulumi.Sprintf("%s-dev-template", COMPUTE_INSTANCE_NAME.Value()),
-			MachineType:  pulumi.String("e2-custom-micro-2048"),
+			MachineType:  pulumi.String("e2-custom-small-3072"),
 			CanIpForward: pulumi.Bool(false),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
@@ -228,7 +228,7 @@ func main() {
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
 				sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
-				sudo certbot certonly -d api-dev.imigresen.skulpture.xyz,api-prod.imigresen.skulpture.xyz,imigresen.skulpture.xyz \
+				sudo certbot certonly -d preview.imigresen.skulpture.xyz,api-dev.imigresen.skulpture.xyz,api-prod.imigresen.skulpture.xyz,imigresen.skulpture.xyz \
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
@@ -392,6 +392,17 @@ func main() {
 
 		ctx.Export("devStaticAddress", static.Address)
 		// ctx.Export("devGlobalForwardingRuleAddress", devLoadBalancer.IpAddress)
+
+		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-preview", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
+			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
+			Name:    pulumi.String("preview.imigresen"),
+			Content: static.Address, // devLoadBalancer.IpAddress,
+			Type:    pulumi.String("A"),
+			Proxied: pulumi.Bool(true),
+		})
+		if err != nil {
+			return nil, err
+		}
 
 		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-api-dev", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),

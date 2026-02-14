@@ -3,6 +3,10 @@ networks:
         name: imigresen
         driver: overlay
         attachable: true
+    buang:
+        name: buang
+        driver: overlay
+        attachable: true
 
 secrets:
     proxy.certificate:
@@ -12,7 +16,7 @@ secrets:
 
 services:
     proxy:
-        image: traefik:v3.4
+        image: traefik:v3.6
         ports:
             - target: 443
               published: 443
@@ -25,6 +29,8 @@ services:
         command: >
             --providers.swarm.endpoint=unix:///var/run/docker.sock
              --providers.swarm.exposedByDefault=false
+             --providers.docker=true
+             --providers.docker.exposedByDefault=false
              --providers.file.directory=/traefik
              --providers.file.watch=true
              --entryPoints.web.address=:80
@@ -44,6 +50,9 @@ services:
             nofile:
                 soft: 20000
                 hard: 20000
+        networks:
+            - default
+            - buang
 
     imigresen-api-dev:
         image: skulpture/imigresen-api:dev

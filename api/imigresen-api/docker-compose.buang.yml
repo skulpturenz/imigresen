@@ -1,0 +1,59 @@
+networks:
+  buang:
+    external: true
+
+services:
+  buang:
+    image: skulpture/buang-api:dev
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.buang.rule: Host(`preview.imigresen.skulpture.xyz`) && !PathPrefix(`/deployment`)
+      traefik.http.routers.buang.tls.domain.name: imigresen.skulpture.xyz
+      traefik.http.routers.buang.tls.domain.sans: "*.imigresen.skulpture.xyz"
+      traefik.http.services.buang-service.loadbalancer.server.port: ${BUANG_PORT:-80}
+      traefik.http.services.buang-service.loadbalancer.server.scheme: http
+      traefik.http.services.buang-service.loadbalancer.healthcheck.path: /ping
+      traefik.http.services.buang-service.loadbalancer.healthcheck.status: 200
+      traefik.http.services.buang-service.loadbalancer.healthcheck.port: ${BUANG_PORT:-80}
+    environment:
+      GO_ENV: "production"
+      BUANG_PORT: ${BUANG_PORT:-80}
+      BUANG_LOG_LEVEL: ${BUANG_LOG_LEVEL}
+      BUANG_API_KEY: ${BUANG_API_KEY}
+      BUANG_ENABLE_TELEMETRY: ${BUANG_ENABLE_TELEMETRY:-false}
+      BUANG_OTEL_SERVICE_NAME: ${BUANG_OTEL_SERVICE_NAME:-buang-imigresen}
+      BUANG_OTEL_EXPORTER_OTLP_ENDPOINT: ${BUANG_OTEL_EXPORTER_OTLP_ENDPOINT}
+      BUANG_DB_TYPE: "postgres"
+      BUANG_DB_CONNECTION_STRING: ${BUANG_DB_CONNECTION_STRING}
+      # set temporal client env variables as required
+      # docs: https://docs.temporal.io/references/client-environment-configuration
+      TEMPORAL_API_KEY: ${BUANG_TEMPORAL_API_KEY}
+      TEMPORAL_NAMESPACE: ${BUANG_TEMPORAL_NAMESPACE}
+      TEMPORAL_ADDRESS: ${BUANG_TEMPORAL_ADDRESS}
+      BUANG_DURABLE_EXECUTOR: "dbos"
+      BUANG_DBOS_CONDUCTOR_API_KEY: ${BUANG_DBOS_CONDUCTOR_API_KEY}
+      BUANG_DBOS_CONDUCTOR_URL: ${BUANG_DBOS_CONDUCTOR_URL}
+      BUANG_DBOS_ADMIN_SERVER_PORT: ${BUANG_DBOS_ADMIN_SERVER_PORT}
+      BUANG_ENABLE_EXPERIMENTAL_BOOTSTRAP: ${BUANG_ENABLE_EXPERIMENTAL_BOOTSTRAP}
+      BUANG_HOUSEKEEPING_PRUNE_DEPLOYMENTS: ${BUANG_HOUSEKEEPING_PRUNE_DEPLOYMENTS}
+      BUANG_EXPERIMENTAL_HOUSEKEEPING_AUTO_UPDATE: ${BUANG_EXPERIMENTAL_HOUSEKEEPING_AUTO_UPDATE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/root/.docker/config.json
+      - ./traefik:/buang/traefik
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 20000
+    networks:
+      - buang
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ping || exit 1" ]
+      interval: 1m30s
+      timeout: 1m
+      retries: 5
+      start_period: 30s
+    deploy:
+      mode: replicated
+      replicas: 2

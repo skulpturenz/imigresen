@@ -16,6 +16,9 @@
 		// "CLOUDFLARE_API_TOKEN": ""
 		// "GOOGLE_SERVICE_ACCOUNT": ""
 	},
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
 	"customizations": {
 		"settings": {
 			"go.buildTags": "",
