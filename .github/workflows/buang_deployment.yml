@@ -4,21 +4,23 @@ on:
   pull_request:
     types:
       - closed
-      - merged
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
-  BUANG_API_BASE_URL: '' # TODO
-  BUANG_API_KEY: '' # TODO
-  BUANG_PROJECT_ID: '' # TODO
-  BUANG_DEPLOYMENT_BRANCH: ${{ github.ref }}
+  BUANG_API_BASE_URL: 'https://preview.imigresen.skulpture.xyz'
+  BUANG_API_KEY: ${{ secrets.BUANG_API_KEY }}
+  BUANG_PROJECT_ID: ${{ vars.BUANG_PROJECT_ID }}
+  CREATE_DEPLOYMENT_BRANCH: ${{ github.head_ref }}
 
-jobs:
-  deploy-preview:
+jobs:    
+  buang-preview:
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          curl -X DELETE '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/branch'
-               -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}' \
-               -H 'Content-Type: application/json' \
-               -d '{ "branch": "${{ env.BUANG_DEPLOYMENT_BRANCH }}" }'
+      - id: buang_deployment
+        name: Buang deployment
+        run: |
+          curl -X DELETE '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/branch' -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}' -H 'Content-Type: application/json'
