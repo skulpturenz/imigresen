@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
     labels:
       traefik.enable: "true"
-      traefik.http.routers.buang.rule: Host(`preview.imigresen.skulpture.xyz`)
+      traefik.http.routers.buang.rule: Host(`preview.imigresen.skulpture.xyz`) && !PathPrefix(`/deployment`)
       traefik.http.routers.buang.tls.domain.name: imigresen.skulpture.xyz
       traefik.http.routers.buang.tls.domain.sans: "*.imigresen.skulpture.xyz"
       traefik.http.services.buang-service.loadbalancer.server.port: ${BUANG_PORT:-80}
