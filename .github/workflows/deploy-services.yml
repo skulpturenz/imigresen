@@ -172,6 +172,7 @@ jobs:
         if: contains(vars.DEPLOY, env.BRANCH_NAME) && env.BRANCH_NAME == matrix.branch
         env:
           STACK_NAME: ${{ matrix.service }}
+          BUANG_DOCKER_COMPOSE_FILE: 'imigresen-api/docker-compose.buang.yml'
           SERVICES_DOCKER_COMPOSE_FILE: ${{ env.BRANCH_NAME == 'master' && 'imigresen-api/docker-compose.yml' || 'imigresen-api/docker-compose.dev.yml'}}
           ENV_FILE: ~/.env
         with:
@@ -188,3 +189,4 @@ jobs:
 
             docker system prune -af
             docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --with-registry-auth --detach=true
+            docker compose -f ${{ env.BUANG_DOCKER_COMPOSE_FILE }} up -d
