@@ -23,4 +23,4 @@ jobs:
       - id: buang_deployment
         name: Buang deployment
         run: |
-          curl -X DELETE '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/branch' -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}' -H 'Content-Type: application/json'
+          curl -X DELETE '${{ env.BUANG_API_BASE_URL }}/api/v1/project/${{ env.BUANG_PROJECT_ID }}/branch' -H 'X-API-KEY: ${{ env.BUANG_API_KEY }}' -H 'Content-Type: application/json' -d '{ "branch": "${{ env.CREATE_DEPLOYMENT_BRANCH }}" }'
