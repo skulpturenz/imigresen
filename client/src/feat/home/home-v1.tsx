@@ -19,13 +19,14 @@ import {
 	formatDate,
 	isBefore,
 } from "date-fns";
-import { invariant, partial } from "es-toolkit";
+import { invariant, isNil, partial } from "es-toolkit";
 import { CircleAlert, Eye, Plus } from "lucide-solid";
-import { createSignal, Show, Suspense } from "solid-js";
+import { createSignal, onMount, Show, Suspense } from "solid-js";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { Alert, AlertDescription, AlertTitle } from "ui/alert";
 import {
 	AlertDialog,
+	AlertDialogAction,
 	AlertDialogClose,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -53,11 +54,17 @@ import { Typography } from "ui/typography";
 import { MyPassportFormWizard } from "./external";
 import { usePassportApplications } from "./hooks/use-passport-applications";
 import type { resources } from "./resources/i18n/en-us";
+import img from "./test.jpg";
 import {
 	MyPassportFormStatus,
 	type IssuedMyPassportForm,
 	type PersistedMyPassportForm,
 } from "./types";
+// eslint-disable-next-line import/no-namespace
+import * as tf from "@tensorflow/tfjs";
+// eslint-disable-next-line import/no-namespace
+import * as automl from "@tensorflow/tfjs-automl";
+import { models } from "core/models";
 
 export const Home = () => {
 	const authnContext = useContext(AuthnContext);
@@ -745,6 +752,7 @@ export const Home = () => {
 
 	return (
 		<>
+			<TensorflowTest />
 			<ActionBar />
 
 			<Suspense fallback={<div>Loading...</div>}>
@@ -770,6 +778,412 @@ export const Home = () => {
 
 				<ImportDialog />
 			</Suspense>
+		</>
+	);
+};
+
+const TensorflowTest = () => {
+	// eslint-disable-next-line prefer-const
+	let image: HTMLImageElement | undefined = undefined;
+	// eslint-disable-next-line prefer-const
+	let cvs: HTMLCanvasElement | undefined = undefined;
+	// eslint-disable-next-line prefer-const
+	let div: HTMLDivElement | undefined = undefined;
+
+	const model = { ref: null as automl.ObjectDetectionModel | null };
+	const [_cropArea, setCropArea] = createSignal<any>(null);
+
+	const [isClicked, setIsClicked] = createSignal(false);
+	const toggleIsClicked = () => setIsClicked(isClicked => !isClicked);
+
+	const getModel = async () => {
+		// eslint-disable-next-line import/namespace
+		const test = await tf.loadGraphModel(models.yolov8sTfjs);
+		model.ref = await automl.loadObjectDetection(
+			models.signverodAutomlEdge,
+		);
+
+		// eslint-disable-next-line import/namespace
+		const tfImg = (await tf.browser.fromPixelsAsync(image!)).toFloat();
+		// eslint-disable-next-line import/namespace
+		const resizedImg = tf.image.resizeBilinear(tfImg, [640, 640]);
+		// eslint-disable-next-line import/namespace
+		const normalizedImg = resizedImg.div(tf.scalar(255.0));
+		const input = normalizedImg.expandDims(0);
+		console.log(input.shape);
+
+		// TODO: how to use this?
+		const result = await test.executeAsync(input);
+		console.log("yolov8s result", result);
+
+		// 2. Process the raw tensor (Assuming YOLOv8 output shape [1, 84, 8400])
+		// We need to transpose it to [8400, 84] for easier processing
+		// eslint-disable-next-line import/namespace
+		const res = tf.tidy(() => {
+			// eslint-disable-next-line import/namespace
+			const raw = result instanceof tf.Tensor ? result : result[0];
+			return raw.squeeze().transpose();
+		});
+
+		// 3. Extract Boxes and Scores
+		// eslint-disable-next-line import/namespace
+		const [boxes, scores, classIds] = tf.tidy(() => {
+			// Slice first 4 columns for [x, y, w, h]
+			const boxes = res.slice([0, 0], [-1, 4]);
+
+			// Slice remaining columns for class probabilities and find the max score per box
+			const classScores = res.slice([0, 4], [-1, -1]);
+			const scores = classScores.max(1);
+			const classIds = classScores.argMax(1);
+
+			return [boxes, scores, classIds];
+		});
+
+		// 4. Filter with Non-Max Suppression
+		// eslint-disable-next-line import/namespace
+		const nmsIndices = await tf.image.nonMaxSuppressionAsync(
+			/// @ts-expect-error: type error only
+			boxes,
+			scores,
+			500, // max output size (topk)
+			0.45, // iou_threshold
+			0.2, // score_threshold
+		);
+
+		const getIoU = (boxA: any, boxB: any) => {
+			const xA = Math.max(boxA.left, boxB.left);
+			const yA = Math.max(boxA.top, boxB.top);
+			const xB = Math.min(boxA.left + boxA.width, boxB.left + boxB.width);
+			const yB = Math.min(boxA.top + boxA.height, boxB.top + boxB.height);
+
+			const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+			if (interArea === 0) return 0;
+
+			const boxAArea = boxA.width * boxA.height;
+			const boxBArea = boxB.width * boxB.height;
+
+			// IoU = Area of Overlap / Area of Union
+			return interArea / (boxAArea + boxBArea - interArea);
+		};
+
+		const finalResults = await Promise.all(
+			(await nmsIndices.array()).map(async idx => {
+				const box = await boxes.slice([idx, 0], [1, 4]).data();
+				const score = (await scores.slice([idx], [1]).data())[0];
+				const classId = (await classIds.slice([idx], [1]).data())[0];
+
+				// 1. YOLOv8 typically outputs [center_x, center_y, width, height]
+				// If your boxes are appearing shifted, use this conversion:
+				const [cx, cy, w, h] = box;
+				const left = cx - w / 2;
+				const top = cy - h / 2;
+
+				// 2. Calculate scaling factors (Model 640 -> Canvas display size)
+				const scaleX = cvs!.width / 640;
+				const scaleY = cvs!.height / 640;
+
+				return {
+					box: {
+						left: left * scaleX,
+						top: top * scaleY,
+						width: w * scaleX,
+						height: h * scaleY,
+					},
+					score,
+					classId,
+					label: "signature",
+				};
+			}),
+		);
+
+		// keep only the prediction boxes with the highest scores and remove
+		// all other prediction boxes which overlap with it above iou threshold
+		const filteredResults: any[] = [];
+		finalResults.forEach(x => {
+			const isOverlapping = filteredResults.some(
+				y => getIoU(x.box, y.box) > 0.5,
+			);
+
+			if (!isOverlapping) {
+				filteredResults.push(x);
+			}
+		});
+
+		console.log(finalResults);
+
+		const predictions = await model.ref?.detect(image!, {
+			score: 0.1,
+			topk: 5,
+		});
+
+		// TODO: maybe allow the user to draw a box if the prediction is not good
+		console.log(predictions);
+
+		filteredResults
+			?.filter(({ label }) => ["signature", "initials"].includes(label))
+			.forEach(({ box, score, label }) => {
+				const initialTop = box.top;
+				const initialLeft = box.left;
+				const initialWidth = box.width;
+				const initialHeight = box.height;
+
+				const button = document.createElement("button");
+				button.id = "test";
+				button.style.position = "absolute";
+				button.style.top = `${initialTop}px`;
+				button.style.left = `${initialLeft}px`;
+				button.style.width = `${initialWidth}px`;
+				button.style.height = `${initialHeight}px`;
+				button.style.backgroundColor = "transparent";
+				button.style.zIndex = `${1000}`;
+				button.style.cursor = "pointer";
+				button.style.border = "3px solid";
+				button.style.borderColor = "yellow";
+				button.style.backgroundColor = "oklch(0 0 0 / 0.5)";
+				button.style.fontWeight = "700";
+				button.style.padding = "0.5rem";
+				button.style.fontSize = "0.75rem";
+				// TODO: need dynamic
+				// desktop on hover show text
+				// mobile always show
+				button.innerText = "Double click on this area to select it";
+
+				const onClick = (event: MouseEvent | TouchEvent) => {
+					console.log("HERE!!", score, label);
+
+					setCropArea({
+						left: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().left,
+						right: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().right,
+						width: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().width,
+						height: (
+							event.target as HTMLButtonElement
+						).getBoundingClientRect().height,
+					});
+
+					toggleIsClicked();
+				};
+
+				button.addEventListener("dblclick", onClick);
+				// TODO: need another way of registering this?
+				// double tap on mobile is zoom. maybe not good to override
+				button.addEventListener("touchstart", onClick);
+
+				const topLeftResizeCorner = document.createElement("button");
+				topLeftResizeCorner.style.borderRadius = "999px";
+				topLeftResizeCorner.style.backgroundColor = "red";
+				topLeftResizeCorner.style.position = "absolute";
+				topLeftResizeCorner.style.width = "10px";
+				topLeftResizeCorner.style.height = "10px";
+				topLeftResizeCorner.style.top = "-5px";
+				topLeftResizeCorner.style.left = "-5px";
+				topLeftResizeCorner.style.cursor = "pointer";
+
+				const isTouchEvent = (event: any): event is TouchEvent =>
+					"touches" in event;
+
+				const resizable = (
+					handle: HTMLElement,
+					direction:
+						| "top-left"
+						| "top-right"
+						| "bottom-left"
+						| "bottom-right",
+				) => {
+					const onMouseDown = (event: MouseEvent | TouchEvent) => {
+						event.preventDefault();
+						event.stopPropagation();
+
+						const startX = isTouchEvent(event)
+							? event.touches.item(0)?.pageX
+							: event.pageX;
+						const startY = isTouchEvent(event)
+							? event.touches.item(0)?.pageY
+							: event.pageY;
+
+						invariant(!isNil(startX), "startX is undefined");
+						invariant(!isNil(startY), "startY is undefined");
+
+						const startWidth = button.offsetWidth;
+						const startHeight = button.offsetHeight;
+						const startTop = button.offsetTop;
+						const startLeft = button.offsetLeft;
+
+						const onMouseMove = (
+							event: MouseEvent | TouchEvent,
+						) => {
+							event.preventDefault();
+							event.stopImmediatePropagation();
+
+							const currentX = isTouchEvent(event)
+								? event.touches.item(0)?.pageX
+								: event.pageX;
+							const currentY = isTouchEvent(event)
+								? event.touches.item(0)?.pageY
+								: event.pageY;
+
+							invariant(
+								!isNil(currentX),
+								"currentX is undefined",
+							);
+							invariant(
+								!isNil(currentY),
+								"currentY is undefined",
+							);
+
+							const dx = currentX - startX;
+							const dy = currentY - startY;
+							const MIN_BOUNDS = 50;
+
+							let newWidth = startWidth;
+							let newHeight = startHeight;
+							let newTop = startTop;
+							let newLeft = startLeft;
+
+							if (direction.includes("top")) {
+								newHeight = startHeight - dy;
+								newTop = startTop + dy;
+							} else {
+								newHeight = startHeight + dy;
+							}
+
+							if (direction.includes("left")) {
+								newWidth = startWidth - dx;
+								newLeft = startLeft + dx;
+							} else {
+								newWidth = startWidth + dx;
+							}
+
+							if (newWidth > MIN_BOUNDS) {
+								button.style.width = `${newWidth}px`;
+								button.style.left = `${newLeft}px`;
+							}
+
+							if (newHeight > MIN_BOUNDS) {
+								button.style.height = `${newHeight}px`;
+								button.style.top = `${newTop}px`;
+							}
+						};
+
+						const onMouseUp = (event: MouseEvent | TouchEvent) => {
+							event.preventDefault();
+							event.stopImmediatePropagation();
+
+							window.removeEventListener(
+								"mousemove",
+								onMouseMove,
+							);
+							window.removeEventListener("mouseup", onMouseUp);
+							window.removeEventListener(
+								"touchmove",
+								onMouseMove,
+							);
+							window.removeEventListener("touchend", onMouseUp);
+						};
+
+						window.addEventListener("mousemove", onMouseMove);
+						window.addEventListener("mouseup", onMouseUp);
+						window.addEventListener("touchmove", onMouseMove);
+						window.addEventListener("touchend", onMouseUp);
+					};
+
+					handle.addEventListener("mousedown", onMouseDown);
+					handle.addEventListener("touchstart", onMouseDown);
+				};
+				resizable(topLeftResizeCorner, "top-left");
+				button.appendChild(topLeftResizeCorner);
+
+				const topRightResizeCorner = document.createElement("button");
+				topRightResizeCorner.style.borderRadius = "999px";
+				topRightResizeCorner.style.backgroundColor = "red";
+				topRightResizeCorner.style.position = "absolute";
+				topRightResizeCorner.style.width = "10px";
+				topRightResizeCorner.style.height = "10px";
+				topRightResizeCorner.style.top = "-5px";
+				topRightResizeCorner.style.right = "-5px";
+				topRightResizeCorner.style.cursor = "pointer";
+				resizable(topRightResizeCorner, "top-right");
+				button.appendChild(topRightResizeCorner);
+
+				const bottomLeftResizeCorner = document.createElement("button");
+				bottomLeftResizeCorner.style.borderRadius = "999px";
+				bottomLeftResizeCorner.style.backgroundColor = "red";
+				bottomLeftResizeCorner.style.position = "absolute";
+				bottomLeftResizeCorner.style.width = "10px";
+				bottomLeftResizeCorner.style.height = "10px";
+				bottomLeftResizeCorner.style.bottom = "-5px";
+				bottomLeftResizeCorner.style.left = "-5px";
+				bottomLeftResizeCorner.style.cursor = "pointer";
+				resizable(bottomLeftResizeCorner, "bottom-left");
+				button.appendChild(bottomLeftResizeCorner);
+
+				const bottomRightResizeCorner =
+					document.createElement("button");
+				bottomRightResizeCorner.style.borderRadius = "999px";
+				bottomRightResizeCorner.style.backgroundColor = "red";
+				bottomRightResizeCorner.style.position = "absolute";
+				bottomRightResizeCorner.style.width = "10px";
+				bottomRightResizeCorner.style.height = "10px";
+				bottomRightResizeCorner.style.bottom = "-5px";
+				bottomRightResizeCorner.style.right = "-5px";
+				bottomRightResizeCorner.style.cursor = "pointer";
+				resizable(bottomRightResizeCorner, "bottom-right");
+				button.appendChild(bottomRightResizeCorner);
+
+				div!.appendChild(button);
+			});
+	};
+
+	onMount(() => {
+		getModel();
+	});
+
+	return (
+		<>
+			<img
+				ref={image}
+				src={img}
+				width={500}
+				height={500}
+				onLoad={async event => {
+					cvs!.width = (event.target as HTMLImageElement).width;
+					cvs!.height = (event.target as HTMLImageElement).height;
+
+					const ctx = cvs!.getContext("2d");
+					ctx!.drawImage(
+						event.target as HTMLImageElement,
+						0,
+						0,
+						(event.target as HTMLImageElement).width,
+						(event.target as HTMLImageElement).height,
+					);
+				}}
+			/>
+
+			<div ref={div} class="relative">
+				<canvas ref={cvs} />
+			</div>
+
+			<AlertDialog open={isClicked()}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertTitle>Clicked!!</AlertTitle>
+
+						<AlertDescription>Hi!!</AlertDescription>
+					</AlertDialogHeader>
+
+					<AlertDialogFooter>
+						<AlertDialogAction onClick={toggleIsClicked}>
+							Ok
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 };

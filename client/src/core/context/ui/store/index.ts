@@ -1,5 +1,5 @@
 import { AUTHN_SVC_SUB_CONFIG_KEY } from "core/context/authn";
-import { noop, once, partialRight } from "es-toolkit";
+import { once, partialRight } from "es-toolkit";
 import { createWithSignal } from "solid-zustand";
 import type { StateCreator } from "zustand";
 import {
@@ -7,6 +7,9 @@ import {
 	persist,
 	type PersistOptions,
 } from "zustand/middleware";
+// eslint-disable-next-line import/no-namespace
+import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs-backend-webgpu";
 
 export type Locale = "en-NZ" | "en-MY" | "ms-MY";
 
@@ -69,7 +72,10 @@ export const useStore = createWithSignal<UiSvc & UiSvcInternal>(
 			theme: "dark" as UiTheme,
 			mode: "default" as UiMode,
 			actions: {
-				init: once(noop),
+				init: once(async () => {
+					// eslint-disable-next-line import/namespace
+					await tf.setBackend("webgpu");
+				}),
 				setTheme: theme => set({ theme }),
 				setMode: mode => set({ mode }),
 				setHasHydrated: () => set({ hasHydrated: true }),
