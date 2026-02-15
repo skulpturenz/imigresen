@@ -189,4 +189,4 @@ jobs:
 
             docker system prune -af
             docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --with-registry-auth --detach=true
-            docker compose -f ${{ env.BUANG_DOCKER_COMPOSE_FILE }} up -d
+            docker compose -f ${{ env.BUANG_DOCKER_COMPOSE_FILE }} up --pull=always -d
